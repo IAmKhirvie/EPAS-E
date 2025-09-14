@@ -1,0 +1,169 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+body {
+    display: flex;
+    flex-direction: row;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: #00661f;
+    color: #f0f0f0;
+    width: 250px;
+    padding: 2rem 1.5rem;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    overflow-y: auto;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.4);
+    z-index: 1040;
+}
+
+.sidebar .app-title {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #ffc107;
+    margin-bottom: 2rem;
+    letter-spacing: 1px;
+}
+
+.sidebar .user-info {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+}
+
+.sidebar .user-info h5 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #fff;
+}
+
+.sidebar .user-info small {
+    color: #ccc;
+}
+
+.sidebar nav a {
+    display: block;
+    color: #ddd;
+    margin: 0.75rem 0;
+    font-size: 1.05rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+    color: #fff;
+    text-decoration: underline;
+}
+
+/* Navbar */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 250px;
+    right: 0;
+    height: 56px;
+    background-color: #00661f;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    z-index: 1050;
+}
+
+.navbar-brand {
+    color: #ffc107;
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-decoration: none;
+}
+
+.user-greeting {
+    margin-left: auto;
+    font-weight: 500;
+    font-size: 1rem;
+    color: #ffc107;
+}
+
+/* Main Content */
+main {
+    margin-left: 250px;
+    margin-top: 56px;
+    padding: 2rem;
+    flex: 1;
+}
+
+/* Footer */
+footer {
+    background-color: #1f1f1f;
+    color: #ccc;
+    text-align: center;
+    padding: 1rem;
+    position: fixed;
+    left: 250px;
+    bottom: 0;
+    right: 0;
+    font-size: 0.9rem;
+    z-index: 1030;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.6);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+    width: 200px;
+    }
+
+    main {
+    margin-left: 200px;
+    }
+
+    .navbar {
+    left: 200px;
+    }
+
+    footer {
+    left: 200px;
+    }
+}
+
+@media (max-width: 576px) {
+    .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    padding: 1rem;
+    }
+
+    .sidebar .app-title,
+    .sidebar .user-info {
+    display: none;
+    }
+
+    nav.navbar {
+    left: 0;
+    right: 0;
+    position: relative;
+    }
+
+    main {
+    margin: 0;
+    margin-top: 56px;
+    }
+
+    footer {
+    left: 0;
+    right: 0;
+    }
+}
