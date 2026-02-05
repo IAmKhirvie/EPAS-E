@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Topic;
 use App\Models\InformationSheet;
+use App\Http\Requests\StoreTopicRequest;
+use App\Http\Requests\UpdateTopicRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -20,7 +22,7 @@ class TopicController extends Controller
         return view('modules.information-sheets.topics.create', compact('informationSheet', 'nextOrder'));
     }
 
-    public function store(Request $request, $informationSheetId)
+    public function store(StoreTopicRequest $request, $informationSheetId)
     {
         // Debug: Log the request
         Log::info('Topic store method called', [
@@ -30,16 +32,7 @@ class TopicController extends Controller
 
         $informationSheet = InformationSheet::findOrFail($informationSheetId);
 
-        $validated = $request->validate([
-            'topic_number' => 'required|string|max:50',
-            'title' => 'required|string|max:255',
-            'content' => 'nullable|string',
-            'order' => 'required|integer|min:0',
-            'parts' => 'nullable|array',
-            'parts.*.title' => 'nullable|string|max:255',
-            'parts.*.explanation' => 'nullable|string',
-            'part_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-        ]);
+        $validated = $request->validated();
 
         try {
             Log::info('Validation passed', ['validated_data' => $validated]);
@@ -94,22 +87,12 @@ class TopicController extends Controller
         return view('modules.information-sheets.topics.edit', compact('informationSheet', 'topic'));
     }
 
-    public function update(Request $request, $informationSheetId, $topicId)
+    public function update(UpdateTopicRequest $request, $informationSheetId, $topicId)
     {
         $informationSheet = InformationSheet::findOrFail($informationSheetId);
         $topic = Topic::findOrFail($topicId);
 
-        $validated = $request->validate([
-            'topic_number' => 'required|string|max:50',
-            'title' => 'required|string|max:255',
-            'content' => 'nullable|string',
-            'order' => 'required|integer|min:0',
-            'parts' => 'nullable|array',
-            'parts.*.title' => 'nullable|string|max:255',
-            'parts.*.explanation' => 'nullable|string',
-            'parts.*.existing_image' => 'nullable|string',
-            'part_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-        ]);
+        $validated = $request->validated();
 
         try {
             // Use HTML Purifier for maximum security (without nl2br)

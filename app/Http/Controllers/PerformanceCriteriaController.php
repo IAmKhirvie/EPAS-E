@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PerformanceCriteria;
 use App\Models\TaskSheet;
 use App\Models\JobSheet;
+use App\Http\Requests\StorePerformanceCriteriaRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -39,16 +40,9 @@ class PerformanceCriteriaController extends Controller
         return view('performance-criteria.create', compact('taskSheet', 'jobSheet', 'type', 'relatedId'));
     }
 
-    public function store(Request $request)
+    public function store(StorePerformanceCriteriaRequest $request)
     {
-        $request->validate([
-            'type' => 'required|in:task_sheet,job_sheet',
-            'related_id' => 'required|integer',
-            'criteria' => 'required|array|min:1',
-            'criteria.*.description' => 'required|string',
-            'criteria.*.observed' => 'required|boolean',
-            'criteria.*.remarks' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         try {
             $performanceCriteria = PerformanceCriteria::create([
