@@ -1,0 +1,509 @@
+<?php
+
+namespace App\Services;
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+use Illuminate\Support\Facades\Log;
+
+class PHPMailerService
+{
+    protected $mail;
+    protected $debugOutput = '';
+
+    public function __construct()
+    {
+        $this->mail = new PHPMailer(true);
+
+        // Server settings
+        $this->mail->isSMTP();
+        $this->mail->Host       = env('MAIL_HOST', 'smtp.gmail.com');
+        $this->mail->SMTPAuth   = true;
+        $this->mail->Username   = env('MAIL_USERNAME');
+        $this->mail->Password   = env('MAIL_PASSWORD');
+        $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $this->mail->Port       = (int) env('MAIL_PORT', 587);
+
+        // SSL certificate verification: disabled in local/dev, enabled in production
+        if (env('APP_ENV', 'local') === 'production') {
+            $this->mail->SMTPOptions = [
+                'ssl' => [
+                    'verify_peer' => true,
+                    'verify_peer_name' => true,
+                    'allow_self_signed' => false,
+                ],
+            ];
+        } else {
+            $this->mail->SMTPOptions = [
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true,
+                ],
+            ];
+        }
+
+        // Enable debug output in local environment
+        if (env('APP_DEBUG', false)) {
+            $this->mail->SMTPDebug = SMTP::DEBUG_SERVER;
+            $this->mail->Debugoutput = function($str, $level) {
+                $this->debugOutput .= "[$level] $str\n";
+                Log::debug("PHPMailer SMTP: [$level] $str");
+            };
+        }
+
+        // Set timeout to avoid hanging
+        $this->mail->Timeout = 30;
+        $this->mail->SMTPKeepAlive = false;
+
+        // Character encoding
+        $this->mail->CharSet = PHPMailer::CHARSET_UTF8;
+
+        // Sender settings - MUST match Gmail account for proper delivery
+        $fromAddress = env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME'));
+        $fromName = env('MAIL_FROM_NAME', 'EPAS-E LMS');
+
+        $this->mail->setFrom($fromAddress, $fromName);
+
+        // Also set Reply-To to the same address
+        $this->mail->addReplyTo($fromAddress, $fromName);
+
+        Log::info("PHPMailerService initialized with host: " . env('MAIL_HOST') . ", from: $fromAddress");
+    }
+
+    public function sendVerificationEmail($user, $verificationUrl)
+    {
+        try {
+            $this->debugOutput = '';
+            Log::info("=== SENDING VERIFICATION EMAIL ===");
+            Log::info("To: {$user->email}");
+            Log::info("URL: {$verificationUrl}");
+            Log::info("SMTP Host: " . env('MAIL_HOST'));
+            Log::info("SMTP User: " . env('MAIL_USERNAME'));
+            Log::info("From Address: " . env('MAIL_FROM_ADDRESS'));
+
+            // Clear any previous addresses and attachments
+            $this->mail->clearAddresses();
+            $this->mail->clearAttachments();
+            $this->mail->clearReplyTos();
+
+            // Re-add reply-to after clearing
+            $fromAddress = env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME'));
+            $fromName = env('MAIL_FROM_NAME', 'EPAS-E LMS');
+            $this->mail->addReplyTo($fromAddress, $fromName);
+
+            // Validate email address
+            if (empty($user->email) || !filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+                Log::error("Invalid or empty email address: " . ($user->email ?? 'NULL'));
+                return false;
+            }
+
+            // Get the recipient name safely
+            $recipientName = trim($user->first_name . ' ' . $user->last_name);
+            if (empty($recipientName)) {
+                $recipientName = 'User';
+            }
+
+            Log::info("Recipient: {$user->email} ({$recipientName})");
+
+            // Recipient
+            $this->mail->addAddress($user->email, $recipientName);
+
+            // Content
+            $this->mail->isHTML(true);
+            $this->mail->Subject = 'Verify Your Email - EPAS-E LMS';
+            $this->mail->Body    = $this->getVerificationEmailTemplate($user, $verificationUrl);
+            $this->mail->AltBody = $this->getPlainTextVerificationEmail($user, $verificationUrl);
+
+            $result = $this->mail->send();
+
+            if ($result) {
+                Log::info("SUCCESS: Verification email sent to {$user->email}");
+                return true;
+            } else {
+                Log::error("FAILED: PHPMailer send() returned false for {$user->email}");
+                Log::error("PHPMailer Error: {$this->mail->ErrorInfo}");
+                if (!empty($this->debugOutput)) {
+                    Log::error("SMTP Debug Output:\n{$this->debugOutput}");
+                }
+                return false;
+            }
+
+        } catch (Exception $e) {
+            Log::error("EXCEPTION sending email to {$user->email}: " . $e->getMessage());
+            Log::error("PHPMailer ErrorInfo: {$this->mail->ErrorInfo}");
+            if (!empty($this->debugOutput)) {
+                Log::error("SMTP Debug Output:\n{$this->debugOutput}");
+            }
+            return false;
+        } catch (\Exception $e) {
+            Log::error("GENERAL EXCEPTION sending email to {$user->email}: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    protected function getVerificationEmailTemplate($user, $verificationUrl)
+    {
+        $fullName = $user->first_name . ' ' . $user->last_name;
+        
+        return "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: #007bff; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+                .content { padding: 20px; background: #f9f9f9; }
+                .button { 
+                    display: inline-block; 
+                    padding: 12px 24px; 
+                    background: #007bff; 
+                    color: #ffffff !important; 
+                    text-decoration: none; 
+                    border-radius: 5px; 
+                    font-weight: bold;
+                    text-align: center;
+                }
+                .footer { padding: 20px; text-align: center; font-size: 0.9em; color: #666; }
+                .details { background: white; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #ddd; }
+                .url-box { background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #dee2e6; word-break: break-all; font-size: 0.9em; }
+            </style>
+        </head>
+        <body>
+            <div class='header'>
+                <h1 style='margin:0; color: #ffffff;'>EPAS-E LMS</h1>
+                <p style='margin:0; color: #ffffff;'>Electronic Products Assembly and Servicing</p>
+            </div>
+            
+            <div class='content'>
+                <h2 style='color: #333;'>Verify Your Email Address</h2>
+                
+                <p>Hello <strong>{$user->first_name}</strong>,</p>
+                
+                <p>Thank you for registering with EPAS-E Learning Management System. Please verify your email address to complete your registration.</p>
+                
+                <div class='details'>
+                    <p><strong>Account Details:</strong></p>
+                    <ul>
+                        <li><strong>Name:</strong> {$fullName}</li>
+                        <li><strong>Email:</strong> {$user->email}</li>
+                    </ul>
+                </div>
+                
+                <p style='text-align: center;'>
+                    <a href='{$verificationUrl}' class='button' style='color: #ffffff !important;'>
+                        Verify Email Address
+                    </a>
+                </p>
+                
+                <p>If the button doesn't work, copy and paste this link in your browser:</p>
+                <div class='url-box'>{$verificationUrl}</div>
+                
+                <p>If you did not create an account, please ignore this email.</p>
+                
+                <p><strong>Note:</strong> Your account requires administrative approval before you can access the system.</p>
+            </div>
+            
+            <div class='footer'>
+                <p>&copy; " . date('Y') . " EPAS-E LMS. All rights reserved.</p>
+                <p>This is an automated message, please do not reply to this email.</p>
+            </div>
+        </body>
+        </html>
+        ";
+    }
+
+    protected function getPlainTextVerificationEmail($user, $verificationUrl)
+    {
+        $fullName = $user->first_name . ' ' . $user->last_name;
+        
+        return "
+        Verify Your Email - EPAS-E LMS
+
+        Hello {$user->first_name},
+
+        Thank you for registering with EPAS-E Learning Management System.
+
+        Account Details:
+        - Name: {$fullName}
+        - Email: {$user->email}
+
+        Please verify your email address by clicking the link below:
+        {$verificationUrl}
+
+        If you did not create an account, please ignore this email.
+
+        Note: Your account requires administrative approval before you can access the system.
+
+        © " . date('Y') . " EPAS-E LMS. All rights reserved.
+        ";
+    }
+
+    public function sendPasswordResetEmail($user, $resetUrl)
+    {
+        try {
+            $this->debugOutput = '';
+            Log::info("=== SENDING PASSWORD RESET EMAIL ===");
+            Log::info("To: {$user->email}");
+            Log::info("URL: {$resetUrl}");
+
+            // Clear any previous addresses and attachments
+            $this->mail->clearAddresses();
+            $this->mail->clearAttachments();
+            $this->mail->clearReplyTos();
+
+            // Re-add reply-to after clearing
+            $fromAddress = env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME'));
+            $fromName = env('MAIL_FROM_NAME', 'EPAS-E LMS');
+            $this->mail->addReplyTo($fromAddress, $fromName);
+
+            // Validate email address
+            if (empty($user->email) || !filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+                Log::error("Invalid or empty email address: " . ($user->email ?? 'NULL'));
+                return false;
+            }
+
+            // Get the recipient name safely
+            $recipientName = trim($user->first_name . ' ' . $user->last_name);
+            if (empty($recipientName)) {
+                $recipientName = 'User';
+            }
+
+            // Recipient
+            $this->mail->addAddress($user->email, $recipientName);
+
+            // Content
+            $this->mail->isHTML(true);
+            $this->mail->Subject = 'Reset Your Password - EPAS-E LMS';
+            $this->mail->Body    = $this->getPasswordResetEmailTemplate($user, $resetUrl);
+            $this->mail->AltBody = $this->getPlainTextPasswordResetEmail($user, $resetUrl);
+
+            $result = $this->mail->send();
+
+            if ($result) {
+                Log::info("SUCCESS: Password reset email sent to {$user->email}");
+                return true;
+            } else {
+                Log::error("FAILED: PHPMailer send() returned false for password reset: {$user->email}");
+                Log::error("PHPMailer Error: {$this->mail->ErrorInfo}");
+                if (!empty($this->debugOutput)) {
+                    Log::error("SMTP Debug Output:\n{$this->debugOutput}");
+                }
+                return false;
+            }
+
+        } catch (Exception $e) {
+            Log::error("EXCEPTION sending password reset to {$user->email}: " . $e->getMessage());
+            Log::error("PHPMailer ErrorInfo: {$this->mail->ErrorInfo}");
+            if (!empty($this->debugOutput)) {
+                Log::error("SMTP Debug Output:\n{$this->debugOutput}");
+            }
+            return false;
+        } catch (\Exception $e) {
+            Log::error("GENERAL EXCEPTION sending password reset to {$user->email}: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    protected function getPasswordResetEmailTemplate($user, $resetUrl)
+    {
+        $fullName = $user->first_name . ' ' . $user->last_name;
+        
+        return "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background-color: #007bff; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+                .content { padding: 20px; background-color: #f9f9f9; }
+                .button { 
+                    display: inline-block; 
+                    padding: 12px 24px; 
+                    background-color: #007bff; 
+                    color: #ffffff !important; 
+                    text-decoration: none; 
+                    border-radius: 5px; 
+                    font-weight: bold;
+                    text-align: center;
+                }
+                .footer { padding: 20px; text-align: center; font-size: 0.9em; color: #666; }
+                .details { background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #ddd; }
+                .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 5px; margin: 15px 0; color: #856404; }
+                .url-box { background-color: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #dee2e6; word-break: break-all; font-size: 0.9em; }
+            </style>
+        </head>
+        <body>
+            <div class='header'>
+                <h1 style='margin:0; color: #ffffff;'>EPAS-E LMS</h1>
+                <p style='margin:0; color: #ffffff;'>Electronic Products Assembly and Servicing</p>
+            </div>
+            
+            <div class='content'>
+                <h2 style='color: #333;'>Reset Your Password</h2>
+                
+                <p>Hello <strong>{$user->first_name}</strong>,</p>
+                
+                <p>You are receiving this email because we received a password reset request for your account.</p>
+                
+                <div class='details'>
+                    <p><strong>Account Details:</strong></p>
+                    <ul>
+                        <li><strong>Name:</strong> {$fullName}</li>
+                        <li><strong>Email:</strong> {$user->email}</li>
+                    </ul>
+                </div>
+                
+                <p style='text-align: center;'>
+                    <a href='{$resetUrl}' class='button' style='color: #ffffff !important;'>
+                        Reset Password
+                    </a>
+                </p>
+                
+                <p>If the button doesn't work, copy and paste this link in your browser:</p>
+                <div class='url-box'>{$resetUrl}</div>
+                
+                <div class='warning'>
+                    <p><strong>Important:</strong> This password reset link will expire in 1 hour.</p>
+                    <p>If you did not request a password reset, no further action is required.</p>
+                </div>
+            </div>
+            
+            <div class='footer'>
+                <p>&copy; " . date('Y') . " EPAS-E LMS. All rights reserved.</p>
+                <p>This is an automated message, please do not reply to this email.</p>
+            </div>
+        </body>
+        </html>
+        ";
+    }
+
+    protected function getPlainTextPasswordResetEmail($user, $resetUrl)
+    {
+        $fullName = $user->first_name . ' ' . $user->last_name;
+        
+        return "
+        Reset Your Password - EPAS-E LMS
+
+        Hello {$user->first_name},
+
+        You are receiving this email because we received a password reset request for your account.
+
+        Account Details:
+        - Name: {$fullName}
+        - Email: {$user->email}
+
+        Please reset your password by clicking the link below:
+        {$resetUrl}
+
+        Important: This password reset link will expire in 1 hour.
+
+        If you did not request a password reset, no further action is required.
+
+        © " . date('Y') . " EPAS-E LMS. All rights reserved.
+        ";
+    }
+
+    /**
+     * Send a test email to verify SMTP configuration is working
+     *
+     * @param string $toEmail The email address to send the test to
+     * @return array ['success' => bool, 'message' => string, 'debug' => string]
+     */
+    public function sendTestEmail(string $toEmail): array
+    {
+        try {
+            $this->debugOutput = '';
+            Log::info("=== SENDING TEST EMAIL ===");
+            Log::info("To: {$toEmail}");
+            Log::info("SMTP Host: " . env('MAIL_HOST'));
+            Log::info("SMTP Port: " . env('MAIL_PORT'));
+            Log::info("SMTP User: " . env('MAIL_USERNAME'));
+            Log::info("From Address: " . env('MAIL_FROM_ADDRESS'));
+
+            // Clear previous addresses
+            $this->mail->clearAddresses();
+            $this->mail->clearAttachments();
+            $this->mail->clearReplyTos();
+
+            // Re-add reply-to
+            $fromAddress = env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME'));
+            $fromName = env('MAIL_FROM_NAME', 'EPAS-E LMS');
+            $this->mail->addReplyTo($fromAddress, $fromName);
+
+            // Validate email
+            if (empty($toEmail) || !filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {
+                return [
+                    'success' => false,
+                    'message' => 'Invalid email address provided',
+                    'debug' => ''
+                ];
+            }
+
+            $this->mail->addAddress($toEmail, 'Test Recipient');
+
+            $this->mail->isHTML(true);
+            $this->mail->Subject = 'Test Email - EPAS-E LMS (' . date('Y-m-d H:i:s') . ')';
+            $this->mail->Body = "
+            <html>
+            <body style='font-family: Arial, sans-serif; padding: 20px;'>
+                <h2 style='color: #007bff;'>Email Configuration Test</h2>
+                <p>This is a test email from EPAS-E LMS.</p>
+                <p>If you received this email, your SMTP configuration is working correctly!</p>
+                <hr>
+                <p><strong>Configuration Details:</strong></p>
+                <ul>
+                    <li>SMTP Host: " . env('MAIL_HOST') . "</li>
+                    <li>SMTP Port: " . env('MAIL_PORT') . "</li>
+                    <li>From: " . env('MAIL_FROM_ADDRESS') . "</li>
+                    <li>Sent at: " . date('Y-m-d H:i:s') . "</li>
+                </ul>
+            </body>
+            </html>";
+            $this->mail->AltBody = "Test email from EPAS-E LMS. Sent at: " . date('Y-m-d H:i:s');
+
+            $result = $this->mail->send();
+
+            if ($result) {
+                Log::info("SUCCESS: Test email sent to {$toEmail}");
+                return [
+                    'success' => true,
+                    'message' => "Test email sent successfully to {$toEmail}",
+                    'debug' => $this->debugOutput
+                ];
+            } else {
+                Log::error("FAILED: Test email not sent to {$toEmail}");
+                Log::error("PHPMailer Error: {$this->mail->ErrorInfo}");
+                return [
+                    'success' => false,
+                    'message' => "Failed to send: {$this->mail->ErrorInfo}",
+                    'debug' => $this->debugOutput
+                ];
+            }
+
+        } catch (Exception $e) {
+            Log::error("EXCEPTION sending test email: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => "PHPMailer Exception: " . $e->getMessage(),
+                'debug' => $this->debugOutput
+            ];
+        } catch (\Exception $e) {
+            Log::error("GENERAL EXCEPTION sending test email: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => "Exception: " . $e->getMessage(),
+                'debug' => $this->debugOutput
+            ];
+        }
+    }
+
+    /**
+     * Get the last debug output from SMTP communication
+     */
+    public function getDebugOutput(): string
+    {
+        return $this->debugOutput;
+    }
+}

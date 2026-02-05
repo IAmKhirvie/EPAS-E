@@ -1,0 +1,156 @@
+.circle-progress {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(var(--primary) 0%, var(--light) 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.circle-progress::before {
+    content: '';
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--card-bg);
+}
+
+.circle-progress-value {
+    position: relative;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.grade-display h1 {
+    font-size: 3rem;
+    margin: 1rem 0;
+    color: var(--text-primary);
+}
+
+.card-counter {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--text-primary); 
+}
+
+.card-counter-label {
+    font-size: 0.9rem;
+    color: var(--gray);
+}
+
+.urgent-item {
+    border-left: 4px solid var(--warning) !important;
+}
+
+/* public/css/dashboard.css */
+.circle-progress {
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+.circle-progress-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.progress-bg {
+    fill: none;
+    stroke: var(--light);
+    stroke-width: 8;
+}
+
+.progress-fill {
+    fill: none;
+    stroke: var(--primary);
+    stroke-width: 8;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dashoffset 0.5s ease;
+}
+
+.module-item, .assessment-item, .pending-item, .announcement-item {
+    transition: all 0.3s ease;
+    background: var(--card-bg);
+    color: var(--card-text);
+    border: 1px solid var(--border);
+}
+
+.module-item:hover, .assessment-item:hover, .pending-item:hover, .announcement-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Progress Circle Styles */
+.progress-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(var(--primary) var(--progress, 0%), var(--light) 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.progress-circle::before {
+    content: '';
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: var(--card-bg);
+    border-radius: 50%;
+}
+
+.progress-text {
+    position: relative;
+    z-index: 1;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+/* Dark mode dashboard styles */
+.dark-mode .module-item,
+.dark-mode .assessment-item,
+.dark-mode .pending-item,
+.dark-mode .announcement-item {
+    background: var(--card-bg);
+    border-color: var(--border);
+}
+
+.dark-mode .progress-bg {
+    stroke: var(--light);
+}
+
+.dark-mode .announcement-item {
+    background: var(--card-bg);
+    border-color: var(--border);
+}
+
+.dark-mode .announcement-item.urgent {
+    border-left-color: var(--danger);
+    background: rgba(220, 53, 69, 0.05);
+}
+
+.dark-mode .announcement-item:hover {
+    background: var(--light);
+}
+
+.dark-mode .text-decoration-none.text-dark {
+    color: var(--text-primary) !important;
+}
+
+.dark-mode .border-danger.bg-light-danger {
+    background: rgba(220, 53, 69, 0.1) !important;
+    border-color: var(--danger) !important;
+}

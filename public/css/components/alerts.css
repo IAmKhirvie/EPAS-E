@@ -1,0 +1,32 @@
+/* Alert styles */
+.alert {
+  border: none;
+  border-left: 4px solid;
+}
+
+.alert-danger {
+  border-left-color: #dc3545;
+}
+
+.alert-success {
+  border-left-color: #28a745;
+}
+
+.alert-success {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 12px 20px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      border: 1px solid #c3e6cb;
+    }
+    
+.alert-success .close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #155724;
+}
