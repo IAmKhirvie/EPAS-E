@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\StoreEnrollmentRequest;
 
 class EnrollmentRequestController extends Controller
 {
@@ -85,7 +86,7 @@ class EnrollmentRequestController extends Controller
     /**
      * Store a new enrollment request (Instructor only)
      */
-    public function store(Request $request)
+    public function store(StoreEnrollmentRequest $request)
     {
         $user = Auth::user();
 
@@ -97,10 +98,7 @@ class EnrollmentRequestController extends Controller
             return redirect()->back()->with('error', 'You must be assigned to a section first.');
         }
 
-        $validated = $request->validate([
-            'student_id' => 'required|exists:users,id',
-            'notes' => 'nullable|string|max:500',
-        ]);
+        $validated = $request->validated();
 
         // Verify the student exists and is a student
         $student = User::findOrFail($validated['student_id']);

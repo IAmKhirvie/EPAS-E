@@ -79,6 +79,7 @@ class ClassController extends Controller
         // Get instructors for adviser assignment (admin only)
         $instructors = $viewer->role === Roles::ADMIN
             ? User::where('role', Roles::INSTRUCTOR)
+                ->with('department')
                 ->orderBy('last_name')
                 ->orderBy('first_name')
                 ->get()
@@ -89,6 +90,7 @@ class ClassController extends Controller
 
         // Get students grouped by section
         $studentsQuery = User::where('role', Roles::STUDENT)
+            ->with('department')
             ->whereIn('section', $allSections);
 
         if ($search) {
@@ -160,6 +162,7 @@ class ClassController extends Controller
 
         $instructors = $viewer->role === Roles::ADMIN
             ? User::where('role', Roles::INSTRUCTOR)
+                ->with('department')
                 ->orderBy('last_name')
                 ->orderBy('first_name')
                 ->get()
@@ -170,6 +173,7 @@ class ClassController extends Controller
         $advisersBySection = $this->getAdvisersBySection($allSections);
 
         $students = User::where('role', Roles::STUDENT)
+            ->with('department')
             ->where('section', $section)
             ->orderBy('last_name')
             ->orderBy('first_name')
@@ -411,6 +415,7 @@ class ClassController extends Controller
         User $viewer
     ): View {
         $students = User::where('role', Roles::STUDENT)
+            ->with('department')
             ->where('section', $sectionFilter)
             ->when($search, function($query, $search) {
                 return $query->where(function($q) use ($search) {

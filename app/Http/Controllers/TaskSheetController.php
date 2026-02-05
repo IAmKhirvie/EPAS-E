@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\InformationSheet;
 use App\Models\TaskSheet;
 use App\Models\TaskSheetItem;
+use App\Http\Requests\StoreTaskSheetRequest;
+use App\Http\Requests\UpdateTaskSheetRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -16,23 +18,9 @@ class TaskSheetController extends Controller
         return view('task-sheets.create', compact('informationSheet'));
     }
 
-    public function store(Request $request, InformationSheet $informationSheet)
+    public function store(StoreTaskSheetRequest $request, InformationSheet $informationSheet)
     {
-        $request->validate([
-            'task_number' => 'required|string',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'instructions' => 'required|string',
-            'objectives' => 'required|array|min:1',
-            'materials' => 'required|array|min:1',
-            'safety_precautions' => 'nullable|array',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'items' => 'required|array|min:1',
-            'items.*.part_name' => 'required|string',
-            'items.*.description' => 'required|string',
-            'items.*.expected_finding' => 'required|string',
-            'items.*.acceptable_range' => 'required|string',
-        ]);
+        $validated = $request->validated();
 
         try {
             $imagePath = null;
@@ -80,18 +68,9 @@ class TaskSheetController extends Controller
         return view('task-sheets.edit', compact('informationSheet', 'taskSheet'));
     }
 
-    public function update(Request $request, InformationSheet $informationSheet, TaskSheet $taskSheet)
+    public function update(UpdateTaskSheetRequest $request, InformationSheet $informationSheet, TaskSheet $taskSheet)
     {
-        $request->validate([
-            'task_number' => 'required|string',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'instructions' => 'required|string',
-            'objectives' => 'required|array|min:1',
-            'materials' => 'required|array|min:1',
-            'safety_precautions' => 'nullable|array',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        $validated = $request->validated();
 
         try {
             $imagePath = $taskSheet->image_path;

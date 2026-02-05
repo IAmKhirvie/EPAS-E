@@ -379,6 +379,7 @@ class DashboardStatisticsService
     public function getModuleProgress(User $user): Collection
     {
         return Module::where('is_active', true)
+            ->with('informationSheets')
             ->get()
             ->map(function ($module) use ($user) {
                 $progress = $this->calculateModuleProgress($module, $user);

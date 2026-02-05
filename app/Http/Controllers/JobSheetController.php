@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\InformationSheet;
 use App\Models\JobSheet;
 use App\Models\JobSheetStep;
+use App\Http\Requests\StoreJobSheetRequest;
+use App\Http\Requests\UpdateJobSheetRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -16,22 +18,9 @@ class JobSheetController extends Controller
         return view('job-sheets.create', compact('informationSheet'));
     }
 
-    public function store(Request $request, InformationSheet $informationSheet)
+    public function store(StoreJobSheetRequest $request, InformationSheet $informationSheet)
     {
-        $request->validate([
-            'job_number' => 'required|string',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'objectives' => 'required|array|min:1',
-            'tools_required' => 'required|array|min:1',
-            'safety_requirements' => 'required|array|min:1',
-            'reference_materials' => 'nullable|array',
-            'steps' => 'required|array|min:1',
-            'steps.*.step_number' => 'required|integer',
-            'steps.*.instruction' => 'required|string',
-            'steps.*.expected_outcome' => 'required|string',
-            'steps.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        $validated = $request->validated();
 
         try {
             $jobSheet = JobSheet::create([
@@ -77,17 +66,9 @@ class JobSheetController extends Controller
         return view('job-sheets.edit', compact('informationSheet', 'jobSheet'));
     }
 
-    public function update(Request $request, InformationSheet $informationSheet, JobSheet $jobSheet)
+    public function update(UpdateJobSheetRequest $request, InformationSheet $informationSheet, JobSheet $jobSheet)
     {
-        $request->validate([
-            'job_number' => 'required|string',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'objectives' => 'required|array|min:1',
-            'tools_required' => 'required|array|min:1',
-            'safety_requirements' => 'required|array|min:1',
-            'reference_materials' => 'nullable|array',
-        ]);
+        $validated = $request->validated();
 
         try {
             $jobSheet->update([

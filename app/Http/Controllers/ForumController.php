@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Http\Traits\SanitizesContent;
+use App\Http\Requests\StoreForumThreadRequest;
+use App\Http\Requests\StoreForumPostRequest;
 
 class ForumController extends Controller
 {
@@ -131,20 +133,11 @@ class ForumController extends Controller
     /**
      * Store a new thread.
      */
-    public function storeThread(Request $request)
+    public function storeThread(StoreForumThreadRequest $request)
     {
         $user = Auth::user();
 
-        $request->validate([
-            'category_id' => 'required|exists:forum_categories,id',
-            'title' => 'required|string|max:255',
-            'body' => 'required|string|min:10',
-            'is_urgent' => 'boolean',
-            'is_pinned' => 'boolean',
-            'target_roles' => 'nullable|string',
-            'deadline' => 'nullable|date|after:now',
-            'publish_at' => 'nullable|date',
-        ]);
+        $validated = $request->validated();
 
         // Check if user can post in this category
         $category = ForumCategory::findOrFail($request->category_id);
@@ -194,16 +187,13 @@ class ForumController extends Controller
     /**
      * Store a reply to a thread.
      */
-    public function storePost(Request $request, ForumThread $thread)
+    public function storePost(StoreForumPostRequest $request, ForumThread $thread)
     {
         if ($thread->is_locked) {
             return back()->with('error', 'This thread is locked.');
         }
 
-        $request->validate([
-            'body' => 'required|string|min:3',
-            'parent_id' => 'nullable|exists:forum_posts,id',
-        ]);
+        $validated = $request->validated();
 
         try {
             $post = ForumPost::create([

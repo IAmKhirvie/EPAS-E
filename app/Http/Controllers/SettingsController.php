@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\UpdateProfileRequest;
 use App\Models\User;
 use App\Models\Setting;
 use App\Services\PHPMailerService;
@@ -73,17 +74,11 @@ class SettingsController extends Controller
     /**
      * Update profile settings
      */
-    public function updateProfile(Request $request)
+    public function updateProfile(UpdateProfileRequest $request)
     {
         $user = Auth::user();
 
-        $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'phone' => 'nullable|string|max:20',
-            'bio' => 'nullable|string|max:500',
-        ]);
+        $validated = $request->validated();
 
         $oldEmail = $user->email;
         $newEmail = $request->email;

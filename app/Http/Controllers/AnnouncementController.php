@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Http\Traits\SanitizesContent;
+use App\Http\Requests\StoreAnnouncementRequest;
 
 class AnnouncementController extends Controller
 {
@@ -31,16 +32,9 @@ class AnnouncementController extends Controller
         return view('private.announcements.create');
     }
 
-    public function store(Request $request)
+    public function store(StoreAnnouncementRequest $request)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'is_pinned' => 'boolean',
-            'is_urgent' => 'boolean',
-            'publish_at' => 'nullable|date',
-            'deadline' => 'nullable|date'
-        ]);
+        $validated = $request->validated();
 
         try {
             Announcement::create([

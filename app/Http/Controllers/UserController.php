@@ -6,6 +6,8 @@ use App\Constants\Roles;
 use App\Models\Department;
 use App\Models\User;
 use App\Services\UserQueryService;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -43,23 +45,11 @@ class UserController extends Controller
         return view('private.users.create', compact('departments'));
     }
 
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
         $this->authorizeAdmin();
 
-        $validated = $request->validate([
-            'first_name'    => 'required|string|max:255',
-            'middle_name'   => 'nullable|string|max:255',
-            'last_name'     => 'required|string|max:255',
-            'ext_name'      => 'nullable|string|max:10',
-            'email'         => 'required|email|unique:users,email',
-            'role'          => 'required|string|in:' . implode(',', Roles::all()),
-            'department_id' => 'required|exists:departments,id',
-            'stat'          => 'required|boolean',
-            'password'      => 'required|string|min:6|confirmed',
-            'section'       => 'nullable|string|max:255',
-            'room_number'   => 'nullable|string|max:255',
-        ]);
+        $validated = $request->validated();
 
         try {
             $validated['password'] = Hash::make($validated['password']);
@@ -150,7 +140,7 @@ class UserController extends Controller
         return view('private.users.edit', compact('user', 'departments'));
     }
 
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
         $viewer = Auth::user();
 
@@ -158,25 +148,7 @@ class UserController extends Controller
             abort(403, 'You can only edit student profiles.');
         }
 
-        $roleRule = $viewer->role === Roles::ADMIN
-            ? 'required|string|in:' . implode(',', Roles::all())
-            : 'prohibited';
-
-        $validated = $request->validate([
-            'student_id'    => 'required|string|max:25|unique:users,student_id,' . $user->id,
-            'first_name'    => 'required|string|max:255',
-            'middle_name'   => 'nullable|string|max:255',
-            'last_name'     => 'required|string|max:255',
-            'ext_name'      => 'nullable|string|max:10',
-            'email'         => 'required|email|unique:users,email,' . $user->id,
-            'role'          => $roleRule,
-            'department_id' => 'nullable|exists:departments,id',
-            'stat'          => 'required|boolean',
-            'password'      => 'nullable|string|min:6|confirmed',
-            'section'       => 'nullable|string|max:255',
-            'custom_section' => 'nullable|string|max:255',
-            'room_number'   => 'nullable|string|max:255',
-        ]);
+        $validated = $request->validated();
 
         try {
             if ($validated['section'] === 'custom' && !empty($validated['custom_section'])) {

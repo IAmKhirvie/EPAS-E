@@ -6,6 +6,7 @@ use App\Models\Checklist;
 use App\Models\InformationSheet;
 use App\Models\TaskSheet;
 use App\Models\JobSheet;
+use App\Http\Requests\StoreChecklistRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -16,17 +17,9 @@ class ChecklistController extends Controller
         return view('checklists.create', compact('informationSheet'));
     }
 
-    public function store(Request $request, InformationSheet $informationSheet)
+    public function store(StoreChecklistRequest $request, InformationSheet $informationSheet)
     {
-        $request->validate([
-            'checklist_number' => 'required|string',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'items' => 'required|array|min:1',
-            'items.*.description' => 'required|string',
-            'items.*.rating' => 'required|integer|min:1|max:5',
-            'items.*.remarks' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         try {
             $checklist = Checklist::create([
