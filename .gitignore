@@ -28,4 +28,7 @@ Thumbs.db
 npm-debug.log
 yarn-error.log
 /storage/framework/views/*.php
+/storage/framework/sessions/*
+/bootstrap/cache/packages.php
+/bootstrap/cache/services.php
 mailpit.zip
