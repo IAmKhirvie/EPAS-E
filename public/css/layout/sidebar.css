@@ -1,0 +1,571 @@
+/* Sidebar styles */
+:root {
+    --sidebar-icon-width: 60px; /* Fixed width for icon column */
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    overflow-y: hidden;
+    overflow-x: visible;
+    transition: width var(--transition-speed) ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 1040;
+    flex-shrink: 0;
+    color: var(--sidebar-foreground);
+}
+
+.sidebar.collapsed {
+    width: var(--sidebar-width-collapsed);
+    overflow-x: visible;
+}
+
+.sidebar-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding: 1rem 0;
+    overflow-x: visible;
+}
+
+/* User Profile */
+.sidebar-profile {
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+    transition: padding var(--transition-speed) ease;
+}
+
+.profile-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+}
+
+.avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    background-color: var(--muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    border: 2px solid var(--primary);
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-fallback {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary);
+    color: white;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.profile-info {
+    transition: opacity var(--transition-speed) ease, max-height var(--transition-speed) ease;
+    max-height: 80px;
+    opacity: 1;
+    overflow: hidden;
+}
+
+.sidebar.collapsed .profile-info {
+    max-height: 0;
+    opacity: 0;
+}
+
+.profile-info h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--light);
+    margin: 0;
+}
+
+.profile-role {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    margin: 0;
+}
+
+/* Email Verification Badge */
+.email-verify-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.65rem;
+    color: #ffc107;
+    background-color: rgba(255, 193, 7, 0.15);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    margin-top: 0.25rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.email-verify-badge:hover {
+    background-color: rgba(255, 193, 7, 0.25);
+    color: #e0a800;
+    text-decoration: none;
+}
+
+.sidebar.collapsed .email-verify-badge {
+    display: none;
+}
+
+.profile-id {
+    font-size: 0.7rem;
+    color: var(--muted-foreground);
+    transition: opacity var(--transition-speed) ease, max-height var(--transition-speed) ease;
+    opacity: 1;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--border);
+    margin-top: 0.5rem;
+    width: 100%;
+}
+
+.sidebar.collapsed .profile-id {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    border: none;
+}
+
+/* Sidebar Sections */
+.sidebar-section {
+    padding: 0.25rem 0;
+}
+
+.sidebar-label {
+    padding: 0.5rem 1rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    letter-spacing: 0.05em;
+    transition: opacity var(--transition-speed) ease;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.sidebar.collapsed .sidebar-label {
+    opacity: 0;
+    height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0 0.5rem;
+    overflow-x: visible;
+}
+
+/* Navigation Items - Fixed Icon Position */
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: var(--radius);
+    color: var(--light);
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    font-weight: 400;
+    overflow: visible;
+    min-height: 38px;
+}
+
+/* Icon container - fixed width */
+.nav-item i:first-child {
+    width: 24px;
+    min-width: 24px;
+    text-align: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+/* Text container */
+.nav-item span {
+    margin-left: 0.75rem;
+    transition: opacity var(--transition-speed) ease, transform var(--transition-speed) ease;
+    opacity: 1;
+}
+
+.sidebar.collapsed .nav-item span {
+    opacity: 0;
+    position: absolute;
+    left: 100%;
+    pointer-events: none;
+    width: 0;
+    overflow: hidden;
+}
+
+.nav-item:hover {
+    background-color: var(--primary);
+    color: var(--light);
+}
+
+.nav-item:hover i:first-child {
+    transform: scale(1.1);
+}
+
+.nav-item.active {
+    background: linear-gradient(135deg, var(--primary) 0%, #0056b3 100%);
+    color: white;
+}
+
+/* Navigation Badge (for counts) */
+.nav-badge {
+    background: #dc3545;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 2px 5px;
+    border-radius: 10px;
+    margin-left: auto;
+    min-width: 16px;
+    text-align: center;
+    animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.sidebar.collapsed .nav-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    margin: 0;
+    padding: 1px 4px;
+    font-size: 0.55rem;
+    min-width: 14px;
+}
+
+/* ===================== HOVER TOOLTIPS FOR COLLAPSED SIDEBAR ===================== */
+.sidebar.collapsed .nav-item::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%) translateX(10px);
+    margin-left: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--primary);
+    color: white;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    z-index: 9999;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar.collapsed .nav-item::before {
+    content: '';
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 0.5rem;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 6px 6px 6px 0;
+    border-color: transparent var(--primary) transparent transparent;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    z-index: 9999;
+}
+
+.sidebar.collapsed .nav-item:hover::after,
+.sidebar.collapsed .nav-item:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) translateX(0);
+}
+
+.sidebar.collapsed .nav-item:hover::before {
+    transform: translateY(-50%);
+}
+
+/* Avatar tooltip when collapsed */
+.sidebar.collapsed .avatar {
+    position: relative;
+}
+
+.sidebar.collapsed .avatar::after {
+    content: 'Profile';
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%) translateX(10px);
+    margin-left: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--primary);
+    color: white;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    z-index: 9999;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar.collapsed .avatar:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) translateX(0);
+}
+
+/* ===================== FLYOUT SUB-MENU STYLES ===================== */
+.nav-item-flyout {
+    position: static; /* Changed from relative to allow flyout to escape sidebar */
+}
+
+.nav-item.has-flyout {
+    display: flex;
+    align-items: center;
+}
+
+.nav-arrow-right {
+    margin-left: auto;
+    font-size: 0.6rem;
+    opacity: 0.6;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.sidebar.collapsed .nav-arrow-right {
+    display: none;
+}
+
+.nav-item-flyout.open .nav-arrow-right {
+    opacity: 1;
+    transform: rotate(90deg);
+}
+
+/* Flyout menu - FIXED position to escape sidebar overflow */
+.flyout-menu {
+    position: fixed;
+    min-width: 180px;
+    background: var(--sidebar-bg, #1e293b);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px) scale(0.95);
+    transition: all 0.2s ease;
+    z-index: 9999;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: none;
+}
+
+/* Show flyout when open (click-based) */
+.nav-item-flyout.open .flyout-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0) scale(1);
+    pointer-events: auto;
+}
+
+/* Hide default tooltip when flyout is shown */
+.nav-item-flyout .nav-item.has-flyout::after,
+.nav-item-flyout .nav-item.has-flyout::before {
+    display: none !important;
+}
+
+.flyout-header {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    letter-spacing: 0.05em;
+}
+
+.flyout-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    color: var(--light);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.flyout-item:hover {
+    background-color: var(--primary);
+    color: white;
+    border-left-color: white;
+}
+
+.flyout-item.active {
+    background: linear-gradient(135deg, var(--primary) 0%, #0056b3 100%);
+    color: white;
+    border-left-color: white;
+}
+
+.flyout-item i {
+    font-size: 0.85rem;
+    width: 1rem;
+    text-align: center;
+}
+
+/* Arrow pointer for flyout */
+.flyout-menu::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 14px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 6px 6px 6px 0;
+    border-color: transparent var(--sidebar-bg, #1e293b) transparent transparent;
+}
+
+/* Highlight parent when flyout is open or child is active */
+.nav-item-flyout.open > .nav-item.has-flyout,
+.nav-item-flyout.active > .nav-item.has-flyout {
+    background: rgba(var(--primary-rgb, 13, 110, 253), 0.2);
+}
+
+/* ===================== MOBILE RESPONSIVENESS ===================== */
+@media (max-width: 1032px) {
+    .sidebar {
+        position: fixed;
+        z-index: 1060;
+        height: 100%;
+        transform: translateX(-100%);
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+        transition: transform var(--transition-speed) ease, width var(--transition-speed) ease;
+        width: var(--sidebar-width);
+    }
+
+    .sidebar.mobile-hidden {
+        transform: translateX(-100%);
+    }
+
+    .sidebar:not(.mobile-hidden) {
+        transform: translateX(0);
+    }
+
+    .sidebar.collapsed:not(.mobile-hidden) {
+        width: var(--sidebar-width-collapsed);
+        transform: translateX(0);
+    }
+
+    /* Hide tooltips on mobile - use touch instead */
+    .sidebar.collapsed .nav-item::after,
+    .sidebar.collapsed .nav-item::before,
+    .sidebar.collapsed .avatar::after {
+        display: none !important;
+    }
+
+    /* Mobile flyout appears in center */
+    .flyout-menu {
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) scale(0.95) !important;
+        min-width: 200px;
+    }
+
+    .nav-item-flyout.open .flyout-menu {
+        transform: translate(-50%, -50%) scale(1) !important;
+    }
+
+    .flyout-menu::before {
+        display: none;
+    }
+}
+
+/* Backdrop for mobile sidebar */
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+.sidebar-backdrop.active {
+    display: block;
+    opacity: 1;
+}
+
+/* ===================== DARK MODE ===================== */
+.dark-mode .sidebar {
+    background-color: var(--sidebar-bg);
+    border-right-color: var(--sidebar-border);
+}
+
+.dark-mode .sidebar-profile {
+    border-bottom-color: var(--border);
+}
+
+.dark-mode .profile-id {
+    border-top-color: var(--border);
+}
+
+.dark-mode .flyout-menu {
+    background: #0f172a;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .flyout-menu::before {
+    border-color: transparent #0f172a transparent transparent;
+}
+
+.dark-mode .flyout-header {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .flyout-item:hover {
+    background-color: rgba(var(--primary-rgb, 13, 110, 253), 0.3);
+}

@@ -1,0 +1,711 @@
+/* ===== TOP NAVBAR ===== */
+.top-navbar {
+    height: var(--navbar-height);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    padding-right:  1.5rem;
+    flex-shrink: 0;
+    position: fixed;
+    left: var(--sidebar-width);
+    right: 0;
+    z-index: 1030;
+    transition: left var(--transition-speed) ease;
+}
+
+.sidebar-collapsed .top-navbar {
+    left: var(--sidebar-width-collapsed);
+}
+
+.navbar-left-2{
+    display: none;
+}
+
+.navbar-left{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: var(--sidebar-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    transition: all 0.2s ease;
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.sidebar-toggle:hover {
+    background-color: var(--muted);
+}
+
+.sidebar-toggle i {
+    font-size: 1.25rem;
+}
+
+.navbar-brand h2 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.navbar-brand p {
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+    margin: 0;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--light-gray);
+    border-radius: 9999px;
+    padding: 0.5rem;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    height: 3.5rem;
+    /* border: 1px solid var(--border); */
+}
+
+.navbar-item {
+    position: relative;
+}
+
+/* Enhanced Popover and Dropdown Styles */
+.popover, .dropdown {
+    position: absolute;
+    top: calc(100% + 1rem);
+    right: 0;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    z-index: 1100;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 20rem;
+}
+
+
+.popover.active, .dropdown.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Specific styles for notifications popover */
+.notifications-popover {
+    min-width: 320px;
+    max-width: 380px;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Specific styles for user dropdown */
+.dropdown {
+    min-width: 14rem;
+}
+
+/* Popover Header Enhancement - Activity Feed Style */
+.popover-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: var(--light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.popover-header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.view-all-btn {
+    font-size: 0.75rem;
+    color: var(--light);
+    text-decoration: none;
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.view-all-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+/* Popover Footer */
+.popover-footer {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--border);
+    background: var(--card);
+}
+
+.view-all-link-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: var(--light);
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.view-all-link-footer:hover {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+/* Enhanced Notification Items */
+.notifications-list {
+    max-height: 28rem;
+    overflow-y: auto;
+    padding: 0.5rem 0;
+}
+
+.notification-item {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0.25rem 0.75rem;
+    border-radius: 10px;
+    background: var(--card);
+}
+
+.notification-item:first-child {
+    margin-top: 0.5rem;
+}
+
+.notification-item:last-child {
+    margin-bottom: 0.5rem;
+}
+
+.notification-item:hover {
+    transform: translateX(3px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.notification-item.unread {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.08) 0%, rgba(13, 110, 253, 0.03) 100%);
+    border-left: 3px solid var(--primary);
+}
+
+.notification-item.read {
+    opacity: 0.7;
+}
+
+.notification-item.urgent {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(220, 53, 69, 0.05) 100%);
+    border-left: 3px solid var(--danger);
+}
+
+.notification-item.urgent.unread {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(220, 53, 69, 0.08) 100%);
+}
+
+/* Notification Status Indicator */
+.notification-status {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.notification-status.unread {
+    background: var(--primary);
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.3);
+}
+
+.notification-status.read {
+    background: transparent;
+}
+
+/* Notification Icon */
+.notification-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--light-gray);
+}
+
+.notification-icon .regular-icon {
+    color: var(--primary);
+    font-size: 0.9rem;
+}
+
+.notification-icon .pinned-icon {
+    color: #f59e0b;
+    font-size: 0.9rem;
+}
+
+.notification-icon .urgent-icon {
+    color: var(--danger);
+    font-size: 0.9rem;
+}
+
+/* Enhanced Notification Content */
+.notification-content {
+    flex: 1;
+    min-width: 0;
+    padding: 0.75rem 0.75rem 0.75rem 3.5rem;
+}
+
+.notification-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+    color: var(--text-primary);
+    line-height: 1.3;
+}
+
+.notification-message {
+    font-size: 0.8rem;
+    color: var(--muted-foreground);
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.notification-meta {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    font-size: 0.7rem;
+    color: var(--muted-foreground);
+}
+
+.notification-deadline {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--warning);
+    font-weight: 500;
+}
+
+.notification-time {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Empty State */
+.notification-item.empty {
+    pointer-events: none;
+    padding: 2.5rem 1rem;
+    text-align: center;
+    color: var(--muted-foreground);
+    margin: 0.5rem 1rem;
+}
+
+.empty-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.empty-icon i {
+    font-size: 1.5rem;
+    color: var(--muted-foreground);
+}
+
+.empty-text {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.empty-subtext {
+    font-size: 0.8rem;
+    color: var(--muted-foreground);
+}
+
+.dropdown-menu{
+    padding:0;
+}
+.dropdown-divider {
+    height: 1px;
+    margin: 0px;
+    background-color: var(--border);
+}
+
+.dropdown-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-size: 0.875rem;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.dropdown-item:hover {
+    background-color: var(--primary-foreground);
+    color: var(--dark);
+}
+
+.dropdown-item.text-danger {
+    color: var(--danger);
+    background: transparent;
+}
+
+.dropdown-item.text-danger:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--danger);
+}
+
+.dropdown-item i {
+    font-size: 1rem;
+    width: 1rem;
+    text-align: center;
+}
+
+/* Dark Mode Toggle */
+.dark-mode-toggle {
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.dark-mode-toggle .icon-button {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: var(--text-primary);
+}
+
+.dark-mode-toggle .icon-button:hover {
+    background-color: var(--accent);
+    transform: scale(1.05);
+}
+
+.dark-mode-toggle i {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.dark-mode-toggle .icon-button:hover i {
+    transform: rotate(15deg);
+}
+
+/* Apply dark mode styles to main elements */
+.dark-mode body {
+    background-color: var(--background);
+    color: var(--text-primary);
+}
+
+.dark-mode .main-content {
+    background: var(--background);
+}
+
+.dark-mode .content-area {
+    background: var(--card);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+.dark-mode .dashboard-card {
+    background: var(--card);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+.dark-mode .table {
+    color: var(--text-primary);
+}
+
+.dark-mode .table th,
+.dark-mode .table td {
+    border-color: var(--border);
+}
+
+.dark-mode .form-control {
+    background-color: var(--card);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+.dark-mode .form-control:focus {
+    background-color: var(--card);
+    color: var(--text-primary);
+    border-color: var(--primary);
+}
+
+/* Enhanced Button Styles */
+.icon-button, .user-button {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.icon-button:hover, .user-button:hover {
+    background-color: var(--accent);
+    transform: scale(1.05);
+}
+
+/* Enhanced Notification Badge */
+.notification-badge {
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
+    background-color: var(--danger);
+    color: white;
+    font-size: 0.7rem;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.25rem;
+    font-weight: 600;
+    border: 2px solid var(--light);
+    animation: bounce-in 0.5s ease;
+}
+
+@keyframes bounce-in {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Enhanced Avatar */
+.avatar {
+    width: 2rem !important;
+    height: 2rem !important;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    background-color: var(--muted);
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.user-button:hover .avatar {
+    border-color: var(--primary-dark);
+    transform: scale(1.05);
+}
+
+/* Empty State */
+.notification-item.empty {
+    pointer-events: none;
+    padding: 2rem 1rem;
+    text-align: center;
+    color: var(--muted-foreground);
+}
+
+.notification-item.empty i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+/* Scrollbar Styling */
+.notifications-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notifications-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.notifications-list::-webkit-scrollbar-thumb {
+    background: var(--muted);
+    border-radius: 3px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 1032px) {
+    .top-navbar {
+        left: 0 !important;
+        z-index: 100;
+        padding: 0.5rem;
+    }
+    
+    .sidebar-collapsed .top-navbar {
+        left: 0 !important;
+    }
+    
+    .navbar-brand p {
+        display: none;
+    }
+        
+    .popover, .dropdown {
+        position: fixed;
+        top: 4.5rem;
+        left: 1rem;
+        right: 1rem;
+        width: auto;
+        min-width: unset;
+        max-width: unset;
+    }
+    
+    .notifications-popover {
+        min-width: unset;
+        max-width: unset;
+    }
+
+    .search-expandable.expanded {
+        max-width: 200px;
+    }
+    
+    .search-expandable.expanded .search-input-expandable {
+        width: 150px;
+    }
+    
+    .navbar-right {
+        gap: 0.25rem;
+    }
+}
+
+/* Backdrop for mobile */
+.sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1020;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.sidebar-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Notification Link Enhancement */
+.notification-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    gap: 0.75rem;
+    padding: 0;
+    width: 100%;
+}
+
+.notification-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Badge Styles */
+.badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.2rem 0.4rem;
+}
+
+/* Text Warning for Pinned */
+.text-warning {
+    color: #ffc107 !important;
+}
+
+/* Animation for new notifications */
+@keyframes highlightNew {
+    0% {
+        background-color: rgba(0, 127, 201, 0.2);
+    }
+    100% {
+        background-color: rgba(0, 127, 201, 0.05);
+    }
+}
+
+.notification-item.unread.highlight {
+    animation: highlightNew 2s ease;
+}
+
+/* Dark mode navbar styles */
+.dark-mode .navbar-right {
+    background-color: var(--secondary);
+    border-color: var(--border);
+}
+
+.dark-mode .sidebar-toggle {
+    color: var(--text-primary);
+}
+
+.dark-mode .navbar-brand h2 {
+    color: var(--text-primary);
+}
+

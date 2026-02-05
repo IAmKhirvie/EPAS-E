@@ -1,0 +1,55 @@
+/* Form styles */
+.search-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.search-container i {
+  position: absolute;
+  left: 15px;
+  top: 12px;
+  color: var(--primary);
+}
+
+.search-input {
+  padding-left: 40px;
+  border-radius: 50px;
+  border: 2px solid var(--primary-light);
+  background: var(--card);
+  color: var(--text-primary);
+}
+
+.search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 5px rgba(0, 127, 201, 0.3);
+  background: var(--card);
+  color: var(--text-primary);
+}
+
+.required-field::after {
+  content: "*";
+  color: var(--primary);
+  margin-left: 4px;
+}
+
+/* Form controls */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.2rem rgba(0, 127, 201, 0.25);
+  background: var(--card);
+  color: var(--text-primary);
+}
+
+/* Dark mode form styles */
+.dark-mode .form-control,
+.dark-mode .form-select {
+  background: var(--card);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+.dark-mode .form-control::placeholder,
+.dark-mode .form-select::placeholder {
+  color: var(--muted-foreground);
+}

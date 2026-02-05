@@ -1,0 +1,39 @@
+/* Button styles */
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary-dark);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary);
+  border-color: var(--primary-dark);
+}
+
+.action-buttons .btn {
+  margin: 2px;
+}
+
+.badge {
+  font-weight: 500;
+}
+
+.badge.bg-primary {
+  background-color: var(--primary) !important;
+}
+
+/* Dark mode button styles */
+.dark-mode .btn-outline-primary {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.dark-mode .btn-outline-primary:hover {
+  background-color: var(--primary);
+  color: white;
+}
