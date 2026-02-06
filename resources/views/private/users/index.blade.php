@@ -34,8 +34,11 @@
                         </span>
                     @endif
                     @if($canCreate)
+                        <a href="{{ route('private.users.create') }}" class="btn btn-primary btn-sm ms-2">
+                            <i class="fas fa-user-plus me-1"></i>Add User
+                        </a>
                         <a href="{{ route('private.users.import') }}" class="btn btn-success btn-sm ms-2">
-                            <i class="fas fa-file-import me-1"></i>Import Users
+                            <i class="fas fa-file-import me-1"></i>Import
                         </a>
                     @endif
                 </div>

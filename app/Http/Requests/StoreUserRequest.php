@@ -22,7 +22,7 @@ class StoreUserRequest extends FormRequest
             'email'         => 'required|email:rfc,dns|unique:users,email',
             'role'          => 'required|string|in:' . implode(',', Roles::all()),
             'department_id' => 'required|exists:departments,id',
-            'stat'          => 'required|boolean',
+            'stat'          => 'nullable|boolean', // Checkbox: unchecked = absent = false
             'password'      => [
                 'required',
                 'string',
