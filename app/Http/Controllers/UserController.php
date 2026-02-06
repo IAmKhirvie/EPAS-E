@@ -55,6 +55,14 @@ class UserController extends Controller
 
         try {
             $validated['password'] = Hash::make($validated['password']);
+            // Handle checkbox: if not present, default to false (pending approval)
+            $validated['stat'] = $request->has('stat') ? true : false;
+
+            // Handle custom section: if section is 'custom', use custom_section value
+            if (isset($validated['section']) && $validated['section'] === 'custom') {
+                $validated['section'] = $request->input('custom_section', '');
+            }
+
             User::create($validated);
 
             return redirect()
