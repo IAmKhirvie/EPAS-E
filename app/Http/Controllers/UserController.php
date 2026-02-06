@@ -522,23 +522,4 @@ class UserController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Authorization Helpers
-    |--------------------------------------------------------------------------
-    */
-
-    private function authorizeAdmin(): void
-    {
-        if (Auth::user()->role !== Roles::ADMIN) {
-            abort(403, 'Only administrators can perform this action.');
-        }
-    }
-
-    private function authorizeInstructor(): void
-    {
-        if (!in_array(Auth::user()->role, [Roles::ADMIN, Roles::INSTRUCTOR])) {
-            abort(403, 'Only administrators and instructors can perform this action.');
-        }
-    }
 }
