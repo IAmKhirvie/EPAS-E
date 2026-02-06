@@ -88,7 +88,7 @@ return new class extends Migration
         if (!Schema::hasTable('self_check_question_options')) {
             Schema::create('self_check_question_options', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('question_id')->constrained()->onDelete('cascade');
+                $table->foreignId('question_id')->constrained('self_check_questions')->onDelete('cascade');
                 $table->string('option_text');
                 $table->char('option_letter', 1);
                 $table->integer('order')->default(0);
@@ -122,7 +122,7 @@ return new class extends Migration
             Schema::create('self_check_submission_answers', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('submission_id')->constrained('self_check_submissions')->onDelete('cascade');
-                $table->foreignId('question_id')->constrained()->onDelete('cascade');
+                $table->foreignId('question_id')->constrained('self_check_questions')->onDelete('cascade');
                 $table->text('answer');
                 $table->boolean('is_correct')->nullable();
                 $table->timestamps();
@@ -409,7 +409,7 @@ return new class extends Migration
         if (!Schema::hasTable('homework_requirements')) {
             Schema::create('homework_requirements', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('homework_id')->constrained()->onDelete('cascade');
+                $table->foreignId('homework_id')->constrained('homeworks')->onDelete('cascade');
                 $table->text('requirement');
                 $table->integer('order')->default(0);
                 $table->timestamps();
@@ -422,7 +422,7 @@ return new class extends Migration
         if (!Schema::hasTable('homework_guidelines')) {
             Schema::create('homework_guidelines', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('homework_id')->constrained()->onDelete('cascade');
+                $table->foreignId('homework_id')->constrained('homeworks')->onDelete('cascade');
                 $table->text('guideline');
                 $table->integer('order')->default(0);
                 $table->timestamps();
@@ -435,7 +435,7 @@ return new class extends Migration
         if (!Schema::hasTable('homework_reference_images')) {
             Schema::create('homework_reference_images', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('homework_id')->constrained()->onDelete('cascade');
+                $table->foreignId('homework_id')->constrained('homeworks')->onDelete('cascade');
                 $table->string('image_path');
                 $table->string('caption')->nullable();
                 $table->integer('order')->default(0);

@@ -28,8 +28,9 @@ class ForgotPasswordController extends Controller
 
             $user = User::where('email', $request->email)->first();
 
+            // Security: Use same message regardless of whether email exists (prevents user enumeration)
             if (!$user) {
-                return back()->withErrors(['email' => 'No account found with that email address.']);
+                return back()->with('status', 'If an account exists with that email, a password reset link has been sent.');
             }
 
             // Generate reset token

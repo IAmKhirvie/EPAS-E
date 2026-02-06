@@ -66,10 +66,11 @@
     -webkit-tap-highlight-color: rgba(79, 70, 229, 0.1);
 }
 
-/* Active states for touch */
+/* Active states for touch - only for interactive elements */
 .btn:active,
 .nav-link:active,
-.card:active {
+.card.clickable:active,
+a.card:active {
     transform: scale(0.98);
     transition: transform 0.1s;
 }

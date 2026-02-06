@@ -12,7 +12,7 @@
     <!-- PWA Support -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0d6efd">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="EPAS-E">
     <link rel="apple-touch-icon" href="/images/icons/icon-192x192.png">
@@ -34,7 +34,8 @@
     <link rel="stylesheet" href="{{ dynamic_asset('css/components/forms.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('css/components/overlay.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('css/components/tables.css') }}">
-    
+    <link rel="stylesheet" href="{{ dynamic_asset('css/components/utilities.css') }}">
+
     <!-- Layout CSS -->
     <link rel="stylesheet" href="{{ dynamic_asset('css/layout/header.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('css/layout/main-content.css') }}">
@@ -45,6 +46,9 @@
     <link rel="stylesheet" href="{{ dynamic_asset('css/pages/modules.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('css/pages/users.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('css/pages/index.css')}}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/grades.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/analytics.css') }}">
 
     <!-- Mobile CSS -->
     <link rel="stylesheet" href="{{ dynamic_asset('css/components/responsive-tables.css') }}">

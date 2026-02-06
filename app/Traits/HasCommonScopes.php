@@ -70,7 +70,7 @@ trait HasCommonScopes
      * Scope to get recent records
      * Orders by created_at desc
      */
-    public function scopeRecent(Builder $query, int $limit = null): Builder
+    public function scopeRecent(Builder $query, ?int $limit = null): Builder
     {
         $query = $query->orderBy('created_at', 'desc');
 

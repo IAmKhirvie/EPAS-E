@@ -1,0 +1,110 @@
+/* ===== UTILITY CLASSES ===== */
+/* Common patterns to replace inline styles */
+
+/* Icon sizing */
+.icon-lg {
+    font-size: 1.5rem;
+}
+
+.icon-sm {
+    font-size: 0.75rem;
+}
+
+/* Text alignment */
+.text-center-block {
+    text-align: center;
+}
+
+/* List styling */
+.list-styled {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+/* Cursor styles */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Progress bar heights */
+.progress-md {
+    height: 20px;
+}
+
+/* Disclaimer/Warning boxes */
+.disclaimer-box {
+    margin-bottom: 1rem;
+    padding: 0.625rem;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+}
+
+.disclaimer-box p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #856404;
+}
+
+.disclaimer-box ol {
+    margin: 0.3125rem 0 0 0;
+    padding-left: 1.5rem;
+    font-size: 0.85rem;
+    color: #856404;
+}
+
+/* Dark mode disclaimer */
+.dark-mode .disclaimer-box {
+    background: rgba(255, 193, 7, 0.1);
+    border-color: rgba(255, 193, 7, 0.3);
+}
+
+.dark-mode .disclaimer-box p,
+.dark-mode .disclaimer-box ol {
+    color: var(--warning);
+}
+
+/* Purple theme elements */
+.bg-purple {
+    background: #6f42c1 !important;
+}
+
+.btn-purple {
+    background: #6f42c1;
+    border-color: #6f42c1;
+    color: white;
+}
+
+.btn-purple:hover {
+    background: #5a32a3;
+    border-color: #5a32a3;
+    color: white;
+}
+
+/* Terms checkbox label */
+.terms-label {
+    font-size: 0.9rem;
+}
+
+/* Link register section */
+.register-link-section {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+/* Margin utilities (bootstrap doesn't have all) */
+.ms-auto {
+    margin-left: auto;
+}
+
+/* Responsive font utilities */
+@media (max-width: 576px) {
+    .icon-lg {
+        font-size: 1.25rem;
+    }
+
+    .disclaimer-box p,
+    .disclaimer-box ol {
+        font-size: 0.75rem;
+    }
+}

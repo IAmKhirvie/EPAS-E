@@ -207,9 +207,7 @@ h1, h2, h3, h4, h5, h6 {
     height: 100%;
 }
 
-.features-section .card:hover {
-    transform: translateY(-10px);
-}
+/* Removed hover transform - cards are informational, not clickable */
 
 .features-section .card-body {
     padding: 2.5rem 1.5rem;
@@ -402,9 +400,7 @@ h1, h2, h3, h4, h5, h6 {
     height: 100%;
 }
 
-.dark-mode .features-section .card:hover {
-    transform: translateY(-10px);
-}
+/* Removed dark mode hover transform - cards are informational, not clickable */
 
 .dark-mode .features-section .card-body {
     padding: 2.5rem 1.5rem;

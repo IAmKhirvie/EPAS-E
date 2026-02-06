@@ -302,8 +302,8 @@ body.focus-mode-active .main-content-section {
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-auto">
-                            <div class="position-relative" style="width: 70px; height: 70px;">
-                                <svg viewBox="0 0 100 100" style="transform: rotate(-90deg);">
+                            <div class="position-relative progress-circle-container">
+                                <svg viewBox="0 0 100 100" class="progress-circle-svg">
                                     <circle cx="50" cy="50" r="40" fill="none" stroke="#e9ecef" stroke-width="8"/>
                                     <circle cx="50" cy="50" r="40" fill="none" stroke="#0d6efd" stroke-width="8"
                                             stroke-dasharray="251.2" stroke-dashoffset="251.2" id="progressCircle"/>
@@ -410,7 +410,7 @@ body.focus-mode-active .main-content-section {
         <!-- Sidebar -->
         <div class="col-lg-4 sidebar-section">
             <!-- Table of Contents -->
-            <div class="card border-0 shadow-sm sticky-top" style="top: 80px;">
+            <div class="card border-0 shadow-sm sticky-top sticky-sidebar-offset">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h6 class="mb-0"><i class="fas fa-list me-2"></i>Table of Contents</h6>
                 </div>

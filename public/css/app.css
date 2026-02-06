@@ -1,6 +1,7 @@
 /* Main CSS file that imports all components */
 
 /* Base */
+@import url('base/z-index.css');
 @import url('base/reset.css');
 
 /* Layout */
@@ -17,4 +18,5 @@
 @import url('components/adduser.css');
 @import url('components/alerts.css');
 @import url('components/overlay.css');
+@import url('components/utilities.css');
 

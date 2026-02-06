@@ -42,14 +42,14 @@ return new class extends Migration
         // Add media column for audio/video URLs
         if (!Schema::hasColumn('self_check_questions', 'media')) {
             Schema::table('self_check_questions', function (Blueprint $table) {
-                $table->text('media')->nullable()->after('options');
+                $table->text('media')->nullable()->after('explanation');
             });
         }
 
         // Add metadata column for type-specific settings
         if (!Schema::hasColumn('self_check_questions', 'metadata')) {
             Schema::table('self_check_questions', function (Blueprint $table) {
-                $table->text('metadata')->nullable()->after('media');
+                $table->text('metadata')->nullable()->after('explanation');
             });
         }
 

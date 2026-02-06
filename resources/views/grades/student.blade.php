@@ -89,7 +89,7 @@
                         <span>Completed Activities</span>
                         <strong>{{ $overallStats['completed'] }}/{{ $overallStats['total_activities'] }}</strong>
                     </div>
-                    <div class="progress mb-3" style="height: 10px;">
+                    <div class="progress mb-3" class="progress-thin">
                         <div class="progress-bar bg-success" style="width: {{ $overallStats['completion_rate'] }}%"></div>
                     </div>
 
@@ -97,7 +97,7 @@
                         <span>Total Points Earned</span>
                         <strong>{{ $overallStats['total_score'] }}/{{ $overallStats['max_score'] }}</strong>
                     </div>
-                    <div class="progress mb-3" style="height: 10px;">
+                    <div class="progress mb-3" class="progress-thin">
                         <div class="progress-bar bg-primary" style="width: {{ $overallStats['max_score'] > 0 ? ($overallStats['total_score'] / $overallStats['max_score'] * 100) : 0 }}%"></div>
                     </div>
 
@@ -424,7 +424,7 @@
                                     <td><small class="text-muted">{{ $item['information_sheet'] }}</small></td>
                                     <td class="text-center">
                                         @if($item['completion_percentage'] !== null)
-                                            <div class="progress" style="height: 20px; width: 80px;">
+                                            <div class="progress" class="progress-completion">
                                                 <div class="progress-bar" role="progressbar" style="width: {{ $item['completion_percentage'] }}%">
                                                     {{ $item['completion_percentage'] }}%
                                                 </div>

@@ -1,5 +1,5 @@
 <!-- Bottom Navigation for Mobile -->
-<nav class="bottom-nav d-md-none" id="bottomNav">
+<nav class="bottom-nav" id="bottomNav">
     <a href="{{ dynamic_route('dashboard') }}" class="nav-link {{ Request::routeIs('dashboard') ? 'active' : '' }}">
         <i class="fas fa-home"></i>
         <span class="nav-label">Home</span>
@@ -15,19 +15,21 @@
         <span class="nav-label">Grades</span>
     </a>
 
-    <a href="{{ dynamic_route('private.announcements.index') }}" class="nav-link {{ Request::is('announcements*') ? 'active' : '' }}">
-        <i class="fas fa-bullhorn"></i>
-        <span class="nav-label">News</span>
+    <a href="{{ dynamic_route('modules.index') }}" class="nav-link {{ Request::is('modules*') ? 'active' : '' }}">
+        <i class="fas fa-book-open"></i>
+        <span class="nav-label">Modules</span>
     </a>
 
-    <button type="button" class="nav-link" id="mobileMenuToggle" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
-        <i class="fas fa-bars"></i>
-        <span class="nav-label">Menu</span>
-    </button>
+    <a href="{{ dynamic_route('leaderboard.index') }}" class="nav-link {{ Request::is('leaderboard*') ? 'active' : '' }}">
+        <i class="fas fa-trophy"></i>
+        <span class="nav-label">Rank</span>
+    </a>
 </nav>
 
 <style>
+    /* Bottom nav hidden by default, shown only on mobile (1032px matches mobile.css) */
     .bottom-nav {
+        display: none;
         position: fixed;
         bottom: 0;
         left: 0;
@@ -35,12 +37,21 @@
         height: 60px;
         background: var(--bottom-nav-bg, #ffffff);
         border-top: 1px solid var(--bottom-nav-border, #e5e7eb);
-        display: flex;
         justify-content: space-around;
         align-items: center;
         z-index: 1040;
         padding: 0 0.5rem;
         box-shadow: 0 -2px 10px var(--bottom-nav-shadow, rgba(0,0,0,0.05));
+    }
+
+    @media (max-width: 1032px) {
+        .bottom-nav {
+            display: flex;
+        }
+
+        body {
+            padding-bottom: 70px !important;
+        }
     }
 
     .bottom-nav .nav-link {
@@ -94,18 +105,6 @@
         letter-spacing: 0.3px;
     }
 
-    .bottom-nav .badge-dot {
-        position: absolute;
-        top: 0.25rem;
-        right: 50%;
-        transform: translateX(100%);
-        width: 8px;
-        height: 8px;
-        background: var(--bs-danger);
-        border-radius: 50%;
-        border: 2px solid var(--bottom-nav-bg, #ffffff);
-    }
-
     /* Dark mode support */
     .dark-mode {
         --bottom-nav-bg: #1e293b;
@@ -117,14 +116,7 @@
     /* Hide bottom nav when keyboard is open on mobile */
     @media (max-height: 500px) {
         .bottom-nav {
-            display: none;
-        }
-    }
-
-    /* Add padding to main content for bottom nav */
-    @media (max-width: 767.98px) {
-        body {
-            padding-bottom: 70px;
+            display: none !important;
         }
     }
 </style>

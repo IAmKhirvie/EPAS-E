@@ -28,6 +28,50 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Password Policy
+    |--------------------------------------------------------------------------
+    */
+
+    'password' => [
+        'min_length' => 8,
+        'require_uppercase' => true,
+        'require_lowercase' => true,
+        'require_numeric' => true,
+        'require_special' => true,
+        // Regex pattern for validation (must match all requirements above)
+        'regex' => '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+=\-\[\]{}|:;<>,.?\/~`])[A-Za-z\d@$!%*?&#^()_+=\-\[\]{}|:;<>,.?\/~`]{8,}$/',
+        'message' => 'Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rate Limiting
+    |--------------------------------------------------------------------------
+    */
+
+    'rate_limits' => [
+        'login_attempts' => 5,
+        'login_decay_minutes' => 15,
+        'registration_per_minute' => 3,
+        'password_reset_per_minute' => 5,
+        'verification_resend_per_minute' => 3,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Security
+    |--------------------------------------------------------------------------
+    */
+
+    'session' => [
+        'absolute_timeout_minutes' => 480, // 8 hours
+        'idle_timeout_minutes' => 30,
+        'regenerate_on_login' => true,
+        'invalidate_on_logout' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Gamification Points
     |--------------------------------------------------------------------------
     */

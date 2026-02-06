@@ -7,7 +7,7 @@
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <div class="card shadow-sm">
-                <div class="card-header bg-purple text-white" style="background: #6f42c1;">
+                <div class="card-header bg-purple text-white">
                     <div class="d-flex justify-content-between align-items-center">
                         <h4 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Create Checklist</h4>
                         <a href="{{ route('information-sheets.show', ['module' => $informationSheet->module_id, 'informationSheet' => $informationSheet->id]) }}" class="btn btn-light btn-sm">
@@ -91,7 +91,7 @@
 
                         <div class="d-flex justify-content-end gap-2">
                             <a href="{{ route('information-sheets.show', ['module' => $informationSheet->module_id, 'informationSheet' => $informationSheet->id]) }}" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary" style="background: #6f42c1; border-color: #6f42c1;">
+                            <button type="submit" class="btn btn-purple">
                                 <i class="fas fa-save me-1"></i>Create Checklist
                             </button>
                         </div>

@@ -10,30 +10,35 @@ class DepartmentSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * 
+     *
      *  @return void
      */
     public function run()
     {
-        DB::table('departments')->updateOrInsert([
+        $departments = [
             [
-                'name'=>'Instructor',
-                'description'=>'Teaching and instructional department',
-                'created_at'=>now(),
-                'updated_at'=>now(),
+                'name' => 'Instructor',
+                'description' => 'Teaching and instructional department',
             ],
             [
-                'name'=>'Administration',
-                'description'=>'Handles administrative tasks and operations',
-                'created_at'=>now(),
-                'updated_at'=>now(),
+                'name' => 'Administration',
+                'description' => 'Handles administrative tasks and operations',
             ],
             [
-                'name'=>'Registrar',
-                'description'=>'Responsible for student records and registration',
-                'created_at'=>now(),
-                'updated_at'=>now(),
+                'name' => 'Registrar',
+                'description' => 'Responsible for student records and registration',
             ],
-        ]);
+        ];
+
+        foreach ($departments as $dept) {
+            DB::table('departments')->updateOrInsert(
+                ['name' => $dept['name']],
+                [
+                    'description' => $dept['description'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+        }
     }
 }

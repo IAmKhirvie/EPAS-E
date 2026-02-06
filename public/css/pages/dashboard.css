@@ -32,14 +32,25 @@
 }
 
 .card-counter {
-    font-size: 2.5rem;
+    font-size: 1.75rem; /* 28px */
     font-weight: bold;
-    color: var(--text-primary); 
+    color: var(--text-primary);
 }
 
 .card-counter-label {
-    font-size: 0.9rem;
-    color: var(--gray);
+    font-size: 0.875rem;
+    color: var(--muted-foreground, #6c757d);
+}
+
+/* Responsive dashboard cards */
+@media (max-width: 576px) {
+    .card-counter {
+        font-size: 1.5rem;
+    }
+
+    .card-counter-label {
+        font-size: 0.75rem;
+    }
 }
 
 .urgent-item {
@@ -153,4 +164,37 @@
 .dark-mode .border-danger.bg-light-danger {
     background: rgba(220, 53, 69, 0.1) !important;
     border-color: var(--danger) !important;
+}
+
+/* Scrollable containers */
+.dashboard-feed-scroll {
+    max-height: 550px;
+    overflow-y: auto;
+}
+
+.dashboard-pending-scroll {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Activity icon */
+.activity-icon-sm {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Responsive scrollable containers */
+@media (max-width: 576px) {
+    .dashboard-feed-scroll {
+        max-height: 400px;
+    }
+
+    .dashboard-pending-scroll {
+        max-height: 300px;
+    }
 }

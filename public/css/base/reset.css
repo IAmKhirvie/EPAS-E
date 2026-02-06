@@ -104,7 +104,7 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1060;
+  z-index: var(--z-navbar);
   width: 100%;
 }
 
@@ -235,27 +235,6 @@ body {
 .dark-mode .table-hover tbody tr:hover {
   background-color: var(--light);
   color: var(--text-primary);
-}
-
-/* Button styles for dark mode */
-.dark-mode .btn-outline-primary {
-  color: var(--primary);
-  border-color: var(--primary);
-}
-
-.dark-mode .btn-outline-primary:hover {
-  background-color: var(--primary);
-  color: white;
-}
-
-.dark-mode .btn-outline-secondary {
-  color: var(--muted-foreground);
-  border-color: var(--muted-foreground);
-}
-
-.dark-mode .btn-outline-secondary:hover {
-  background-color: var(--muted-foreground);
-  color: var(--card-bg);
 }
 
 /* Dropdown styles for dark mode */
@@ -422,7 +401,7 @@ body {
     color: white !important;
 }
 
-/* Button outlines */
+/* Button outlines - consolidated */
 .dark-mode .btn-outline-primary {
     color: var(--primary);
     border-color: var(--primary);
@@ -431,6 +410,16 @@ body {
 .dark-mode .btn-outline-primary:hover {
     background-color: var(--primary);
     color: white;
+}
+
+.dark-mode .btn-outline-secondary {
+    color: var(--muted-foreground);
+    border-color: var(--muted-foreground);
+}
+
+.dark-mode .btn-outline-secondary:hover {
+    background-color: var(--muted-foreground);
+    color: var(--card-bg);
 }
 
 .dark-mode .btn-outline-success {
@@ -451,16 +440,6 @@ body {
 .dark-mode .btn-outline-danger:hover {
     background-color: var(--danger);
     color: white;
-}
-
-.dark-mode .btn-outline-secondary {
-    color: var(--muted-foreground);
-    border-color: var(--muted-foreground);
-}
-
-.dark-mode .btn-outline-secondary:hover {
-    background-color: var(--muted-foreground);
-    color: var(--card-bg);
 }
 
 /* Modal dark mode */
@@ -579,66 +558,9 @@ body {
     color: white;
 }
 
-/* Text colors for dark mode */
-.dark-mode .text-muted {
-    color: var(--muted-foreground) !important;
-}
-
-.dark-mode .text-primary {
-    color: var(--primary) !important;
-}
-
-.dark-mode .text-success {
-    color: #4cc9f0 !important;
-}
-
-.dark-mode .text-danger {
-    color: #f8a5a5 !important;
-}
-
-/* Badge colors for dark mode */
-.dark-mode .badge.bg-primary {
-    background-color: var(--primary) !important;
-    color: white !important;
-}
-
-.dark-mode .badge.bg-success {
-    background-color: #198754 !important;
-    color: white !important;
-}
-
-.dark-mode .badge.bg-info {
-    background-color: var(--success) !important;
-    color: white !important;
-}
-
-.dark-mode .badge.bg-warning {
-    background-color: var(--warning) !important;
-    color: var(--dark) !important;
-}
-
-.dark-mode .badge.bg-secondary {
-    background-color: var(--gray) !important;
-    color: white !important;
-}
-
-.dark-mode .badge.bg-danger {
-    background-color: var(--danger) !important;
-    color: white !important;
-}
-
 /* ===== MOBILE RESPONSIVENESS FIXES ===== */
 
-/* Tablet devices */
-@media (max-width: 1032px) {
-  .layout-wrapper {
-    margin-top: 4rem;
-    width: 100%;
-    overflow-x: hidden;
-  }
-}
-
-/* Mobile devices - FIXED LAYOUT */
+/* Tablet and Mobile devices (< 1032px) */
 @media (max-width: 1032px) {
   html, body {
     width: 100%;
@@ -685,14 +607,21 @@ body {
   }
   
   .fab-container {
-    bottom: 15px;
-    right: 15px;
+    bottom: 0.9375rem;
+    right: 0.9375rem;
   }
-  
+
   .fab-main {
-    width: 45px;
-    height: 45px;
-    font-size: 18px;
+    width: 2.8125rem;
+    height: 2.8125rem;
+    font-size: 1.125rem;
+  }
+
+  /* Ensure all containers take full width */
+  .container, .container-fluid {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    max-width: 100%;
   }
 }
 
@@ -766,28 +695,6 @@ body {
       padding-left: max(0px, env(safe-area-inset-left));
       padding-right: max(0px, env(safe-area-inset-right));
     }
-  }
-}
-
-/* Prevent horizontal scroll and ensure proper content flow */
-@media (max-width: 1032px) {
-  .layout-wrapper {
-    overflow-x: hidden;
-  }
-  
-  .main-content {
-    overflow-x: hidden;
-  }
-  
-  .content-area {
-    overflow-x: hidden;
-  }
-  
-  /* Ensure all containers take full width */
-  .container, .container-fluid {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    max-width: 100%;
   }
 }
 

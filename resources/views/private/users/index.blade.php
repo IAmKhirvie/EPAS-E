@@ -33,6 +33,11 @@
                             <i class="fas fa-clock me-1"></i> Pending: {{ $filterCounts['pending'] }}
                         </span>
                     @endif
+                    @if($canCreate)
+                        <a href="{{ route('private.users.import') }}" class="btn btn-success btn-sm ms-2">
+                            <i class="fas fa-file-import me-1"></i>Import Users
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>

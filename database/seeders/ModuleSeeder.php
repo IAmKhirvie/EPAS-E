@@ -6,8 +6,8 @@ use App\Models\Course;
 use App\Models\Module;
 use App\Models\InformationSheet;
 use App\Models\SelfCheck;
+use App\Models\SelfCheckQuestion;
 use App\Models\TaskSheet;
-use App\Models\JobSheet;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -33,45 +33,29 @@ class ModuleSeeder extends Seeder
 
             // Create the module under this course
             $module = Module::create([
-                'course_id' => $course->id, // Add this line
+                'course_id' => $course->id,
                 'sector' => 'Electronics',
                 'qualification_title' => 'Electronic Products Assembly And Servicing NCII',
                 'unit_of_competency' => 'Assemble Electronic Products',
                 'module_title' => 'Assembling Electronic Products',
                 'module_number' => 'Module 1',
-                'module_name' => 'Competency Based Learning Material', 
+                'module_name' => 'Competency Based Learning Material',
                 'how_to_use_cblm' => 'Welcome to the Module "Assembling Electronic Products". This module contains training materials and activities for you to complete.
 
-    The unit of competency "Assemble Electronic Products" contains the knowledge, skills and attitudes required for Electronic Products Assembly and Servicing course Required to obtain the National Certificate(NC) level II.
+The unit of competency "Assemble Electronic Products" contains the knowledge, skills and attitudes required for Electronic Products Assembly and Servicing course Required to obtain the National Certificate(NC) level II.
 
-    You are required to go through a series of learning activities in order to compete each of the learning outcomes of the module. In each learning outcome there are Information sheets, information sheets and activity sheets. Do this activity on your own and answer the Self Check at the end of each learning activity.
+You are required to go through a series of learning activities in order to compete each of the learning outcomes of the module. In each learning outcome there are Information sheets, information sheets and activity sheets. Do this activity on your own and answer the Self Check at the end of each learning activity.
 
-    If you have questions, do not hesitate to ask your teacher for assistance.
-
-    Recognition of Prior Learning (RPL)
-    
-    You have already some basic knowledge and skills covered in this module. If you can demonstrate competence to your teacher in a particular skill, talk to him/her so you did not have to undergo the same training again. If you have a qualification or Certificate of Competency from previous trainings show it to him/her. If the skills you required are consistent with and relevant to this module, they become part of the evidence. You can present these RPL. If you are not sure about your competence skills, discuss this with your teacher.
-    
-    After completing this module, ask your teacher to assess your competence. Result of your assessment will be recorded in your competency profile. All the learning activities are designed for you to complete at your own pace.
-
-    In this module, you will find the activities for you to accomplish and relevant Information sheets for each learning outcome. Each learning outcome may have more than one learning activity.
-    
-     This module is prepared to help you achieve the required competency in receiving and relaying information. This will be the source of information that will enable you to acquire the knowledge and skills in Electronic Products Assembly and Servicing NC II independently at your own pace with minimum supervision from your trainer
-
-    ',
+If you have questions, do not hesitate to ask your teacher for assistance.',
                 'introduction' => 'This module contains information sheet(s) and suggested learning activities in Assembling Electronic Products. It includes instructions and procedure on how to Assemble Electronic Products.
 
-    This module consists of five (5) learning outcomes. Learning outcomes contain learning activities supported by instruction sheets. Before you perform the instruction, read the information sheets and answer the self check and activities provided to ascertain to yourself and your teacher that you have acquired the knowledge necessary to perform the skill portion of the particular learning outcome.
-
-    Upon completing this module, report to your teacher for assessment to check your achievement of knowledge and skills requirements of this module. If you pass the assessment, you will be given a certificate of completion.',
+This module consists of five (5) learning outcomes. Learning outcomes contain learning activities supported by instruction sheets.',
                 'learning_outcomes' => 'Upon completion of the module the students shall be able to:
-    1. Prepare to assemble electronics products
-    2. Prepare/Make PCB modules
-    3. Mount and solder electronic components
-    4. Assemble electronic products
-    5. Test and inspect assembled electronic products
-
-    Note: additional instructions will be provided by the instructor.',
+1. Prepare to assemble electronics products
+2. Prepare/Make PCB modules
+3. Mount and solder electronic components
+4. Assemble electronic products
+5. Test and inspect assembled electronic products',
                 'is_active' => true,
                 'order' => 1,
             ]);
@@ -85,17 +69,48 @@ class ModuleSeeder extends Seeder
                 'order' => 1,
             ]);
 
-            // Add Self Check for Information Sheet 1.1
-            SelfCheck::create([
+            // Add Self Check for Information Sheet 1.1 (new normalized schema)
+            $selfCheck1 = SelfCheck::create([
                 'information_sheet_id' => $infoSheet1->id,
                 'check_number' => '1.1.1',
-                'content' => '1. What is the difference between static electricity and current electricity?
-    2. Name three sources of electricity.
-    3. What are free electrons and why are they important in electronics?',
-                'answer_key' => '1. Static electricity is stationary electric charge, while current electricity is the flow of electric charge.
-    2. Batteries, generators, solar cells.
-    3. Free electrons are electrons that are not bound to atoms and can move freely, enabling electrical conduction.',
+                'title' => 'Electronics Fundamentals Quiz',
+                'description' => 'Test your understanding of basic electronics and electricity concepts.',
+                'instructions' => 'Answer the following questions based on Information Sheet 1.1. Read each question carefully before answering.',
+                'time_limit' => 15,
+                'passing_score' => 70,
+                'total_points' => 15,
+                'is_active' => true,
+            ]);
+
+            // Add questions for the self check
+            SelfCheckQuestion::create([
+                'self_check_id' => $selfCheck1->id,
+                'question_text' => 'What is the difference between static electricity and current electricity?',
+                'question_type' => 'essay',
+                'points' => 5,
+                'correct_answer' => 'Static electricity is stationary electric charge, while current electricity is the flow of electric charge.',
+                'explanation' => 'Static electricity involves charges that are not moving, while current electricity involves the continuous flow of electrons through a conductor.',
                 'order' => 1,
+            ]);
+
+            SelfCheckQuestion::create([
+                'self_check_id' => $selfCheck1->id,
+                'question_text' => 'Name three sources of electricity.',
+                'question_type' => 'enumeration',
+                'points' => 5,
+                'correct_answer' => 'Batteries, generators, solar cells',
+                'explanation' => 'Common sources include chemical (batteries), mechanical (generators), and photovoltaic (solar cells).',
+                'order' => 2,
+            ]);
+
+            SelfCheckQuestion::create([
+                'self_check_id' => $selfCheck1->id,
+                'question_text' => 'Free electrons are electrons bound tightly to atoms.',
+                'question_type' => 'true_false',
+                'points' => 5,
+                'correct_answer' => 'false',
+                'explanation' => 'Free electrons are NOT bound to atoms - they can move freely, which enables electrical conduction.',
+                'order' => 3,
             ]);
 
             // Create Information Sheet 1.2
@@ -107,44 +122,72 @@ class ModuleSeeder extends Seeder
                 'order' => 2,
             ]);
 
-            // Add Self Checks for Information Sheet 1.2
-            SelfCheck::create([
+            // Add Self Check for Information Sheet 1.2
+            $selfCheck2 = SelfCheck::create([
                 'information_sheet_id' => $infoSheet2->id,
                 'check_number' => '1.2.1',
-                'content' => 'What are the color bands for a 1k ohm resistor with 5% tolerance?',
-                'answer_key' => 'Brown, Black, Red, Gold',
+                'title' => 'Resistor Color Coding Quiz',
+                'description' => 'Test your knowledge of resistor color codes and Ohm\'s Law.',
+                'instructions' => 'Answer the questions about resistor identification and Ohm\'s Law calculations.',
+                'time_limit' => 10,
+                'passing_score' => 70,
+                'total_points' => 10,
+                'is_active' => true,
+            ]);
+
+            SelfCheckQuestion::create([
+                'self_check_id' => $selfCheck2->id,
+                'question_text' => 'What are the color bands for a 1k ohm resistor with 5% tolerance?',
+                'question_type' => 'identification',
+                'points' => 5,
+                'correct_answer' => 'Brown, Black, Red, Gold',
+                'explanation' => 'Brown=1, Black=0, Red=x100, Gold=5% tolerance. 10 x 100 = 1000 ohms = 1k ohm.',
                 'order' => 1,
             ]);
 
-            SelfCheck::create([
-                'information_sheet_id' => $infoSheet2->id,
-                'check_number' => '1.2.2',
-                'content' => 'State Ohm\'s Law and write the formula.',
-                'answer_key' => 'Ohm\'s Law states that the current through a conductor between two points is directly proportional to the voltage across the two points. Formula: V = I × R',
+            SelfCheckQuestion::create([
+                'self_check_id' => $selfCheck2->id,
+                'question_text' => 'What formula represents Ohm\'s Law?',
+                'question_type' => 'multiple_choice',
+                'points' => 5,
+                'correct_answer' => 'V = I × R',
+                'explanation' => 'Ohm\'s Law states voltage equals current times resistance.',
                 'order' => 2,
             ]);
 
-            // Add Task Sheet for Information Sheet 1.2
-            TaskSheet::create([
+            // Add Task Sheet for Information Sheet 1.2 (new normalized schema)
+            $taskSheet = TaskSheet::create([
                 'information_sheet_id' => $infoSheet2->id,
-                'sheet_number' => '1.2.1',
+                'task_number' => '1.2.1',
                 'title' => 'Resistor Color Coding Practice',
-                'objective' => 'To identify resistor values using color coding',
+                'description' => 'Practice identifying resistor values using color coding.',
                 'instructions' => '1. Gather 10 different resistors
-    2. Identify the color bands on each resistor
-    3. Calculate the resistance value and tolerance
-    4. Verify using a multi-tester',
-                'materials_needed' => 'Various resistors, multi-tester, notebook',
-                'performance_criteria' => '• Correctly identify resistor values
-    • Properly use multi-tester
-    • Accurate calculations',
-                'order' => 1,
+2. Identify the color bands on each resistor
+3. Calculate the resistance value and tolerance
+4. Verify using a multi-tester
+5. Record your findings in a table',
+                'estimated_duration' => 30,
+                'difficulty_level' => 'beginner',
+            ]);
+
+            // Add objectives to task sheet
+            DB::table('task_sheet_objectives')->insert([
+                ['task_sheet_id' => $taskSheet->id, 'objective' => 'Identify resistor values using color coding', 'order' => 1, 'created_at' => now(), 'updated_at' => now()],
+                ['task_sheet_id' => $taskSheet->id, 'objective' => 'Properly use a multi-tester to verify resistance', 'order' => 2, 'created_at' => now(), 'updated_at' => now()],
+                ['task_sheet_id' => $taskSheet->id, 'objective' => 'Calculate tolerance range for resistors', 'order' => 3, 'created_at' => now(), 'updated_at' => now()],
+            ]);
+
+            // Add materials to task sheet
+            DB::table('task_sheet_materials')->insert([
+                ['task_sheet_id' => $taskSheet->id, 'material_name' => 'Various resistors (10 pcs)', 'quantity' => '10', 'order' => 1, 'created_at' => now(), 'updated_at' => now()],
+                ['task_sheet_id' => $taskSheet->id, 'material_name' => 'Multi-tester', 'quantity' => '1', 'order' => 2, 'created_at' => now(), 'updated_at' => now()],
+                ['task_sheet_id' => $taskSheet->id, 'material_name' => 'Notebook', 'quantity' => '1', 'order' => 3, 'created_at' => now(), 'updated_at' => now()],
             ]);
 
             DB::commit();
-            
+
             $this->command->info('EPAS Course and Module seeder completed successfully!');
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             $this->command->error('Module seeder failed: ' . $e->getMessage());

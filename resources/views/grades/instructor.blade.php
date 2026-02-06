@@ -113,7 +113,7 @@
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0 grades-table">
                     <thead class="table-light">
                         <tr>
                             <th>Student</th>
@@ -149,7 +149,7 @@
                             <td>{{ $student->section ?? 'N/A' }}</td>
                             <td class="text-center">
                                 <div class="d-flex align-items-center justify-content-center">
-                                    <div class="progress me-2" style="width: 60px; height: 8px;">
+                                    <div class="progress me-2">
                                         <div class="progress-bar bg-{{ $gradeColor }}"
                                             role="progressbar"
                                             style="width: {{ $percentage }}%">
