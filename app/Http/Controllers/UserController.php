@@ -8,11 +8,13 @@ use App\Models\User;
 use App\Services\UserQueryService;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Imports\UsersImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 /**
  * UserController
@@ -265,8 +267,24 @@ class UserController extends Controller
 
         try {
             $currentUserId = Auth::id();
-            $userIds = collect($request->user_ids)->filter(fn($id) => $id != $currentUserId);
-            $deleted = User::whereIn('id', $userIds)->delete();
+            // Exclude current user and other admins from bulk delete for safety
+            $userIds = collect($request->user_ids)
+                ->filter(fn($id) => $id != $currentUserId);
+
+            // Get users to be deleted for logging
+            $usersToDelete = User::whereIn('id', $userIds)
+                ->where('role', '!=', Roles::ADMIN) // Never bulk delete admins
+                ->get(['id', 'email', 'role']);
+
+            $deleted = User::whereIn('id', $usersToDelete->pluck('id'))->delete();
+
+            // Log the bulk delete action
+            Log::info('Bulk delete performed', [
+                'admin_id' => $currentUserId,
+                'deleted_count' => $deleted,
+                'deleted_users' => $usersToDelete->toArray(),
+            ]);
+
             return redirect()->back()->with('success', "{$deleted} user(s) deleted successfully.");
         } catch (\Exception $e) {
             Log::error('Bulk delete failed', ['error' => $e->getMessage()]);
@@ -335,6 +353,184 @@ class UserController extends Controller
         } catch (\Exception $e) {
             Log::error('Bulk assign section failed', ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Failed to assign section. Please try again.');
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Bulk Import
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Show the bulk import form
+     */
+    public function showImportForm()
+    {
+        $this->authorizeAdmin();
+
+        $departments = Department::all();
+
+        return view('private.users.import', compact('departments'));
+    }
+
+    /**
+     * Process the bulk import
+     */
+    public function processImport(Request $request)
+    {
+        $this->authorizeAdmin();
+
+        $request->validate([
+            'file' => 'required|file|mimes:csv,xlsx,xls|max:5120', // Max 5MB
+            'default_password' => 'nullable|string|min:8',
+            'default_role' => 'required|in:student,instructor,admin',
+            'default_department_id' => 'nullable|exists:departments,id',
+            'auto_activate' => 'boolean',
+        ]);
+
+        try {
+            $import = new UsersImport(
+                defaultPassword: $request->input('default_password'),
+                autoActivate: $request->boolean('auto_activate'),
+                defaultRole: $request->input('default_role', 'student'),
+                defaultDepartmentId: $request->input('default_department_id')
+            );
+
+            Excel::import($import, $request->file('file'));
+
+            $imported = $import->getImportedCount();
+            $skipped = $import->getSkippedCount();
+            $skippedRows = $import->getSkippedRows();
+
+            // Log the import
+            Log::info('Bulk user import completed', [
+                'admin_id' => Auth::id(),
+                'imported' => $imported,
+                'skipped' => $skipped,
+                'file' => $request->file('file')->getClientOriginalName(),
+            ]);
+
+            // Store skipped rows in session for display
+            if (!empty($skippedRows)) {
+                session()->flash('import_skipped_rows', $skippedRows);
+            }
+
+            $message = "{$imported} user(s) imported successfully.";
+            if ($skipped > 0) {
+                $message .= " {$skipped} row(s) skipped due to errors.";
+            }
+
+            return redirect()
+                ->route('private.users.index')
+                ->with('success', $message);
+
+        } catch (\Exception $e) {
+            Log::error('Bulk import failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'admin_id' => Auth::id(),
+            ]);
+
+            return redirect()
+                ->back()
+                ->with('error', 'Import failed: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    /**
+     * Download sample import template
+     */
+    public function downloadTemplate()
+    {
+        $this->authorizeAdmin();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="user_import_template.csv"',
+        ];
+
+        $columns = [
+            'first_name',
+            'middle_name',
+            'last_name',
+            'ext_name',
+            'email',
+            'password',
+            'role',
+            'student_id',
+            'section',
+            'room_number',
+            'department',
+        ];
+
+        $sampleData = [
+            [
+                'John',
+                'Michael',
+                'Doe',
+                'Jr.',
+                'john.doe@example.com',
+                'Password123!',
+                'student',
+                'STU-2024-001',
+                'Section A',
+                '',
+                'Information Technology',
+            ],
+            [
+                'Jane',
+                '',
+                'Smith',
+                '',
+                'jane.smith@example.com',
+                'Password123!',
+                'instructor',
+                '',
+                '',
+                'Room 101',
+                'Information Technology',
+            ],
+        ];
+
+        $callback = function() use ($columns, $sampleData) {
+            $file = fopen('php://output', 'w');
+
+            // Add BOM for Excel UTF-8 compatibility
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            // Write headers
+            fputcsv($file, $columns);
+
+            // Write sample data
+            foreach ($sampleData as $row) {
+                fputcsv($file, $row);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authorization Helpers
+    |--------------------------------------------------------------------------
+    */
+
+    private function authorizeAdmin(): void
+    {
+        if (Auth::user()->role !== Roles::ADMIN) {
+            abort(403, 'Only administrators can perform this action.');
+        }
+    }
+
+    private function authorizeInstructor(): void
+    {
+        if (!in_array(Auth::user()->role, [Roles::ADMIN, Roles::INSTRUCTOR])) {
+            abort(403, 'Only administrators and instructors can perform this action.');
         }
     }
 }

@@ -138,7 +138,7 @@ Route::post('/verify-certificate', [CertificateController::class, 'verify'])->na
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:5,1');
+Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:3,1');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Password Reset
@@ -149,7 +149,7 @@ Route::prefix('forgot-password')->group(function () {
 
 Route::prefix('reset-password')->group(function () {
     Route::get('/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
-    Route::post('/', [ForgotPasswordController::class, 'reset'])->name('password.update');
+    Route::post('/', [ForgotPasswordController::class, 'reset'])->name('password.update')->middleware('throttle:5,1');
 });
 
 // Registration Verification (public routes for email verification flow)
@@ -253,7 +253,7 @@ Route::post('/email/verification-notification', function (Request $request) {
         }
         return back()->withErrors(['email' => $error]);
     }
-})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+})->middleware(['auth', 'throttle:3,1'])->name('verification.send');
 
 /*
 |--------------------------------------------------------------------------
@@ -343,6 +343,11 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/bulk-activate', [UserController::class, 'bulkActivate'])->name('bulk-activate');
             Route::post('/bulk-deactivate', [UserController::class, 'bulkDeactivate'])->name('bulk-deactivate');
             Route::post('/bulk-assign-section', [UserController::class, 'bulkAssignSection'])->name('bulk-assign-section');
+
+            // Bulk Import
+            Route::get('/import', [UserController::class, 'showImportForm'])->name('import');
+            Route::post('/import', [UserController::class, 'processImport'])->name('import.process');
+            Route::get('/import/template', [UserController::class, 'downloadTemplate'])->name('import.template');
         });
 
         // Role-Specific User Lists

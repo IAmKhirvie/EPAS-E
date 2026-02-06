@@ -263,12 +263,10 @@ class User extends Authenticatable implements MustVerifyEmail
             if (str_starts_with($this->profile_image, 'http')) {
                 return $this->profile_image;
             }
-            // Use HTTPS if current request is HTTPS
-            $path = 'storage/profile-images/' . $this->profile_image;
-            if (request()->secure()) {
-                return asset('https://' . request()->getHost() . '/' . $path);
-            }
-            return asset($path);
+            // asset() helper automatically handles HTTP/HTTPS based on request
+            // Add cache-busting with updated_at timestamp
+            $cacheBuster = $this->updated_at ? $this->updated_at->timestamp : time();
+            return asset('storage/profile-images/' . $this->profile_image) . '?v=' . $cacheBuster;
         }
 
         $initials = $this->initials;

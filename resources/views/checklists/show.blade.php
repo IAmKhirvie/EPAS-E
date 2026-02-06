@@ -8,7 +8,7 @@
         <div class="col-lg-8">
             <!-- Checklist Content -->
             <div class="card shadow-sm mb-4">
-                <div class="card-header text-white" style="background: #6f42c1;">
+                <div class="card-header bg-purple text-white">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <span class="badge bg-light text-dark me-2">{{ $checklist->checklist_number }}</span>
@@ -83,7 +83,7 @@
                                     </td>
                                     <td>
                                         @php $percentage = $checklist->max_score > 0 ? ($checklist->total_score / $checklist->max_score) * 100 : 0; @endphp
-                                        <div class="progress" style="height: 20px;">
+                                        <div class="progress progress-md">
                                             <div class="progress-bar bg-{{ $percentage >= 80 ? 'success' : ($percentage >= 60 ? 'warning' : 'danger') }}"
                                                  role="progressbar"
                                                  style="width: {{ $percentage }}%">

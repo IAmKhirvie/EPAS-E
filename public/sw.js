@@ -1,5 +1,5 @@
 // EPAS-E Service Worker
-const CACHE_NAME = 'epas-e-v3';
+const CACHE_NAME = 'epas-e-v4';
 const OFFLINE_URL = '/offline.html';
 
 // Static assets to cache immediately

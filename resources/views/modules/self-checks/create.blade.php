@@ -574,6 +574,87 @@
 .badge-image_hotspot { background: #ffebee; color: #c62828; }
 .badge-image_labeling { background: #ffcdd2; color: #b71c1c; }
 .badge-numeric { background: #e1f5fe; color: #0277bd; }
+
+/* Dark Mode Support */
+.dark-mode .question-sidebar,
+.dark-mode .quiz-main-area,
+.dark-mode .question-card {
+    background: var(--card-bg);
+    color: var(--card-text);
+    border-color: var(--border);
+}
+
+.dark-mode .question-type-btn {
+    background: var(--card-bg);
+    border-color: var(--border);
+    color: var(--text-primary);
+}
+
+.dark-mode .question-type-btn:hover {
+    background: var(--primary-foreground);
+    border-color: var(--primary);
+}
+
+.dark-mode .sidebar-title,
+.dark-mode .category-label {
+    color: var(--muted-foreground);
+    border-color: var(--border);
+}
+
+.dark-mode .question-header {
+    background: var(--card-header-bg);
+    border-color: var(--border);
+}
+
+.dark-mode .form-control,
+.dark-mode .form-select {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+.dark-mode .question-content {
+    background: var(--card-bg);
+}
+
+.dark-mode .add-option-btn,
+.dark-mode .add-pair-btn {
+    background: var(--card-bg);
+    border-color: var(--border);
+    color: var(--text-primary);
+}
+
+/* Mobile Utility Classes */
+.select-narrow {
+    max-width: 150px;
+}
+
+.select-mapping {
+    max-width: 120px;
+}
+
+.video-preview-container {
+    max-height: 300px;
+}
+
+.img-preview-sm {
+    max-height: 200px;
+}
+
+.img-preview-xs {
+    max-height: 100px;
+}
+
+@media (max-width: 576px) {
+    .select-narrow,
+    .select-mapping {
+        max-width: 100%;
+    }
+
+    .video-preview-container {
+        max-height: 200px;
+    }
+}
 </style>
 @endsection
 

@@ -53,7 +53,7 @@
             <div class="col-6 col-md-3 mb-3">
                 <div class="card text-center h-100 border-0 shadow-sm">
                     <div class="card-body py-3">
-                        <div class="card-counter text-primary" style="font-size: 28px; font-weight: bold;">{{ $totalStudents ?? 0 }}</div>
+                        <div class="card-counter text-primary" >{{ $totalStudents ?? 0 }}</div>
                         <div class="card-counter-label">Total Students</div>
                     </div>
                 </div>
@@ -61,7 +61,7 @@
             <div class="col-6 col-md-3 mb-3">
                 <div class="card text-center h-100 border-0 shadow-sm">
                     <div class="card-body py-3">
-                        <div class="card-counter text-info" style="font-size: 28px; font-weight: bold;">{{ $totalInstructors ?? 0 }}</div>
+                        <div class="card-counter text-info" >{{ $totalInstructors ?? 0 }}</div>
                         <div class="card-counter-label">Instructors</div>
                     </div>
                 </div>
@@ -69,7 +69,7 @@
             <div class="col-6 col-md-3 mb-3">
                 <div class="card text-center h-100 border-0 shadow-sm">
                     <div class="card-body py-3">
-                        <div class="card-counter text-success" style="font-size: 28px; font-weight: bold;">{{ $totalModules ?? 0 }}</div>
+                        <div class="card-counter text-success" >{{ $totalModules ?? 0 }}</div>
                         <div class="card-counter-label">Modules</div>
                     </div>
                 </div>
@@ -77,7 +77,7 @@
             <div class="col-6 col-md-3 mb-3">
                 <div class="card text-center h-100 border-0 shadow-sm">
                     <div class="card-body py-3">
-                        <div class="card-counter text-warning" style="font-size: 28px; font-weight: bold;">{{ $pendingEvaluations ?? 0 }}</div>
+                        <div class="card-counter text-warning" >{{ $pendingEvaluations ?? 0 }}</div>
                         <div class="card-counter-label">Pending</div>
                     </div>
                 </div>
@@ -86,7 +86,7 @@
             <div class="col-6 col-md-3 mb-3">
                 <div class="card text-center h-100 border-0 shadow-sm">
                     <div class="card-body py-3">
-                        <div class="card-counter text-primary" style="font-size: 28px; font-weight: bold;">{{ $totalStudents ?? 0 }}</div>
+                        <div class="card-counter text-primary" >{{ $totalStudents ?? 0 }}</div>
                         <div class="card-counter-label">My Students</div>
                     </div>
                 </div>
@@ -94,7 +94,7 @@
             <div class="col-6 col-md-3 mb-3">
                 <div class="card text-center h-100 border-0 shadow-sm">
                     <div class="card-body py-3">
-                        <div class="card-counter text-success" style="font-size: 28px; font-weight: bold;">{{ $totalModules ?? 0 }}</div>
+                        <div class="card-counter text-success" >{{ $totalModules ?? 0 }}</div>
                         <div class="card-counter-label">Modules</div>
                     </div>
                 </div>
@@ -102,7 +102,7 @@
             <div class="col-6 col-md-3 mb-3">
                 <div class="card text-center h-100 border-0 shadow-sm">
                     <div class="card-body py-3">
-                        <div class="card-counter text-warning" style="font-size: 28px; font-weight: bold;">{{ $pendingEvaluations ?? 0 }}</div>
+                        <div class="card-counter text-warning" >{{ $pendingEvaluations ?? 0 }}</div>
                         <div class="card-counter-label">Pending</div>
                     </div>
                 </div>
@@ -110,7 +110,7 @@
             <div class="col-6 col-md-3 mb-3">
                 <div class="card text-center h-100 border-0 shadow-sm">
                     <div class="card-body py-3">
-                        <div class="card-counter text-info" style="font-size: 28px; font-weight: bold;">{{ $ongoingBatches ?? 0 }}</div>
+                        <div class="card-counter text-info" >{{ $ongoingBatches ?? 0 }}</div>
                         <div class="card-counter-label">Sections</div>
                     </div>
                 </div>
@@ -119,7 +119,7 @@
             <div class="col-6 col-md-3 mb-3">
                 <div class="card text-center h-100 border-0 shadow-sm">
                     <div class="card-body py-3">
-                        <div class="card-counter text-primary" style="font-size: 28px; font-weight: bold;">{{ $student_progress ?? 0 }}%</div>
+                        <div class="card-counter text-primary" >{{ $student_progress ?? 0 }}%</div>
                         <div class="card-counter-label">Progress</div>
                     </div>
                 </div>
@@ -127,7 +127,7 @@
             <div class="col-6 col-md-3 mb-3">
                 <div class="card text-center h-100 border-0 shadow-sm">
                     <div class="card-body py-3">
-                        <div class="card-counter text-success" style="font-size: 28px; font-weight: bold;">{{ $finished_activities ?? '0/0' }}</div>
+                        <div class="card-counter text-success" >{{ $finished_activities ?? '0/0' }}</div>
                         <div class="card-counter-label">Completed</div>
                     </div>
                 </div>
@@ -135,7 +135,7 @@
             <div class="col-6 col-md-3 mb-3">
                 <div class="card text-center h-100 border-0 shadow-sm">
                     <div class="card-body py-3">
-                        <div class="card-counter text-info" style="font-size: 28px; font-weight: bold;">{{ $total_modules ?? 0 }}</div>
+                        <div class="card-counter text-info" >{{ $total_modules ?? 0 }}</div>
                         <div class="card-counter-label">Modules</div>
                     </div>
                 </div>
@@ -143,7 +143,7 @@
             <div class="col-6 col-md-3 mb-3">
                 <div class="card text-center h-100 border-0 shadow-sm">
                     <div class="card-body py-3">
-                        <div class="card-counter text-warning" style="font-size: 28px; font-weight: bold;">{{ $average_grade ?? '0%' }}</div>
+                        <div class="card-counter text-warning" >{{ $average_grade ?? '0%' }}</div>
                         <div class="card-counter-label">Avg Grade</div>
                     </div>
                 </div>
@@ -188,7 +188,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-body p-0" style="max-height: 550px; overflow-y: auto;">
+                <div class="card-body p-0" class="dashboard-feed-scroll">
                     <div id="activity-feed">
                         @php
                             // Combine announcements and submissions into activity feed
@@ -337,7 +337,7 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                    <div class="card-body p-0" class="dashboard-pending-scroll">
                         @if(strtolower(Auth::user()->role) === 'student')
                             {{-- Student Pending Activities --}}
                             @if(isset($pendingActivities) && $pendingActivities->count() > 0)

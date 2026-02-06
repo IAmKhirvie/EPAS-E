@@ -155,7 +155,7 @@
                                     </td>
                                     <td class="text-center">{{ $module['average_score'] }}%</td>
                                     <td>
-                                        <div class="progress" style="height: 8px; width: 100px;">
+                                        <div class="progress progress-mini">
                                             <div class="progress-bar bg-success" style="width: {{ $module['pass_rate'] }}%"></div>
                                             <div class="progress-bar bg-danger" style="width: {{ $module['fail_rate'] }}%"></div>
                                         </div>
@@ -191,15 +191,15 @@
                             <li class="list-group-item d-flex align-items-center py-3">
                                 <div class="me-3">
                                     @if($index === 0)
-                                        <span class="badge bg-warning text-dark rounded-circle p-2" style="width: 32px; height: 32px;">
+                                        <span class="badge bg-warning text-dark rounded-circle p-2" class="badge-circle">
                                             <i class="fas fa-crown"></i>
                                         </span>
                                     @elseif($index === 1)
-                                        <span class="badge bg-secondary rounded-circle p-2" style="width: 32px; height: 32px;">2</span>
+                                        <span class="badge bg-secondary rounded-circle p-2" class="badge-circle">2</span>
                                     @elseif($index === 2)
-                                        <span class="badge bg-danger rounded-circle p-2" style="width: 32px; height: 32px;">3</span>
+                                        <span class="badge bg-danger rounded-circle p-2" class="badge-circle">3</span>
                                     @else
-                                        <span class="badge bg-light text-dark rounded-circle p-2" style="width: 32px; height: 32px;">{{ $index + 1 }}</span>
+                                        <span class="badge bg-light text-dark rounded-circle p-2" class="badge-circle">{{ $index + 1 }}</span>
                                     @endif
                                 </div>
                                 <div class="flex-grow-1">
@@ -269,7 +269,7 @@
                     <h5 class="mb-0"><i class="fas fa-chart-bar me-2 text-primary"></i>Module Performance</h5>
                     <small class="text-muted">Pass vs Fail rates by module</small>
                 </div>
-                <div class="card-body" style="height: 300px; position: relative;">
+                <div class="card-body" class="chart-container">
                     <canvas id="modulePerformanceChart"></canvas>
                 </div>
             </div>
@@ -282,7 +282,7 @@
                     <h5 class="mb-0"><i class="fas fa-chart-pie me-2 text-success"></i>Overall Results</h5>
                     <small class="text-muted">Total pass vs fail distribution</small>
                 </div>
-                <div class="card-body d-flex align-items-center justify-content-center" style="height: 300px; position: relative;">
+                <div class="card-body d-flex align-items-center justify-content-center" class="chart-container">
                     <canvas id="overallResultsChart"></canvas>
                 </div>
             </div>
@@ -317,7 +317,7 @@
                             </div>
                         </div>
                     </div>
-                    <div style="height: 250px; position: relative;">
+                    <div class="chart-container-sm">
                         <canvas id="dailyActivityChart"></canvas>
                     </div>
                 </div>

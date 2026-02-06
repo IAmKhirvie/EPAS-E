@@ -3,7 +3,7 @@
   position: fixed;
   bottom: 3rem;
   right: 3rem;
-  z-index: 10000;
+  z-index: var(--z-fab);
 }
 
 .fab-main {
@@ -13,14 +13,14 @@
   color: white;
   border: none;
   border-radius: 50%;
-  font-size: 24px;
+  font-size: 1.5rem;
   cursor: pointer;
   box-shadow: 0 4px 15px rgba(0, 127, 201, 0.3);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: var(--z-fab);
 }
 
 .fab-main:hover {
@@ -44,7 +44,7 @@
     height: 100%;
     background: rgba(13, 110,253, 0.2);
     backdrop-filter: blur(2px);
-    z-index: 1050;
+    z-index: var(--z-fab-backdrop);
     opacity: 0;
     transition: opacity 0.3s ease;
     cursor: pointer;
@@ -62,7 +62,7 @@
   display: none;
   flex-direction: column;
   align-items: flex-end;
-  z-index: 1102;
+  z-index: var(--z-fab-options);
   /* Allow options to expand fully */
   min-width: max-content; /* This ensures container expands to fit content */
 }
@@ -78,13 +78,13 @@
   color: var(--primary);
   border: 1px solid var(--border);
   border-radius: 50px;
-  padding: 10px 18px;
-  margin-bottom: 10px;
+  padding: 0.625rem 1.125rem;
+  margin-bottom: 0.625rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
-  z-index: 1103;
+  z-index: var(--z-fab-options);
   /* Allow full expansion */
   width: auto;
   min-width: auto;
@@ -98,13 +98,13 @@
 }
 
 .fab-option i {
-  margin-right: 10px;
-  font-size: 16px;
+  margin-right: 0.625rem;
+  font-size: 1rem;
   flex-shrink: 0;
 }
 
 .fab-label {
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
   white-space: nowrap;
   /* Ensure text is fully visible */
@@ -112,7 +112,8 @@
   text-overflow: clip;
 }
 
-.slide-sidebar {
+/* Note: .slide-sidebar is defined in adduser.css - this is kept for backwards compatibility */
+.fab-slide-sidebar {
     position: fixed;
     top: 0;
     right: -400px;
@@ -121,13 +122,13 @@
     background: var(--card);
     color: var(--text-primary);
     box-shadow: -2px 0 20px rgba(0, 0, 0, 0.15);
-    z-index: 12000;
+    z-index: var(--z-slide-panel);
     transition: right 0.3s ease;
     overflow-y: auto;
     border-left: 1px solid var(--border);
 }
 
-.slide-sidebar.active {
+.fab-slide-sidebar.active {
     right: 0;
 }
 
@@ -138,7 +139,7 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 11000;
+    z-index: var(--z-slide-panel-overlay);
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
@@ -188,26 +189,26 @@
     bottom: 1rem;
     right: 1rem;
   }
-  
+
   .fab-main {
-    width: 56px;
-    height: 56px;
-    font-size: 22px;
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.375rem;
   }
-  
+
   .fab-options {
-    bottom: 65px;
+    bottom: 4rem;
     /* Ensure container expands on mobile */
     min-width: max-content;
   }
-  
+
   .fab-option {
-    padding: 8px 14px;
-    margin-bottom: 8px;
+    padding: 0.5rem 0.875rem;
+    margin-bottom: 0.5rem;
   }
-  
+
   .fab-label {
-    font-size: 13px;
+    font-size: 0.8125rem;
   }
   
   .slide-sidebar {
@@ -227,30 +228,30 @@
     bottom: 0.75rem;
     right: 0.75rem;
   }
-  
+
   .fab-main {
-    width: 52px;
-    height: 52px;
-    font-size: 20px;
+    width: 3.25rem;
+    height: 3.25rem;
+    font-size: 1.25rem;
   }
-  
+
   .fab-options {
-    bottom: 60px;
-    right: -5px;
+    bottom: 3.75rem;
+    right: -0.3125rem;
   }
-  
+
   .fab-option {
-    padding: 7px 12px;
-    margin-bottom: 6px;
+    padding: 0.4375rem 0.75rem;
+    margin-bottom: 0.375rem;
   }
-  
+
   .fab-option i {
-    margin-right: 6px;
-    font-size: 14px;
+    margin-right: 0.375rem;
+    font-size: 0.875rem;
   }
-  
+
   .fab-label {
-    font-size: 12px;
+    font-size: 0.75rem;
   }
 }
 
@@ -260,31 +261,31 @@
     bottom: 0.5rem;
     right: 0.5rem;
   }
-  
+
   .fab-main {
-    width: 48px;
-    height: 48px;
-    font-size: 18px;
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.125rem;
   }
-  
+
   .fab-options {
-    bottom: 55px;
-    right: -8px;
+    bottom: 3.4375rem;
+    right: -0.5rem;
   }
-  
+
   .fab-option {
-    padding: 6px 10px;
-    margin-bottom: 5px;
+    padding: 0.375rem 0.625rem;
+    margin-bottom: 0.3125rem;
   }
-  
+
   .fab-label {
-    font-size: 11px;
+    font-size: 0.6875rem;
   }
 }
 
 /* When sidebar is active, lower FAB z-index */
 .slide-sidebar.active ~ .fab-container {
-  z-index: 9999;
+  z-index: var(--z-slide-panel-overlay);
 }
 
 /* Safe area support for notched phones */

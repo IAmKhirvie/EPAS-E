@@ -21,6 +21,27 @@ class AuditLogMiddleware
         'api/*',
     ];
 
+    /**
+     * Sensitive fields that should never be logged
+     */
+    protected array $sensitiveFields = [
+        'password',
+        'password_confirmation',
+        'current_password',
+        'new_password',
+        'reset_token',
+        'secret',
+        'backup_codes',
+        'two_factor_secret',
+        'api_token',
+        'remember_token',
+        '_token',
+        'credit_card',
+        'card_number',
+        'cvv',
+        'ssn',
+    ];
+
     public function __construct(AuditLogService $auditLog)
     {
         $this->auditLog = $auditLog;
@@ -30,14 +51,13 @@ class AuditLogMiddleware
     {
         $response = $next($request);
 
-        // Only log for authenticated users and specific HTTP methods
+        // Log for authenticated users and specific HTTP methods (both success AND failure)
         if (
             auth()->check() &&
             in_array($request->method(), $this->auditableActions) &&
-            !$this->isExcluded($request) &&
-            $response->isSuccessful()
+            !$this->isExcluded($request)
         ) {
-            $this->logRequest($request);
+            $this->logRequest($request, $response);
         }
 
         return $response;
@@ -61,18 +81,53 @@ class AuditLogMiddleware
         return false;
     }
 
-    protected function logRequest(Request $request): void
+    protected function logRequest(Request $request, Response $response): void
     {
         $action = $this->getActionFromMethod($request->method());
         $routeName = $request->route()?->getName() ?? 'unknown';
+        $isSuccess = $response->isSuccessful();
+
+        // Include response status in action for failed requests
+        $actionDescription = $isSuccess
+            ? "Action performed: {$routeName}"
+            : "Action FAILED ({$response->getStatusCode()}): {$routeName}";
 
         $this->auditLog->log(
-            $action,
-            "Action performed: {$routeName}",
+            $isSuccess ? $action : "{$action}_failed",
+            $actionDescription,
             null,
             null,
-            $request->except(['password', 'password_confirmation', '_token'])
+            $this->filterSensitiveData($request->all())
         );
+    }
+
+    /**
+     * Filter out sensitive data from request payload
+     */
+    protected function filterSensitiveData(array $data): array
+    {
+        $filtered = [];
+
+        foreach ($data as $key => $value) {
+            // Check if key matches any sensitive field (case-insensitive)
+            $isSensitive = false;
+            foreach ($this->sensitiveFields as $field) {
+                if (stripos($key, $field) !== false) {
+                    $isSensitive = true;
+                    break;
+                }
+            }
+
+            if ($isSensitive) {
+                $filtered[$key] = '[REDACTED]';
+            } elseif (is_array($value)) {
+                $filtered[$key] = $this->filterSensitiveData($value);
+            } else {
+                $filtered[$key] = $value;
+            }
+        }
+
+        return $filtered;
     }
 
     protected function getActionFromMethod(string $method): string

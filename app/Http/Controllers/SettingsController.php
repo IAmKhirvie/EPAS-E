@@ -140,6 +140,11 @@ class SettingsController extends Controller
     {
         $request->validate([
             'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'profile_image.required' => 'Please select an image to upload.',
+            'profile_image.image' => 'The file must be a valid image.',
+            'profile_image.mimes' => 'Only JPG, PNG, and GIF files are allowed.',
+            'profile_image.max' => 'Image size must be less than 2MB.',
         ]);
 
         $user = Auth::user();
@@ -165,7 +170,14 @@ class SettingsController extends Controller
     {
         $request->validate([
             'current_password' => 'required',
-            'password' => 'required|min:8|confirmed',
+            'password' => [
+                'required',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+=\-\[\]{}|:;<>,.?\/~`])[A-Za-z\d@$!%*?&#^()_+=\-\[\]{}|:;<>,.?\/~`]{8,}$/',
+            ],
+        ], [
+            'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
         ]);
 
         $user = Auth::user();

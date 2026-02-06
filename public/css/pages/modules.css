@@ -1196,3 +1196,39 @@ body.edit-mode .editable-textarea {
     --danger: #dc3545;
     --primary-rgb: 13, 110, 253;
 }
+
+/* ===== RESPONSIVE UTILITY CLASSES ===== */
+
+/* Progress circle container */
+.progress-circle-container {
+    width: 70px;
+    height: 70px;
+}
+
+.progress-circle-svg {
+    transform: rotate(-90deg);
+}
+
+/* Sticky sidebar offset */
+.sticky-sidebar-offset {
+    top: 80px;
+}
+
+@media (max-width: 992px) {
+    .progress-circle-container {
+        width: 60px;
+        height: 60px;
+    }
+
+    .sticky-sidebar-offset {
+        position: relative !important;
+        top: 0 !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .progress-circle-container {
+        width: 50px;
+        height: 50px;
+    }
+}

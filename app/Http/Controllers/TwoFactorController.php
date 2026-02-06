@@ -96,7 +96,10 @@ class TwoFactorController extends Controller
             return back()->with('error', 'Invalid verification code.');
         }
 
+        // Regenerate session ID after successful 2FA to prevent session fixation
+        session()->regenerate();
         session()->put('2fa_verified', true);
+        session()->put('2fa_verified_at', now());
 
         return redirect()->intended('/dashboard');
     }
