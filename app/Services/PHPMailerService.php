@@ -500,6 +500,43 @@ class PHPMailerService
     }
 
     /**
+     * Send a generic notification email (used for admin alerts)
+     */
+    public function sendNotificationEmail(string $toEmail, string $toName, string $subject, string $bodyHtml, string $bodyText): bool
+    {
+        try {
+            $this->debugOutput = '';
+            $this->mail->clearAddresses();
+            $this->mail->clearAttachments();
+            $this->mail->clearReplyTos();
+
+            $fromAddress = env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME'));
+            $fromName = env('MAIL_FROM_NAME', 'EPAS-E LMS');
+            $this->mail->addReplyTo($fromAddress, $fromName);
+
+            if (empty($toEmail) || !filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {
+                Log::error("Invalid email for notification: " . ($toEmail ?? 'NULL'));
+                return false;
+            }
+
+            $this->mail->addAddress($toEmail, $toName);
+            $this->mail->isHTML(true);
+            $this->mail->Subject = $subject;
+            $this->mail->Body = $bodyHtml;
+            $this->mail->AltBody = $bodyText;
+
+            $result = $this->mail->send();
+            if ($result) {
+                Log::info("Notification email sent to {$toEmail}: {$subject}");
+            }
+            return $result;
+        } catch (\Exception $e) {
+            Log::error("Failed to send notification email to {$toEmail}: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Get the last debug output from SMTP communication
      */
     public function getDebugOutput(): string

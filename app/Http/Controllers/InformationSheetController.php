@@ -4,13 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Module;
 use App\Models\InformationSheet;
+use App\Services\FileParsingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Traits\SanitizesContent;
 
 class InformationSheetController extends Controller
 {
     use SanitizesContent;
+
+    public function __construct(protected FileParsingService $fileParser)
+    {
+    }
+
     public function create(Module $module)
     {
         $nextOrder = $module->informationSheets()->max('order') + 1;
@@ -24,11 +31,33 @@ class InformationSheetController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
             'order' => 'required|integer|min:0',
+            'file' => 'nullable|file|mimes:pdf,xlsx,xls|max:10240',
         ]);
 
         try {
-            // Sanitize content to prevent XSS
             $validated = $this->sanitizeFields($validated, ['content']);
+
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $filePath = $file->storeAs('information-sheets', $filename, 'public');
+
+                $validated['file_path'] = $filePath;
+                $validated['original_filename'] = $file->getClientOriginalName();
+
+                $extractedText = $this->fileParser->extractText(
+                    $file->getRealPath(),
+                    $file->getMimeType()
+                );
+
+                if ($extractedText) {
+                    if (!empty($validated['content'])) {
+                        $validated['content'] .= "\n\n--- Extracted from uploaded file ---\n\n" . $extractedText;
+                    } else {
+                        $validated['content'] = $extractedText;
+                    }
+                }
+            }
 
             $informationSheet = $module->informationSheets()->create($validated);
 
@@ -37,7 +66,7 @@ class InformationSheetController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Information sheet creation failed: ' . $e->getMessage());
-            
+
             return back()->withInput()
                 ->with('error', 'Failed to create information sheet. Please try again.');
         }
@@ -55,11 +84,38 @@ class InformationSheetController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
             'order' => 'required|integer|min:0',
+            'file' => 'nullable|file|mimes:pdf,xlsx,xls|max:10240',
         ]);
 
         try {
-            // Sanitize content to prevent XSS
             $validated = $this->sanitizeFields($validated, ['content']);
+
+            if ($request->hasFile('file')) {
+                // Delete old file if exists
+                if ($informationSheet->file_path) {
+                    Storage::disk('public')->delete($informationSheet->file_path);
+                }
+
+                $file = $request->file('file');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $filePath = $file->storeAs('information-sheets', $filename, 'public');
+
+                $validated['file_path'] = $filePath;
+                $validated['original_filename'] = $file->getClientOriginalName();
+
+                $extractedText = $this->fileParser->extractText(
+                    $file->getRealPath(),
+                    $file->getMimeType()
+                );
+
+                if ($extractedText) {
+                    if (!empty($validated['content'])) {
+                        $validated['content'] .= "\n\n--- Extracted from uploaded file ---\n\n" . $extractedText;
+                    } else {
+                        $validated['content'] = $extractedText;
+                    }
+                }
+            }
 
             $informationSheet->update($validated);
 
@@ -68,16 +124,37 @@ class InformationSheetController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Information sheet update failed: ' . $e->getMessage());
-            
+
             return back()->withInput()
                 ->with('error', 'Failed to update information sheet. Please try again.');
         }
+    }
+
+    public function download(Module $module, InformationSheet $informationSheet)
+    {
+        if (!$informationSheet->file_path) {
+            return redirect()->back()->with('error', 'No file attached to this information sheet.');
+        }
+
+        $filePath = Storage::disk('public')->path($informationSheet->file_path);
+
+        if (!file_exists($filePath)) {
+            return redirect()->back()->with('error', 'File not found.');
+        }
+
+        return response()->download($filePath, $informationSheet->original_filename);
     }
 
     public function destroy(Module $module, InformationSheet $informationSheet)
     {
         try {
             $sheetNumber = $informationSheet->sheet_number;
+
+            // Delete attached file
+            if ($informationSheet->file_path) {
+                Storage::disk('public')->delete($informationSheet->file_path);
+            }
+
             $informationSheet->delete();
 
             if (request()->expectsJson()) {
@@ -91,13 +168,13 @@ class InformationSheetController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Information sheet deletion failed: ' . $e->getMessage());
-            
+
             if (request()->expectsJson()) {
                 return response()->json([
                     'message' => 'Failed to delete information sheet. Please try again.'
                 ], 500);
             }
-            
+
             return back()->with('error', 'Failed to delete information sheet. Please try again.');
         }
     }

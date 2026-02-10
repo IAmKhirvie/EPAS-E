@@ -12,8 +12,11 @@
         </div>
     </div>
 
-    <!-- Left side - Logo and Title -->
+    <!-- Left side - Logo and Title (mobile) -->
     <div class="navbar-left-2">
+        <button class="mobile-sidebar-toggle" id="mobile-sidebar-toggle" aria-label="Open menu">
+            <i class="fas fa-bars" aria-hidden="true"></i>
+        </button>
         <a class="navbar-brand" href="{{ route('lobby') }}">
             <div class="navbar-logo-container">
                 <img src="{{ dynamic_asset('assets/EPAS-E.png') }}" alt="EPAS-E LMS" class="logo">
@@ -44,7 +47,7 @@
         <!-- Notifications / Activity Feed -->
         <div class="navbar-item">
             <button class="icon-button" id="notifications-btn" title="Activity Feed" aria-label="Activity Feed">
-                <i class="fas fa-newspaper" aria-hidden="true"></i>
+                <i class="fas fa-bell" aria-hidden="true"></i>
                 @if(isset($recentAnnouncementsCount) && $recentAnnouncementsCount > 0)
                 <span class="notification-badge" id="notification-badge">
                     {{ $recentAnnouncementsCount }}
@@ -145,18 +148,17 @@
             </button>
             <div class="dropdown" id="user-dropdown">
                 <div class="dropdown-content">
-                    <div class="dropdown-header" id="dropdown-username">
-                        {{ $user->first_name }} {{ $user->last_name }}
+                    <div class="dropdown-profile-header">
+                        <div class="dropdown-avatar">
+                            <img src="{{ $user->profile_image_url }}" alt="Avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                            <span class="avatar-fallback" style="display: {{ $user->profile_image ? 'none' : 'flex' }};">{{ $user->initials }}</span>
+                        </div>
+                        <div class="dropdown-user-info">
+                            <span class="dropdown-user-name">{{ $user->first_name }} {{ $user->last_name }}</span>
+                            <span class="dropdown-user-role">{{ ucfirst($user->role) }}</span>
+                        </div>
                     </div>
                     <div class="dropdown-divider"></div>
-                    <a href="{{ route('about') }}" class="dropdown-item">
-                        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-                        About Us
-                    </a>
-                    <a href="{{ route('contact') }}" class="dropdown-item">
-                        <i class="fa-solid fa-phone" aria-hidden="true"></i>
-                        Contact Us
-                    </a>
                     @if(!$user->hasVerifiedEmail())
                     <a href="{{ route('settings.index') }}#profile" class="dropdown-item text-warning">
                         <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
@@ -166,6 +168,14 @@
                     <a href="{{ route('settings.index') }}" class="dropdown-item">
                         <i class="fas fa-cog" aria-hidden="true"></i>
                         Settings
+                    </a>
+                    <a href="{{ route('about') }}" class="dropdown-item">
+                        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                        About Us
+                    </a>
+                    <a href="{{ route('contact') }}" class="dropdown-item">
+                        <i class="fa-solid fa-phone" aria-hidden="true"></i>
+                        Contact Us
                     </a>
                     <div class="dropdown-divider"></div>
                     <button class="dropdown-item text-danger" id="logout-btn">

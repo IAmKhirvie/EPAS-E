@@ -45,6 +45,8 @@ class InformationSheet extends Model
         'title',
         'description',
         'content',
+        'file_path',
+        'original_filename',
         'parts',
         'order',
         'is_active',

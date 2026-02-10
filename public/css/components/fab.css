@@ -132,23 +132,7 @@
     right: 0;
 }
 
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: var(--z-slide-panel-overlay);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-}
-
-.overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
+/* .overlay styles are defined in overlay.css */
 
 .body.sidebar-open {
     overflow: hidden;
@@ -167,27 +151,11 @@
 
 /* ===== MOBILE RESPONSIVENESS FOR FAB ===== */
 
-/* Tablet devices */
+/* Mobile devices — position FAB above the bottom nav (60px height + gap) */
 @media (max-width: 1032px) {
   .fab-container {
-    bottom: 1.5rem;
-    right: 1.5rem;
-  }
-  
-  .slide-sidebar {
-    width: 380px;
-  }
-  
-  .fab-option {
-    padding: 9px 16px;
-  }
-}
-
-/* Mobile devices */
-@media (max-width: 1032px) {
-  .fab-container {
-    bottom: 1rem;
-    right: 1rem;
+    bottom: calc(60px + 1.25rem);
+    right: 1.25rem;
   }
 
   .fab-main {
@@ -210,13 +178,13 @@
   .fab-label {
     font-size: 0.8125rem;
   }
-  
+
   .slide-sidebar {
     width: 100%;
     right: -100%;
     max-width: 400px;
   }
-  
+
   .slide-sidebar.active {
     right: 0;
   }
@@ -225,7 +193,7 @@
 /* Small mobile devices */
 @media (max-width: 480px) {
   .fab-container {
-    bottom: 0.75rem;
+    bottom: calc(60px + 0.75rem);
     right: 0.75rem;
   }
 
@@ -258,7 +226,7 @@
 /* Extra small devices */
 @media (max-width: 360px) {
   .fab-container {
-    bottom: 0.5rem;
+    bottom: calc(60px + 0.5rem);
     right: 0.5rem;
   }
 
@@ -292,15 +260,8 @@
 @supports(padding: max(0px)) {
   @media (max-width: 1032px) {
     .fab-container {
-      bottom: max(0.75rem, env(safe-area-inset-bottom));
-      right: max(0.75rem, env(safe-area-inset-right));
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .fab-container {
-      bottom: max(1.5rem, env(safe-area-inset-bottom));
-      right: max(1.5rem, env(safe-area-inset-right));
+      bottom: max(calc(60px + 1.25rem), calc(60px + env(safe-area-inset-bottom)));
+      right: max(1.25rem, env(safe-area-inset-right));
     }
   }
 }

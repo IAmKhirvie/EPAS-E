@@ -19,6 +19,28 @@
     </div>
     @endif
 
+    {{-- Student ID Missing Banner --}}
+    @if(strtolower(Auth::user()->role) === 'student' && empty(Auth::user()->student_id))
+    <div class="alert alert-info alert-dismissible fade show d-flex align-items-center mb-4" role="alert"
+         id="studentIdBanner" data-user-id="{{ Auth::id() }}">
+        <i class="fas fa-id-card me-3" style="font-size: 1.5rem;"></i>
+        <div class="flex-grow-1">
+            <strong>Student ID Not Assigned</strong><br>
+            You don't have a Student ID yet. Please approach the admin to get one assigned.
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+                onclick="localStorage.setItem('studentIdBannerDismissed_{{ Auth::id() }}', 'true')"></button>
+    </div>
+    <script>
+        (function() {
+            var banner = document.getElementById('studentIdBanner');
+            if (banner && localStorage.getItem('studentIdBannerDismissed_' + banner.dataset.userId)) {
+                banner.remove();
+            }
+        })();
+    </script>
+    @endif
+
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
@@ -316,11 +338,11 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-warning bg-opacity-10 d-flex justify-content-between align-items-center py-2">
                         <h6 class="mb-0">
-                            <i class="fas fa-clock text-warning me-2"></i>Pending
+                            <i class="fas fa-clock text-warning me-2"></i>Pending Requests
                             @php
                                 $pendingCount = strtolower(Auth::user()->role) === 'student'
                                     ? (isset($pendingActivities) ? $pendingActivities->count() : 0)
-                                    : ($pendingEvaluations ?? 0);
+                                    : (($pendingEvaluations ?? 0) + ($pendingRegistrationsCount ?? 0));
                             @endphp
                             @if($pendingCount > 0)
                                 <span class="badge bg-warning text-dark">{{ $pendingCount }}</span>
@@ -364,23 +386,63 @@
                                 </div>
                             @endif
                         @else
-                            {{-- Instructor/Admin Pending Submissions --}}
-                            @if(isset($recentSubmissions) && $recentSubmissions->count() > 0)
+                            {{-- Instructor/Admin Pending Items --}}
+                            @if((isset($pendingRegistrations) && $pendingRegistrations->count() > 0) ||
+                                (isset($recentSubmissions) && $recentSubmissions->count() > 0))
                                 <div class="list-group list-group-flush" id="pending-list">
-                                    @foreach($recentSubmissions as $submission)
-                                        <a href="{{ $submission['url'] ?? '#' }}" class="list-group-item list-group-item-action py-2 pending-item"
-                                           data-type="{{ $submission['type'] ?? '' }}" data-date="{{ $submission['submitted_at'] ?? '' }}">
-                                            <div class="d-flex align-items-center">
-                                                <div class="activity-icon-sm me-2" style="background-color: {{ $submission['color'] }}20; color: {{ $submission['color'] }}">
-                                                    <i class="{{ $submission['icon'] }}"></i>
+
+                                    {{-- Pending Registrations --}}
+                                    @if(isset($pendingRegistrations) && $pendingRegistrations->count() > 0)
+                                        <div class="list-group-item bg-light py-1 border-bottom">
+                                            <small class="text-muted fw-bold text-uppercase">Pending Registrations</small>
+                                        </div>
+                                        @foreach($pendingRegistrations as $registration)
+                                            <div class="list-group-item py-2 pending-item" data-type="registration" data-date="{{ $registration->email_verified_at }}">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div class="activity-icon-sm me-2" style="background-color: #0d6efd20; color: #0d6efd">
+                                                        <i class="fas fa-user-plus"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1 min-width-0">
+                                                        <div class="fw-medium text-truncate small">{{ $registration->full_name }}</div>
+                                                        <small class="text-muted text-truncate d-block">{{ $registration->email }}</small>
+                                                        <small class="text-success"><i class="fas fa-check-circle me-1"></i>Email verified</small>
+                                                    </div>
                                                 </div>
-                                                <div class="flex-grow-1 min-width-0">
-                                                    <div class="fw-medium text-truncate small">{{ $submission['student_name'] }}</div>
-                                                    <small class="text-muted text-truncate d-block">{{ $submission['title'] }}</small>
+                                                <div class="d-flex gap-1">
+                                                    <form action="{{ route('admin.registrations.approve', $registration) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-success btn-sm" title="Approve">
+                                                            <i class="fas fa-check me-1"></i>Approve
+                                                        </button>
+                                                    </form>
+                                                    <a href="{{ route('admin.registrations.show', $registration) }}" class="btn btn-outline-secondary btn-sm" title="View">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
                                                 </div>
                                             </div>
-                                        </a>
-                                    @endforeach
+                                        @endforeach
+                                    @endif
+
+                                    {{-- Pending Evaluations --}}
+                                    @if(isset($recentSubmissions) && $recentSubmissions->count() > 0)
+                                        <div class="list-group-item bg-light py-1 border-bottom">
+                                            <small class="text-muted fw-bold text-uppercase">Pending Evaluations</small>
+                                        </div>
+                                        @foreach($recentSubmissions as $submission)
+                                            <a href="{{ $submission['url'] ?? '#' }}" class="list-group-item list-group-item-action py-2 pending-item"
+                                               data-type="{{ $submission['type'] ?? '' }}" data-date="{{ $submission['submitted_at'] ?? '' }}">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="activity-icon-sm me-2" style="background-color: {{ $submission['color'] }}20; color: {{ $submission['color'] }}">
+                                                        <i class="{{ $submission['icon'] }}"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1 min-width-0">
+                                                        <div class="fw-medium text-truncate small">{{ $submission['student_name'] }}</div>
+                                                        <small class="text-muted text-truncate d-block">{{ $submission['title'] }}</small>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        @endforeach
+                                    @endif
                                 </div>
                             @else
                                 <div class="text-center py-4 text-muted">

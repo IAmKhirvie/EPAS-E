@@ -115,9 +115,11 @@
       function applyTheme(theme) {
         if (theme === 'dark') {
           body.classList.add('dark-mode');
+          document.documentElement.classList.add('dark-mode');
           if (darkModeIcon) darkModeIcon.className = 'fas fa-sun';
         } else {
           body.classList.remove('dark-mode');
+          document.documentElement.classList.remove('dark-mode');
           if (darkModeIcon) darkModeIcon.className = 'fas fa-moon';
         }
       }

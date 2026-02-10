@@ -28,9 +28,11 @@
     function applyTheme(theme) {
         if (theme === 'dark') {
             body.classList.add('dark-mode');
+            document.documentElement.classList.add('dark-mode');
             darkModeIcon.className = 'fas fa-sun';
         } else {
             body.classList.remove('dark-mode');
+            document.documentElement.classList.remove('dark-mode');
             darkModeIcon.className = 'fas fa-moon';
         }
     }
@@ -44,13 +46,13 @@
         const isDark = body.classList.contains('dark-mode');
 
         if (isDark) {
-            // Switch to light mode
             body.classList.remove('dark-mode');
+            document.documentElement.classList.remove('dark-mode');
             localStorage.setItem('theme', 'light');
             darkModeIcon.className = 'fas fa-moon';
         } else {
-            // Switch to dark mode
             body.classList.add('dark-mode');
+            document.documentElement.classList.add('dark-mode');
             localStorage.setItem('theme', 'dark');
             darkModeIcon.className = 'fas fa-sun';
         }

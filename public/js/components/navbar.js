@@ -40,10 +40,18 @@ class TopNavbar {
     }
 
     setupEventListeners() {
-        // Sidebar toggle
+        // Sidebar toggle (desktop)
         const sidebarToggle = document.getElementById('sidebar-toggle');
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
+                this.toggleSidebar();
+            });
+        }
+
+        // Mobile sidebar toggle (hamburger in navbar-left-2)
+        const mobileSidebarToggle = document.getElementById('mobile-sidebar-toggle');
+        if (mobileSidebarToggle) {
+            mobileSidebarToggle.addEventListener('click', () => {
                 this.toggleSidebar();
             });
         }
@@ -128,13 +136,13 @@ class TopNavbar {
         const applyTheme = (theme) => {
             if (theme === 'dark') {
                 body.classList.add('dark-mode');
+                document.documentElement.classList.add('dark-mode');
                 darkModeIcon.className = 'fas fa-sun';
-                // Update localStorage
                 localStorage.setItem('theme', 'dark');
             } else {
                 body.classList.remove('dark-mode');
+                document.documentElement.classList.remove('dark-mode');
                 darkModeIcon.className = 'fas fa-moon';
-                // Update localStorage
                 localStorage.setItem('theme', 'light');
             }
             
@@ -166,15 +174,15 @@ class TopNavbar {
         const darkModeIcon = document.getElementById('dark-mode-icon');
         const body = document.body;
         const isDarkMode = body.classList.contains('dark-mode');
-        
+
         if (isDarkMode) {
-            // Switching to light mode
             body.classList.remove('dark-mode');
+            document.documentElement.classList.remove('dark-mode');
             localStorage.setItem('theme', 'light');
             darkModeIcon.className = 'fas fa-moon';
         } else {
-            // Switching to dark mode
             body.classList.add('dark-mode');
+            document.documentElement.classList.add('dark-mode');
             localStorage.setItem('theme', 'dark');
             darkModeIcon.className = 'fas fa-sun';
         }
@@ -184,15 +192,16 @@ class TopNavbar {
     handleOutsideClick(event) {
         const sidebar = document.getElementById('sidebar');
         const sidebarToggle = document.getElementById('sidebar-toggle');
-        
+        const mobileSidebarToggle = document.getElementById('mobile-sidebar-toggle');
+
         // If we're on mobile and sidebar is visible
         if (window.innerWidth < 1032 &&
-            sidebar && 
+            sidebar &&
             !sidebar.classList.contains('mobile-hidden') &&
-            !sidebar.contains(event.target) && 
-            sidebarToggle && 
-            !sidebarToggle.contains(event.target)) {
-            
+            !sidebar.contains(event.target) &&
+            (!sidebarToggle || !sidebarToggle.contains(event.target)) &&
+            (!mobileSidebarToggle || !mobileSidebarToggle.contains(event.target))) {
+
             this.hideSidebar();
         }
     }
@@ -244,13 +253,13 @@ class TopNavbar {
             backdrop.id = 'sidebar-backdrop';
             backdrop.className = 'sidebar-backdrop';
             document.body.appendChild(backdrop);
-            
-            // Simple click handler
-            backdrop.onclick = () => {
-                this.hideSidebar();
-            };
         }
-        
+
+        // Always attach click handler (covers both pre-existing and newly created elements)
+        backdrop.onclick = () => {
+            this.hideSidebar();
+        };
+
         setTimeout(() => {
             backdrop.classList.add('active');
         }, 10);
@@ -355,16 +364,26 @@ function sortNotifications(sortBy) {
 
 function handleMobileMenu() {
     const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+
     if (window.innerWidth < 1032) {
-        sidebar?.classList.add('mobile-hidden');
+        sidebar.classList.add('mobile-hidden');
+        // On mobile, remove collapsed class to ensure full sidebar when opened
+        // (collapsed state is desktop-only)
     } else {
-        sidebar?.classList.remove('mobile-hidden');
+        sidebar.classList.remove('mobile-hidden');
         const body = document.body;
-        if (sidebar?.classList.contains('collapsed')) {
+        if (sidebar.classList.contains('collapsed')) {
             body.classList.add('sidebar-collapsed');
         } else {
             body.classList.remove('sidebar-collapsed');
         }
+    }
+
+    // Hide any open backdrop when switching modes
+    const backdrop = document.getElementById('sidebar-backdrop');
+    if (backdrop && window.innerWidth >= 1032) {
+        backdrop.classList.remove('active');
     }
 }
 

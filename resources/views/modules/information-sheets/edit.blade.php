@@ -13,7 +13,7 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ route('information-sheets.update', [$module, $informationSheet]) }}">
+                    <form method="POST" action="{{ route('information-sheets.update', [$module, $informationSheet]) }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -46,6 +46,34 @@
                                     @enderror
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Current File -->
+                        @if($informationSheet->file_path)
+                        <div class="alert alert-info d-flex align-items-center mb-3">
+                            <i class="fas fa-file-alt me-2"></i>
+                            <div class="flex-grow-1">
+                                <strong>Current File:</strong> {{ $informationSheet->original_filename }}
+                            </div>
+                            <a href="{{ route('information-sheets.download', [$module, $informationSheet]) }}"
+                               class="btn btn-sm btn-primary">
+                                <i class="fas fa-download me-1"></i>Download
+                            </a>
+                        </div>
+                        @endif
+
+                        <!-- File Upload -->
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Upload PDF/Excel File (Optional)</label>
+                            <input type="file" class="form-control @error('file') is-invalid @enderror"
+                                   id="file" name="file" accept=".pdf,.xlsx,.xls">
+                            @error('file')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Accepted: PDF, Excel (.xlsx, .xls). Max 10MB. {{ $informationSheet->file_path ? 'Uploading a new file will replace the current one.' : 'Text will be extracted into the content field.' }}
+                            </small>
                         </div>
 
                         <div class="mb-3">

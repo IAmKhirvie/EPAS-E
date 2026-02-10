@@ -51,6 +51,13 @@ class RegistrationService
             'admin,instructor'
         );
 
+        // Send email to admins
+        $this->emailAdmins(
+            'New Student Registration - EPAS-E',
+            "<h2>New Student Registration</h2><p>A new student has registered:</p><ul><li><strong>Name:</strong> {$registration->full_name}</li><li><strong>Email:</strong> {$registration->email}</li></ul><p>Status: Pending email verification</p>",
+            "New student registration: {$registration->full_name} ({$registration->email}). Status: Pending email verification."
+        );
+
         return $registration;
     }
 
@@ -107,6 +114,14 @@ class RegistrationService
             'Email Verified - Awaiting Approval',
             "Student {$registration->full_name} ({$registration->email}) has verified their email. Ready for admin approval.",
             'admin,instructor'
+        );
+
+        // Send email to admins
+        $reviewUrl = url('/admin/registrations');
+        $this->emailAdmins(
+            'Registration Verified - Action Required',
+            "<h2>Email Verified - Action Required</h2><p>Student <strong>{$registration->full_name}</strong> has verified their email.</p><ul><li><strong>Email:</strong> {$registration->email}</li></ul><p>This registration is ready for admin approval.</p><p><a href='{$reviewUrl}'>Review Registrations</a></p>",
+            "Student {$registration->full_name} ({$registration->email}) verified their email. Review at: {$reviewUrl}"
         );
 
         if ($readyToTransfer) {
@@ -318,6 +333,27 @@ class RegistrationService
             Registration::STATUS_TRANSFERRED => 'Account created. You can login.',
             default => 'Unknown status.',
         };
+    }
+
+    /**
+     * Send email notification to all active admins
+     */
+    protected function emailAdmins(string $subject, string $bodyHtml, string $bodyText): void
+    {
+        try {
+            $admins = User::where('role', 'admin')->where('stat', 1)->get();
+            foreach ($admins as $admin) {
+                $this->mailerService->sendNotificationEmail(
+                    $admin->email,
+                    $admin->full_name,
+                    $subject,
+                    $bodyHtml,
+                    $bodyText
+                );
+            }
+        } catch (\Exception $e) {
+            Log::error("Failed to email admins: " . $e->getMessage());
+        }
     }
 
     /**

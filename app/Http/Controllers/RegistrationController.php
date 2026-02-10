@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Registration;
+use App\Services\DashboardStatisticsService;
 use App\Services\RegistrationService;
 use App\Services\PHPMailerService;
 use Illuminate\Http\Request;
@@ -65,6 +66,7 @@ class RegistrationController extends Controller
             $result = $this->registrationService->approveRegistration($registration, Auth::id());
 
             if ($result['success']) {
+                app(DashboardStatisticsService::class)->clearRegistrationCache();
                 return redirect()->route('admin.registrations.index')
                     ->with('success', $result['message']);
             }
@@ -95,6 +97,7 @@ class RegistrationController extends Controller
             );
 
             if ($result['success']) {
+                app(DashboardStatisticsService::class)->clearRegistrationCache();
                 return redirect()->route('admin.registrations.index')
                     ->with('success', $result['message']);
             }

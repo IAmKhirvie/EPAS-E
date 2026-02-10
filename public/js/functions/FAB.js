@@ -109,10 +109,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 sidebar.classList.add('active');
                 overlay.classList.add('active');
                 document.body.classList.add('sidebar-open');
-                
-                // Lower FAB z-index when sidebar is open
+
+                // Hide FAB when slide panel is open to avoid overlap
                 if (fabContainer) {
-                    fabContainer.style.zIndex = '9999';
+                    fabContainer.style.display = 'none';
                 }
             }
         }
@@ -123,10 +123,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
                 document.body.classList.remove('sidebar-open');
-                
-                // Restore FAB z-index
+
+                // Restore FAB visibility
                 if (fabContainer) {
-                    fabContainer.style.zIndex = '10000';
+                    fabContainer.style.display = '';
                 }
             }
         }
@@ -197,13 +197,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (createCourseSidebar) createCourseSidebar.classList.remove('active');
             if (createModuleSidebar) createModuleSidebar.classList.remove('active');
             if (addUserSidebar) addUserSidebar.classList.remove('active');
-            
+
             overlay.classList.remove('active');
             document.body.classList.remove('sidebar-open');
-            
-            // Restore FAB z-index
+
+            // Restore FAB visibility
             if (fabContainer) {
-                fabContainer.style.zIndex = '10000';
+                fabContainer.style.display = '';
             }
         }
 
