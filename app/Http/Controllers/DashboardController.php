@@ -161,6 +161,8 @@ class DashboardController extends Controller
         $data['unreadCount'] = 0;
         $data['recentSubmissions'] = $this->stats->getRecentSubmissionsForInstructor($user);
         $data['pendingEvaluations'] = $this->stats->getPendingEvaluationsCount($user);
+        $data['pendingRegistrations'] = $this->stats->getPendingRegistrations();
+        $data['pendingRegistrationsCount'] = $this->stats->getPendingRegistrationsCount();
 
         return view('dashboard', $data);
     }

@@ -15,7 +15,7 @@
 
             <div class="card">
                 <div class="card-body">
-                    <form action="{{ route('information-sheets.store', $module) }}" method="POST">
+                    <form action="{{ route('information-sheets.store', $module) }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
                         <!-- Course and Module Information (Read-only) -->
@@ -61,6 +61,20 @@
                                     @enderror
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div class="form-group mt-4">
+                            <label for="file" class="form-label">Upload PDF/Excel File (Optional)</label>
+                            <input type="file" class="form-control @error('file') is-invalid @enderror"
+                                   id="file" name="file" accept=".pdf,.xlsx,.xls">
+                            @error('file')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Accepted: PDF, Excel (.xlsx, .xls). Max 10MB. Text will be extracted into the content field below.
+                            </small>
                         </div>
 
                         <!-- Content -->

@@ -14,6 +14,7 @@ use App\Models\SelfCheck;
 use App\Models\SelfCheckSubmission;
 use App\Models\TaskSheet;
 use App\Models\TaskSheetSubmission;
+use App\Models\Registration;
 use App\Models\User;
 use App\Models\UserProgress;
 use Illuminate\Support\Collection;
@@ -706,6 +707,33 @@ class DashboardStatisticsService
     }
 
     // =========================================================================
+    // PUBLIC METHODS - Pending Registrations
+    // =========================================================================
+
+    /**
+     * Get pending registrations awaiting approval (for admin dashboard).
+     */
+    public function getPendingRegistrations(): Collection
+    {
+        return Cache::remember('dashboard_pending_registrations', 300, function () {
+            return Registration::awaitingApproval()
+                ->orderBy('email_verified_at', 'desc')
+                ->limit(10)
+                ->get();
+        });
+    }
+
+    /**
+     * Get count of pending registrations (email verified, awaiting approval).
+     */
+    public function getPendingRegistrationsCount(): int
+    {
+        return Cache::remember('dashboard_pending_registrations_count', 300, function () {
+            return Registration::awaitingApproval()->count();
+        });
+    }
+
+    // =========================================================================
     // CACHE MANAGEMENT
     // =========================================================================
 
@@ -714,6 +742,12 @@ class DashboardStatisticsService
         Cache::forget("dashboard_admin_stats_{$user->id}");
         Cache::forget("dashboard_progress_{$user->id}");
         Cache::forget("dashboard_pending_evals_{$user->id}");
+    }
+
+    public function clearRegistrationCache(): void
+    {
+        Cache::forget('dashboard_pending_registrations');
+        Cache::forget('dashboard_pending_registrations_count');
     }
 
     public function clearAnnouncementCache(): void

@@ -406,6 +406,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/information-sheets/{informationSheet}/edit', [InformationSheetController::class, 'edit'])->name('information-sheets.edit');
             Route::put('/information-sheets/{informationSheet}', [InformationSheetController::class, 'update'])->name('information-sheets.update');
             Route::delete('/information-sheets/{informationSheet}', [InformationSheetController::class, 'destroy'])->name('information-sheets.destroy');
+            Route::get('/information-sheets/{informationSheet}/download', [InformationSheetController::class, 'download'])->name('information-sheets.download');
         });
 
         // Topic Management

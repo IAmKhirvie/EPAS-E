@@ -20,9 +20,9 @@
         <span class="nav-label">Modules</span>
     </a>
 
-    <a href="{{ dynamic_route('leaderboard.index') }}" class="nav-link {{ Request::is('leaderboard*') ? 'active' : '' }}">
-        <i class="fas fa-trophy"></i>
-        <span class="nav-label">Rank</span>
+    <a href="{{ route('settings.index') }}" class="nav-link {{ Request::routeIs('settings.*') ? 'active' : '' }}">
+        <i class="fas fa-cog"></i>
+        <span class="nav-label">Settings</span>
     </a>
 </nav>
 
@@ -39,7 +39,7 @@
         border-top: 1px solid var(--bottom-nav-border, #e5e7eb);
         justify-content: space-around;
         align-items: center;
-        z-index: 1040;
+        z-index: var(--z-navbar); /* 100 — below sidebar/backdrop */
         padding: 0 0.5rem;
         box-shadow: 0 -2px 10px var(--bottom-nav-shadow, rgba(0,0,0,0.05));
     }

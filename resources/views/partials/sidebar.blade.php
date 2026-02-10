@@ -184,6 +184,36 @@
         // Get sidebar element for positioning
         const sidebar = document.getElementById('sidebar');
 
+        // ===== TOOLTIP POSITIONING FOR COLLAPSED SIDEBAR =====
+        // Since tooltips use position:fixed to escape overflow clipping,
+        // we need JS to set their vertical position on hover.
+        function setupTooltipPositioning() {
+            const navItems = sidebar.querySelectorAll('.nav-item[data-tooltip]');
+            navItems.forEach(function(item) {
+                item.addEventListener('mouseenter', function() {
+                    if (!sidebar.classList.contains('collapsed')) return;
+                    if (window.innerWidth < 1032) return; // no tooltips on mobile
+                    const rect = this.getBoundingClientRect();
+                    const centerY = rect.top + rect.height / 2;
+                    // Set CSS custom properties for tooltip positioning
+                    this.style.setProperty('--tooltip-top', centerY + 'px');
+                });
+            });
+
+            // Also handle avatar tooltip
+            const avatar = sidebar.querySelector('.avatar[data-tooltip]');
+            if (avatar) {
+                avatar.addEventListener('mouseenter', function() {
+                    if (!sidebar.classList.contains('collapsed')) return;
+                    if (window.innerWidth < 1032) return;
+                    const rect = this.getBoundingClientRect();
+                    const centerY = rect.top + rect.height / 2;
+                    this.style.setProperty('--tooltip-top', centerY + 'px');
+                });
+            }
+        }
+        setupTooltipPositioning();
+
         // Handle flyout menu clicks
         document.querySelectorAll('.nav-item.has-flyout').forEach(function(trigger) {
             trigger.addEventListener('click', function(e) {

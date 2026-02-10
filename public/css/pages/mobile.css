@@ -85,15 +85,14 @@
         width: 100%;
     }
 
-    /* Sidebar hidden by default on mobile */
+    /* Sidebar hidden by default on mobile — z-index managed in sidebar.css */
     .sidebar {
         transform: translateX(-100%);
         position: fixed;
-        z-index: 1050;
         transition: transform 0.3s ease;
     }
 
-    .sidebar.show {
+    .sidebar:not(.mobile-hidden) {
         transform: translateX(0);
     }
 
@@ -285,7 +284,7 @@
         padding-bottom: calc(70px + env(safe-area-inset-bottom));
     }
 
-    .fab {
-        bottom: calc(80px + env(safe-area-inset-bottom));
+    .fab-container {
+        bottom: calc(60px + 1.25rem + env(safe-area-inset-bottom));
     }
 }
