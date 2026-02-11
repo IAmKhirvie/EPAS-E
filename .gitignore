@@ -27,8 +27,12 @@ Thumbs.db
 *.sql
 npm-debug.log
 yarn-error.log
-/storage/framework/views/*.php
+/storage/framework/cache/*
+!/storage/framework/cache/.gitkeep
 /storage/framework/sessions/*
+!/storage/framework/sessions/.gitkeep
+/storage/framework/views/*
+!/storage/framework/views/.gitkeep
 /bootstrap/cache/packages.php
 /bootstrap/cache/services.php
 mailpit.zip
