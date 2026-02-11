@@ -663,18 +663,26 @@ body {
   }
 }
 
+/* Small mobile devices (380px — Redmi 12C, etc.) */
+@media (max-width: 380px) {
+  .layout-wrapper {
+    margin-top: 3rem; /* Matches reduced navbar height */
+    width: 100%;
+  }
+}
+
 /* Extra small devices */
 @media (max-width: 360px) {
   .layout-wrapper {
-    margin-top: 3.5rem;
+    margin-top: 3rem;
     width: 100%;
   }
-  
+
   .main-content {
     padding: 0.125rem;
     width: 100%;
   }
-  
+
   .content-area {
     padding: 0.5rem;
     border-radius: 4px;

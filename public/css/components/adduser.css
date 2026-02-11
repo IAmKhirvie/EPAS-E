@@ -93,6 +93,66 @@ body.sidebar-open {
     background: var(--card);
 }
 
+/* ===== MOBILE SLIDE SIDEBAR ENHANCEMENTS ===== */
+@media (max-width: 1032px) {
+    .slide-sidebar {
+        width: 100%;
+        right: -100%;
+        border-left: none;
+        border-radius: 0;
+    }
+
+    .slide-sidebar.active {
+        right: 0;
+    }
+
+    .slide-sidebar-header {
+        padding: 1rem;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: blur(10px);
+    }
+
+    .slide-sidebar-header h5 {
+        font-size: 1.25rem;
+    }
+
+    .close-sidebar {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.05);
+        font-size: 1.125rem;
+    }
+
+    .slide-sidebar-content {
+        padding: 1rem;
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* Ensure form inputs are properly sized */
+    .slide-sidebar .form-control,
+    .slide-sidebar .form-select {
+        font-size: 1rem; /* 16px prevents iOS zoom */
+    }
+
+    /* Better submit button at bottom */
+    .slide-sidebar .d-grid {
+        position: sticky;
+        bottom: 0;
+        padding: 1rem 0;
+        background: var(--card);
+        margin: 0 -1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        border-top: 1px solid var(--border);
+    }
+}
+
 /* Larger screens */
 @media (min-width: 1032px) {
     .slide-sidebar {

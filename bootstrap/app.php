@@ -15,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Trust Cloudflare Tunnel proxy (forwards HTTPS as HTTP locally)
+        $middleware->trustProxies(at: '*');
+
         // Configure auth redirects
         $middleware->redirectGuestsTo('/login');
         $middleware->redirectUsersTo('/dashboard');

@@ -25,6 +25,7 @@
     
     <!-- Base CSS-->
     <link rel="stylesheet" href="{{ dynamic_asset('css/base/reset.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/base/typography.css') }}">
     
     <!-- Component CSS -->
     <link rel="stylesheet" href="{{ dynamic_asset('css/components/adduser.css') }}">
@@ -453,6 +454,37 @@
       console.log('Time:', new Date().toISOString());
       console.groupEnd();
     @endif
+  </script>
+
+  <!-- Scroll-to-Top Button (mobile) -->
+  <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+  <script>
+    (function() {
+        const scrollBtn = document.getElementById('scrollToTop');
+        if (!scrollBtn) return;
+
+        // Show/hide based on scroll position
+        let ticking = false;
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                window.requestAnimationFrame(function() {
+                    if (window.scrollY > 300) {
+                        scrollBtn.classList.add('visible');
+                    } else {
+                        scrollBtn.classList.remove('visible');
+                    }
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        scrollBtn.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    })();
   </script>
 
   <!-- PWA Service Worker Registration -->

@@ -1,5 +1,5 @@
 // EPAS-E Service Worker
-const CACHE_NAME = 'epas-e-v4';
+const CACHE_NAME = 'epas-e-v5';
 const OFFLINE_URL = '/offline.html';
 
 // Static assets to cache immediately
@@ -11,7 +11,7 @@ const STATIC_ASSETS = [
     '/images/logo.png'
 ];
 
-// Cache strategies
+// Cache strategies — static assets (CSS, JS, images, fonts)
 const CACHE_FIRST_PATTERNS = [
     /\/images\//,
     /\/fonts\//,
@@ -23,7 +23,9 @@ const CACHE_FIRST_PATTERNS = [
     /\.jpeg$/,
     /\.gif$/,
     /\.svg$/,
-    /\.ico$/
+    /\.ico$/,
+    /\.css$/,
+    /\.js$/
 ];
 
 const NETWORK_FIRST_PATTERNS = [
@@ -166,49 +168,21 @@ async function networkFirst(request) {
     }
 }
 
-// Deduplicate concurrent requests
-const pendingRequests = new Map();
-
-// Stale-while-revalidate strategy
+// Stale-while-revalidate strategy (no dedup — avoids Response body lock errors)
 async function staleWhileRevalidate(request) {
     const cached = await caches.match(request);
 
-    // Create a cache key for deduplication
-    const cacheKey = request.url;
-
-    // Check if there's already a pending request for this URL
-    if (pendingRequests.has(cacheKey)) {
-        console.log('[SW] Deduplicating request:', cacheKey);
-        return cached || await pendingRequests.get(cacheKey) || new Response('Offline', { status: 503 });
-    }
-
-    // Create the network fetch promise
     const networkFetch = fetch(request)
         .then(response => {
-            // Clone the response immediately before any potential consumption
-            const responseClone = response.clone();
-
-            // Only cache successful, non-redirected responses
             if (response.ok && !response.redirected && response.type === 'basic') {
+                const clone = response.clone();
                 caches.open(CACHE_NAME).then(cache => {
-                    // Use the clone for caching to avoid body-already-used errors
-                    return cache.put(request, responseClone)
-                        .catch(err => console.warn('[SW] Failed to cache response:', err));
+                    cache.put(request, clone).catch(() => {});
                 });
             }
             return response;
         })
-        .catch(error => {
-            console.warn('[SW] Network fetch failed:', error);
-            return null;
-        })
-        .finally(() => {
-            // Remove from pending requests when done
-            pendingRequests.delete(cacheKey);
-        });
-
-    // Store the promise for deduplication
-    pendingRequests.set(cacheKey, networkFetch);
+        .catch(() => null);
 
     return cached || await networkFetch || new Response('Offline', { status: 503 });
 }

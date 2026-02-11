@@ -198,3 +198,95 @@
         max-height: 300px;
     }
 }
+
+/* ===== MOBILE DASHBOARD ENHANCEMENTS ===== */
+@media (max-width: 1032px) {
+    /* Better stat card layout */
+    .card-counter {
+        font-size: 1.375rem;
+    }
+
+    .card-counter-label {
+        font-size: 0.75rem;
+    }
+
+    /* Progress circles scale down */
+    .circle-progress,
+    .progress-circle {
+        width: 90px;
+        height: 90px;
+    }
+
+    .circle-progress::before,
+    .progress-circle::before {
+        width: 72px;
+        height: 72px;
+    }
+
+    .circle-progress-value,
+    .progress-text {
+        font-size: 1.15rem;
+    }
+
+    /* Dashboard items — tighter spacing */
+    .module-item, .assessment-item, .pending-item, .announcement-item {
+        padding: 0.75rem;
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+    }
+
+    .module-item:hover, .assessment-item:hover, .pending-item:hover, .announcement-item:hover {
+        transform: none; /* Disable hover lift on mobile */
+    }
+
+    /* Activity icon */
+    .activity-icon-sm {
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.75rem;
+    }
+
+    /* Grade display */
+    .grade-display h1 {
+        font-size: 2.25rem;
+    }
+
+    /* Dashboard feed items */
+    .dashboard-feed-scroll,
+    .dashboard-pending-scroll {
+        border-radius: 10px;
+    }
+
+    /* Scrollable containers with momentum */
+    .dashboard-feed-scroll,
+    .dashboard-pending-scroll {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-counter {
+        font-size: 1.25rem;
+    }
+
+    .circle-progress,
+    .progress-circle {
+        width: 70px;
+        height: 70px;
+    }
+
+    .circle-progress::before,
+    .progress-circle::before {
+        width: 56px;
+        height: 56px;
+    }
+
+    .circle-progress-value,
+    .progress-text {
+        font-size: 1rem;
+    }
+
+    .grade-display h1 {
+        font-size: 1.75rem;
+    }
+}

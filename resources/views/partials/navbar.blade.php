@@ -148,36 +148,124 @@
             </button>
             <div class="dropdown" id="user-dropdown">
                 <div class="dropdown-content">
-                    <div class="dropdown-profile-header">
-                        <div class="dropdown-avatar">
-                            <img src="{{ $user->profile_image_url }}" alt="Avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                            <span class="avatar-fallback" style="display: {{ $user->profile_image ? 'none' : 'flex' }};">{{ $user->initials }}</span>
+                    {{-- Profile Header —  ID card style --}}
+                    <div class="user-card-header">
+                        <div class="user-card-avatar">
+                            <img src="{{ $user->profile_image_url }}" alt="Avatar"
+                                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                            <span class="avatar-fallback"
+                                  style="display: {{ $user->profile_image ? 'none' : 'flex' }};">{{ $user->initials }}</span>
                         </div>
-                        <div class="dropdown-user-info">
-                            <span class="dropdown-user-name">{{ $user->first_name }} {{ $user->last_name }}</span>
-                            <span class="dropdown-user-role">{{ ucfirst($user->role) }}</span>
+                        <h2 class="user-card-name">{{ $user->full_name }}</h2>
+                        <h3 class="user-card-subtitle">
+                            <span class="user-card-role-badge role-{{ $user->role }}">{{ $user->role_display }}</span>
+                            @if($user->student_id)
+                            <span class="user-card-id">ID: {{ $user->student_id }}</span>
+                            @endif
+                        </h3>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+
+                    {{-- User Info Section --}}
+                    <div class="user-card-info-section">
+                        <div class="info-row">
+                            <i class="fas fa-envelope" aria-hidden="true"></i>
+                            <div class="info-content">
+                                <span class="info-label">Email</span>
+                                <span class="info-value">{{ $user->email }}</span>
+                            </div>
+                        </div>
+                        @if($user->department)
+                        <div class="info-row">
+                            <i class="fas fa-building" aria-hidden="true"></i>
+                            <div class="info-content">
+                                <span class="info-label">Department</span>
+                                <span class="info-value">{{ $user->department->name }}</span>
+                            </div>
+                        </div>
+                        @endif
+                        @if($user->section)
+                        <div class="info-row">
+                            <i class="fas fa-users" aria-hidden="true"></i>
+                            <div class="info-content">
+                                <span class="info-label">Section</span>
+                                <span class="info-value">{{ $user->section }}</span>
+                            </div>
+                        </div>
+                        @endif
+                        @if($user->room_number)
+                        <div class="info-row">
+                            <i class="fas fa-door-open" aria-hidden="true"></i>
+                            <div class="info-content">
+                                <span class="info-label">Room</span>
+                                <span class="info-value">{{ $user->room_number }}</span>
+                            </div>
+                        </div>
+                        @endif
+                        <div class="info-row">
+                            <i class="fas fa-trophy" aria-hidden="true"></i>
+                            <div class="info-content">
+                                <span class="info-label">Points</span>
+                                <span class="info-value">{{ number_format($user->total_points ?? 0) }} pts</span>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <i class="fas fa-circle-check" aria-hidden="true"></i>
+                            <div class="info-content">
+                                <span class="info-label">Status</span>
+                                <span class="info-value status-{{ $user->stat ? 'active' : 'pending' }}">{{ $user->status_display }}</span>
+                            </div>
                         </div>
                     </div>
+
                     <div class="dropdown-divider"></div>
+
+                    {{-- Dark Mode Toggle --}}
+                    <div class="user-card-toggles">
+                        <div class="toggle-row">
+                            <div class="toggle-label">
+                                <i class="fas fa-moon" aria-hidden="true"></i>
+                                <span>Dark Mode</span>
+                            </div>
+                            <label class="toggle-switch" for="user-card-dark-toggle">
+                                <input type="checkbox" id="user-card-dark-toggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+
+                    {{-- Verify Email Warning --}}
                     @if(!$user->hasVerifiedEmail())
                     <a href="{{ route('settings.index') }}#profile" class="dropdown-item text-warning">
                         <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
                         Verify Email
                     </a>
                     @endif
+
+                    {{-- Navigation Links --}}
                     <a href="{{ route('settings.index') }}" class="dropdown-item">
                         <i class="fas fa-cog" aria-hidden="true"></i>
                         Settings
                     </a>
                     <a href="{{ route('about') }}" class="dropdown-item">
                         <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-                        About Us
+                        About EPAS-E
                     </a>
                     <a href="{{ route('contact') }}" class="dropdown-item">
                         <i class="fa-solid fa-phone" aria-hidden="true"></i>
                         Contact Us
                     </a>
+                    <a href="{{ route('help-support') }}" class="dropdown-item">
+                        <i class="fas fa-question-circle" aria-hidden="true"></i>
+                        Help & Support
+                    </a>
+
                     <div class="dropdown-divider"></div>
+
+                    {{-- Logout --}}
                     <button class="dropdown-item text-danger" id="logout-btn">
                         <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
                         Logout
@@ -192,3 +280,32 @@
 <form id="logout-form" action="{{ dynamic_route('logout') }}" method="POST" style="display: none;">
     @csrf
 </form>
+
+<!-- Dark mode toggle sync for user card -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var toggle = document.getElementById('user-card-dark-toggle');
+    if (!toggle) return;
+
+    // Sync initial state
+    toggle.checked = document.body.classList.contains('dark-mode');
+
+    // Toggle dark mode when switch changes
+    toggle.addEventListener('change', function() {
+        if (window.topNavbar) {
+            window.topNavbar.toggleDarkMode();
+        }
+    });
+
+    // Sync when theme changes from other sources
+    window.addEventListener('themeChange', function(e) {
+        toggle.checked = (e.detail.theme === 'dark');
+    });
+
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'theme') {
+            toggle.checked = (e.newValue === 'dark');
+        }
+    });
+});
+</script>

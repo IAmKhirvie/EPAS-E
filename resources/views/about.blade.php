@@ -11,8 +11,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="{{ dynamic_asset('css/reset.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/base/reset.css') }}">
     @auth
     <link rel="stylesheet" href="{{ dynamic_asset('css/layout/header.css') }}">
     @else
@@ -211,6 +213,112 @@
                 </div>
             </div>
 
+            <!-- Developer Credits -->
+            <div class="row mt-5 mb-5">
+                <div class="col-12">
+                    <h2 class="mb-4"><i class="fas fa-code me-2 text-primary"></i>Developed By</h2>
+
+                    <div class="info-card developer-card mb-4">
+                        <div class="developer-profile">
+                            <div class="developer-icon">
+                                <i class="fas fa-laptop-code"></i>
+                            </div>
+                            <div class="developer-info">
+                                <h4>Khirvie Clifford N. Bautista</h4>
+                                <p class="developer-desc">
+                                    Designed and developed the EPAS-E Learning Management System for
+                                    IETI College of Science and Technology (Marikina), Inc. — providing a modern
+                                    digital learning platform for TESDA-accredited electronics education.
+                                </p>
+
+                                <div class="developer-roles mt-3">
+                                    <span class="dev-role-badge"><i class="fas fa-layer-group me-1"></i>Full-Stack Developer</span>
+                                    <span class="dev-role-badge"><i class="fas fa-palette me-1"></i>UI/UX Designer</span>
+                                    <span class="dev-role-badge"><i class="fas fa-server me-1"></i>Backend Developer</span>
+                                    <span class="dev-role-badge"><i class="fas fa-paint-brush me-1"></i>Frontend Developer</span>
+                                    <span class="dev-role-badge"><i class="fas fa-database me-1"></i>Database Architect</span>
+                                    <span class="dev-role-badge"><i class="fas fa-shield-alt me-1"></i>Security Engineer</span>
+                                    <span class="dev-role-badge"><i class="fas fa-vial me-1"></i>QA / Testing</span>
+                                    <span class="dev-role-badge"><i class="fas fa-project-diagram me-1"></i>Project Manager</span>
+                                    <span class="dev-role-badge"><i class="fas fa-mobile-alt me-1"></i>Responsive Design</span>
+                                    <span class="dev-role-badge"><i class="fas fa-cogs me-1"></i>System Administrator</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h5><i class="fas fa-tools me-2 text-primary"></i>Tools Used</h5>
+                        <div class="tools-grid mt-3">
+                            <div class="tool-item">
+                                <i class="fas fa-robot"></i>
+                                <span>Claude (Anthropic)</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fas fa-robot"></i>
+                                <span>DeepSeek</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fas fa-robot"></i>
+                                <span>ChatGPT (OpenAI)</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fas fa-robot"></i>
+                                <span>Qwen (Alibaba)</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fas fa-code"></i>
+                                <span>Visual Studio Code</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fab fa-laravel"></i>
+                                <span>Laravel 12</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fab fa-bootstrap"></i>
+                                <span>Bootstrap 5</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fab fa-php"></i>
+                                <span>PHP</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fab fa-js-square"></i>
+                                <span>JavaScript</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fab fa-css3-alt"></i>
+                                <span>CSS3</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fab fa-html5"></i>
+                                <span>HTML5</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fas fa-database"></i>
+                                <span>MySQL</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fab fa-git-alt"></i>
+                                <span>Git</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fab fa-github"></i>
+                                <span>GitHub</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fab fa-figma"></i>
+                                <span>Figma</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fas fa-terminal"></i>
+                                <span>Composer</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- CTA Section -->
             <div class="row mt-5">
                 <div class="col-12">
@@ -231,6 +339,142 @@
         </div>
     </div>
 
+    <style>
+        .developer-profile {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+
+        .developer-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .developer-icon i {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .developer-info h4 {
+            margin-bottom: 0.25rem;
+        }
+
+        .developer-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary) !important;
+            margin-bottom: 0;
+            line-height: 1.6;
+        }
+
+        /* Role badges */
+        .developer-roles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .dev-role-badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.3rem 0.65rem;
+            border-radius: 9999px;
+            background: var(--primary-foreground);
+            color: var(--primary) !important;
+            border: 1px solid var(--primary);
+            white-space: nowrap;
+        }
+
+        .dev-role-badge i {
+            font-size: 0.65rem;
+        }
+
+        /* Tools grid */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .tool-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.6rem 0.85rem;
+            border-radius: var(--border-radius);
+            background: var(--background);
+            border: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            color: var(--text-primary) !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .tool-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .tool-item i {
+            font-size: 1.1rem;
+            color: var(--primary) !important;
+            width: 1.25rem;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 480px) {
+            .developer-profile {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .developer-icon {
+                width: 48px;
+                height: 48px;
+            }
+
+            .developer-icon i {
+                font-size: 1.25rem;
+            }
+
+            .developer-roles {
+                justify-content: center;
+            }
+
+            .dev-role-badge {
+                font-size: 0.7rem;
+                padding: 0.25rem 0.5rem;
+            }
+
+            .tools-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .tool-item {
+                padding: 0.5rem 0.65rem;
+                font-size: 0.8rem;
+            }
+
+            .tool-item i {
+                font-size: 1rem;
+            }
+
+            .tool-item:hover {
+                transform: none;
+            }
+        }
+    </style>
+
     @include('partials.footer')
 
     <!-- Bootstrap JS -->
@@ -243,7 +487,7 @@
         @csrf
     </form>
     @else
-    <!-- Dark Mode Script for Public Pages -->
+    <script src="{{ dynamic_asset('js/public-header.js')}}"></script>
     <script src="{{ dynamic_asset('js/components/public-darkmode.js')}}"></script>
     @endauth
 </body>

@@ -37,13 +37,7 @@
     --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
-.navbar-brand h2, .navbar-brand p{
-    color: var(--light);
-}
-
-.dark-mode .navbar-brand h2, .navbar-brand p{
-    color: var(--dark);
-}
+/* Navbar brand colors handled by public-header.css — no overrides needed here */
 
 .auth-page-body {
     min-height: 100vh;
@@ -65,7 +59,8 @@
     transition: var(--transition);
 }
 
-.container {
+/* Note: .container is Bootstrap's class — only override within info pages */
+.auth-page-body > .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
@@ -97,7 +92,10 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--text-primary);
 }
 
-p, li, span, div {
+/* Text colors scoped to content area */
+.content-container p,
+.content-container li,
+.content-container span {
     color: var(--text-primary);
 }
 
@@ -409,29 +407,227 @@ p, li, span, div {
     border: 1px solid var(--border-color);
 }
 
-/* Responsive design */
+/* ===== MOBILE (≤1032px) ===== */
 @media (max-width: 1032px) {
     .content-container {
-        padding: 1rem;
-        padding-top: 6rem;
-        margin: 0.5rem;
+        padding: 1.25rem;
+        padding-top: 5rem;
+        margin: 0;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
     }
-    
-    .container {
-        padding: 1rem;
-        padding-top: 6rem;
+
+    .auth-page-body > .container {
+        padding: 1.25rem;
+        padding-top: 5rem;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
     }
-    
+
+    .page-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .page-header .lead {
+        font-size: 0.95rem;
+    }
+
+    /* Stack career cards properly */
+    .career-card {
+        margin-bottom: 1rem;
+    }
+
+    .career-card:hover {
+        transform: none;
+    }
+
+    /* Info cards */
+    .info-card {
+        padding: 1.25rem;
+    }
+
+    .info-card:hover {
+        transform: none;
+    }
+
+    /* Timeline */
     .timeline {
         padding-left: 1.5rem;
     }
-    
+
     .timeline-item::before {
         left: -1.5rem;
     }
+
+    /* TESDA card */
+    .tesda-card {
+        padding: 1.5rem;
+    }
+
+    /* Contact page */
+    .contact-map-container iframe {
+        height: 250px;
+    }
+
+    .contact-card {
+        padding: 1.5rem;
+    }
+
+    .contact-card:hover {
+        transform: none;
+    }
+
+    .contact-icon {
+        width: 56px;
+        height: 56px;
+    }
+
+    .contact-icon i {
+        font-size: 1.5rem;
+    }
+
+    /* FAQ accordion */
+    .accordion-button {
+        font-size: 0.95rem;
+        padding: 0.875rem 1rem;
+    }
+
+    .accordion-body {
+        font-size: 0.9rem;
+        padding: 1rem;
+    }
+
+    /* Other campus section */
+    .contact-info {
+        padding: 1.25rem !important;
+    }
+
+    /* Footer spacing fix */
+    .footer {
+        margin-top: 0 !important;
+    }
 }
 
-/* Smooth transitions for theme switching */
-* {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+/* ===== SMALL MOBILE (≤480px) ===== */
+@media (max-width: 480px) {
+    .content-container,
+    .auth-page-body > .container {
+        padding: 1rem;
+        padding-top: 4.5rem;
+    }
+
+    .page-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .page-header .lead {
+        font-size: 0.875rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+
+    /* Career cards */
+    .icon-container {
+        width: 48px;
+        height: 48px;
+    }
+
+    .icon-container i {
+        font-size: 1.25rem;
+    }
+
+    /* Competency list */
+    .competency-list li {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .competency-list li:hover {
+        transform: none;
+    }
+
+    /* Timeline compact */
+    .timeline {
+        padding-left: 1.25rem;
+    }
+
+    .timeline-item {
+        padding: 0.75rem;
+    }
+
+    .timeline-item::before {
+        left: -1.25rem;
+        width: 12px;
+        height: 12px;
+    }
+
+    /* Contact page */
+    .contact-map-container iframe {
+        height: 200px;
+    }
+
+    .contact-card {
+        padding: 1.25rem;
+    }
+
+    /* Buttons stack on small screens */
+    .d-flex.gap-3 {
+        flex-direction: column;
+        gap: 0.5rem !important;
+    }
+
+    .d-flex.gap-3 .btn {
+        width: 100%;
+    }
+
+    /* Row spacing */
+    .row.mb-5 {
+        margin-bottom: 2rem !important;
+    }
+}
+
+/* ===== EXTRA SMALL (≤380px) ===== */
+@media (max-width: 380px) {
+    .content-container,
+    .auth-page-body > .container {
+        padding: 0.75rem;
+        padding-top: 4rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.3rem;
+    }
+
+    h2 {
+        font-size: 1.15rem;
+    }
+
+    .tesda-card {
+        padding: 1.25rem;
+    }
+
+    .tesda-card h3 {
+        font-size: 1.15rem;
+    }
+
+    .info-card {
+        padding: 1rem;
+    }
+
+    .contact-map-container {
+        padding: 0.75rem;
+    }
+
+    .contact-map-container iframe {
+        height: 180px;
+    }
 }
