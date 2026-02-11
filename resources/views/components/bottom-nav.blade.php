@@ -96,6 +96,11 @@
     .bottom-nav .nav-link i {
         font-size: 1.25rem;
         margin-bottom: 0.25rem;
+        transition: transform 0.2s ease;
+    }
+
+    .bottom-nav .nav-link.active i {
+        transform: scale(1.1);
     }
 
     .bottom-nav .nav-label {
@@ -103,6 +108,26 @@
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.3px;
+        transition: color 0.2s ease;
+    }
+
+    /* Active press effect */
+    .bottom-nav .nav-link:active {
+        transform: scale(0.92);
+    }
+
+    /* Safe area padding for notched devices */
+    @supports (padding: env(safe-area-inset-bottom)) {
+        .bottom-nav {
+            padding-bottom: env(safe-area-inset-bottom);
+            height: calc(60px + env(safe-area-inset-bottom));
+        }
+
+        @media (max-width: 1032px) {
+            body {
+                padding-bottom: calc(70px + env(safe-area-inset-bottom)) !important;
+            }
+        }
     }
 
     /* Dark mode support */
@@ -117,6 +142,22 @@
     @media (max-height: 500px) {
         .bottom-nav {
             display: none !important;
+        }
+    }
+
+    /* Landscape adjustments */
+    @media (max-width: 1032px) and (orientation: landscape) {
+        .bottom-nav {
+            height: 48px;
+        }
+
+        .bottom-nav .nav-link i {
+            font-size: 1.1rem;
+            margin-bottom: 0.125rem;
+        }
+
+        .bottom-nav .nav-label {
+            font-size: 0.5625rem;
         }
     }
 </style>

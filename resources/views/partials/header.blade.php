@@ -51,6 +51,9 @@
             </button>
             <div class="dropdown" id="login-dropdown">
                 <div class="dropdown-content">
+                    <div class="login-modal-header">
+                        <h6>Choose Login Portal</h6>
+                    </div>
                     <a class="dropdown-item login-option admin" href="{{ route('admin.login') }}">
                         <i class="fas fa-user-shield"></i>
                         <div>
@@ -86,76 +89,139 @@
     </div>
 </header>
 
+<!-- Title blend overlay — mirrors navbar layout so text aligns perfectly via CSS, no JS needed -->
+<div class="title-blend" aria-hidden="true">
+    <div class="title-blend-inner">
+        <img src="{{ dynamic_asset('assets/EPAS-E.png') }}" alt="" class="title-blend-spacer">
+        <div class="title-blend-text">
+            <h2>EPAS-E</h2>
+            <p>Electronic Products Assembly and Servicing</p>
+        </div>
+    </div>
+</div>
+
 <style>
-    /* Navbar scroll state styles */
+    /* Lobby navbar — transparent */
     .top-navbar.lobby-navbar {
-        transition: all 0.3s ease;
+        background: transparent !important;
+        box-shadow: none !important;
     }
 
-    /* When scrolled - add background and change text colors */
-    .top-navbar.lobby-navbar.scrolled {
-        background: rgba(255, 255, 255, 0.95) !important;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    /* Hide original title (keeps layout space so navbar doesn't shift) */
+    .lobby-navbar .navbar-title-container {
+        visibility: hidden;
     }
 
-    .top-navbar.lobby-navbar.scrolled .navbar-brand h2 {
-        color: #1e293b !important;
-    }
-
-    .top-navbar.lobby-navbar.scrolled .navbar-brand p {
-        color: #64748b !important;
-    }
-
-    .top-navbar.lobby-navbar.scrolled .logo {
-        filter: none;
-    }
-
-    /* Dark mode scrolled state */
-    .dark-mode .top-navbar.lobby-navbar.scrolled {
-        background: rgba(30, 41, 59, 0.95) !important;
-    }
-
-    .dark-mode .top-navbar.lobby-navbar.scrolled .navbar-brand h2 {
-        color: #f8f9fa !important;
-    }
-
-    .dark-mode .top-navbar.lobby-navbar.scrolled .navbar-brand p {
-        color: #94a3b8 !important;
-    }
-
-    /* Alternative: Mix-blend-mode approach for the title (works on image backgrounds) */
-    .navbar-title-blend {
+    /*
+     * Blend overlay — mirrors .top-navbar layout exactly.
+     * Uses same position/padding/flex so text lands in the same spot.
+     * An invisible copy of the logo acts as spacer.
+     */
+    .title-blend {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        padding: 1.5rem;              /* matches .top-navbar */
+        z-index: 1031;
+        pointer-events: none;
         mix-blend-mode: difference;
+        font-family: 'Inter', sans-serif;
     }
 
-    /* Ensure navbar title stays visible on different backgrounds */
-    @supports (mix-blend-mode: difference) {
-        .top-navbar.lobby-navbar:not(.scrolled) .navbar-title-container {
-            /* Use mix-blend-mode for hero sections with images */
+    .title-blend-inner {
+        display: flex;
+        align-items: center;
+        gap: 1rem;                    /* matches .navbar-logo-container */
+    }
+
+    /* Invisible logo spacer — same dimensions as .logo */
+    .title-blend-spacer {
+        height: 60px;
+        width: auto;
+        border-right: 2px solid transparent;
+        padding-right: 0.5rem;
+        opacity: 0;
+        flex-shrink: 0;
+    }
+
+    .title-blend-text h2 {
+        font-size: 1.125rem;          /* matches .navbar-brand h2 */
+        font-weight: 500;
+        color: white;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .title-blend-text p {
+        font-size: 0.875rem;          /* matches .navbar-brand p */
+        color: white;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    /* ===== MOBILE — match public-header.css breakpoints ===== */
+    @media (max-width: 1032px) {
+        .title-blend {
+            padding: 0 0.75rem;
+            height: 56px;
+        }
+
+        .title-blend-spacer {
+            height: 36px;
+        }
+
+        .title-blend-inner {
+            gap: 0.5rem;
+        }
+
+        /* Hide subtitle on mobile */
+        .title-blend-text p {
+            display: none;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .title-blend {
+            padding: 0 0.375rem;
+            height: 52px;
+        }
+
+        .title-blend-spacer {
+            height: 28px;
+        }
+
+        .title-blend-text h2 {
+            font-size: 0.875rem;
+        }
+    }
+
+    @media (max-width: 380px) {
+        .title-blend {
+            padding: 0 0.25rem;
+            height: 48px;
+        }
+
+        .title-blend-spacer {
+            height: 24px;
+            border-right-width: 1px;
+            padding-right: 0.25rem;
+        }
+
+        .title-blend-inner {
+            gap: 0.25rem;
+        }
+
+        .title-blend-text h2 {
+            font-size: 0.75rem;
+        }
+    }
+
+    @media (max-width: 340px) {
+        .title-blend {
+            display: none;
         }
     }
 </style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const navbar = document.getElementById('mainNavbar');
-        const scrollThreshold = 50; // Pixels to scroll before changing
-
-        function handleScroll() {
-            if (window.scrollY > scrollThreshold) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        }
-
-        // Initial check
-        handleScroll();
-
-        // Listen for scroll events
-        window.addEventListener('scroll', handleScroll, {
-            passive: true
-        });
-    });
-</script>

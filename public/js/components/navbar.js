@@ -279,15 +279,23 @@ class TopNavbar {
 
     togglePopover(popoverId) {
         const popover = document.getElementById(popoverId);
-        
+
         if (this.activePopover === popoverId) {
             this.closeAllPopovers();
             return;
         }
 
         this.closeAllPopovers();
-        
+
         if (popover) {
+            // On mobile, move popover to <body> so it escapes navbar stacking context
+            if (window.innerWidth <= 1032) {
+                if (!popover._originalParent) {
+                    popover._originalParent = popover.parentElement;
+                }
+                document.body.appendChild(popover);
+                this.showSheetBackdrop();
+            }
             popover.classList.add('active');
             this.activePopover = popoverId;
         }
@@ -296,8 +304,33 @@ class TopNavbar {
     closeAllPopovers() {
         document.querySelectorAll('.popover, .dropdown').forEach(element => {
             element.classList.remove('active');
+            // Move back to original parent
+            if (element._originalParent && element.parentElement === document.body) {
+                element._originalParent.appendChild(element);
+            }
         });
         this.activePopover = null;
+        this.hideSheetBackdrop();
+    }
+
+    showSheetBackdrop() {
+        let backdrop = document.getElementById('sheet-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.id = 'sheet-backdrop';
+            backdrop.className = 'sheet-backdrop';
+            backdrop.addEventListener('click', () => this.closeAllPopovers());
+            document.body.appendChild(backdrop);
+        }
+        requestAnimationFrame(() => backdrop.classList.add('active'));
+    }
+
+    hideSheetBackdrop() {
+        const backdrop = document.getElementById('sheet-backdrop');
+        if (backdrop) {
+            backdrop.classList.remove('active');
+            setTimeout(() => backdrop.remove(), 350);
+        }
     }
 
     handleLogout() {

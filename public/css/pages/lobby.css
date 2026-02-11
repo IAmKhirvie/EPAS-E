@@ -60,7 +60,8 @@ h1, h2, h3, h4, h5, h6 {
     width: 100%;
     height: 100%;
     background-size: cover;
-    background-position: center;
+    background-position: center center;
+    background-repeat: no-repeat;
     opacity: 0;
     transform: scale(1.1);
     transition: transform 10s ease, opacity 1.5s ease;
@@ -437,4 +438,129 @@ h1, h2, h3, h4, h5, h6 {
 
 .dark-mode .about-section p {
     color: var(--light-gray);
+}
+
+/* ===== MOBILE HERO & SECTIONS ===== */
+@media (max-width: 480px) {
+    .hero-section {
+        min-height: 100vh;
+        padding: 4rem 0 2rem;
+    }
+
+    .hero-title {
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .hero-subtitle {
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-content .btn-lg {
+        padding: 0.6rem 1.25rem;
+        font-size: 0.875rem;
+    }
+
+    .hero-content .btn-lg .me-3 {
+        margin-right: 0.5rem !important;
+    }
+
+    /* Stack hero buttons vertically */
+    .hero-content .fade-in-up.delay-2 {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .hero-content .btn-lg.me-3 {
+        margin-right: 0 !important;
+    }
+
+    .feature-card {
+        padding: 1rem 0.75rem;
+    }
+
+    .feature-icon {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .feature-card h4 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+        font-size: 0.85rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .features-section {
+        padding: 3rem 0;
+    }
+
+    .features-section .card-body {
+        padding: 1.5rem 1rem;
+    }
+
+    .stats-section {
+        padding: 2.5rem 0;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+    }
+
+    .about-section {
+        padding: 3rem 0;
+    }
+
+    .about-section .lead {
+        font-size: 1rem;
+    }
+
+    /* Reduce slide zoom effect on mobile for performance */
+    .slide {
+        transform: scale(1.03);
+    }
+
+    .slide.active {
+        transform: scale(1);
+    }
+}
+
+/* ===== EXTRA SMALL HERO (380px) ===== */
+@media (max-width: 380px) {
+    .hero-title {
+        font-size: 1.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 0.875rem;
+    }
+
+    .stat-number {
+        font-size: 1.75rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+    }
+}
+
+/* ===== LANDSCAPE MOBILE ===== */
+@media (max-width: 1032px) and (orientation: landscape) {
+    .hero-section {
+        min-height: auto;
+        padding: 5rem 0 3rem;
+    }
 }

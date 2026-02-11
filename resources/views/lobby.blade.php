@@ -13,6 +13,9 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ dynamic_asset('css/pages/lobby.css') }}">
+    @auth
+    <link rel="stylesheet" href="{{ dynamic_asset('css/layout/header.css') }}">
+    @endauth
     <link rel="stylesheet" href="{{ dynamic_asset('css/layout/public-header.css') }}">
 </head>
 
@@ -185,7 +188,7 @@
                 <div class="col-lg-6">
                     <div class="ps-lg-4 mt-4 mt-lg-0">
                         <img src="{{ dynamic_asset('assets/epas1.jpg') }}" alt="EPAS-E Demo" class="img-fluid rounded shadow"
-                            onerror="this.src='https://images.unsplash.com/photo-1581094794329-cd6d0e6f5d16?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'">
+                            onerror="this.onerror=null; this.src='https://placehold.co/800x600?text=EPAS-E'">
                     </div>
                 </div>
             </div>
@@ -196,6 +199,9 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Hero slideshow -->
+    <script src="{{ dynamic_asset('js/lobby.js')}}"></script>
 
     @auth
     <script src="{{ dynamic_asset('js/components/navbar.js')}}"></script>

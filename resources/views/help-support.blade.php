@@ -231,33 +231,6 @@
                 </div>
             </div>
 
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-keyboard text-info me-2"></i>Keyboard Shortcuts</h5>
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-sm mb-0">
-                        <tbody>
-                            <tr>
-                                <td><kbd>Alt</kbd> + <kbd>H</kbd></td>
-                                <td class="text-muted">Go to Home</td>
-                            </tr>
-                            <tr>
-                                <td><kbd>Alt</kbd> + <kbd>C</kbd></td>
-                                <td class="text-muted">Go to Courses</td>
-                            </tr>
-                            <tr>
-                                <td><kbd>Alt</kbd> + <kbd>G</kbd></td>
-                                <td class="text-muted">Go to Grades</td>
-                            </tr>
-                            <tr>
-                                <td><kbd>Esc</kbd></td>
-                                <td class="text-muted">Close modals</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white">
