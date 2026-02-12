@@ -1,5 +1,7 @@
 // EPAS-E Service Worker
-const CACHE_NAME = 'epas-e-v5';
+// Update CACHE_VERSION when deploying new assets to bust the cache
+const CACHE_VERSION = '2026-02-12';
+const CACHE_NAME = `epas-e-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline.html';
 
 // Static assets to cache immediately
@@ -43,10 +45,7 @@ self.addEventListener('install', event => {
         caches.open(CACHE_NAME)
             .then(cache => {
                 console.log('[SW] Caching static assets');
-                return cache.addAll(STATIC_ASSETS.filter(url => {
-                    // Only cache URLs that exist
-                    return true;
-                })).catch(err => {
+                return cache.addAll(STATIC_ASSETS).catch(err => {
                     console.warn('[SW] Some static assets failed to cache:', err);
                 });
             })
@@ -127,10 +126,10 @@ async function cacheFirst(request) {
 
     try {
         const response = await fetch(request);
-        // Only cache successful, non-redirected responses
         if (response.ok && !response.redirected && response.type === 'basic') {
             const cache = await caches.open(CACHE_NAME);
             cache.put(request, response.clone());
+            trimCache(CACHE_NAME, 100);
         }
         return response;
     } catch (error) {
@@ -185,6 +184,16 @@ async function staleWhileRevalidate(request) {
         .catch(() => null);
 
     return cached || await networkFetch || new Response('Offline', { status: 503 });
+}
+
+// Trim cache to prevent unbounded growth
+async function trimCache(name, maxItems) {
+    var cache = await caches.open(name);
+    var keys = await cache.keys();
+    if (keys.length > maxItems) {
+        await cache.delete(keys[0]);
+        return trimCache(name, maxItems);
+    }
 }
 
 // Handle messages from the main thread
@@ -265,7 +274,7 @@ async function getCachedModules() {
 
     for (const cacheName of modulesCaches) {
         const cache = await caches.open(cacheName);
-        const metadataResponse = await cache.match(new RegExp(`${cacheName}-metadata`));
+        const metadataResponse = await cache.match(`/${cacheName}-metadata`);
         if (metadataResponse) {
             modules.push(await metadataResponse.json());
         }

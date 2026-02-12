@@ -93,61 +93,16 @@
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   
-  <!-- Enhanced Slideshow Script -->
+  <!-- Utility Scripts -->
+  <script src="{{ dynamic_asset('js/utils/slideshow.js')}}"></script>
+  <script src="{{ dynamic_asset('js/utils/dark-mode.js')}}"></script>
+
+  <!-- Auth & Header Scripts -->
   <script src="{{ dynamic_asset('js/auth.js')}}"></script>
   <script src="{{ dynamic_asset('js/public-header.js')}}"></script>
 
-  <!-- Dark Mode Initialization for Auth Pages -->
-  <script>
-    (function() {
-      const darkModeToggle = document.getElementById('dark-mode-toggle');
-      const darkModeIcon = document.getElementById('dark-mode-icon');
-      const body = document.body;
-
-      // Get current theme from localStorage or system preference
-      function getCurrentTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) return savedTheme;
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      }
-
-      // Apply theme
-      function applyTheme(theme) {
-        if (theme === 'dark') {
-          body.classList.add('dark-mode');
-          document.documentElement.classList.add('dark-mode');
-          if (darkModeIcon) darkModeIcon.className = 'fas fa-sun';
-        } else {
-          body.classList.remove('dark-mode');
-          document.documentElement.classList.remove('dark-mode');
-          if (darkModeIcon) darkModeIcon.className = 'fas fa-moon';
-        }
-      }
-
-      // Toggle theme
-      function toggleTheme() {
-        const isDarkMode = body.classList.contains('dark-mode');
-        const newTheme = isDarkMode ? 'light' : 'dark';
-        localStorage.setItem('theme', newTheme);
-        applyTheme(newTheme);
-      }
-
-      // Initialize theme on page load
-      applyTheme(getCurrentTheme());
-
-      // Add click handler for toggle button
-      if (darkModeToggle) {
-        darkModeToggle.addEventListener('click', toggleTheme);
-      }
-
-      // Listen for system theme changes
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-        if (!localStorage.getItem('theme')) {
-          applyTheme(e.matches ? 'dark' : 'light');
-        }
-      });
-    })();
-  </script>
+  <!-- Initialize dark mode for auth pages -->
+  <script>if (window.initDarkMode) window.initDarkMode();</script>
 
   <!-- Global Error Popup Handler -->
   <link rel="stylesheet" href="{{ dynamic_asset('css/components/error-popup.css') }}">

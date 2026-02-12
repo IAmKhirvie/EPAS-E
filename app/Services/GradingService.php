@@ -12,6 +12,7 @@ use App\Models\TaskSheetSubmission;
 use App\Models\JobSheetSubmission;
 use App\Models\UserProgress;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Service for calculating grades using the Philippine K-12 grading scale.
@@ -47,6 +48,23 @@ class GradingService
      * Calculate the overall grade for a module.
      */
     public function calculateModuleGrade(User $user, Module $module): array
+    {
+        return Cache::remember(
+            "module_grade_{$user->id}_{$module->id}",
+            config('joms.cache.grades_ttl', 300),
+            fn() => $this->computeModuleGrade($user, $module)
+        );
+    }
+
+    /**
+     * Invalidate cached grade for a user/module pair.
+     */
+    public function invalidateModuleGrade(int $userId, int $moduleId): void
+    {
+        Cache::forget("module_grade_{$userId}_{$moduleId}");
+    }
+
+    protected function computeModuleGrade(User $user, Module $module): array
     {
         $components = $this->getGradeComponents($user, $module);
 
@@ -202,7 +220,7 @@ class GradingService
     public function applyGradingScale(float $percentage): array
     {
         foreach ($this->gradingScale as $grade) {
-            if ($percentage >= $grade['min'] && $percentage <= $grade['max']) {
+            if ($percentage >= $grade['min']) {
                 return [
                     'percentage' => round($percentage, 2),
                     'descriptor' => $grade['descriptor'],

@@ -6,6 +6,7 @@ use App\Constants\Roles;
 use App\Http\Traits\RateLimitsLogins;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PrivateLoginController extends Controller
 {
@@ -56,77 +57,88 @@ class PrivateLoginController extends Controller
      */
     protected function handleLogin(Request $request, string $expectedRole)
     {
-        $key = "{$expectedRole}-login:" . $request->ip();
+        try {
+            $key = "{$expectedRole}-login:" . $request->ip();
 
-        // Check if locked out
-        $lockout = $this->isLockedOut($key);
-        if ($lockout['locked']) {
-            return back()->withErrors([
-                'email' => 'Too many failed login attempts. Please try again in ' . $this->formatTime($lockout['remaining']) . '.',
-            ]);
-        }
-
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-        ]);
-
-        $credentials = $request->only('email', 'password');
-
-        if (Auth::attempt($credentials, $request->filled('remember'))) {
-            $user = Auth::user();
-
-            // Validate role
-            if ($expectedRole === Roles::ADMIN && $user->role !== Roles::ADMIN) {
-                Auth::logout();
+            // Check if locked out
+            $lockout = $this->isLockedOut($key);
+            if ($lockout['locked']) {
                 return back()->withErrors([
-                    'email' => 'Access denied. This login is for administrators only.',
-                ])->withInput($request->only('email'));
-            }
-
-            if ($expectedRole === Roles::INSTRUCTOR && $user->role !== Roles::INSTRUCTOR) {
-                Auth::logout();
-                return back()->withErrors([
-                    'email' => 'Access denied. This login is for instructors only.',
-                ])->withInput($request->only('email'));
-            }
-
-            // Check if user is approved
-            if ($user->stat == 0) {
-                Auth::logout();
-                return back()->withErrors([
-                    'email' => 'Your account is pending approval. Please contact administrator.',
+                    'email' => 'Too many failed login attempts. Please try again in ' . $this->formatTime($lockout['remaining']) . '.',
                 ]);
             }
 
-            // Clear rate limits on successful login
-            $this->clearRateLimits($key);
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required|string',
+            ]);
 
-            $user->last_login = now();
-            $user->save();
+            $credentials = $request->only('email', 'password');
 
-            $request->session()->regenerate();
-            $request->session()->forget('url.intended');
+            if (Auth::attempt($credentials, $request->filled('remember'))) {
+                $user = Auth::user();
 
-            return redirect('/dashboard');
+                // Validate role
+                if ($expectedRole === Roles::ADMIN && $user->role !== Roles::ADMIN) {
+                    Auth::logout();
+                    return back()->withErrors([
+                        'email' => 'Access denied. This login is for administrators only.',
+                    ])->withInput($request->only('email'));
+                }
+
+                if ($expectedRole === Roles::INSTRUCTOR && $user->role !== Roles::INSTRUCTOR) {
+                    Auth::logout();
+                    return back()->withErrors([
+                        'email' => 'Access denied. This login is for instructors only.',
+                    ])->withInput($request->only('email'));
+                }
+
+                // Check if user is approved
+                if ($user->stat == 0) {
+                    Auth::logout();
+                    return back()->withErrors([
+                        'email' => 'Your account is pending approval. Please contact administrator.',
+                    ]);
+                }
+
+                // Clear rate limits on successful login
+                $this->clearRateLimits($key);
+
+                $user->last_login = now();
+                $user->save();
+
+                $request->session()->regenerate();
+                $request->session()->forget('url.intended');
+
+                return redirect('/dashboard');
+            }
+
+            // Record failed attempt
+            $this->recordFailedAttempt($key);
+
+            // Show warning when approaching lockout
+            $config = $this->getRateLimitConfig($key);
+            $remaining = $config['max'] - $config['attempts'];
+            $warning = '';
+
+            if ($remaining > 0 && $remaining <= 2) {
+                $nextTier = $this->getNextTierMessage($config['attempts'] + 1);
+                $warning = ' (' . $remaining . ' attempt' . ($remaining > 1 ? 's' : '') . ' until ' . $nextTier . ' lockout)';
+            }
+
+            return back()->withErrors([
+                'email' => 'Invalid credentials.' . $warning,
+            ])->withInput($request->only('email'));
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('PrivateLoginController::handleLogin failed', [
+                'error' => $e->getMessage(),
+                'user' => auth()->id(),
+                'role' => $expectedRole,
+            ]);
+            return back()->with('error', 'Login failed. Please try again.');
         }
-
-        // Record failed attempt
-        $this->recordFailedAttempt($key);
-
-        // Show warning when approaching lockout
-        $config = $this->getRateLimitConfig($key);
-        $remaining = $config['max'] - $config['attempts'];
-        $warning = '';
-
-        if ($remaining > 0 && $remaining <= 2) {
-            $nextTier = $this->getNextTierMessage($config['attempts'] + 1);
-            $warning = ' (' . $remaining . ' attempt' . ($remaining > 1 ? 's' : '') . ' until ' . $nextTier . ' lockout)';
-        }
-
-        return back()->withErrors([
-            'email' => 'Invalid credentials.' . $warning,
-        ])->withInput($request->only('email'));
     }
 
     private function redirectToRoleDashboard()

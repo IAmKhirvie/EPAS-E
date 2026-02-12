@@ -25,7 +25,7 @@ class StoreJobSheetRequest extends FormRequest
             'steps.*.step_number' => 'required|integer',
             'steps.*.instruction' => 'required|string',
             'steps.*.expected_outcome' => 'required|string',
-            'steps.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'steps.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|mimetypes:image/jpeg,image/png,image/gif|max:' . config('joms.uploads.max_image_size', 5120),
         ];
     }
 }

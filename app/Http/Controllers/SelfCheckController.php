@@ -375,7 +375,7 @@ class SelfCheckController extends Controller
     public function uploadImage(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB max
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|mimetypes:image/jpeg,image/png,image/gif,image/webp|max:' . config('joms.uploads.max_image_size', 5120),
         ]);
 
         try {
@@ -555,7 +555,7 @@ class SelfCheckController extends Controller
     public function uploadAudio(Request $request)
     {
         $request->validate([
-            'audio' => 'required|mimes:mp3,wav,ogg,m4a,webm|max:20480', // 20MB max
+            'audio' => 'required|mimes:mp3,wav,ogg,m4a,webm|mimetypes:audio/mpeg,audio/wav,audio/ogg,audio/mp4,audio/x-m4a,audio/webm|max:' . config('joms.uploads.max_audio_size', 20480),
         ]);
 
         try {
@@ -583,7 +583,7 @@ class SelfCheckController extends Controller
     public function uploadVideo(Request $request)
     {
         $request->validate([
-            'video' => 'required|mimes:mp4,webm,ogg,mov|max:102400', // 100MB max
+            'video' => 'required|mimes:mp4,webm,ogg,mov|mimetypes:video/mp4,video/webm,video/ogg,video/quicktime|max:' . config('joms.uploads.max_video_size', 102400),
         ]);
 
         try {

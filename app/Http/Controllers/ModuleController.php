@@ -316,7 +316,7 @@ class ModuleController extends Controller
     public function uploadImage(Request $request, Module $module)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|mimetypes:image/jpeg,image/png,image/gif,image/webp|max:' . config('joms.uploads.max_image_size', 5120),
             'caption' => 'nullable|string|max:255',
             'section' => 'nullable|string|max:100',
         ]);

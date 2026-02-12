@@ -10,7 +10,8 @@ class TopNavbar {
         await this.loadUserData();
         this.setupEventListeners();
         this.setupTooltips();
-        this.initializeDarkMode();
+        // Dark mode is handled by utils/dark-mode.js (loaded before this file)
+        if (window.initDarkMode) window.initDarkMode();
     }
 
     async loadUserData() {
@@ -53,14 +54,6 @@ class TopNavbar {
         if (mobileSidebarToggle) {
             mobileSidebarToggle.addEventListener('click', () => {
                 this.toggleSidebar();
-            });
-        }
-
-        // Dark mode toggle
-        const darkModeToggle = document.getElementById('dark-mode-toggle');
-        if (darkModeToggle) {
-            darkModeToggle.addEventListener('click', () => {
-                this.toggleDarkMode();
             });
         }
 
@@ -109,83 +102,6 @@ class TopNavbar {
 
         // Add click event to document to close sidebar when clicking outside on mobile
         document.addEventListener('click', this.handleOutsideClick.bind(this));
-    }
-
-    // Dark Mode functionality
-    initializeDarkMode() {
-        const darkModeToggle = document.getElementById('dark-mode-toggle');
-        const darkModeIcon = document.getElementById('dark-mode-icon');
-        const body = document.body;
-
-        // Check if elements exist
-        if (!darkModeToggle || !darkModeIcon) {
-            console.error('Dark mode elements not found');
-            return;
-        }
-
-        // Improved theme detection with better persistence
-        const getCurrentTheme = () => {
-            // Try to get from localStorage first
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) return savedTheme;
-            
-            // Fallback to system preference
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        };
-
-        const applyTheme = (theme) => {
-            if (theme === 'dark') {
-                body.classList.add('dark-mode');
-                document.documentElement.classList.add('dark-mode');
-                darkModeIcon.className = 'fas fa-sun';
-                localStorage.setItem('theme', 'dark');
-            } else {
-                body.classList.remove('dark-mode');
-                document.documentElement.classList.remove('dark-mode');
-                darkModeIcon.className = 'fas fa-moon';
-                localStorage.setItem('theme', 'light');
-            }
-            
-            // Dispatch event for other components to listen to
-            window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme } }));
-        };
-
-        // Apply theme on initial load
-        const currentTheme = getCurrentTheme();
-        applyTheme(currentTheme);
-
-        // Listen for system theme changes (only if no manual preference is set)
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-            // Only apply system theme if user hasn't manually set a preference
-            if (!localStorage.getItem('theme')) {
-                applyTheme(e.matches ? 'dark' : 'light');
-            }
-        });
-
-        // Listen for storage events (sync across tabs)
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'theme') {
-                applyTheme(e.newValue);
-            }
-        });
-    }
-
-    toggleDarkMode() {
-        const darkModeIcon = document.getElementById('dark-mode-icon');
-        const body = document.body;
-        const isDarkMode = body.classList.contains('dark-mode');
-
-        if (isDarkMode) {
-            body.classList.remove('dark-mode');
-            document.documentElement.classList.remove('dark-mode');
-            localStorage.setItem('theme', 'light');
-            darkModeIcon.className = 'fas fa-moon';
-        } else {
-            body.classList.add('dark-mode');
-            document.documentElement.classList.add('dark-mode');
-            localStorage.setItem('theme', 'dark');
-            darkModeIcon.className = 'fas fa-sun';
-        }
     }
 
     // Handle clicks outside the sidebar on mobile

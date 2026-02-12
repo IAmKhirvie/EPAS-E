@@ -1,25 +1,7 @@
-// ---------- slideshow (added from revised version) ----------
-// Hero Slideshow
+// ---------- slideshow ----------
+// Delegates to shared utils/slideshow.js (loaded before this file)
 document.addEventListener('DOMContentLoaded', function() {
-    const slides = document.querySelectorAll('.slide');
-    let currentSlide = 0;
-    
-    function nextSlide() {
-        // Remove active class from current slide
-        slides[currentSlide].classList.remove('active');
-        
-        // Move to next slide
-        currentSlide = (currentSlide + 1) % slides.length;
-        
-        // Add active class to new slide
-        slides[currentSlide].classList.add('active');
-    }
-    
-    // Change slide every 5 seconds
-    setInterval(nextSlide, 5000);
-    
-    // Preload images - Remove Blade syntax, images are already loaded in HTML
-    // The images are already set in the HTML via background-image
+    if (typeof initSlideshow === 'function') initSlideshow();
 });
 
 // Auto-dismiss alerts
@@ -102,17 +84,6 @@ function showToast(message, type = 'info') {
         setTimeout(() => toast.classList.remove(type), 300);
     }, 5000);
 }
-
-// ---------- Forgot Password Link Fix ----------
-document.addEventListener('DOMContentLoaded', function() {
-    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-    
-    if (forgotPasswordLink) {
-        forgotPasswordLink.addEventListener('click', function(e) {
-            console.log('Forgot password link clicked');
-        });
-    }
-});
 
 //---- Error Dismiss ----
 document.addEventListener('DOMContentLoaded', function() {

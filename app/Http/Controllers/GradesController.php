@@ -16,7 +16,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 use Illuminate\Http\Response;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Handles grade viewing and management for the JOMS LMS.
@@ -87,22 +89,30 @@ class GradesController extends Controller
      */
     public function getStudentGradesApi(Request $request): JsonResponse
     {
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
 
-        if ($user->role !== Roles::STUDENT) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            if ($user->role !== Roles::STUDENT) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+
+            $summary = $this->calculateStudentGradeSummary($user);
+
+            return response()->json([
+                'summary' => $summary,
+                'student' => [
+                    'name' => $user->full_name,
+                    'student_id' => $user->student_id,
+                    'section' => $user->section,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('GradesController::getStudentGradesApi failed', [
+                'error' => $e->getMessage(),
+                'user' => auth()->id(),
+            ]);
+            return response()->json(['error' => 'Failed to load grades data.'], 500);
         }
-
-        $summary = $this->calculateStudentGradeSummary($user);
-
-        return response()->json([
-            'summary' => $summary,
-            'student' => [
-                'name' => $user->full_name,
-                'student_id' => $user->student_id,
-                'section' => $user->section,
-            ],
-        ]);
     }
 
     /**
@@ -111,33 +121,43 @@ class GradesController extends Controller
      * @param Request $request
      * @return Response
      */
-    public function exportGrades(Request $request): Response
+    public function exportGrades(Request $request): Response|RedirectResponse
     {
-        $this->authorizeInstructor();
+        try {
+            $this->authorizeInstructor();
 
-        $viewer = Auth::user();
-        $section = $request->get('section');
-        $courseId = $request->get('course_id');
+            $viewer = Auth::user();
+            $section = $request->get('section');
+            $courseId = $request->get('course_id');
 
-        // Instructors can only export sections they are assigned to
-        if ($viewer->role === Roles::INSTRUCTOR) {
-            $assignedSections = $viewer->getAllAccessibleSections();
-            if ($section && !$assignedSections->contains($section)) {
-                abort(403, 'You can only export grades for your assigned sections.');
+            // Instructors can only export sections they are assigned to
+            if ($viewer->role === Roles::INSTRUCTOR) {
+                $assignedSections = $viewer->getAllAccessibleSections();
+                if ($section && !$assignedSections->contains($section)) {
+                    abort(403, 'You can only export grades for your assigned sections.');
+                }
+                // If no section specified, use the first assigned section
+                if (!$section && $assignedSections->isNotEmpty()) {
+                    $section = $assignedSections->first();
+                }
             }
-            // If no section specified, use the first assigned section
-            if (!$section && $assignedSections->isNotEmpty()) {
-                $section = $assignedSections->first();
-            }
+
+            $export = new \App\Exports\GradesExport($section, $courseId);
+            $csv = $export->generateCSV();
+            $filename = 'grades_' . ($section ?? 'all') . '_' . date('Y-m-d') . '.csv';
+
+            return response($csv)
+                ->header('Content-Type', 'text/csv')
+                ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('GradesController::exportGrades failed', [
+                'error' => $e->getMessage(),
+                'user' => auth()->id(),
+            ]);
+            return back()->with('error', 'Grade export failed. Please try again.');
         }
-
-        $export = new \App\Exports\GradesExport($section, $courseId);
-        $csv = $export->generateCSV();
-        $filename = 'grades_' . ($section ?? 'all') . '_' . date('Y-m-d') . '.csv';
-
-        return response($csv)
-            ->header('Content-Type', 'text/csv')
-            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
     /**
@@ -146,24 +166,34 @@ class GradesController extends Controller
      * @param string $section
      * @return Response
      */
-    public function exportClassGrades(string $section): Response
+    public function exportClassGrades(string $section): Response|RedirectResponse
     {
-        $this->authorizeInstructor();
+        try {
+            $this->authorizeInstructor();
 
-        $viewer = Auth::user();
+            $viewer = Auth::user();
 
-        // Instructors can only export sections they are assigned to
-        if ($viewer->role === Roles::INSTRUCTOR && !$viewer->isAssignedToSection($section)) {
-            abort(403, 'You can only export grades for your assigned sections.');
+            // Instructors can only export sections they are assigned to
+            if ($viewer->role === Roles::INSTRUCTOR && !$viewer->isAssignedToSection($section)) {
+                abort(403, 'You can only export grades for your assigned sections.');
+            }
+
+            $export = new \App\Exports\ClassGradesExport($section);
+            $csv = $export->generateCSV();
+            $filename = 'class_grades_' . $section . '_' . date('Y-m-d') . '.csv';
+
+            return response($csv)
+                ->header('Content-Type', 'text/csv')
+                ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('GradesController::exportClassGrades failed', [
+                'error' => $e->getMessage(),
+                'user' => auth()->id(),
+            ]);
+            return back()->with('error', 'Class grade export failed. Please try again.');
         }
-
-        $export = new \App\Exports\ClassGradesExport($section);
-        $csv = $export->generateCSV();
-        $filename = 'class_grades_' . $section . '_' . date('Y-m-d') . '.csv';
-
-        return response($csv)
-            ->header('Content-Type', 'text/csv')
-            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
     // =========================================================================

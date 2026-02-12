@@ -15,7 +15,7 @@ class ProfileController extends Controller
         
         $request->validate([
             'student_id' => 'nullable|string|max:20',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg|mimetypes:image/jpeg,image/png|max:' . config('joms.uploads.max_image_size', 5120)
         ]);
         
         try {
@@ -46,7 +46,7 @@ class ProfileController extends Controller
     public function updateAvatar(Request $request)
     {
         $request->validate([
-            'avatar' => 'required|image|mimes:jpeg,png,jpg|max:2048'
+            'avatar' => 'required|image|mimes:jpeg,png,jpg|mimetypes:image/jpeg,image/png|max:' . config('joms.uploads.max_image_size', 5120)
         ]);
 
         $user = Auth::user();

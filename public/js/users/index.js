@@ -40,99 +40,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function performSearch(searchValue) {
-        const currentUrl = new URL(window.location.href);
-        
-        // Update URL parameters
-        if (searchValue) {
-            currentUrl.searchParams.set('search', searchValue);
-        } else {
-            currentUrl.searchParams.delete('search');
-        }
-        currentUrl.searchParams.delete('page'); // Go to first page when searching
-        
-        // Use Fetch API to get updated content
-        fetch(currentUrl, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Update the table content
-            const tableContainer = document.querySelector('.table-container');
-            if (tableContainer && data.table_html) {
-                tableContainer.innerHTML = data.table_html;
-            }
-            
-            // Update pagination
-            const paginationContainer = document.querySelector('.pagination-container');
-            if (paginationContainer && data.pagination_html) {
-                paginationContainer.innerHTML = data.pagination_html;
-            } else if (paginationContainer) {
-                paginationContainer.innerHTML = '';
-            }
-            
-            // Update total users count badges
-            const badgePrimary = document.querySelector('.badge.bg-primary');
-            const badgeInfo = document.querySelector('.badge.bg-info');
-            
-            if (badgePrimary) {
-                if (searchValue) {
-                    badgePrimary.textContent = `Filtered Users: ${data.total_users}`;
-                    badgePrimary.className = 'badge bg-info';
-                } else {
-                    badgePrimary.textContent = `Total Users: ${data.total_users}`;
-                    badgePrimary.className = 'badge bg-primary';
-                }
-            }
-            
-            if (badgeInfo) {
-                badgeInfo.textContent = `Showing: ${data.count} per page`;
-            }
-            
-            // Update URL in browser without reload
-            window.history.pushState({}, '', currentUrl);
-            
-            // Re-initialize functionality for the new content
-            initializeTableFunctionality();
-        })
-        .catch(error => {
-            console.error('Search error:', error);
-            // Fallback: submit form normally if AJAX fails
-            if (searchValue) {
-                window.location.href = currentUrl.toString();
-            }
-        });
-    }
-
-    function updateBadges(searchValue, totalUsers, count) {
-        const badgePrimary = document.querySelector('.badge.bg-primary');
-        const badgeInfo = document.querySelector('.badge.bg-info');
-        
-        if (badgePrimary) {
-            if (searchValue) {
-                badgePrimary.textContent = `Filtered Users: ${totalUsers}`;
-                badgePrimary.className = 'badge bg-info';
-            } else {
-                badgePrimary.textContent = `Total Users: ${totalUsers}`;
-                badgePrimary.className = 'badge bg-primary';
-            }
-        }
-        
-        if (badgeInfo) {
-            badgeInfo.textContent = `Showing: ${count} per page`;
-        }
-    }
-
     function initializeTableFunctionality() {
         initializeSorting();
+        initializeFiltering();
         initializeActionHandlers();
         initializePaginationHandlers();
     }
@@ -254,24 +164,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initialize pagination handlers for smooth page transitions
+    // Pagination — single delegated listener instead of per-link
     function initializePaginationHandlers() {
-        document.querySelectorAll('.pagination a').forEach(link => {
-            link.addEventListener('click', function(e) {
+        const paginationContainer = document.querySelector('.pagination');
+        if (paginationContainer) {
+            paginationContainer.addEventListener('click', function(e) {
+                const link = e.target.closest('a');
+                if (!link) return;
                 e.preventDefault();
-                const url = this.getAttribute('href');
-                
-                // Use native browser navigation for pagination (no loading states)
-                window.location.href = url;
+                window.location.href = link.getAttribute('href');
             });
-        });
-    }
-
-    function initializeTableFunctionality() {
-        initializeSorting();
-        initializeFiltering();
-        initializeActionHandlers();
-        initializePaginationHandlers();
+        }
     }
 
     // Handle browser back/forward buttons
@@ -419,16 +322,4 @@ document.addEventListener('DOMContentLoaded', function() {
         roleSelect.addEventListener('change', toggleRoleFields);
     }
 
-    // student ID change confirmation - WITH NULL CHECK
-    const SIDInput = document.querySelector('input[name="SID_id"]');
-    if (studentInput) {
-        const originalValue = studentInput.value;
-        studentInput.addEventListener('change', function() {
-            if (this.value !== originalValue) {
-                if (!confirm('Are you sure you want to change the Student ID?')) {
-                    this.value = originalValue;
-                }
-            }
-        });
-    }
 });

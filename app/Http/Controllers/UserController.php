@@ -390,7 +390,7 @@ class UserController extends Controller
         $this->authorizeAdmin();
 
         $request->validate([
-            'file' => 'required|file|mimes:csv,xlsx,xls|max:5120', // Max 5MB
+            'file' => 'required|file|mimes:csv,xlsx,xls|mimetypes:text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel|max:' . config('joms.uploads.max_document_size', 10240),
             'default_password' => 'nullable|string|min:8',
             'default_role' => 'required|in:student,instructor,admin',
             'default_department_id' => 'nullable|exists:departments,id',

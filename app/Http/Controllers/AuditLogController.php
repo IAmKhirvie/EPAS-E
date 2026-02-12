@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AuditLog;
 use App\Services\AuditLogService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AuditLogController extends Controller
 {
@@ -62,47 +63,55 @@ class AuditLogController extends Controller
 
     public function export(Request $request)
     {
-        $query = AuditLog::with('user')->orderByDesc('created_at');
+        try {
+            $query = AuditLog::with('user')->orderByDesc('created_at');
 
-        if ($request->has('from') && $request->from) {
-            $query->whereDate('created_at', '>=', $request->from);
-        }
-
-        if ($request->has('to') && $request->to) {
-            $query->whereDate('created_at', '<=', $request->to);
-        }
-
-        $logs = $query->get();
-
-        $this->auditLogService->logExport('audit_logs', $logs->count());
-
-        $filename = 'audit-logs-' . now()->format('Y-m-d') . '.csv';
-
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-        ];
-
-        $callback = function () use ($logs) {
-            $file = fopen('php://output', 'w');
-
-            // Header row
-            fputcsv($file, ['ID', 'User', 'Action', 'Description', 'IP Address', 'Date']);
-
-            foreach ($logs as $log) {
-                fputcsv($file, [
-                    $log->id,
-                    $log->user?->full_name ?? 'System',
-                    $log->action,
-                    $log->description,
-                    $log->ip_address,
-                    $log->created_at->format('Y-m-d H:i:s'),
-                ]);
+            if ($request->has('from') && $request->from) {
+                $query->whereDate('created_at', '>=', $request->from);
             }
 
-            fclose($file);
-        };
+            if ($request->has('to') && $request->to) {
+                $query->whereDate('created_at', '<=', $request->to);
+            }
 
-        return response()->stream($callback, 200, $headers);
+            $logs = $query->get();
+
+            $this->auditLogService->logExport('audit_logs', $logs->count());
+
+            $filename = 'audit-logs-' . now()->format('Y-m-d') . '.csv';
+
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            ];
+
+            $callback = function () use ($logs) {
+                $file = fopen('php://output', 'w');
+
+                // Header row
+                fputcsv($file, ['ID', 'User', 'Action', 'Description', 'IP Address', 'Date']);
+
+                foreach ($logs as $log) {
+                    fputcsv($file, [
+                        $log->id,
+                        $log->user?->full_name ?? 'System',
+                        $log->action,
+                        $log->description,
+                        $log->ip_address,
+                        $log->created_at->format('Y-m-d H:i:s'),
+                    ]);
+                }
+
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+            Log::error('AuditLogController::export failed', [
+                'error' => $e->getMessage(),
+                'user' => auth()->id(),
+            ]);
+            return back()->with('error', 'Export failed. Please try again.');
+        }
     }
 }

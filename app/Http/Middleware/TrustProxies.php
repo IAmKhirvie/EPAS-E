@@ -7,7 +7,12 @@ use Illuminate\Http\Request;
 
 class TrustProxies extends Middleware
 {
-    protected $proxies = '*';
+    /**
+     * The trusted proxies for this application.
+     * Set TRUSTED_PROXIES in .env (comma-separated IPs, or '*' for all).
+     * In production, restrict to your reverse proxy/Cloudflare IPs.
+     */
+    protected $proxies;
 
     protected $headers =
         Request::HEADER_X_FORWARDED_FOR |
@@ -15,4 +20,14 @@ class TrustProxies extends Middleware
         Request::HEADER_X_FORWARDED_PORT |
         Request::HEADER_X_FORWARDED_PROTO |
         Request::HEADER_X_FORWARDED_AWS_ELB;
+
+    public function __construct()
+    {
+        $proxies = env('TRUSTED_PROXIES');
+        if ($proxies === '*') {
+            $this->proxies = '*';
+        } elseif ($proxies) {
+            $this->proxies = array_map('trim', explode(',', $proxies));
+        }
+    }
 }

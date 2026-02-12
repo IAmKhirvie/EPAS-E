@@ -9,6 +9,7 @@ use App\Models\Announcement;
 use App\Models\PendingActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class StudentDashboard extends Controller
@@ -20,26 +21,34 @@ class StudentDashboard extends Controller
     
     public function getProgressData()
     {
-        $user = Auth::user();
-        
-        // Get progress summary with circle progress data
-        $progressData = $this->getCircleProgressData($user);
-        
-        // Get recent announcements
-        $announcements = $this->getAnnouncements();
-        
-        // Get pending activities
-        $pendingActivities = $this->getPendingActivities($user);
-        
-        // Get current module progress
-        $currentModule = $this->getCurrentModuleProgress($user);
-        
-        return response()->json([
-            'circleProgress' => $progressData,
-            'announcements' => $announcements,
-            'pendingActivities' => $pendingActivities,
-            'currentModule' => $currentModule
-        ]);
+        try {
+            $user = Auth::user();
+
+            // Get progress summary with circle progress data
+            $progressData = $this->getCircleProgressData($user);
+
+            // Get recent announcements
+            $announcements = $this->getAnnouncements();
+
+            // Get pending activities
+            $pendingActivities = $this->getPendingActivities($user);
+
+            // Get current module progress
+            $currentModule = $this->getCurrentModuleProgress($user);
+
+            return response()->json([
+                'circleProgress' => $progressData,
+                'announcements' => $announcements,
+                'pendingActivities' => $pendingActivities,
+                'currentModule' => $currentModule
+            ]);
+        } catch (\Exception $e) {
+            Log::error('StudentDashboard::getProgressData failed', [
+                'error' => $e->getMessage(),
+                'user' => auth()->id(),
+            ]);
+            return response()->json(['error' => 'Failed to load progress data.'], 500);
+        }
     }
     
     private function getCircleProgressData($user)

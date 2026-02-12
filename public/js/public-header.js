@@ -48,15 +48,6 @@ function closeAllDropdowns() {
     hideLoginBackdrop();
 }
 
-function closeAllDropdownsExcept(exceptDropdown) {
-    const dropdowns = document.querySelectorAll('.dropdown, .popover');
-    dropdowns.forEach(dropdown => {
-        if (dropdown !== exceptDropdown) {
-            dropdown.classList.remove('active');
-        }
-    });
-}
-
 // Close dropdown when clicking on a dropdown item
 document.addEventListener('click', function(e) {
     if (e.target.closest('.dropdown-item')) {
