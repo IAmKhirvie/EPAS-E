@@ -394,6 +394,7 @@
     <script src="{{ dynamic_asset('js/app.js') }}"></script>
 
     <!-- Utility Scripts -->
+    <script src="{{ dynamic_asset('js/utils/dark-mode.js') }}"></script>
     <script src="{{ dynamic_asset('js/utils/dynamic-form.js') }}"></script>
 
     <!-- Component Script -->

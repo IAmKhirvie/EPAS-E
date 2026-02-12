@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Collection;
 
 /**
@@ -76,22 +77,30 @@ class DashboardController extends Controller
      */
     public function getStudentDashboardData(): JsonResponse
     {
-        $user = Auth::user();
-        $progressSummary = $this->stats->getProgressSummary($user);
+        try {
+            $user = Auth::user();
+            $progressSummary = $this->stats->getProgressSummary($user);
 
-        $progressPercentage = $progressSummary['total_modules'] > 0
-            ? ($progressSummary['completed_modules'] / $progressSummary['total_modules']) * 100
-            : 0;
+            $progressPercentage = $progressSummary['total_modules'] > 0
+                ? ($progressSummary['completed_modules'] / $progressSummary['total_modules']) * 100
+                : 0;
 
-        $totalActivities = $progressSummary['total_modules'] + $progressSummary['in_progress_modules'];
-        $completedActivities = $progressSummary['completed_modules'];
+            $totalActivities = $progressSummary['total_modules'] + $progressSummary['in_progress_modules'];
+            $completedActivities = $progressSummary['completed_modules'];
 
-        return response()->json([
-            'progress' => round($progressPercentage),
-            'finished_activities' => $completedActivities . '/' . $totalActivities,
-            'total_modules' => $progressSummary['total_modules'],
-            'average_grade' => $progressSummary['average_score']
-        ]);
+            return response()->json([
+                'progress' => round($progressPercentage),
+                'finished_activities' => $completedActivities . '/' . $totalActivities,
+                'total_modules' => $progressSummary['total_modules'],
+                'average_grade' => $progressSummary['average_score']
+            ]);
+        } catch (\Exception $e) {
+            Log::error('DashboardController::getStudentDashboardData failed', [
+                'error' => $e->getMessage(),
+                'user' => auth()->id(),
+            ]);
+            return response()->json(['error' => 'Failed to load dashboard data.'], 500);
+        }
     }
 
     /**
@@ -101,13 +110,21 @@ class DashboardController extends Controller
      */
     public function getProgressData(): JsonResponse
     {
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
 
-        return response()->json([
-            'summary' => $this->stats->getProgressSummary($user),
-            'recentActivity' => $this->stats->getRecentActivity($user),
-            'moduleProgress' => $this->stats->getModuleProgress($user)
-        ]);
+            return response()->json([
+                'summary' => $this->stats->getProgressSummary($user),
+                'recentActivity' => $this->stats->getRecentActivity($user),
+                'moduleProgress' => $this->stats->getModuleProgress($user)
+            ]);
+        } catch (\Exception $e) {
+            Log::error('DashboardController::getProgressData failed', [
+                'error' => $e->getMessage(),
+                'user' => auth()->id(),
+            ]);
+            return response()->json(['error' => 'Failed to load progress data.'], 500);
+        }
     }
 
     /**
@@ -117,27 +134,35 @@ class DashboardController extends Controller
      */
     public function getProgressReport(): JsonResponse
     {
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
 
-        $totalLearningTime = UserProgress::where('user_id', $user->id)->sum('time_spent');
+            $totalLearningTime = UserProgress::where('user_id', $user->id)->sum('time_spent');
 
-        $averageScore = UserProgress::where('user_id', $user->id)
-            ->whereNotNull('score')
-            ->avg('score');
+            $averageScore = UserProgress::where('user_id', $user->id)
+                ->whereNotNull('score')
+                ->avg('score');
 
-        $completedModules = UserProgress::where('user_id', $user->id)
-            ->where('progressable_type', Module::class)
-            ->where('status', 'completed')
-            ->count();
+            $completedModules = UserProgress::where('user_id', $user->id)
+                ->where('progressable_type', Module::class)
+                ->where('status', 'completed')
+                ->count();
 
-        $totalModules = Module::where('is_active', true)->count();
-        $completionRate = $totalModules > 0 ? ($completedModules / $totalModules) * 100 : 0;
+            $totalModules = Module::where('is_active', true)->count();
+            $completionRate = $totalModules > 0 ? ($completedModules / $totalModules) * 100 : 0;
 
-        return response()->json([
-            'total_learning_time' => $this->stats->formatTime($totalLearningTime),
-            'average_score' => round($averageScore ?? 0, 1),
-            'completion_rate' => round($completionRate, 1)
-        ]);
+            return response()->json([
+                'total_learning_time' => $this->stats->formatTime($totalLearningTime),
+                'average_score' => round($averageScore ?? 0, 1),
+                'completion_rate' => round($completionRate, 1)
+            ]);
+        } catch (\Exception $e) {
+            Log::error('DashboardController::getProgressReport failed', [
+                'error' => $e->getMessage(),
+                'user' => auth()->id(),
+            ]);
+            return response()->json(['error' => 'Failed to load progress report.'], 500);
+        }
     }
 
     // =========================================================================

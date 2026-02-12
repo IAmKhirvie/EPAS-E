@@ -97,14 +97,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Navigation buttons
-        if (prevBtn) {
-            prevBtn.addEventListener('click', navigateToPrevious);
-        }
-
-        if (nextBtn) {
-            nextBtn.addEventListener('click', navigateToNext);
-        }
+        // Navigation buttons (disabled — not yet implemented)
+        if (prevBtn) prevBtn.disabled = true;
+        if (nextBtn) nextBtn.disabled = true;
     }
 
     function loadOverview() {
@@ -216,44 +211,6 @@ document.addEventListener('DOMContentLoaded', function() {
             dynamicContent.classList.remove('content-loading');
         });
     }
-    
-
-    async function loadContent() {
-        try {
-            const response = await fetch('/api/module-content/' + moduleId + '/' + contentType);
-            
-            // Check if response is JSON
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new Error('Server returned non-JSON response');
-            }
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to load content');
-            }
-            
-            // Process your data here
-            displayContent(data);
-            
-        } catch (error) {
-            console.error('Error loading content:', error);
-            showError('Failed to load content: ' + error.message);
-        }
-    }
-
-    function showError(message) {
-        // Display user-friendly error message
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'alert alert-danger';
-        errorDiv.textContent = message;
-        document.getElementById('content-container').innerHTML = '';
-        document.getElementById('content-container').appendChild(errorDiv);
-    }
-
-
-
 
     function getContentTitle(contentType) {
         const titles = {
@@ -339,16 +296,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (progressText) {
             progressText.textContent = `${progress}%`;
         }
-    }
-
-    function navigateToPrevious() {
-        // Implementation for previous navigation
-        console.log('Navigate to previous section');
-    }
-
-    function navigateToNext() {
-        // Implementation for next navigation
-        console.log('Navigate to next section');
     }
 
     function updateNavigationButtons() {

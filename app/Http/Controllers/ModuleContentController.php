@@ -7,29 +7,40 @@ use App\Models\Module;
 use App\Models\Topic;
 use App\Models\SelfCheck;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ModuleContentController extends Controller
 {
     public function show(Module $module, $contentType)
     {
-        // Check if it's a topic
-        if (is_numeric($contentType)) {
-            $topic = Topic::with('informationSheet')->find($contentType);
-            if ($topic && $topic->informationSheet->module_id === $module->id) {
-                return $this->renderTopicContent($topic);
+        try {
+            // Check if it's a topic
+            if (is_numeric($contentType)) {
+                $topic = Topic::with('informationSheet')->find($contentType);
+                if ($topic && $topic->informationSheet->module_id === $module->id) {
+                    return $this->renderTopicContent($topic);
+                }
             }
-        }
 
-        // Check if it's a self-check
-        if (str_starts_with($contentType, 'self-check-')) {
-            $selfCheckId = str_replace('self-check-', '', $contentType);
-            $selfCheck = SelfCheck::with('informationSheet')->find($selfCheckId);
-            if ($selfCheck && $selfCheck->informationSheet->module_id === $module->id) {
-                return $this->renderSelfCheckContent($selfCheck);
+            // Check if it's a self-check
+            if (str_starts_with($contentType, 'self-check-')) {
+                $selfCheckId = str_replace('self-check-', '', $contentType);
+                $selfCheck = SelfCheck::with('informationSheet')->find($selfCheckId);
+                if ($selfCheck && $selfCheck->informationSheet->module_id === $module->id) {
+                    return $this->renderSelfCheckContent($selfCheck);
+                }
             }
-        }
 
-        return $this->handleContentType($module, $contentType);
+            return $this->handleContentType($module, $contentType);
+        } catch (\Exception $e) {
+            Log::error('ModuleContentController::show failed', [
+                'error' => $e->getMessage(),
+                'user' => auth()->id(),
+                'module_id' => $module->id,
+                'content_type' => $contentType,
+            ]);
+            return '<div class="alert alert-danger">Failed to load content. Please try again.</div>';
+        }
     }
 
     private function renderTopicContent(Topic $topic)

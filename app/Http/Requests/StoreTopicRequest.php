@@ -21,7 +21,7 @@ class StoreTopicRequest extends FormRequest
             'parts' => 'nullable|array',
             'parts.*.title' => 'nullable|string|max:255',
             'parts.*.explanation' => 'nullable|string',
-            'part_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'part_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|mimetypes:image/jpeg,image/png,image/gif,image/webp|max:' . config('joms.uploads.max_image_size', 5120),
         ];
     }
 }

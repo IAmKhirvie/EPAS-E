@@ -37,7 +37,7 @@ class StoreHomeworkRequest extends FormRequest
             'due_date'               => 'required|date',
             'max_points'             => 'required|integer|min:1',
             'reference_images'       => 'nullable|array',
-            'reference_images.*'     => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'reference_images.*'     => 'image|mimes:jpeg,png,jpg,gif|mimetypes:image/jpeg,image/png,image/gif|max:' . config('joms.uploads.max_image_size', 5120),
         ];
     }
 
@@ -64,7 +64,8 @@ class StoreHomeworkRequest extends FormRequest
             'max_points.min'                 => 'Maximum points must be at least 1.',
             'reference_images.*.image'       => 'Each reference file must be an image.',
             'reference_images.*.mimes'       => 'Reference images must be JPEG, PNG, JPG, or GIF.',
-            'reference_images.*.max'         => 'Each reference image must not exceed 2MB.',
+            'reference_images.*.mimetypes'   => 'Reference image file content does not match an allowed image type (JPEG, PNG, GIF).',
+            'reference_images.*.max'         => 'Each reference image must not exceed ' . (config('joms.uploads.max_image_size', 5120) / 1024) . 'MB.',
         ];
     }
 }

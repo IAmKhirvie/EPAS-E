@@ -290,3 +290,31 @@
         font-size: 1.75rem;
     }
 }
+
+/* Sticky sidebar for dashboard layout */
+.sticky-sidebar {
+    position: sticky;
+    top: 80px;
+}
+
+.min-width-0 {
+    min-width: 0;
+}
+
+.feed-item:hover {
+    background-color: #f8f9fa;
+}
+
+.feed-item.hidden {
+    display: none !important;
+}
+
+#pending-list .list-group-item:hover {
+    background-color: #fff3cd20;
+}
+
+@media (max-width: 767.98px) {
+    .sticky-sidebar {
+        position: static;
+    }
+}

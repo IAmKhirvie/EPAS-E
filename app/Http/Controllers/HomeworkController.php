@@ -33,7 +33,7 @@ class HomeworkController extends Controller
             'due_date' => 'required|date',
             'max_points' => 'required|integer|min:1',
             'reference_images' => 'nullable|array',
-            'reference_images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'reference_images.*' => 'image|mimes:jpeg,png,jpg,gif|mimetypes:image/jpeg,image/png,image/gif|max:' . config('joms.uploads.max_image_size', 5120),
         ]);
 
         try {
@@ -87,7 +87,7 @@ class HomeworkController extends Controller
             'due_date' => 'required|date',
             'max_points' => 'required|integer|min:1',
             'reference_images' => 'nullable|array',
-            'reference_images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'reference_images.*' => 'image|mimes:jpeg,png,jpg,gif|mimetypes:image/jpeg,image/png,image/gif|max:' . config('joms.uploads.max_image_size', 5120),
         ]);
 
         try {
@@ -160,7 +160,7 @@ class HomeworkController extends Controller
     public function submit(Request $request, Homework $homework)
     {
         $request->validate([
-            'submission_file' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx,zip|max:10240',
+            'submission_file' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx,zip|mimetypes:image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip|max:' . config('joms.uploads.max_document_size', 10240),
             'description' => 'nullable|string',
             'work_hours' => 'nullable|numeric|min:0',
         ]);

@@ -139,12 +139,13 @@ class SettingsController extends Controller
     public function updateProfilePicture(Request $request)
     {
         $request->validate([
-            'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif|mimetypes:image/jpeg,image/png,image/gif|max:' . config('joms.uploads.max_image_size', 5120),
         ], [
             'profile_image.required' => 'Please select an image to upload.',
             'profile_image.image' => 'The file must be a valid image.',
             'profile_image.mimes' => 'Only JPG, PNG, and GIF files are allowed.',
-            'profile_image.max' => 'Image size must be less than 2MB.',
+            'profile_image.mimetypes' => 'The file content does not match an allowed image type (JPEG, PNG, GIF).',
+            'profile_image.max' => 'Image size must be less than ' . (config('joms.uploads.max_image_size', 5120) / 1024) . 'MB.',
         ]);
 
         $user = Auth::user();

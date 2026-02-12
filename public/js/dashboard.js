@@ -1,13 +1,14 @@
 // public/js/dashboard.js
 document.addEventListener('DOMContentLoaded', function() {
-    const userRole = document.body.getAttribute('data-user-role')?.toLowerCase();
-    
-    if (userRole === 'admin' || userRole === 'instructor') {
-        // Data is already loaded via PHP for admin/instructor
-        console.log('Dashboard data loaded');
-    } else {
+    var userRole = (document.body.getAttribute('data-user-role') || '').toLowerCase();
+
+    if (userRole !== 'admin' && userRole !== 'instructor') {
         loadStudentDashboard();
     }
+
+    initializeProgressCircles();
+    initializeActivityFeed();
+    initializePendingSorting();
 });
 
 async function loadStudentDashboard() {
@@ -69,19 +70,107 @@ function updateStudentDashboard(data) {
     }
 }
 
-// Add this function to handle progress circle animation
+// Progress circle animation
 function initializeProgressCircles() {
-    const progressElements = document.querySelectorAll('.progress-text');
-    progressElements.forEach(element => {
-        const progress = parseInt(element.textContent) || 0;
-        const circle = element.closest('.progress-circle');
+    var progressElements = document.querySelectorAll('.progress-text');
+    progressElements.forEach(function(element) {
+        var progress = parseInt(element.textContent) || 0;
+        var circle = element.closest('.progress-circle');
         if (circle) {
             circle.style.setProperty('--progress', progress + '%');
         }
     });
 }
 
-// Call this on page load
-document.addEventListener('DOMContentLoaded', function() {
-    initializeProgressCircles();
-});
+// Activity feed filtering and sorting
+function initializeActivityFeed() {
+    var searchInput = document.getElementById('feed-search');
+    var filterType = document.getElementById('feed-filter-type');
+    var sortSelect = document.getElementById('feed-sort');
+    var feedItems = document.querySelectorAll('.feed-item');
+    var noResults = document.getElementById('no-results');
+    var activityFeed = document.getElementById('activity-feed');
+
+    if (!activityFeed) return;
+
+    function filterAndSort() {
+        var searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        var typeFilter = filterType ? filterType.value : '';
+        var sortOrder = sortSelect ? sortSelect.value : 'newest';
+
+        var visibleCount = 0;
+        var items = Array.from(feedItems);
+
+        items.forEach(function(item) {
+            var type = item.dataset.type;
+            var subtype = item.dataset.subtype || '';
+            var module = item.dataset.module || '';
+            var user = item.dataset.user || '';
+            var text = item.textContent.toLowerCase();
+
+            var matchesSearch = !searchTerm ||
+                text.includes(searchTerm) ||
+                module.includes(searchTerm) ||
+                user.includes(searchTerm);
+
+            var matchesType = !typeFilter ||
+                type === typeFilter ||
+                subtype === typeFilter ||
+                (typeFilter === 'quiz' && subtype === 'self_check') ||
+                (typeFilter === 'task' && subtype === 'task_sheet');
+
+            if (matchesSearch && matchesType) {
+                item.classList.remove('hidden');
+                visibleCount++;
+            } else {
+                item.classList.add('hidden');
+            }
+        });
+
+        var visibleItems = items.filter(function(item) {
+            return !item.classList.contains('hidden');
+        });
+        visibleItems.sort(function(a, b) {
+            var dateA = new Date(a.dataset.date);
+            var dateB = new Date(b.dataset.date);
+            return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+
+        visibleItems.forEach(function(item) { activityFeed.appendChild(item); });
+
+        if (noResults) {
+            noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+    }
+
+    if (searchInput) searchInput.addEventListener('input', filterAndSort);
+    if (filterType) filterType.addEventListener('change', filterAndSort);
+    if (sortSelect) sortSelect.addEventListener('change', filterAndSort);
+}
+
+// Pending list sorting
+function initializePendingSorting() {
+    document.querySelectorAll('.pending-sort').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var sortType = this.dataset.sort;
+            var list = document.getElementById('pending-list');
+            if (!list) return;
+
+            var items = Array.from(list.querySelectorAll('.pending-item'));
+
+            items.sort(function(a, b) {
+                if (sortType === 'date-desc') {
+                    return new Date(b.dataset.date || 0) - new Date(a.dataset.date || 0);
+                } else if (sortType === 'date-asc') {
+                    return new Date(a.dataset.date || 0) - new Date(b.dataset.date || 0);
+                } else if (sortType === 'type') {
+                    return (a.dataset.type || '').localeCompare(b.dataset.type || '');
+                }
+                return 0;
+            });
+
+            items.forEach(function(item) { list.appendChild(item); });
+        });
+    });
+}

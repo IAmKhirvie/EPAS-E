@@ -320,6 +320,7 @@
     </form>
     @else
     <script src="{{ dynamic_asset('js/public-header.js')}}"></script>
+    <script src="{{ dynamic_asset('js/utils/dark-mode.js')}}"></script>
     <script src="{{ dynamic_asset('js/components/public-darkmode.js')}}"></script>
     @endauth
 </body>
