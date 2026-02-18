@@ -23,11 +23,11 @@ class SelfCheckSubmissionAnswer extends Model
 
     public function submission(): BelongsTo
     {
-        return $this->belongsTo(SelfCheckSubmission::class);
+        return $this->belongsTo(SelfCheckSubmission::class, 'submission_id');
     }
 
     public function question(): BelongsTo
     {
-        return $this->belongsTo(SelfCheckQuestion::class);
+        return $this->belongsTo(SelfCheckQuestion::class, 'question_id');
     }
 }

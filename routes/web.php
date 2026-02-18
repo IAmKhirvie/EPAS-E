@@ -62,6 +62,7 @@ use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ForumController;
 
 /*
 |--------------------------------------------------------------------------
@@ -727,6 +728,48 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/delete-account', [SettingsController::class, 'deleteAccount'])->name('delete-account');
         Route::post('/resend-verification', [SettingsController::class, 'resendVerification'])->name('resend-verification');
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Forum Routes
+    |--------------------------------------------------------------------------
+    |
+    | Routes for the discussion forum system including threads, posts,
+    | categories, voting, subscriptions, and announcement management.
+    |
+    */
+
+    Route::prefix('forums')->name('forums.')->group(function () {
+        Route::get('/', [ForumController::class, 'index'])->name('index');
+        Route::get('/search', [ForumController::class, 'search'])->name('search');
+        Route::get('/create-thread', [ForumController::class, 'createThread'])->name('create-thread');
+        Route::post('/threads', [ForumController::class, 'storeThread'])->name('store-thread');
+        Route::get('/threads/{thread}', [ForumController::class, 'thread'])->name('thread');
+        Route::post('/threads/{thread}/posts', [ForumController::class, 'storePost'])->name('store-post');
+        Route::get('/categories/{category}', [ForumController::class, 'category'])->name('category');
+
+        // Thread moderation (admin/instructor)
+        Route::post('/threads/{thread}/toggle-lock', [ForumController::class, 'toggleLock'])->name('toggle-lock');
+        Route::post('/threads/{thread}/toggle-pin', [ForumController::class, 'togglePin'])->name('toggle-pin');
+
+        // Post actions
+        Route::put('/posts/{post}', [ForumController::class, 'updatePost'])->name('update-post');
+        Route::delete('/posts/{post}', [ForumController::class, 'deletePost'])->name('delete-post');
+        Route::post('/posts/{post}/vote', [ForumController::class, 'votePost'])->name('vote-post');
+        Route::post('/posts/{post}/best-answer', [ForumController::class, 'markAsBestAnswer'])->name('best-answer');
+
+        // Subscriptions
+        Route::post('/threads/{thread}/subscribe', [ForumController::class, 'subscribe'])->name('subscribe');
+        Route::delete('/threads/{thread}/unsubscribe', [ForumController::class, 'unsubscribe'])->name('unsubscribe');
+
+        // Announcement API
+        Route::get('/api/announcements', [ForumController::class, 'getRecentAnnouncements'])->name('api.announcements');
+        Route::get('/api/unread-count', [ForumController::class, 'getUnreadCount'])->name('api.unread-count');
+        Route::post('/threads/{thread}/mark-read', [ForumController::class, 'markAsRead'])->name('mark-read');
+    });
+
+    // Enrollment Requests API
+    Route::get('/api/enrollment-requests/pending-count', [EnrollmentRequestController::class, 'getPendingCount'])->name('api.enrollment-requests.pending-count');
 
     /*
     |--------------------------------------------------------------------------

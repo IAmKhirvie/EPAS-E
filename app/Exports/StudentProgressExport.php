@@ -21,7 +21,7 @@ class StudentProgressExport implements FromCollection, WithHeadings, WithMapping
     public function collection()
     {
         $query = User::where('role', 'student')
-            ->where('stat', true)
+            ->where('stat', 1)
             ->with(['progress' => function ($q) {
                 $q->where('progressable_type', 'App\\Models\\Module');
             }]);

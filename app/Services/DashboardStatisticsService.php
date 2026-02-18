@@ -43,7 +43,7 @@ class DashboardStatisticsService
             $totalStudents = $this->countStudents($user, $isInstructor);
 
             $totalInstructors = $user->role === Roles::ADMIN
-                ? User::where('role', Roles::INSTRUCTOR)->where('stat', true)->count()
+                ? User::where('role', Roles::INSTRUCTOR)->where('stat', 1)->count()
                 : 0;
 
             $totalModules = $this->countModules($user, $isInstructor);
@@ -67,7 +67,7 @@ class DashboardStatisticsService
      */
     public function countStudents(User $user, bool $isInstructor): int
     {
-        $query = User::where('role', Roles::STUDENT)->where('stat', true);
+        $query = User::where('role', Roles::STUDENT)->where('stat', 1);
 
         if ($isInstructor) {
             $sections = $user->getAllAccessibleSections();

@@ -23,11 +23,11 @@ class JobSheetSubmissionStep extends Model
 
     public function submission(): BelongsTo
     {
-        return $this->belongsTo(JobSheetSubmission::class);
+        return $this->belongsTo(JobSheetSubmission::class, 'submission_id');
     }
 
     public function step(): BelongsTo
     {
-        return $this->belongsTo(JobSheetStep::class);
+        return $this->belongsTo(JobSheetStep::class, 'step_id');
     }
 }

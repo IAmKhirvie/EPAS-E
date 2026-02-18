@@ -13,13 +13,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="{{ dynamic_asset('css/base/reset.css') }}">
-    @auth
-        <link rel="stylesheet" href="{{ dynamic_asset('css/layout/header.css') }}">
-    @else
-        <link rel="stylesheet" href="{{ dynamic_asset('css/layout/public-header.css') }}">
-    @endauth
-    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/info.css') }}">
+    @vite(['resources/css/app.css'])
 </head>
 <body class="auth-page-body">
     @auth

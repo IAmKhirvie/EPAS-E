@@ -13,44 +13,13 @@ use App\Http\Requests\StoreEnrollmentRequest;
 class EnrollmentRequestController extends Controller
 {
     /**
-     * Display enrollment requests
+     * Display enrollment requests management page
      * - Admins: See all requests
      * - Instructors: See their own requests
      */
-    public function index(Request $request)
+    public function index()
     {
-        $user = Auth::user();
-        $status = $request->get('status', 'all');
-
-        $query = EnrollmentRequest::with(['instructor', 'student', 'processedBy'])
-            ->orderBy('created_at', 'desc');
-
-        // Instructors only see their own requests
-        if ($user->role === Roles::INSTRUCTOR) {
-            $query->byInstructor($user->id);
-        }
-
-        // Filter by status
-        if ($status !== 'all') {
-            $query->where('status', $status);
-        }
-
-        $requests = $query->paginate(15);
-
-        // Get counts for tabs
-        $countsQuery = EnrollmentRequest::query();
-        if ($user->role === Roles::INSTRUCTOR) {
-            $countsQuery->byInstructor($user->id);
-        }
-
-        $counts = [
-            'all' => (clone $countsQuery)->count(),
-            'pending' => (clone $countsQuery)->pending()->count(),
-            'approved' => (clone $countsQuery)->approved()->count(),
-            'rejected' => (clone $countsQuery)->rejected()->count(),
-        ];
-
-        return view('enrollment-requests.index', compact('requests', 'status', 'counts', 'user'));
+        return view('enrollment-requests.index');
     }
 
     /**
@@ -71,7 +40,7 @@ class EnrollmentRequestController extends Controller
 
         // Get unassigned students (no section) or students from other sections
         $unassignedStudents = User::where('role', Roles::STUDENT)
-            ->where('stat', true) // Only active students
+            ->where('stat', 1)
             ->where(function ($q) use ($user) {
                 $q->whereNull('section')
                   ->orWhere('section', '!=', $user->advisory_section);

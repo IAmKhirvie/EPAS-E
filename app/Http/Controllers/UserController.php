@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Constants\Roles;
 use App\Models\Department;
 use App\Models\User;
-use App\Services\UserQueryService;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Imports\UsersImport;
@@ -32,7 +31,7 @@ use Maatwebsite\Excel\Facades\Excel;
  */
 class UserController extends Controller
 {
-    public function __construct(private UserQueryService $userQuery) {}
+    public function __construct() {}
 
     /*
     |--------------------------------------------------------------------------
@@ -83,48 +82,28 @@ class UserController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function index(Request $request)
+    public function index()
     {
         $this->authorizeAdmin();
-        return $this->getUserList($request, null, 'private.users.index', 'User Management');
+        return view('private.users.index', ['pageTitle' => 'User Management', 'roleFilter' => null]);
     }
 
-    public function students(Request $request)
+    public function students()
     {
         $this->authorizeInstructor();
-        return $this->getUserList($request, Roles::STUDENT, 'private.students.index', 'Student Management');
+        return view('private.users.index', ['pageTitle' => 'Student Management', 'roleFilter' => Roles::STUDENT]);
     }
 
-    public function instructors(Request $request)
+    public function instructors()
     {
         $this->authorizeAdmin();
-        return $this->getUserList($request, Roles::INSTRUCTOR, 'private.instructors.index', 'Instructor Management');
+        return view('private.users.index', ['pageTitle' => 'Instructor Management', 'roleFilter' => Roles::INSTRUCTOR]);
     }
 
-    public function admins(Request $request)
+    public function admins()
     {
         $this->authorizeAdmin();
-        return $this->getUserList($request, Roles::ADMIN, 'private.admins.index', 'Admin Management');
-    }
-
-    private function getUserList(Request $request, ?string $roleFilter, string $routeName, string $pageTitle)
-    {
-        $viewer = Auth::user();
-
-        $users = $this->userQuery->buildUserQuery($request, $roleFilter, $viewer);
-        $departments = Department::all();
-        $filterCounts = $this->userQuery->getFilterCounts($roleFilter, $viewer);
-
-        return view('private.users.index', [
-            'users' => $users,
-            'departments' => $departments,
-            'filterCounts' => $filterCounts,
-            'currentRoute' => $routeName,
-            'pageTitle' => $pageTitle,
-            'roleFilter' => $roleFilter,
-            'canDelete' => Auth::user()->role === Roles::ADMIN,
-            'canCreate' => Auth::user()->role === Roles::ADMIN,
-        ]);
+        return view('private.users.index', ['pageTitle' => 'Admin Management', 'roleFilter' => Roles::ADMIN]);
     }
 
     /*

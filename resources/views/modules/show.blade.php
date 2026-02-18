@@ -3,7 +3,6 @@
 @section('title', $module->module_number . ' - ' . $module->module_name . ' - EPAS-E')
 
 @push('styles')
-<link rel="stylesheet" href="{{ dynamic_asset('css/pages/modules.css') }}">
 <style>
 /* Focus Mode Styles */
 .focus-mode-btn {

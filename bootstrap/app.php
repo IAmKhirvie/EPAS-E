@@ -160,9 +160,18 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], $statusCode);
             }
 
+            // CSRF token mismatch: redirect back with friendly message
+            // (TokenMismatchException is converted to HttpException 419 by prepareException,
+            //  so the TokenMismatchException render handler above never fires)
+            if ($statusCode === 419) {
+                return redirect()->back()
+                    ->withInput($request->except('password', '_token'))
+                    ->with('error', 'Your session has expired. Please refresh the page and try again.');
+            }
+
             // For regular requests, let Laravel render the custom error pages in resources/views/errors/
             // Only redirect with flash for status codes that don't have dedicated pages
-            $pagesWithViews = [403, 404, 419, 429, 500, 503];
+            $pagesWithViews = [403, 404, 429, 500, 503];
             if (in_array($statusCode, $pagesWithViews)) {
                 return null; // Let Laravel render the error view
             }

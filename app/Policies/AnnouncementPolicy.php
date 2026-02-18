@@ -38,7 +38,7 @@ class AnnouncementPolicy
             return true;
         }
 
-        return str_contains($announcement->target_roles, $user->role);
+        return in_array($user->role, explode(',', $announcement->target_roles));
     }
 
     /**

@@ -10,6 +10,7 @@ use App\Services\SelfCheckGradingService;
 use App\Http\Requests\StoreSelfCheckRequest;
 use App\Http\Requests\UpdateSelfCheckRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -65,51 +66,53 @@ class SelfCheckController extends Controller
         $validated = $request->validated();
 
         try {
-            // Calculate total points
-            $totalPoints = 0;
-            foreach ($request->questions as $q) {
-                $totalPoints += (int) ($q['points'] ?? 1);
-            }
+            DB::transaction(function () use ($request, $informationSheet) {
+                // Calculate total points
+                $totalPoints = 0;
+                foreach ($request->questions as $q) {
+                    $totalPoints += (int) ($q['points'] ?? 1);
+                }
 
-            $selfCheck = SelfCheck::create([
-                'information_sheet_id' => $informationSheet->id,
-                'check_number' => $request->check_number,
-                'title' => $request->title,
-                'description' => $request->description,
-                'instructions' => $request->instructions,
-                'time_limit' => $request->time_limit,
-                'passing_score' => $request->passing_score ?? config('joms.grading.default_passing_score', 70),
-                'total_points' => $totalPoints,
-            ]);
-
-            $order = 0;
-            foreach ($request->questions as $questionData) {
-                $order++;
-
-                // Process options based on question type
-                $options = $this->processQuestionOptions(
-                    $questionData['question_type'],
-                    $questionData['options'] ?? []
-                );
-
-                // Process correct answer
-                $correctAnswer = $this->processCorrectAnswer(
-                    $questionData['question_type'],
-                    $questionData['correct_answer'] ?? null,
-                    $options
-                );
-
-                SelfCheckQuestion::create([
-                    'self_check_id' => $selfCheck->id,
-                    'question_text' => $questionData['question_text'],
-                    'question_type' => $questionData['question_type'],
-                    'points' => $questionData['points'],
-                    'options' => $options,
-                    'correct_answer' => $correctAnswer,
-                    'explanation' => $questionData['explanation'] ?? null,
-                    'order' => $order,
+                $selfCheck = SelfCheck::create([
+                    'information_sheet_id' => $informationSheet->id,
+                    'check_number' => $request->check_number,
+                    'title' => $request->title,
+                    'description' => $request->description,
+                    'instructions' => $request->instructions,
+                    'time_limit' => $request->time_limit,
+                    'passing_score' => $request->passing_score ?? config('joms.grading.default_passing_score', 70),
+                    'total_points' => $totalPoints,
                 ]);
-            }
+
+                $order = 0;
+                foreach ($request->questions as $questionData) {
+                    $order++;
+
+                    // Process options based on question type
+                    $options = $this->processQuestionOptions(
+                        $questionData['question_type'],
+                        $questionData['options'] ?? []
+                    );
+
+                    // Process correct answer
+                    $correctAnswer = $this->processCorrectAnswer(
+                        $questionData['question_type'],
+                        $questionData['correct_answer'] ?? null,
+                        $options
+                    );
+
+                    SelfCheckQuestion::create([
+                        'self_check_id' => $selfCheck->id,
+                        'question_text' => $questionData['question_text'],
+                        'question_type' => $questionData['question_type'],
+                        'points' => $questionData['points'],
+                        'options' => $options,
+                        'correct_answer' => $correctAnswer,
+                        'explanation' => $questionData['explanation'] ?? null,
+                        'order' => $order,
+                    ]);
+                }
+            });
 
             return redirect()->route('courses.index')
                 ->with('success', 'Self-check created successfully!');

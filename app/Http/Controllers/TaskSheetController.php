@@ -8,6 +8,7 @@ use App\Models\TaskSheetItem;
 use App\Http\Requests\StoreTaskSheetRequest;
 use App\Http\Requests\UpdateTaskSheetRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -28,28 +29,30 @@ class TaskSheetController extends Controller
                 $imagePath = $request->file('image')->store('task-sheets', 'public');
             }
 
-            $taskSheet = TaskSheet::create([
-                'information_sheet_id' => $informationSheet->id,
-                'task_number' => $request->task_number,
-                'title' => $request->title,
-                'description' => $request->description,
-                'instructions' => $request->instructions,
-                'objectives' => $request->objectives,
-                'materials' => $request->materials,
-                'safety_precautions' => $request->safety_precautions ?? [],
-                'image_path' => $imagePath,
-            ]);
-
-            foreach ($request->items as $itemData) {
-                TaskSheetItem::create([
-                    'task_sheet_id' => $taskSheet->id,
-                    'part_name' => $itemData['part_name'],
-                    'description' => $itemData['description'],
-                    'expected_finding' => $itemData['expected_finding'],
-                    'acceptable_range' => $itemData['acceptable_range'],
-                    'order' => $itemData['order'] ?? 0,
+            DB::transaction(function () use ($request, $informationSheet, $imagePath) {
+                $taskSheet = TaskSheet::create([
+                    'information_sheet_id' => $informationSheet->id,
+                    'task_number' => $request->task_number,
+                    'title' => $request->title,
+                    'description' => $request->description,
+                    'instructions' => $request->instructions,
+                    'objectives' => $request->objectives,
+                    'materials' => $request->materials,
+                    'safety_precautions' => $request->safety_precautions ?? [],
+                    'image_path' => $imagePath,
                 ]);
-            }
+
+                foreach ($request->items as $itemData) {
+                    TaskSheetItem::create([
+                        'task_sheet_id' => $taskSheet->id,
+                        'part_name' => $itemData['part_name'],
+                        'description' => $itemData['description'],
+                        'expected_finding' => $itemData['expected_finding'],
+                        'acceptable_range' => $itemData['acceptable_range'],
+                        'order' => $itemData['order'] ?? 0,
+                    ]);
+                }
+            });
 
             return redirect()->route('courses.index')
                 ->with('success', 'Task sheet created successfully!');

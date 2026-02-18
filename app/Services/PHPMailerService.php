@@ -16,17 +16,17 @@ class PHPMailerService
     {
         $this->mail = new PHPMailer(true);
 
-        // Server settings
+        // Server settings — use config() so values survive config:cache
         $this->mail->isSMTP();
-        $this->mail->Host       = env('MAIL_HOST', 'smtp.gmail.com');
+        $this->mail->Host       = config('joms.mail.host', 'smtp.gmail.com');
         $this->mail->SMTPAuth   = true;
-        $this->mail->Username   = env('MAIL_USERNAME');
-        $this->mail->Password   = env('MAIL_PASSWORD');
+        $this->mail->Username   = config('joms.mail.username');
+        $this->mail->Password   = config('joms.mail.password');
         $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $this->mail->Port       = (int) env('MAIL_PORT', 587);
+        $this->mail->Port       = (int) config('joms.mail.port', 587);
 
         // SSL certificate verification: disabled in local/dev, enabled in production
-        if (env('APP_ENV', 'local') === 'production') {
+        if (config('app.env') === 'production') {
             $this->mail->SMTPOptions = [
                 'ssl' => [
                     'verify_peer' => true,
@@ -45,7 +45,7 @@ class PHPMailerService
         }
 
         // Enable debug output in local environment
-        if (env('APP_DEBUG', false)) {
+        if (config('app.debug', false)) {
             $this->mail->SMTPDebug = SMTP::DEBUG_SERVER;
             $this->mail->Debugoutput = function($str, $level) {
                 $this->debugOutput .= "[$level] $str\n";
@@ -54,34 +54,27 @@ class PHPMailerService
         }
 
         // Set timeout to avoid hanging
-        $this->mail->Timeout = 30;
+        $this->mail->Timeout = (int) config('joms.mail.timeout', 30);
         $this->mail->SMTPKeepAlive = false;
 
         // Character encoding
         $this->mail->CharSet = PHPMailer::CHARSET_UTF8;
 
-        // Sender settings - MUST match Gmail account for proper delivery
-        $fromAddress = env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME'));
-        $fromName = env('MAIL_FROM_NAME', 'EPAS-E LMS');
+        // Sender settings
+        $fromAddress = config('joms.mail.from_address', config('joms.mail.username'));
+        $fromName = config('joms.mail.from_name', 'EPAS-E LMS');
 
         $this->mail->setFrom($fromAddress, $fromName);
-
-        // Also set Reply-To to the same address
         $this->mail->addReplyTo($fromAddress, $fromName);
 
-        Log::info("PHPMailerService initialized with host: " . env('MAIL_HOST') . ", from: $fromAddress");
+        Log::info("PHPMailerService initialized", ['host' => config('joms.mail.host'), 'from' => $fromAddress]);
     }
 
     public function sendVerificationEmail($user, $verificationUrl)
     {
         try {
             $this->debugOutput = '';
-            Log::info("=== SENDING VERIFICATION EMAIL ===");
-            Log::info("To: {$user->email}");
-            Log::info("URL: {$verificationUrl}");
-            Log::info("SMTP Host: " . env('MAIL_HOST'));
-            Log::info("SMTP User: " . env('MAIL_USERNAME'));
-            Log::info("From Address: " . env('MAIL_FROM_ADDRESS'));
+            Log::info("Sending verification email to: {$user->email}");
 
             // Clear any previous addresses and attachments
             $this->mail->clearAddresses();
@@ -89,8 +82,8 @@ class PHPMailerService
             $this->mail->clearReplyTos();
 
             // Re-add reply-to after clearing
-            $fromAddress = env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME'));
-            $fromName = env('MAIL_FROM_NAME', 'EPAS-E LMS');
+            $fromAddress = config('joms.mail.from_address', config('joms.mail.username'));
+            $fromName = config('joms.mail.from_name', 'EPAS-E LMS');
             $this->mail->addReplyTo($fromAddress, $fromName);
 
             // Validate email address
@@ -254,8 +247,8 @@ class PHPMailerService
             $this->mail->clearReplyTos();
 
             // Re-add reply-to after clearing
-            $fromAddress = env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME'));
-            $fromName = env('MAIL_FROM_NAME', 'EPAS-E LMS');
+            $fromAddress = config('joms.mail.from_address', config('joms.mail.username'));
+            $fromName = config('joms.mail.from_name', 'EPAS-E LMS');
             $this->mail->addReplyTo($fromAddress, $fromName);
 
             // Validate email address
@@ -415,12 +408,7 @@ class PHPMailerService
     {
         try {
             $this->debugOutput = '';
-            Log::info("=== SENDING TEST EMAIL ===");
-            Log::info("To: {$toEmail}");
-            Log::info("SMTP Host: " . env('MAIL_HOST'));
-            Log::info("SMTP Port: " . env('MAIL_PORT'));
-            Log::info("SMTP User: " . env('MAIL_USERNAME'));
-            Log::info("From Address: " . env('MAIL_FROM_ADDRESS'));
+            Log::info("Sending test email to: {$toEmail}");
 
             // Clear previous addresses
             $this->mail->clearAddresses();
@@ -428,8 +416,8 @@ class PHPMailerService
             $this->mail->clearReplyTos();
 
             // Re-add reply-to
-            $fromAddress = env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME'));
-            $fromName = env('MAIL_FROM_NAME', 'EPAS-E LMS');
+            $fromAddress = config('joms.mail.from_address', config('joms.mail.username'));
+            $fromName = config('joms.mail.from_name', 'EPAS-E LMS');
             $this->mail->addReplyTo($fromAddress, $fromName);
 
             // Validate email
@@ -452,13 +440,7 @@ class PHPMailerService
                 <p>This is a test email from EPAS-E LMS.</p>
                 <p>If you received this email, your SMTP configuration is working correctly!</p>
                 <hr>
-                <p><strong>Configuration Details:</strong></p>
-                <ul>
-                    <li>SMTP Host: " . env('MAIL_HOST') . "</li>
-                    <li>SMTP Port: " . env('MAIL_PORT') . "</li>
-                    <li>From: " . env('MAIL_FROM_ADDRESS') . "</li>
-                    <li>Sent at: " . date('Y-m-d H:i:s') . "</li>
-                </ul>
+                <p><strong>Sent at:</strong> " . date('Y-m-d H:i:s') . "</p>
             </body>
             </html>";
             $this->mail->AltBody = "Test email from EPAS-E LMS. Sent at: " . date('Y-m-d H:i:s');
@@ -510,8 +492,8 @@ class PHPMailerService
             $this->mail->clearAttachments();
             $this->mail->clearReplyTos();
 
-            $fromAddress = env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME'));
-            $fromName = env('MAIL_FROM_NAME', 'EPAS-E LMS');
+            $fromAddress = config('joms.mail.from_address', config('joms.mail.username'));
+            $fromName = config('joms.mail.from_name', 'EPAS-E LMS');
             $this->mail->addReplyTo($fromAddress, $fromName);
 
             if (empty($toEmail) || !filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {

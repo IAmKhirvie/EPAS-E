@@ -126,7 +126,7 @@ class GradesExport
     protected function getStudents(): Collection
     {
         $query = User::where('role', 'student')
-            ->where('stat', true);
+            ->where('stat', 1);
 
         if ($this->section) {
             $query->where('section', $this->section);

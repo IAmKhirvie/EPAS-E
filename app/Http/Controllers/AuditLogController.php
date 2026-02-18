@@ -16,35 +16,9 @@ class AuditLogController extends Controller
         $this->auditLogService = $auditLogService;
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        $query = AuditLog::with('user')->orderByDesc('created_at');
-
-        // Filter by action
-        if ($request->has('action') && $request->action) {
-            $query->where('action', $request->action);
-        }
-
-        // Filter by user
-        if ($request->has('user_id') && $request->user_id) {
-            $query->where('user_id', $request->user_id);
-        }
-
-        // Filter by date range
-        if ($request->has('from') && $request->from) {
-            $query->whereDate('created_at', '>=', $request->from);
-        }
-
-        if ($request->has('to') && $request->to) {
-            $query->whereDate('created_at', '<=', $request->to);
-        }
-
-        $logs = $query->paginate(50);
-
-        // Get unique actions for filter dropdown
-        $actions = AuditLog::distinct('action')->pluck('action');
-
-        return view('admin.audit-logs.index', compact('logs', 'actions'));
+        return view('admin.audit-logs.index');
     }
 
     public function show(AuditLog $auditLog)

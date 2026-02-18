@@ -1,4 +1,3 @@
-<link rel="stylesheet" href="{{ dynamic_asset('css/pages/content-partial.css') }}">
 <div class="topic-content">
     <div class="topic-header mb-4">
         <h2 class="topic-title">{{ $topic->title }}</h2>

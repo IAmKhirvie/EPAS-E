@@ -16,15 +16,7 @@ class AnnouncementController extends Controller
     use SanitizesContent;
     public function index()
     {
-        $user = Auth::user();
-
-        $announcements = Announcement::with(['user', 'comments.user'])
-            ->forUser($user)
-            ->orderBy('is_pinned', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
-        return view('private.announcements.index', compact('announcements'));
+        return view('private.announcements.index');
     }
 
     public function create()

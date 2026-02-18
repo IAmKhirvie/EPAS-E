@@ -27,21 +27,23 @@ class GamificationService
 
     public function awardPoints(User $user, int $points, string $reason, $pointable = null): UserPoint
     {
-        $userPoint = UserPoint::create([
-            'user_id' => $user->id,
-            'points' => $points,
-            'type' => 'earned',
-            'reason' => $reason,
-            'pointable_type' => $pointable ? get_class($pointable) : null,
-            'pointable_id' => $pointable?->id,
-        ]);
+        return DB::transaction(function () use ($user, $points, $reason, $pointable) {
+            $userPoint = UserPoint::create([
+                'user_id' => $user->id,
+                'points' => $points,
+                'type' => 'earned',
+                'reason' => $reason,
+                'pointable_type' => $pointable ? get_class($pointable) : null,
+                'pointable_id' => $pointable?->id,
+            ]);
 
-        $user->increment('total_points', $points);
+            $user->increment('total_points', $points);
+            $user->refresh();
 
-        // Check for badge unlocks
-        $this->checkBadgeUnlocks($user);
+            $this->checkBadgeUnlocks($user);
 
-        return $userPoint;
+            return $userPoint;
+        });
     }
 
     public function awardForActivity(User $user, string $activity, $pointable = null): ?UserPoint
@@ -61,24 +63,34 @@ class GamificationService
     {
         $today = now()->toDateString();
 
-        if ($user->last_activity_date !== $today) {
-            // Update streak
+        if ($user->last_activity_date === $today) {
+            return;
+        }
+
+        DB::transaction(function () use ($user, $today) {
+            // Lock the row to prevent race conditions from concurrent requests
+            $user = User::lockForUpdate()->find($user->id);
+
+            // Re-check after acquiring lock
+            if ($user->last_activity_date === $today) {
+                return;
+            }
+
             $yesterday = now()->subDay()->toDateString();
             if ($user->last_activity_date === $yesterday) {
-                $user->increment('current_streak');
+                $user->current_streak = $user->current_streak + 1;
             } else {
                 $user->current_streak = 1;
             }
 
             $user->last_activity_date = $today;
             $user->save();
+        });
 
-            // Award daily login points
-            $this->awardForActivity($user, 'daily_login');
+        $user->refresh();
 
-            // Check streak badges
-            $this->checkStreakBadges($user);
-        }
+        $this->awardForActivity($user, 'daily_login');
+        $this->checkStreakBadges($user);
     }
 
     public function checkBadgeUnlocks(User $user): array
@@ -141,14 +153,18 @@ class GamificationService
 
     public function awardBadge(User $user, Badge $badge): UserBadge
     {
-        return UserBadge::create([
-            'user_id' => $user->id,
-            'badge_id' => $badge->id,
-            'earned_at' => now(),
-            'metadata' => [
-                'total_points_at_earn' => $user->total_points,
+        return UserBadge::firstOrCreate(
+            [
+                'user_id' => $user->id,
+                'badge_id' => $badge->id,
             ],
-        ]);
+            [
+                'earned_at' => now(),
+                'metadata' => [
+                    'total_points_at_earn' => $user->total_points,
+                ],
+            ]
+        );
     }
 
     protected function checkStreakBadges(User $user): void
@@ -169,7 +185,7 @@ class GamificationService
     public function getLeaderboard(int $limit = 10): \Illuminate\Support\Collection
     {
         return User::where('role', Roles::STUDENT)
-            ->where('stat', true)
+            ->where('stat', 1)
             ->orderByDesc('total_points')
             ->limit($limit)
             ->get(['id', 'first_name', 'last_name', 'total_points', 'profile_image']);
@@ -188,7 +204,7 @@ class GamificationService
     public function getUserRank(User $user): int
     {
         return User::where('role', Roles::STUDENT)
-            ->where('stat', true)
+            ->where('stat', 1)
             ->where('total_points', '>', $user->total_points)
             ->count() + 1;
     }

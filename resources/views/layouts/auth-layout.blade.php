@@ -11,9 +11,7 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   
-  <link rel="stylesheet" href="{{ dynamic_asset('css/pages/auth.css') }}">
-  <link rel="stylesheet" href="{{ dynamic_asset('css/components/alerts.css') }}">
-  <link rel="stylesheet" href="{{ dynamic_asset('css/layout/public-header.css') }}">
+  @vite(['resources/css/app.css'])
   
   <style>
     /* Slideshow styles from lobby */
@@ -105,8 +103,6 @@
   <script>if (window.initDarkMode) window.initDarkMode();</script>
 
   <!-- Global Error Popup Handler -->
-  <link rel="stylesheet" href="{{ dynamic_asset('css/components/error-popup.css') }}">
-
   <div class="error-popup-overlay" id="errorPopupOverlay">
     <div class="error-popup">
       <div class="error-popup-header">

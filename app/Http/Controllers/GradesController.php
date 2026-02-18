@@ -217,17 +217,70 @@ class GradesController extends Controller
             ])
             ->get();
 
+        // Pre-fetch all submissions for this student in batch (avoids N+1)
+        $prefetched = $this->prefetchStudentSubmissions($student);
+
         $gradesData = [];
         $overallStats = $this->initializeOverallStats();
 
         foreach ($modules as $module) {
-            $moduleGrades = $this->processModuleGrades($module, $student, $overallStats);
+            $moduleGrades = $this->processModuleGrades($module, $student, $overallStats, $prefetched);
             $gradesData[] = $moduleGrades;
         }
 
         $this->finalizeOverallStats($overallStats);
 
         return view('grades.student', compact('gradesData', 'overallStats', 'student'));
+    }
+
+    /**
+     * Pre-fetch all submission data for a student to avoid N+1 queries.
+     */
+    private function prefetchStudentSubmissions(User $student): array
+    {
+        $selfCheckSubs = SelfCheckSubmission::where('user_id', $student->id)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('self_check_id')
+            ->keyBy('self_check_id');
+
+        $homeworkSubs = HomeworkSubmission::where('user_id', $student->id)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('homework_id')
+            ->keyBy('homework_id');
+
+        $taskSheetSubs = TaskSheetSubmission::where('user_id', $student->id)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('task_sheet_id')
+            ->keyBy('task_sheet_id');
+
+        $jobSheetSubs = JobSheetSubmission::where('user_id', $student->id)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('job_sheet_id')
+            ->keyBy('job_sheet_id');
+
+        // Pre-fetch all performance criteria for this student's submissions
+        $taskSubIds = $taskSheetSubs->pluck('id')->toArray();
+        $jobSubIds = $jobSheetSubs->pluck('id')->toArray();
+
+        $taskCriteria = !empty($taskSubIds)
+            ? PerformanceCriteria::where('evaluable_type', TaskSheetSubmission::class)
+                ->whereIn('evaluable_id', $taskSubIds)
+                ->get()
+                ->keyBy('evaluable_id')
+            : collect();
+
+        $jobCriteria = !empty($jobSubIds)
+            ? PerformanceCriteria::where('evaluable_type', JobSheetSubmission::class)
+                ->whereIn('evaluable_id', $jobSubIds)
+                ->get()
+                ->keyBy('evaluable_id')
+            : collect();
+
+        return compact('selfCheckSubs', 'homeworkSubs', 'taskSheetSubs', 'jobSheetSubs', 'taskCriteria', 'jobCriteria');
     }
 
     /**
@@ -239,89 +292,7 @@ class GradesController extends Controller
      */
     private function instructorAdminGrades(Request $request, User $viewer): View
     {
-        $search = $request->get('search');
-        $moduleFilter = $request->get('module');
-        $sectionFilter = $request->get('section');
-
-        $studentsQuery = User::where('role', Roles::STUDENT)->where('stat', true);
-
-        // Apply section filter based on role
-        if ($viewer->role === Roles::INSTRUCTOR) {
-            $instructorSections = $viewer->getAllAccessibleSections();
-            if ($instructorSections->isNotEmpty()) {
-                // If section filter provided, ensure it's one of their sections
-                if ($sectionFilter && $instructorSections->contains($sectionFilter)) {
-                    $studentsQuery->where('section', $sectionFilter);
-                } else {
-                    // Show all students in their assigned sections
-                    $studentsQuery->whereIn('section', $instructorSections);
-                }
-            } else {
-                // No sections assigned - show no students
-                $studentsQuery->where('id', 0);
-            }
-        } elseif ($sectionFilter) {
-            $studentsQuery->where('section', $sectionFilter);
-        }
-
-        // Apply search filter
-        if ($search) {
-            $studentsQuery->where(function ($q) use ($search) {
-                $q->where('first_name', 'like', '%' . $search . '%')
-                    ->orWhere('last_name', 'like', '%' . $search . '%')
-                    ->orWhere('student_id', 'like', '%' . $search . '%')
-                    ->orWhere('email', 'like', '%' . $search . '%');
-            });
-        }
-
-        $students = $studentsQuery
-            ->orderBy('last_name')
-            ->orderBy('first_name')
-            ->paginate(20);
-
-        // Pre-fetch all submissions for current page to avoid N+1
-        $studentIds = $students->getCollection()->pluck('id');
-
-        $selfCheckAvgs = SelfCheckSubmission::whereIn('user_id', $studentIds)
-            ->whereNotNull('percentage')
-            ->selectRaw('user_id, AVG(percentage) as avg_percentage')
-            ->groupBy('user_id')
-            ->pluck('avg_percentage', 'user_id');
-
-        $homeworkAvgs = HomeworkSubmission::whereIn('user_id', $studentIds)
-            ->whereNotNull('score')
-            ->selectRaw('user_id, AVG(score / (SELECT max_points FROM homeworks WHERE homeworks.id = homework_submissions.homework_id) * 100) as avg_score')
-            ->groupBy('user_id')
-            ->pluck('avg_score', 'user_id');
-
-        $completedCounts = UserProgress::whereIn('user_id', $studentIds)
-            ->where('status', 'completed')
-            ->selectRaw('user_id, COUNT(*) as completed_count')
-            ->groupBy('user_id')
-            ->pluck('completed_count', 'user_id');
-
-        // Add grade summary to each student using pre-fetched data
-        $students->getCollection()->transform(function ($student) use ($selfCheckAvgs, $homeworkAvgs, $completedCounts) {
-            $student->grade_summary = $this->calculateStudentGradeSummary(
-                $student,
-                $selfCheckAvgs->get($student->id, 0),
-                $homeworkAvgs->get($student->id, 0),
-                $completedCounts->get($student->id, 0)
-            );
-            return $student;
-        });
-
-        $modules = Module::where('is_active', true)->get();
-        $sections = User::where('role', Roles::STUDENT)
-            ->whereNotNull('section')
-            ->distinct()
-            ->pluck('section')
-            ->sort();
-
-        return view('grades.instructor', compact(
-            'students', 'modules', 'sections',
-            'search', 'moduleFilter', 'sectionFilter', 'viewer'
-        ));
+        return view('grades.instructor', ['viewer' => $viewer]);
     }
 
     // =========================================================================
@@ -351,7 +322,7 @@ class GradesController extends Controller
      * @param array &$overallStats Reference to overall statistics
      * @return array Module grades data
      */
-    private function processModuleGrades(Module $module, User $student, array &$overallStats): array
+    private function processModuleGrades(Module $module, User $student, array &$overallStats, array $prefetched = []): array
     {
         $moduleGrades = [
             'module' => $module,
@@ -370,10 +341,10 @@ class GradesController extends Controller
 
         foreach ($module->informationSheets as $sheet) {
             // Process each activity type
-            $this->processSelfChecks($sheet, $student, $moduleGrades, $overallStats, $moduleScore, $moduleMaxScore, $moduleCompleted, $moduleTotal);
-            $this->processHomeworks($sheet, $student, $moduleGrades, $overallStats, $moduleScore, $moduleMaxScore, $moduleCompleted, $moduleTotal);
-            $this->processTaskSheets($sheet, $student, $moduleGrades, $overallStats, $moduleScore, $moduleMaxScore, $moduleCompleted, $moduleTotal);
-            $this->processJobSheets($sheet, $student, $moduleGrades, $overallStats, $moduleScore, $moduleMaxScore, $moduleCompleted, $moduleTotal);
+            $this->processSelfChecks($sheet, $student, $moduleGrades, $overallStats, $moduleScore, $moduleMaxScore, $moduleCompleted, $moduleTotal, $prefetched);
+            $this->processHomeworks($sheet, $student, $moduleGrades, $overallStats, $moduleScore, $moduleMaxScore, $moduleCompleted, $moduleTotal, $prefetched);
+            $this->processTaskSheets($sheet, $student, $moduleGrades, $overallStats, $moduleScore, $moduleMaxScore, $moduleCompleted, $moduleTotal, $prefetched);
+            $this->processJobSheets($sheet, $student, $moduleGrades, $overallStats, $moduleScore, $moduleMaxScore, $moduleCompleted, $moduleTotal, $prefetched);
         }
 
         // Calculate module statistics
@@ -401,16 +372,18 @@ class GradesController extends Controller
      * @param int &$moduleCompleted
      * @param int &$moduleTotal
      */
-    private function processSelfChecks($sheet, User $student, array &$moduleGrades, array &$overallStats, float &$moduleScore, float &$moduleMaxScore, int &$moduleCompleted, int &$moduleTotal): void
+    private function processSelfChecks($sheet, User $student, array &$moduleGrades, array &$overallStats, float &$moduleScore, float &$moduleMaxScore, int &$moduleCompleted, int &$moduleTotal, array $prefetched = []): void
     {
         foreach ($sheet->selfChecks as $selfCheck) {
             $moduleTotal++;
             $overallStats['total_activities']++;
 
-            $submission = SelfCheckSubmission::where('user_id', $student->id)
-                ->where('self_check_id', $selfCheck->id)
-                ->latest()
-                ->first();
+            $submission = !empty($prefetched)
+                ? ($prefetched['selfCheckSubs']->get($selfCheck->id))
+                : SelfCheckSubmission::where('user_id', $student->id)
+                    ->where('self_check_id', $selfCheck->id)
+                    ->latest()
+                    ->first();
 
             $moduleGrades['self_checks'][] = [
                 'title' => $selfCheck->title,
@@ -447,16 +420,18 @@ class GradesController extends Controller
      * @param int &$moduleCompleted
      * @param int &$moduleTotal
      */
-    private function processHomeworks($sheet, User $student, array &$moduleGrades, array &$overallStats, float &$moduleScore, float &$moduleMaxScore, int &$moduleCompleted, int &$moduleTotal): void
+    private function processHomeworks($sheet, User $student, array &$moduleGrades, array &$overallStats, float &$moduleScore, float &$moduleMaxScore, int &$moduleCompleted, int &$moduleTotal, array $prefetched = []): void
     {
         foreach ($sheet->homeworks as $homework) {
             $moduleTotal++;
             $overallStats['total_activities']++;
 
-            $submission = HomeworkSubmission::where('user_id', $student->id)
-                ->where('homework_id', $homework->id)
-                ->latest()
-                ->first();
+            $submission = !empty($prefetched)
+                ? ($prefetched['homeworkSubs']->get($homework->id))
+                : HomeworkSubmission::where('user_id', $student->id)
+                    ->where('homework_id', $homework->id)
+                    ->latest()
+                    ->first();
 
             $percentage = null;
             if ($submission && $homework->max_points > 0) {
@@ -500,22 +475,26 @@ class GradesController extends Controller
      * @param int &$moduleCompleted
      * @param int &$moduleTotal
      */
-    private function processTaskSheets($sheet, User $student, array &$moduleGrades, array &$overallStats, float &$moduleScore, float &$moduleMaxScore, int &$moduleCompleted, int &$moduleTotal): void
+    private function processTaskSheets($sheet, User $student, array &$moduleGrades, array &$overallStats, float &$moduleScore, float &$moduleMaxScore, int &$moduleCompleted, int &$moduleTotal, array $prefetched = []): void
     {
         foreach ($sheet->taskSheets as $taskSheet) {
             $moduleTotal++;
             $overallStats['total_activities']++;
 
-            $submission = TaskSheetSubmission::where('user_id', $student->id)
-                ->where('task_sheet_id', $taskSheet->id)
-                ->latest()
-                ->first();
+            $submission = !empty($prefetched)
+                ? ($prefetched['taskSheetSubs']->get($taskSheet->id))
+                : TaskSheetSubmission::where('user_id', $student->id)
+                    ->where('task_sheet_id', $taskSheet->id)
+                    ->latest()
+                    ->first();
 
             $criteria = null;
             if ($submission) {
-                $criteria = PerformanceCriteria::where('evaluable_type', TaskSheetSubmission::class)
-                    ->where('evaluable_id', $submission->id)
-                    ->first();
+                $criteria = !empty($prefetched)
+                    ? ($prefetched['taskCriteria']->get($submission->id))
+                    : PerformanceCriteria::where('evaluable_type', TaskSheetSubmission::class)
+                        ->where('evaluable_id', $submission->id)
+                        ->first();
             }
 
             $moduleGrades['task_sheets'][] = [
@@ -552,22 +531,26 @@ class GradesController extends Controller
      * @param int &$moduleCompleted
      * @param int &$moduleTotal
      */
-    private function processJobSheets($sheet, User $student, array &$moduleGrades, array &$overallStats, float &$moduleScore, float &$moduleMaxScore, int &$moduleCompleted, int &$moduleTotal): void
+    private function processJobSheets($sheet, User $student, array &$moduleGrades, array &$overallStats, float &$moduleScore, float &$moduleMaxScore, int &$moduleCompleted, int &$moduleTotal, array $prefetched = []): void
     {
         foreach ($sheet->jobSheets as $jobSheet) {
             $moduleTotal++;
             $overallStats['total_activities']++;
 
-            $submission = JobSheetSubmission::where('user_id', $student->id)
-                ->where('job_sheet_id', $jobSheet->id)
-                ->latest()
-                ->first();
+            $submission = !empty($prefetched)
+                ? ($prefetched['jobSheetSubs']->get($jobSheet->id))
+                : JobSheetSubmission::where('user_id', $student->id)
+                    ->where('job_sheet_id', $jobSheet->id)
+                    ->latest()
+                    ->first();
 
             $criteria = null;
             if ($submission) {
-                $criteria = PerformanceCriteria::where('evaluable_type', JobSheetSubmission::class)
-                    ->where('evaluable_id', $submission->id)
-                    ->first();
+                $criteria = !empty($prefetched)
+                    ? ($prefetched['jobCriteria']->get($submission->id))
+                    : PerformanceCriteria::where('evaluable_type', JobSheetSubmission::class)
+                        ->where('evaluable_id', $submission->id)
+                        ->first();
             }
 
             $moduleGrades['job_sheets'][] = [

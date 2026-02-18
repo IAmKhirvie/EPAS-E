@@ -14,7 +14,7 @@ trait HasCommonScopes
     {
         return $query->where(function ($q) {
             $q->where('is_active', true)
-              ->orWhere('stat', true);
+              ->orWhere('stat', 1);
         });
     }
 
@@ -25,7 +25,7 @@ trait HasCommonScopes
     {
         return $query->where(function ($q) {
             $q->where('is_active', false)
-              ->orWhere('stat', false);
+              ->orWhere('stat', 0);
         });
     }
 

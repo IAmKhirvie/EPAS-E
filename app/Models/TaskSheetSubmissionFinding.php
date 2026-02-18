@@ -23,11 +23,11 @@ class TaskSheetSubmissionFinding extends Model
 
     public function submission(): BelongsTo
     {
-        return $this->belongsTo(TaskSheetSubmission::class);
+        return $this->belongsTo(TaskSheetSubmission::class, 'submission_id');
     }
 
     public function item(): BelongsTo
     {
-        return $this->belongsTo(TaskSheetItem::class);
+        return $this->belongsTo(TaskSheetItem::class, 'item_id');
     }
 }

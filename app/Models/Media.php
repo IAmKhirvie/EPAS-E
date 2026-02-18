@@ -121,7 +121,7 @@ class Media extends Model
     {
         parent::boot();
 
-        static::deleting(function ($media) {
+        static::forceDeleting(function ($media) {
             Storage::disk($media->disk)->delete($media->getPath());
         });
     }

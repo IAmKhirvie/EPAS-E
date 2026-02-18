@@ -23,6 +23,6 @@ class SelfCheckQuestionOption extends Model
 
     public function question(): BelongsTo
     {
-        return $this->belongsTo(SelfCheckQuestion::class);
+        return $this->belongsTo(SelfCheckQuestion::class, 'question_id');
     }
 }
