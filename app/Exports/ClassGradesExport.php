@@ -187,7 +187,7 @@ class ClassGradesExport
     protected function getStudents(): Collection
     {
         return User::where('role', 'student')
-            ->where('stat', true)
+            ->where('stat', 1)
             ->where('section', $this->section)
             ->orderBy('last_name')
             ->orderBy('first_name')

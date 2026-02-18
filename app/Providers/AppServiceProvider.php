@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
         // - FORCE_HTTPS is enabled
         // - APP is in production
         // - OR the current request is already secure (Cloudflare tunnel, etc.)
-        if (env('FORCE_HTTPS', false) || env('APP_ENV') === 'production' || request()->secure()) {
+        if (config('app.force_https', false) || config('app.env') === 'production' || request()->secure()) {
             URL::forceScheme('https');
         }
 

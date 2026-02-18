@@ -22,45 +22,7 @@ class ForumController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
-
-        // Get all categories
-        $categories = ForumCategory::active()
-            ->ordered()
-            ->withCount('threads')
-            ->get();
-
-        // Separate announcement and discussion categories
-        $announcementCategories = $categories->where('is_announcement_category', true);
-        $discussionCategories = $categories->where('is_announcement_category', false);
-
-        // Get recent announcements (urgent first, then pinned, then by date)
-        $announcements = ForumThread::with(['user', 'category', 'readByUsers'])
-            ->fromAnnouncementCategories()
-            ->forUser($user)
-            ->published()
-            ->orderBy('is_urgent', 'desc')
-            ->orderBy('is_pinned', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
-
-        // Get recent discussion threads
-        $recentThreads = ForumThread::with(['user', 'category'])
-            ->whereHas('category', fn($q) => $q->where('is_announcement_category', false))
-            ->forUser($user)
-            ->published()
-            ->recent()
-            ->limit(5)
-            ->get();
-
-        return view('forums.index', compact(
-            'categories',
-            'announcementCategories',
-            'discussionCategories',
-            'announcements',
-            'recentThreads'
-        ));
+        return view('forums.index');
     }
 
     /**
@@ -92,7 +54,7 @@ class ForumController extends Controller
         $user = Auth::user();
 
         // Check if user can view this thread based on target_roles
-        if ($thread->target_roles !== 'all' && !str_contains($thread->target_roles, $user->role)) {
+        if ($thread->target_roles && $thread->target_roles !== 'all' && !in_array($user->role, explode(',', $thread->target_roles))) {
             abort(403, 'You do not have permission to view this thread.');
         }
 

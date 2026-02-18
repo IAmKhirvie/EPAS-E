@@ -80,8 +80,8 @@ class UserQueryService
                 case 'role=student':    $query->where('role', Roles::STUDENT); break;
                 case 'role=instructor': $query->where('role', Roles::INSTRUCTOR); break;
                 case 'role=admin':      $query->where('role', Roles::ADMIN); break;
-                case 'status=pending':  $query->where('stat', false); break;
-                case 'status=active':   $query->where('stat', true); break;
+                case 'status=pending':  $query->where('stat', 0); break;
+                case 'status=active':   $query->where('stat', 1); break;
                 case 'verified=no':     $query->whereNull('email_verified_at'); break;
             }
         }
@@ -89,8 +89,8 @@ class UserQueryService
         // Filters when viewing a specific role
         if ($roleFilter && $filter) {
             switch ($filter) {
-                case 'status=pending':  $query->where('stat', false); break;
-                case 'status=active':   $query->where('stat', true); break;
+                case 'status=pending':  $query->where('stat', 0); break;
+                case 'status=active':   $query->where('stat', 1); break;
                 case 'verified=no':     $query->whereNull('email_verified_at'); break;
             }
         }

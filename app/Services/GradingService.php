@@ -168,10 +168,13 @@ class GradingService
         $components = [];
         $totalSubmissions = 0;
 
-        // Self Checks (Quizzes)
+        // Get all information sheet IDs for this module (single query)
+        $sheetIds = $module->informationSheets()->pluck('id');
+
+        // Self Checks (Quizzes) — use sheetIds to avoid nested whereHas
         $selfCheckScores = SelfCheckSubmission::where('user_id', $user->id)
-            ->whereHas('selfCheck.informationSheet', function ($q) use ($module) {
-                $q->where('module_id', $module->id);
+            ->whereHas('selfCheck', function ($q) use ($sheetIds) {
+                $q->whereIn('information_sheet_id', $sheetIds);
             })
             ->get();
 
@@ -181,9 +184,10 @@ class GradingService
         // Homeworks
         $homeworkScores = HomeworkSubmission::where('user_id', $user->id)
             ->whereNotNull('score')
-            ->whereHas('homework.informationSheet', function ($q) use ($module) {
-                $q->where('module_id', $module->id);
+            ->whereHas('homework', function ($q) use ($sheetIds) {
+                $q->whereIn('information_sheet_id', $sheetIds);
             })
+            ->with('homework:id,max_points')
             ->get();
 
         $components['homeworks'] = $this->calculateHomeworkStats($homeworkScores);
@@ -191,8 +195,8 @@ class GradingService
 
         // Task Sheets
         $taskSheetScores = TaskSheetSubmission::where('user_id', $user->id)
-            ->whereHas('taskSheet.informationSheet', function ($q) use ($module) {
-                $q->where('module_id', $module->id);
+            ->whereHas('taskSheet', function ($q) use ($sheetIds) {
+                $q->whereIn('information_sheet_id', $sheetIds);
             })
             ->get();
 
@@ -201,8 +205,8 @@ class GradingService
 
         // Job Sheets
         $jobSheetScores = JobSheetSubmission::where('user_id', $user->id)
-            ->whereHas('jobSheet.informationSheet', function ($q) use ($module) {
-                $q->where('module_id', $module->id);
+            ->whereHas('jobSheet', function ($q) use ($sheetIds) {
+                $q->whereIn('information_sheet_id', $sheetIds);
             })
             ->get();
 
@@ -345,7 +349,7 @@ class GradingService
      */
     public function getModuleRanking(User $user, Module $module): array
     {
-        $students = User::where('role', Roles::STUDENT)->where('stat', true)->get();
+        $students = User::where('role', Roles::STUDENT)->where('stat', 1)->get();
         $rankings = [];
 
         foreach ($students as $student) {

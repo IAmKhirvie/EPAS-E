@@ -22,6 +22,6 @@ class JobSheetStepWarning extends Model
 
     public function step(): BelongsTo
     {
-        return $this->belongsTo(JobSheetStep::class);
+        return $this->belongsTo(JobSheetStep::class, 'step_id');
     }
 }

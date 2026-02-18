@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Constants\Roles;
 use App\Models\User;
 use App\Models\Notification;
 use App\Models\Homework;
@@ -41,7 +42,7 @@ class NotificationService
      */
     public function notifyGradePosted(User $student, string $itemType, string $itemTitle, float $score, float $maxScore): void
     {
-        $percentage = round(($score / $maxScore) * 100, 1);
+        $percentage = $maxScore > 0 ? round(($score / $maxScore) * 100, 1) : 0;
 
         $this->createNotification($student, 'grade_posted', [
             'title' => 'Grade Posted',
@@ -140,7 +141,7 @@ class NotificationService
      */
     public function notifyNewRegistration(string $studentName, string $studentEmail): void
     {
-        $admins = User::whereIn('role', ['admin', 'instructor'])->where('stat', 1)->get();
+        $admins = User::whereIn('role', [Roles::ADMIN, Roles::INSTRUCTOR])->where('stat', 1)->get();
 
         foreach ($admins as $admin) {
             $this->createNotification($admin, 'new_registration', [
@@ -157,7 +158,7 @@ class NotificationService
      */
     public function notifyRegistrationVerified(string $studentName, string $studentEmail): void
     {
-        $admins = User::whereIn('role', ['admin', 'instructor'])->where('stat', 1)->get();
+        $admins = User::whereIn('role', [Roles::ADMIN, Roles::INSTRUCTOR])->where('stat', 1)->get();
 
         foreach ($admins as $admin) {
             $this->createNotification($admin, 'registration_verified', [
@@ -174,7 +175,7 @@ class NotificationService
      */
     public function notifyEnrollmentRequest(User $student, string $courseName): void
     {
-        $admins = User::whereIn('role', ['admin', 'instructor'])->where('stat', 1)->get();
+        $admins = User::whereIn('role', [Roles::ADMIN, Roles::INSTRUCTOR])->where('stat', 1)->get();
 
         foreach ($admins as $admin) {
             $this->createNotification($admin, 'enrollment_request', [
@@ -249,7 +250,7 @@ class NotificationService
     protected function sendEmail(User $user, string $subject, string $body): bool
     {
         try {
-            return $this->mailer->sendMail(
+            return $this->mailer->sendNotificationEmail(
                 $user->email,
                 $user->full_name,
                 $subject,

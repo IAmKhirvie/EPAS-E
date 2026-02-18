@@ -30,6 +30,9 @@
                             <i class="fas fa-cog me-2"></i> System Settings
                         </a>
                         @endif
+                        <a href="#api-tokens" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                            <i class="fas fa-key me-2"></i> API Tokens
+                        </a>
                         <a href="#data" class="list-group-item list-group-item-action" data-bs-toggle="list">
                             <i class="fas fa-database me-2"></i> Data & Account
                         </a>
@@ -403,6 +406,19 @@
                     </div>
                 </div>
                 @endif
+
+                <!-- API Tokens -->
+                <div class="tab-pane fade" id="api-tokens">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0 py-3">
+                            <h5 class="mb-0"><i class="fas fa-key me-2 text-primary"></i>API Tokens</h5>
+                            <small class="text-muted">Manage API tokens for external application access.</small>
+                        </div>
+                        <div class="card-body">
+                            <livewire:api-token-manager />
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Data & Account -->
                 <div class="tab-pane fade" id="data">

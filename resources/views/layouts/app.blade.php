@@ -21,40 +21,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/app.css') }}">
-    
-    <!-- Base CSS-->
-    <link rel="stylesheet" href="{{ dynamic_asset('css/base/reset.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/base/typography.css') }}">
-    
-    <!-- Component CSS -->
-    <link rel="stylesheet" href="{{ dynamic_asset('css/components/adduser.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/components/alerts.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/components/buttons.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/components/fab.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/components/forms.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/components/overlay.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/components/tables.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/components/utilities.css') }}">
 
-    <!-- Layout CSS -->
-    <link rel="stylesheet" href="{{ dynamic_asset('css/layout/header.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/layout/main-content.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/layout/sidebar.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/layout/footer.css') }}">
+    <!-- Vite-compiled CSS (all custom styles consolidated) -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <!-- Page Specific CSS -->
-    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/modules.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/users.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/index.css')}}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/dashboard.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/grades.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/analytics.css') }}">
-
-    <!-- Mobile CSS -->
-    <link rel="stylesheet" href="{{ dynamic_asset('css/components/responsive-tables.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/components/touch-friendly.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/mobile.css') }}"  media="screen and (max-width: 1032px)">
+    <!-- Livewire -->
+    @livewireStyles
     <script>
         // Immediately check and apply dark mode before page renders
         (function() {
@@ -407,8 +379,6 @@
   @stack('scripts')
 
   <!-- Global Error Popup Handler -->
-  <link rel="stylesheet" href="{{ dynamic_asset('css/components/error-popup.css') }}">
-
   <div class="error-popup-overlay" id="errorPopupOverlay">
     <div class="error-popup">
       <div class="error-popup-header">
@@ -582,5 +552,7 @@
         });
     };
   </script>
+
+  @livewireScripts
 </body>
 </html>

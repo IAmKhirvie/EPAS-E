@@ -20,33 +20,11 @@ class RegistrationController extends Controller
     }
 
     /**
-     * Display pending registrations (Admin/Instructor)
+     * Display registration management page (Admin/Instructor)
      */
-    public function index(Request $request)
+    public function index()
     {
-        $status = $request->get('status', 'pending');
-
-        $query = Registration::query();
-
-        if ($status === 'pending') {
-            $query->pending();
-        } elseif ($status === 'email_verified') {
-            $query->awaitingApproval();
-        } elseif ($status !== 'all') {
-            $query->where('status', $status);
-        }
-
-        $registrations = $query->orderBy('created_at', 'desc')->paginate(20);
-
-        // Get counts for tabs
-        $counts = [
-            'pending' => Registration::where('status', Registration::STATUS_PENDING)->count(),
-            'email_verified' => Registration::where('status', Registration::STATUS_EMAIL_VERIFIED)->count(),
-            'rejected' => Registration::where('status', Registration::STATUS_REJECTED)->count(),
-            'all' => Registration::whereNotIn('status', [Registration::STATUS_TRANSFERRED])->count(),
-        ];
-
-        return view('admin.registrations.index', compact('registrations', 'status', 'counts'));
+        return view('admin.registrations.index');
     }
 
     /**

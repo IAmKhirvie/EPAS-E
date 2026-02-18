@@ -99,16 +99,20 @@ class Homework extends Model
 
     public function getIsPastDueAttribute(): bool
     {
-        return now()->greaterThan($this->due_date);
+        return $this->due_date !== null && now()->greaterThan($this->due_date);
     }
 
-    public function getDaysUntilDueAttribute(): int
+    public function getDaysUntilDueAttribute(): ?int
     {
+        if ($this->due_date === null) {
+            return null;
+        }
+
         return now()->diffInDays($this->due_date, false);
     }
 
     public function scopeOverdue($query)
     {
-        return $query->where('due_date', '<', now());
+        return $query->whereNotNull('due_date')->where('due_date', '<', now());
     }
 }

@@ -177,6 +177,23 @@ class UserSeeder extends Seeder
             ]
         );
         DB::table('users')->updateOrInsert(
+            ['email' => 'mikaellayap23@gmail.com'],
+            [
+                'student_id' => 'MAR' . str_pad(mt_rand(1, 999999999999), 12, '0', STR_PAD_LEFT),
+                'password' => Hash::make('Password123'),
+                'first_name' => 'Mikaella',
+                'middle_name' => 'Y.',
+                'last_name' => 'Yap',
+                'ext_name' => '',
+                'role' => 'student',
+                'department_id' => 1,
+                'stat' => 1,
+                'email_verified_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
+        DB::table('users')->updateOrInsert(
             ['email' => 'AngelLov251e31@gmail.com'],
             [
                 'student_id' => 'MAR' . str_pad(mt_rand(1, 999999999999), 12, '0', STR_PAD_LEFT),

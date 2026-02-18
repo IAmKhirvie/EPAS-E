@@ -62,8 +62,11 @@ class SelfCheck extends Model
 
     public function getCompletionRateAttribute(): ?float
     {
-        $totalUsers = User::count();
+        $totalStudents = User::where('role', \App\Constants\Roles::STUDENT)
+            ->where('stat', 1)
+            ->count();
         $completedUsers = $this->submissions()->distinct('user_id')->count();
-        return $totalUsers > 0 ? ($completedUsers / $totalUsers) * 100 : 0;
+
+        return $totalStudents > 0 ? ($completedUsers / $totalStudents) * 100 : 0;
     }
 }

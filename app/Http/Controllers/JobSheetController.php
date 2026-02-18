@@ -8,6 +8,7 @@ use App\Models\JobSheetStep;
 use App\Http\Requests\StoreJobSheetRequest;
 use App\Http\Requests\UpdateJobSheetRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,31 +24,33 @@ class JobSheetController extends Controller
         $validated = $request->validated();
 
         try {
-            $jobSheet = JobSheet::create([
-                'information_sheet_id' => $informationSheet->id,
-                'job_number' => $request->job_number,
-                'title' => $request->title,
-                'description' => $request->description,
-                'objectives' => $request->objectives,
-                'tools_required' => $request->tools_required,
-                'safety_requirements' => $request->safety_requirements,
-                'reference_materials' => $request->reference_materials ?? [],
-            ]);
-
-            foreach ($request->steps as $stepData) {
-                $imagePath = null;
-                if (isset($stepData['image']) && $stepData['image']->isValid()) {
-                    $imagePath = $stepData['image']->store('job-sheet-steps', 'public');
-                }
-
-                JobSheetStep::create([
-                    'job_sheet_id' => $jobSheet->id,
-                    'step_number' => $stepData['step_number'],
-                    'instruction' => $stepData['instruction'],
-                    'expected_outcome' => $stepData['expected_outcome'],
-                    'image_path' => $imagePath,
+            DB::transaction(function () use ($request, $informationSheet) {
+                $jobSheet = JobSheet::create([
+                    'information_sheet_id' => $informationSheet->id,
+                    'job_number' => $request->job_number,
+                    'title' => $request->title,
+                    'description' => $request->description,
+                    'objectives' => $request->objectives,
+                    'tools_required' => $request->tools_required,
+                    'safety_requirements' => $request->safety_requirements,
+                    'reference_materials' => $request->reference_materials ?? [],
                 ]);
-            }
+
+                foreach ($request->steps as $stepData) {
+                    $imagePath = null;
+                    if (isset($stepData['image']) && $stepData['image']->isValid()) {
+                        $imagePath = $stepData['image']->store('job-sheet-steps', 'public');
+                    }
+
+                    JobSheetStep::create([
+                        'job_sheet_id' => $jobSheet->id,
+                        'step_number' => $stepData['step_number'],
+                        'instruction' => $stepData['instruction'],
+                        'expected_outcome' => $stepData['expected_outcome'],
+                        'image_path' => $imagePath,
+                    ]);
+                }
+            });
 
             return redirect()->route('courses.index')
                 ->with('success', 'Job sheet created successfully!');

@@ -219,9 +219,15 @@ class ForumThread extends Model
      */
     public function scopeForUser($query, $user)
     {
-        return $query->where(function ($q) use ($user) {
+        $role = $user->role;
+
+        return $query->where(function ($q) use ($role) {
             $q->where('target_roles', 'all')
-              ->orWhere('target_roles', 'like', "%{$user->role}%");
+              ->orWhereNull('target_roles')
+              ->orWhere('target_roles', $role)
+              ->orWhere('target_roles', 'like', $role . ',%')
+              ->orWhere('target_roles', 'like', '%,' . $role . ',%')
+              ->orWhere('target_roles', 'like', '%,' . $role);
         });
     }
 

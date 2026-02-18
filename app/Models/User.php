@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * User model for the JOMS LMS.
@@ -54,7 +55,7 @@ use Illuminate\Notifications\Notifiable;
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable, SoftDeletes, HasCommonScopes;
+    use HasFactory, HasApiTokens, Notifiable, SoftDeletes, HasCommonScopes;
 
     protected $fillable = [
         'first_name',
@@ -292,7 +293,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isActive(): bool
     {
-        return $this->stat === true;
+        return (int) $this->stat === 1;
     }
 
     /**
@@ -337,7 +338,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function scopeStudents($query)
     {
-        return $query->where('role', 'student');
+        return $query->where('role', Roles::STUDENT);
     }
 
     /**
@@ -345,7 +346,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function scopeInstructors($query)
     {
-        return $query->where('role', 'instructor');
+        return $query->where('role', Roles::INSTRUCTOR);
     }
 
     /**
@@ -362,7 +363,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function scopePending(Builder $query): Builder
     {
-        return $query->where('stat', false);
+        return $query->where('stat', 0);
     }
 
     /**

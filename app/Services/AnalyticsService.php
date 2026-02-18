@@ -65,8 +65,8 @@ class AnalyticsService
         $weekAgo = $today->copy()->subWeek();
 
         return [
-            'total_students' => User::where('role', Roles::STUDENT)->where('stat', true)->count(),
-            'total_instructors' => User::where('role', Roles::INSTRUCTOR)->where('stat', true)->count(),
+            'total_students' => User::where('role', Roles::STUDENT)->where('stat', 1)->count(),
+            'total_instructors' => User::where('role', Roles::INSTRUCTOR)->where('stat', 1)->count(),
             'new_students_today' => User::where('role', Roles::STUDENT)
                 ->whereDate('created_at', $today)
                 ->count(),
@@ -75,7 +75,7 @@ class AnalyticsService
                 ->count(),
             'active_today' => User::whereDate('last_login', $today)->count(),
             'active_week' => User::whereBetween('last_login', [$weekAgo, $today])->count(),
-            'pending_approval' => User::where('stat', false)
+            'pending_approval' => User::where('stat', 0)
                 ->whereNotNull('email_verified_at')
                 ->count(),
         ];
@@ -171,7 +171,41 @@ class AnalyticsService
     public function getModuleMetrics(): array
     {
         $modules = Module::where('is_active', true)->get();
-        $moduleStats = $modules->map(fn($module) => $this->calculateModuleStats($module))->toArray();
+        $moduleIds = $modules->pluck('id');
+        $moduleClass = Module::class;
+
+        // Batch all stats in 3 aggregate queries instead of 4*N
+        $progressStats = DB::table('user_progress')
+            ->where('progressable_type', $moduleClass)
+            ->whereIn('progressable_id', $moduleIds)
+            ->selectRaw('progressable_id,
+                COUNT(CASE WHEN score IS NOT NULL THEN 1 END) as total_attempts,
+                COUNT(CASE WHEN status IN (\'passed\', \'completed\') THEN 1 END) as passed,
+                COUNT(CASE WHEN status = \'failed\' THEN 1 END) as failed,
+                AVG(score) as avg_score')
+            ->groupBy('progressable_id')
+            ->get()
+            ->keyBy('progressable_id');
+
+        $moduleStats = $modules->map(function ($module) use ($progressStats) {
+            $stats = $progressStats->get($module->id);
+            $totalAttempts = $stats->total_attempts ?? 0;
+            $passedCount = $stats->passed ?? 0;
+            $failedCount = $stats->failed ?? 0;
+            $avgScore = $stats->avg_score ?? 0;
+
+            return [
+                'id' => $module->id,
+                'name' => $module->module_title ?? $module->module_name ?? "Module {$module->id}",
+                'module_number' => $module->module_number ?? '',
+                'total_attempts' => $totalAttempts,
+                'passed' => $passedCount,
+                'failed' => $failedCount,
+                'pass_rate' => $totalAttempts > 0 ? round(($passedCount / $totalAttempts) * 100, 1) : 0,
+                'fail_rate' => $totalAttempts > 0 ? round(($failedCount / $totalAttempts) * 100, 1) : 0,
+                'average_score' => round($avgScore, 1),
+            ];
+        })->toArray();
 
         $totalAttempts = array_sum(array_column($moduleStats, 'total_attempts'));
         $totalPassed = array_sum(array_column($moduleStats, 'passed'));
@@ -217,7 +251,7 @@ class AnalyticsService
     public function getTopPerformers(int $limit = 10): Collection
     {
         return User::where('role', Roles::STUDENT)
-            ->where('stat', true)
+            ->where('stat', 1)
             ->orderByDesc('total_points')
             ->limit($limit)
             ->get(['id', 'first_name', 'last_name', 'total_points', 'profile_image']);
@@ -233,7 +267,7 @@ class AnalyticsService
         $weekAgo = Carbon::now()->subWeek();
 
         return User::where('role', Roles::STUDENT)
-            ->where('stat', true)
+            ->where('stat', 1)
             ->where(function ($query) use ($weekAgo) {
                 $query->whereNull('last_login')
                     ->orWhere('last_login', '<', $weekAgo);
@@ -263,7 +297,7 @@ class AnalyticsService
      */
     private function calculateOverallCompletionRate(): float
     {
-        $totalStudents = User::where('role', Roles::STUDENT)->where('stat', true)->count();
+        $totalStudents = User::where('role', Roles::STUDENT)->where('stat', 1)->count();
         if ($totalStudents === 0) {
             return 0;
         }
@@ -284,14 +318,25 @@ class AnalyticsService
      */
     private function calculateAverageProgress(): float
     {
-        $students = User::where('role', Roles::STUDENT)->where('stat', true)->get();
-        if ($students->isEmpty()) {
+        $totalStudents = User::where('role', Roles::STUDENT)->where('stat', 1)->count();
+        if ($totalStudents === 0) {
             return 0;
         }
 
-        $totalProgress = $students->sum(fn($student) => $this->calculateStudentProgress($student));
+        $totalModules = Module::where('is_active', true)->count();
+        if ($totalModules === 0) {
+            return 0;
+        }
 
-        return round($totalProgress / $students->count(), 1);
+        // Single aggregate query instead of N+1 per student
+        $avgCompletedModules = DB::table('user_progress')
+            ->where('progressable_type', Module::class)
+            ->where('status', 'completed')
+            ->whereIn('user_id', User::where('role', Roles::STUDENT)->where('stat', 1)->select('id'))
+            ->selectRaw('COUNT(*) / ? as avg_completed', [$totalStudents])
+            ->value('avg_completed');
+
+        return round(($avgCompletedModules / $totalModules) * 100, 1);
     }
 
     /**
@@ -321,13 +366,21 @@ class AnalyticsService
      */
     private function getDailyActiveUsers(int $days): array
     {
-        $data = [];
+        $startDate = Carbon::today()->subDays($days - 1);
 
+        // Single query for all days instead of N queries
+        $counts = DB::table('users')
+            ->where('last_login', '>=', $startDate)
+            ->selectRaw('DATE(last_login) as login_date, COUNT(*) as count')
+            ->groupByRaw('DATE(last_login)')
+            ->pluck('count', 'login_date');
+
+        $data = [];
         for ($i = $days - 1; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
             $data[] = [
                 'date' => $date->format('M d'),
-                'count' => User::whereDate('last_login', $date)->count(),
+                'count' => $counts->get($date->toDateString(), 0),
             ];
         }
 
