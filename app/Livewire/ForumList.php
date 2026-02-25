@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Constants\Roles;
 use App\Models\ForumCategory;
 use App\Models\ForumThread;
 use Illuminate\Support\Facades\Auth;
@@ -12,9 +13,13 @@ class ForumList extends Component
 {
     use WithPagination;
 
+    protected $paginationTheme = 'bootstrap';
+
     public string $search = '';
     public string $categoryFilter = '';
     public string $typeFilter = ''; // 'announcements', 'discussions', ''
+    public array $selectedThreads = [];
+    public bool $selectAll = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -35,6 +40,48 @@ class ForumList extends Component
     public function updatingTypeFilter(): void
     {
         $this->resetPage();
+    }
+
+    public function updatedSelectAll(bool $value): void
+    {
+        $this->selectedThreads = $value
+            ? $this->getQuery()->pluck('id')->map(fn ($id) => (string) $id)->toArray()
+            : [];
+    }
+
+    public function bulkLock(): void
+    {
+        if (Auth::user()->role !== Roles::ADMIN) {
+            session()->flash('error', 'Only administrators can lock threads.');
+            return;
+        }
+
+        $count = ForumThread::whereIn('id', $this->selectedThreads)
+            ->where('is_locked', false)
+            ->update(['is_locked' => true]);
+
+        $this->selectedThreads = [];
+        $this->selectAll = false;
+        session()->flash('success', "{$count} thread(s) locked.");
+    }
+
+    public function bulkDelete(): void
+    {
+        if (Auth::user()->role !== Roles::ADMIN) {
+            session()->flash('error', 'Only administrators can delete threads.');
+            return;
+        }
+
+        $count = 0;
+        $threads = ForumThread::whereIn('id', $this->selectedThreads)->get();
+        foreach ($threads as $thread) {
+            $thread->delete();
+            $count++;
+        }
+
+        $this->selectedThreads = [];
+        $this->selectAll = false;
+        session()->flash('success', "{$count} thread(s) deleted.");
     }
 
     private function getQuery()
@@ -83,10 +130,13 @@ class ForumList extends Component
 
         $canCreateThread = true; // All authenticated users can create threads
 
+        $isAdmin = $user->role === Roles::ADMIN;
+
         return view('livewire.forum-list', [
             'threads' => $this->getQuery()->paginate(20),
             'categories' => $categories,
             'canCreateThread' => $canCreateThread,
+            'isAdmin' => $isAdmin,
         ]);
     }
 }

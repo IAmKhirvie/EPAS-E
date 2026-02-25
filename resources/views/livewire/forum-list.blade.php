@@ -41,11 +41,30 @@
         </select>
     </div>
 
+    {{-- Bulk Actions --}}
+    @if(count($selectedThreads) > 0 && $isAdmin)
+        <div class="d-flex flex-wrap gap-2 mb-3 p-2 bg-light rounded border">
+            <span class="align-self-center text-muted small">{{ count($selectedThreads) }} selected:</span>
+            <button wire:click="bulkLock" wire:confirm="Lock all selected threads?" class="btn btn-warning btn-sm">
+                <i class="fas fa-lock me-1"></i> Lock
+            </button>
+            <button wire:click="bulkDelete" wire:confirm="Delete all selected threads?" class="btn btn-danger btn-sm">
+                <i class="fas fa-trash me-1"></i> Delete
+            </button>
+        </div>
+    @endif
+
     {{-- Loading --}}
     <div wire:loading class="text-center py-2">
         <div class="spinner-border spinner-border-sm text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
+    </div>
+
+    {{-- Select All --}}
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <input type="checkbox" wire:model.live="selectAll" class="form-check-input" id="selectAllThreads">
+        <label class="form-check-label small text-muted" for="selectAllThreads">Select All</label>
     </div>
 
     {{-- Thread List --}}
@@ -54,7 +73,9 @@
             <div class="card mb-2 {{ $thread->is_pinned ? 'border-warning' : '' }} {{ $thread->is_locked ? 'opacity-75' : '' }}">
                 <div class="card-body py-2 px-3">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="flex-grow-1">
+                        <div class="d-flex align-items-center gap-2 flex-grow-1">
+                            <input type="checkbox" wire:model.live="selectedThreads" value="{{ $thread->id }}" class="form-check-input">
+                            <div class="flex-grow-1">
                             <div class="d-flex align-items-center gap-2 mb-1">
                                 @if($thread->is_pinned)
                                     <i class="fas fa-thumbtack text-warning" title="Pinned"></i>
@@ -79,6 +100,7 @@
                                 <span class="mx-1">&bull;</span>
                                 {{ $thread->created_at->diffForHumans() }}
                             </small>
+                            </div>
                         </div>
                         <div class="d-flex gap-3 text-muted small text-end">
                             <div title="Replies">

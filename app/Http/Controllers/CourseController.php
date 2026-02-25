@@ -46,7 +46,7 @@ class CourseController extends Controller
             },
             'modules.informationSheets' => function($query) {
                 $query->orderBy('sheet_number')
-                    ->with(['topics', 'selfChecks', 'taskSheets', 'jobSheets']);
+                    ->with(['topics', 'selfChecks.questions', 'taskSheets', 'jobSheets', 'homeworks', 'checklists']);
             },
             'instructor'
         ]);

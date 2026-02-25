@@ -55,6 +55,19 @@
         </div>
     </div>
 
+    {{-- Bulk Actions --}}
+    @if(count($selectedRequests) > 0 && $isAdmin)
+        <div class="d-flex flex-wrap gap-2 mb-3 p-2 bg-light rounded border">
+            <span class="align-self-center text-muted small">{{ count($selectedRequests) }} selected:</span>
+            <button wire:click="bulkApprove" wire:confirm="Approve all selected pending requests?" class="btn btn-success btn-sm">
+                <i class="fas fa-check me-1"></i> Approve
+            </button>
+            <button wire:click="bulkReject" wire:confirm="Reject all selected pending requests?" class="btn btn-danger btn-sm">
+                <i class="fas fa-times me-1"></i> Reject
+            </button>
+        </div>
+    @endif
+
     {{-- Loading --}}
     <div wire:loading class="text-center py-2">
         <div class="spinner-border spinner-border-sm text-primary" role="status">
@@ -67,6 +80,9 @@
         <table class="table table-hover table-sm align-middle">
             <thead class="table-light">
                 <tr>
+                    <th style="width: 40px;">
+                        <input type="checkbox" wire:model.live="selectAll" class="form-check-input">
+                    </th>
                     <th style="cursor:pointer;" wire:click="sortBy('id')">
                         ID
                         @if($sortField === 'id')
@@ -105,6 +121,9 @@
             <tbody>
                 @forelse($requests as $request)
                     <tr>
+                        <td>
+                            <input type="checkbox" wire:model.live="selectedRequests" value="{{ $request->id }}" class="form-check-input">
+                        </td>
                         <td>{{ $request->id }}</td>
                         <td>
                             <div class="fw-medium">{{ $request->student_display_name }}</div>
@@ -166,7 +185,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="100%" class="text-center text-muted py-4">
+                        <td colspan="9" class="text-center text-muted py-4">
                             <i class="fas fa-user-plus fa-2x mb-2 d-block opacity-50"></i>
                             No enrollment requests found.
                         </td>

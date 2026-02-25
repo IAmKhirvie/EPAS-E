@@ -28,11 +28,27 @@
             placeholder="Search announcements...">
     </div>
 
+    {{-- Bulk Actions --}}
+    @if(count($selectedAnnouncements) > 0 && $canManage)
+        <div class="d-flex flex-wrap gap-2 mb-3 p-2 bg-light rounded border">
+            <span class="align-self-center text-muted small">{{ count($selectedAnnouncements) }} selected:</span>
+            <button wire:click="bulkDelete" wire:confirm="Delete all selected announcements?" class="btn btn-danger btn-sm">
+                <i class="fas fa-trash me-1"></i> Delete
+            </button>
+        </div>
+    @endif
+
     {{-- Loading --}}
     <div wire:loading class="text-center py-2">
         <div class="spinner-border spinner-border-sm text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
+    </div>
+
+    {{-- Select All --}}
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <input type="checkbox" wire:model.live="selectAll" class="form-check-input" id="selectAllAnnouncements">
+        <label class="form-check-label small text-muted" for="selectAllAnnouncements">Select All</label>
     </div>
 
     {{-- Announcement Cards --}}
@@ -41,7 +57,9 @@
             <div class="card mb-3 {{ $announcement->is_urgent ? 'border-danger' : ($announcement->is_pinned ? 'border-warning' : '') }}">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div>
+                        <div class="d-flex align-items-start gap-2">
+                            <input type="checkbox" wire:model.live="selectedAnnouncements" value="{{ $announcement->id }}" class="form-check-input mt-1">
+                            <div>
                             <h5 class="card-title mb-1">
                                 @if($announcement->is_pinned)
                                     <i class="fas fa-thumbtack text-warning me-1" title="Pinned"></i>
@@ -62,6 +80,7 @@
                                     <i class="fas fa-calendar-times me-1"></i>Due: {{ $announcement->deadline->format('M d, Y') }}
                                 @endif
                             </small>
+                            </div>
                         </div>
                         @if($announcement->comments_count ?? $announcement->comments->count())
                             <span class="badge bg-light text-dark">

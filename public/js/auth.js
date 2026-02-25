@@ -69,7 +69,6 @@ function showToast(message, type = 'info') {
     const toastMessage = document.getElementById('toastMessage');
     
     if (!toast || !toastMessage) {
-        console.log('Toast notification:', message);
         return;
     }
     
