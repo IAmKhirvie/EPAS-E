@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Announcement;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -11,7 +12,11 @@ class AnnouncementList extends Component
 {
     use WithPagination;
 
+    protected $paginationTheme = 'bootstrap';
+
     public string $search = '';
+    public array $selectedAnnouncements = [];
+    public bool $selectAll = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -20,6 +25,33 @@ class AnnouncementList extends Component
     public function updatingSearch(): void
     {
         $this->resetPage();
+    }
+
+    public function updatedSelectAll(bool $value): void
+    {
+        $this->selectedAnnouncements = $value
+            ? $this->getQuery()->pluck('id')->map(fn ($id) => (string) $id)->toArray()
+            : [];
+    }
+
+    public function bulkDelete(): void
+    {
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin', 'instructor'])) {
+            session()->flash('error', 'You do not have permission to delete announcements.');
+            return;
+        }
+
+        $count = 0;
+        $announcements = Announcement::whereIn('id', $this->selectedAnnouncements)->get();
+        foreach ($announcements as $announcement) {
+            $announcement->delete();
+            $count++;
+        }
+
+        $this->selectedAnnouncements = [];
+        $this->selectAll = false;
+        session()->flash('success', "{$count} announcement(s) deleted.");
     }
 
     private function getQuery()
@@ -49,6 +81,7 @@ class AnnouncementList extends Component
         return view('livewire.announcement-list', [
             'announcements' => $this->getQuery()->paginate(10),
             'canCreate' => $canCreate,
+            'canManage' => $canCreate,
         ]);
     }
 }

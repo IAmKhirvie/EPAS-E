@@ -43,6 +43,9 @@
         <table class="table table-hover table-sm align-middle">
             <thead class="table-light">
                 <tr>
+                    <th style="width: 40px;">
+                        <input type="checkbox" wire:model.live="selectAll" class="form-check-input">
+                    </th>
                     <th style="cursor:pointer;" wire:click="sortBy('student_id')">
                         Student ID
                         @if($sortField === 'student_id')
@@ -68,6 +71,9 @@
                 @forelse($students as $student)
                     @php $gs = $student->grade_summary; @endphp
                     <tr>
+                        <td>
+                            <input type="checkbox" wire:model.live="selectedStudents" value="{{ $student->id }}" class="form-check-input">
+                        </td>
                         <td>{{ $student->student_id ?? '-' }}</td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
@@ -103,7 +109,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="100%" class="text-center text-muted py-4">
+                        <td colspan="10" class="text-center text-muted py-4">
                             <i class="fas fa-graduation-cap fa-2x mb-2 d-block opacity-50"></i>
                             No students found.
                         </td>

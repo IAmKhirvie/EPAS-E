@@ -13,10 +13,14 @@ class EnrollmentTable extends Component
 {
     use WithPagination;
 
+    protected $paginationTheme = 'bootstrap';
+
     public string $search = '';
     public string $statusFilter = 'all';
     public string $sortField = 'created_at';
     public string $sortDirection = 'desc';
+    public array $selectedRequests = [];
+    public bool $selectAll = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -33,6 +37,51 @@ class EnrollmentTable extends Component
     public function updatingStatusFilter(): void
     {
         $this->resetPage();
+    }
+
+    public function updatedSelectAll(bool $value): void
+    {
+        $this->selectedRequests = $value
+            ? $this->getQuery()->pluck('id')->map(fn ($id) => (string) $id)->toArray()
+            : [];
+    }
+
+    public function bulkApprove(): void
+    {
+        if (Auth::user()->role !== Roles::ADMIN) {
+            session()->flash('error', 'Only administrators can approve requests.');
+            return;
+        }
+
+        $count = 0;
+        $requests = EnrollmentRequest::whereIn('id', $this->selectedRequests)->where('status', 'pending')->get();
+        foreach ($requests as $request) {
+            $request->approve(Auth::user());
+            $count++;
+        }
+
+        $this->selectedRequests = [];
+        $this->selectAll = false;
+        session()->flash('success', "{$count} enrollment request(s) approved.");
+    }
+
+    public function bulkReject(): void
+    {
+        if (Auth::user()->role !== Roles::ADMIN) {
+            session()->flash('error', 'Only administrators can reject requests.');
+            return;
+        }
+
+        $count = 0;
+        $requests = EnrollmentRequest::whereIn('id', $this->selectedRequests)->where('status', 'pending')->get();
+        foreach ($requests as $request) {
+            $request->reject(Auth::user(), 'Bulk rejected by admin.');
+            $count++;
+        }
+
+        $this->selectedRequests = [];
+        $this->selectAll = false;
+        session()->flash('success', "{$count} enrollment request(s) rejected.");
     }
 
     public function sortBy(string $field): void

@@ -32,6 +32,9 @@
         <table class="table table-hover table-sm align-middle">
             <thead class="table-light">
                 <tr>
+                    <th style="width: 40px;">
+                        <input type="checkbox" wire:model.live="selectAll" class="form-check-input">
+                    </th>
                     <th style="cursor:pointer;" wire:click="sortBy('id')">
                         ID
                         @if($sortField === 'id')
@@ -64,6 +67,9 @@
             <tbody>
                 @forelse($logs as $log)
                     <tr>
+                        <td>
+                            <input type="checkbox" wire:model.live="selectedLogs" value="{{ $log->id }}" class="form-check-input">
+                        </td>
                         <td>{{ $log->id }}</td>
                         <td>
                             <small class="fw-medium">{{ $log->user?->full_name ?? 'System' }}</small>
@@ -88,7 +94,7 @@
                     </tr>
                     @if($expandedLogId === $log->id)
                         <tr>
-                            <td colspan="7" class="bg-light">
+                            <td colspan="8" class="bg-light">
                                 <div class="row p-2">
                                     @if($log->old_values)
                                         <div class="col-md-6">
@@ -115,7 +121,7 @@
                     @endif
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">
+                        <td colspan="8" class="text-center text-muted py-4">
                             <i class="fas fa-clipboard-list fa-2x mb-2 d-block opacity-50"></i>
                             No audit logs found.
                         </td>

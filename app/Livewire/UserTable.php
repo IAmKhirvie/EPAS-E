@@ -14,6 +14,8 @@ class UserTable extends Component
 {
     use WithPagination;
 
+    protected $paginationTheme = 'bootstrap';
+
     public string $search = '';
     public string $roleFilter = '';
     public string $statusFilter = '';

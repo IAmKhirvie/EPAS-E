@@ -3,156 +3,179 @@
 @section('title', 'Performance Criteria')
 
 @section('content')
-<div class="container-fluid py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="card shadow-sm">
-                <div class="card-header bg-dark text-white">
-                    <h4 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Performance Criteria Checklist</h4>
+<div class="content-area">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
+            <li class="breadcrumb-item active">Performance Criteria</li>
+        </ol>
+    </nav>
+
+    <form action="{{ route('performance-criteria.store') }}" method="POST" id="performanceCriteriaForm">
+        @csrf
+        <input type="hidden" name="type" value="{{ $type }}">
+        <input type="hidden" name="related_id" value="{{ $relatedId }}">
+
+        <div class="cb-container">
+            {{-- Sidebar: Quick-add template buttons --}}
+            <div class="cb-sidebar">
+                <div class="cb-sidebar__title">Quick Add Templates</div>
+
+                <div class="cb-sidebar__group">
+                    <div class="cb-sidebar__group-label"><i class="fas fa-bolt"></i> Common Criteria</div>
+                    <button type="button" class="cb-sidebar__item" onclick="addCommonCriteria('safety')">
+                        <span class="cb-sidebar__item-icon cb-sidebar__item-icon--red"><i class="fas fa-shield-alt"></i></span>
+                        <span class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Safety Practices</span>
+                            <span class="cb-sidebar__item-desc">PPE, protocols, workspace</span>
+                        </span>
+                    </button>
+                    <button type="button" class="cb-sidebar__item" onclick="addCommonCriteria('tools')">
+                        <span class="cb-sidebar__item-icon cb-sidebar__item-icon--orange"><i class="fas fa-tools"></i></span>
+                        <span class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Proper Tool Usage</span>
+                            <span class="cb-sidebar__item-desc">Selection, handling, storage</span>
+                        </span>
+                    </button>
+                    <button type="button" class="cb-sidebar__item" onclick="addCommonCriteria('procedure')">
+                        <span class="cb-sidebar__item-icon cb-sidebar__item-icon--blue"><i class="fas fa-list-ol"></i></span>
+                        <span class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Correct Procedure</span>
+                            <span class="cb-sidebar__item-desc">Steps, instructions, completeness</span>
+                        </span>
+                    </button>
+                    <button type="button" class="cb-sidebar__item" onclick="addCommonCriteria('quality')">
+                        <span class="cb-sidebar__item-icon cb-sidebar__item-icon--green"><i class="fas fa-check-double"></i></span>
+                        <span class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Quality of Work</span>
+                            <span class="cb-sidebar__item-desc">Standards, defects, function</span>
+                        </span>
+                    </button>
+                    <button type="button" class="cb-sidebar__item" onclick="addCommonCriteria('time')">
+                        <span class="cb-sidebar__item-icon cb-sidebar__item-icon--teal"><i class="fas fa-clock"></i></span>
+                        <span class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Time Management</span>
+                            <span class="cb-sidebar__item-desc">Deadlines, efficiency</span>
+                        </span>
+                    </button>
                 </div>
-                <div class="card-body">
+
+                <div class="cb-sidebar__info">
+                    <div class="cb-sidebar__info-title"><i class="fas fa-lightbulb"></i> Tips</div>
+                    Click a template to add pre-defined criteria. You can edit them after adding.
+                </div>
+            </div>
+
+            {{-- Main Panel --}}
+            <div class="cb-main">
+                <div class="cb-header cb-header--criteria">
+                    <h4><i class="fas fa-clipboard-list me-2"></i>Performance Criteria Checklist</h4>
+                    <p>Evaluate student performance with observable criteria</p>
+                </div>
+
+                <div class="cb-body">
+                    {{-- Context Badge --}}
                     @if($taskSheet)
-                    <div class="alert alert-info">
-                        <strong>Task Sheet:</strong> {{ $taskSheet->title }} ({{ $taskSheet->task_number }})
+                    <div class="cb-context-badge">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Task Sheet: <strong>{{ $taskSheet->title }} ({{ $taskSheet->task_number }})</strong></span>
                     </div>
                     @elseif($jobSheet)
-                    <div class="alert alert-info">
-                        <strong>Job Sheet:</strong> {{ $jobSheet->title }} ({{ $jobSheet->job_number }})
+                    <div class="cb-context-badge">
+                        <i class="fas fa-hard-hat"></i>
+                        <span>Job Sheet: <strong>{{ $jobSheet->title }} ({{ $jobSheet->job_number }})</strong></span>
                     </div>
                     @endif
 
-                    <form action="{{ route('performance-criteria.store') }}" method="POST" id="performanceCriteriaForm">
-                        @csrf
-                        <input type="hidden" name="type" value="{{ $type }}">
-                        <input type="hidden" name="related_id" value="{{ $relatedId }}">
+                    {{-- Criteria Items --}}
+                    <div class="cb-section">
+                        <div class="cb-items-header">
+                            <h5><i class="fas fa-clipboard-list"></i> Evaluation Criteria <span class="cb-count-badge">1</span></h5>
+                        </div>
 
-                        <!-- Performance Criteria Items -->
-                        <div class="mb-4">
-                            <h5 class="mb-3">Evaluation Criteria</h5>
-                            <div id="criteria-container">
-                                <div class="card mb-3 criteria-card">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between mb-3">
-                                            <h6 class="mb-0">Criterion #1</h6>
-                                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeCard(this)">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                        <div id="criteria-container">
+                            <div class="cb-item-card criteria-card">
+                                <div class="cb-item-card__header">
+                                    <div class="left-section">
+                                        <span class="cb-item-card__number">1</span>
+                                        <span class="cb-item-card__title">Criterion #1</span>
+                                    </div>
+                                    <div class="right-section">
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="DynamicForm.removeItemCard(this, 'criteria-card', 'Criterion')">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="cb-item-card__body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="cb-field-label">Description <span class="required">*</span></label>
+                                            <input type="text" class="form-control" name="criteria[0][description]" placeholder="What is being evaluated" required>
                                         </div>
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">Description <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" name="criteria[0][description]" placeholder="What is being evaluated" required>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">Observed <span class="text-danger">*</span></label>
-                                                <select class="form-select" name="criteria[0][observed]" required>
-                                                    <option value="">Select...</option>
-                                                    <option value="1">Yes</option>
-                                                    <option value="0">No</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">Remarks</label>
-                                                <input type="text" class="form-control" name="criteria[0][remarks]" placeholder="Notes">
-                                            </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label class="cb-field-label">Observed <span class="required">*</span></label>
+                                            <select class="form-select" name="criteria[0][observed]" required>
+                                                <option value="">Select...</option>
+                                                <option value="1">Yes</option>
+                                                <option value="0">No</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label class="cb-field-label">Remarks <span class="optional">(optional)</span></label>
+                                            <input type="text" class="form-control" name="criteria[0][remarks]" placeholder="Notes">
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-outline-success" onclick="addCriterion()">
-                                <i class="fas fa-plus me-1"></i>Add Criterion
-                            </button>
                         </div>
 
-                        <!-- Common Performance Criteria Templates -->
-                        <div class="mb-4">
-                            <h6>Quick Add Common Criteria:</h6>
-                            <div class="btn-group flex-wrap" role="group">
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addCommonCriteria('safety')">
-                                    <i class="fas fa-shield-alt me-1"></i>Safety Practices
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addCommonCriteria('tools')">
-                                    <i class="fas fa-tools me-1"></i>Proper Tool Usage
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addCommonCriteria('procedure')">
-                                    <i class="fas fa-list-ol me-1"></i>Correct Procedure
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addCommonCriteria('quality')">
-                                    <i class="fas fa-check-double me-1"></i>Quality of Work
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addCommonCriteria('time')">
-                                    <i class="fas fa-clock me-1"></i>Time Management
-                                </button>
-                            </div>
-                        </div>
+                        <button type="button" class="cb-add-btn" onclick="addCriterion()">
+                            <i class="fas fa-plus"></i> Add Criterion
+                        </button>
+                    </div>
+                </div>
 
-                        <div class="d-flex justify-content-end gap-2">
-                            <a href="{{ route('courses.index') }}" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-dark">
-                                <i class="fas fa-save me-1"></i>Submit Performance Criteria
-                            </button>
-                        </div>
-                    </form>
+                <div class="cb-footer">
+                    <a href="{{ route('courses.index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </a>
+                    <div class="btn-group-footer">
+                        <span class="cb-footer__hint d-none d-md-inline">All fields marked * are required</span>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Submit Performance Criteria
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 </div>
 
 <script>
 let criterionCount = 1;
 
 function addCriterion(description = '') {
-    const container = document.getElementById('criteria-container');
-    const cardCount = container.querySelectorAll('.criteria-card').length;
-
-    const card = document.createElement('div');
-    card.className = 'card mb-3 criteria-card';
-    card.innerHTML = `
-        <div class="card-body">
-            <div class="d-flex justify-content-between mb-3">
-                <h6 class="mb-0">Criterion #${cardCount + 1}</h6>
-                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeCard(this)">
-                    <i class="fas fa-trash"></i>
-                </button>
+    DynamicForm.addItemCard('criteria-container', 'criteria-card', (count) => `
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="cb-field-label">Description <span class="required">*</span></label>
+                <input type="text" class="form-control" name="criteria[${criterionCount}][description]" value="${description}" placeholder="What is being evaluated" required>
             </div>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Description <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="criteria[${criterionCount}][description]" value="${description}" placeholder="What is being evaluated" required>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label class="form-label">Observed <span class="text-danger">*</span></label>
-                    <select class="form-select" name="criteria[${criterionCount}][observed]" required>
-                        <option value="">Select...</option>
-                        <option value="1">Yes</option>
-                        <option value="0">No</option>
-                    </select>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label class="form-label">Remarks</label>
-                    <input type="text" class="form-control" name="criteria[${criterionCount}][remarks]" placeholder="Notes">
-                </div>
+            <div class="col-md-3 mb-3">
+                <label class="cb-field-label">Observed <span class="required">*</span></label>
+                <select class="form-select" name="criteria[${criterionCount}][observed]" required>
+                    <option value="">Select...</option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="cb-field-label">Remarks <span class="optional">(optional)</span></label>
+                <input type="text" class="form-control" name="criteria[${criterionCount}][remarks]" placeholder="Notes">
             </div>
         </div>
-    `;
-    container.appendChild(card);
+    `, 'Criterion');
     criterionCount++;
-}
-
-function removeCard(button) {
-    const card = button.closest('.criteria-card');
-    if (document.querySelectorAll('.criteria-card').length > 1) {
-        card.remove();
-        renumberCards();
-    }
-}
-
-function renumberCards() {
-    const cards = document.querySelectorAll('.criteria-card');
-    cards.forEach((card, index) => {
-        card.querySelector('h6').textContent = `Criterion #${index + 1}`;
-    });
 }
 
 const commonCriteria = {

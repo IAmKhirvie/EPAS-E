@@ -31,7 +31,7 @@ class InformationSheetController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
             'order' => 'required|integer|min:0',
-            'file' => 'nullable|file|mimes:pdf,xlsx,xls|mimetypes:application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel|max:' . config('joms.uploads.max_document_size', 10240),
+            'file' => 'nullable|file|mimes:pdf,xlsx,xls,doc,docx,ppt,pptx|max:' . config('joms.uploads.max_document_size', 10240),
         ]);
 
         try {
@@ -84,7 +84,7 @@ class InformationSheetController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
             'order' => 'required|integer|min:0',
-            'file' => 'nullable|file|mimes:pdf,xlsx,xls|mimetypes:application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel|max:' . config('joms.uploads.max_document_size', 10240),
+            'file' => 'nullable|file|mimes:pdf,xlsx,xls,doc,docx,ppt,pptx|max:' . config('joms.uploads.max_document_size', 10240),
         ]);
 
         try {

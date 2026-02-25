@@ -11,6 +11,8 @@ class AuditLogTable extends Component
 {
     use WithPagination;
 
+    protected $paginationTheme = 'bootstrap';
+
     public string $search = '';
     public string $actionFilter = '';
     public string $userFilter = '';
@@ -18,6 +20,8 @@ class AuditLogTable extends Component
     public string $dateTo = '';
     public string $sortField = 'created_at';
     public string $sortDirection = 'desc';
+    public array $selectedLogs = [];
+    public bool $selectAll = false;
 
     public ?int $expandedLogId = null;
 
@@ -54,6 +58,13 @@ class AuditLogTable extends Component
     public function updatingDateTo(): void
     {
         $this->resetPage();
+    }
+
+    public function updatedSelectAll(bool $value): void
+    {
+        $this->selectedLogs = $value
+            ? $this->getQuery()->pluck('id')->map(fn ($id) => (string) $id)->toArray()
+            : [];
     }
 
     public function sortBy(string $field): void

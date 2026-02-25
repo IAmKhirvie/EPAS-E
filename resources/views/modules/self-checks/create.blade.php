@@ -2,259 +2,14 @@
 
 @section('title', 'Create Self Check')
 
-@section('styles')
+@push('styles')
 <style>
 /*=============================================================================
-  QUIZ BUILDER STYLES
-  A comprehensive, polished quiz creation interface
+  QUIZ BUILDER — Question-specific styles
+  Layout handled by content-builder.css (.cb-* classes)
 =============================================================================*/
 
-/* Main Layout */
-.quiz-builder-container {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 1.5rem;
-    min-height: calc(100vh - 200px);
-}
-
-@media (max-width: 992px) {
-    .quiz-builder-container {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Question Type Sidebar */
-.question-sidebar {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    padding: 1.25rem;
-    position: sticky;
-    top: 1rem;
-    max-height: calc(100vh - 120px);
-    overflow-y: auto;
-}
-
-.sidebar-title {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #6c757d;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.question-type-category {
-    margin-bottom: 1.25rem;
-}
-
-.category-label {
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #adb5bd;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.category-label i {
-    font-size: 0.8rem;
-}
-
-.question-type-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-    padding: 0.625rem 0.875rem;
-    margin-bottom: 0.375rem;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    background: #fff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: left;
-}
-
-.question-type-btn:hover {
-    border-color: #007bff;
-    background: #f8f9ff;
-    transform: translateX(3px);
-}
-
-.question-type-btn .type-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.875rem;
-    flex-shrink: 0;
-}
-
-.question-type-btn .type-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.question-type-btn .type-name {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #212529;
-    display: block;
-}
-
-.question-type-btn .type-desc {
-    font-size: 0.7rem;
-    color: #6c757d;
-    display: block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Type Colors */
-.type-basic .type-icon { background: #e3f2fd; color: #1976d2; }
-.type-interactive .type-icon { background: #e8f5e9; color: #388e3c; }
-.type-image .type-icon { background: #fce4ec; color: #c2185b; }
-.type-advanced .type-icon { background: #fff3e0; color: #f57c00; }
-
-/* Main Content Area */
-.quiz-main-content {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-}
-
-.quiz-header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #e9ecef;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 12px 12px 0 0;
-    color: #fff;
-}
-
-.quiz-header h4 {
-    margin: 0;
-    font-weight: 600;
-}
-
-.quiz-body {
-    padding: 1.5rem;
-}
-
-/* Quiz Settings Card */
-.quiz-settings {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 1.25rem;
-    margin-bottom: 1.5rem;
-}
-
-.quiz-settings .row {
-    --bs-gutter-x: 1rem;
-    --bs-gutter-y: 1rem;
-}
-
-/* Questions Container */
-.questions-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid #e9ecef;
-}
-
-.questions-header h5 {
-    margin: 0;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.question-count-badge {
-    background: #007bff;
-    color: #fff;
-    padding: 0.25rem 0.625rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-#questions-container {
-    min-height: 200px;
-}
-
-.empty-questions {
-    text-align: center;
-    padding: 3rem 2rem;
-    color: #6c757d;
-    border: 2px dashed #dee2e6;
-    border-radius: 12px;
-    margin: 1rem 0;
-}
-
-.empty-questions i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-}
-
-.empty-questions p {
-    margin: 0;
-    font-size: 0.9rem;
-}
-
-/* Question Card */
-.question-card {
-    border: 1px solid #e9ecef;
-    border-radius: 10px;
-    margin-bottom: 1rem;
-    overflow: hidden;
-    transition: all 0.2s ease;
-    background: #fff;
-}
-
-.question-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.question-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    background: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.question-card-header .left-section {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.question-number {
-    width: 28px;
-    height: 28px;
-    background: #007bff;
-    color: #fff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
+/* Question type badge in card headers */
 .question-type-badge {
     padding: 0.25rem 0.625rem;
     border-radius: 6px;
@@ -263,300 +18,6 @@
     display: flex;
     align-items: center;
     gap: 0.375rem;
-}
-
-.question-card-header .right-section {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.points-input {
-    width: 70px;
-}
-
-.question-card-body {
-    padding: 1.25rem;
-}
-
-/* Question Fields */
-.question-field {
-    margin-bottom: 1rem;
-}
-
-.question-field:last-child {
-    margin-bottom: 0;
-}
-
-.field-label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-}
-
-.field-label .required {
-    color: #dc3545;
-}
-
-.field-label .optional {
-    color: #6c757d;
-    font-weight: 400;
-    font-size: 0.75rem;
-}
-
-.field-hint {
-    font-size: 0.75rem;
-    color: #6c757d;
-    margin-top: 0.375rem;
-}
-
-/* Image Upload Area */
-.image-upload-area {
-    border: 2px dashed #dee2e6;
-    border-radius: 8px;
-    padding: 1.5rem;
-    text-align: center;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    background: #fafbfc;
-}
-
-.image-upload-area:hover {
-    border-color: #007bff;
-    background: #f8f9ff;
-}
-
-.image-upload-area.has-image {
-    border-style: solid;
-    border-color: #28a745;
-    background: #f8fff9;
-}
-
-.image-upload-area i {
-    font-size: 2rem;
-    color: #adb5bd;
-    margin-bottom: 0.5rem;
-}
-
-.image-upload-area.has-image i {
-    color: #28a745;
-}
-
-.image-preview {
-    max-width: 100%;
-    max-height: 200px;
-    border-radius: 8px;
-    margin-top: 0.75rem;
-}
-
-/* Options Container */
-.options-container {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 1rem;
-}
-
-.option-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-    padding: 0.5rem;
-    background: #fff;
-    border: 1px solid #e9ecef;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-}
-
-.option-item:hover {
-    border-color: #007bff;
-}
-
-.option-item.correct {
-    border-color: #28a745;
-    background: #f8fff9;
-}
-
-.option-letter {
-    width: 24px;
-    height: 24px;
-    background: #e9ecef;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #495057;
-    flex-shrink: 0;
-}
-
-.option-item.correct .option-letter {
-    background: #28a745;
-    color: #fff;
-}
-
-/* Matching Pairs */
-.matching-container {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 0.5rem;
-    align-items: start;
-}
-
-.matching-column {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 0.75rem;
-}
-
-.matching-column-title {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: #6c757d;
-    margin-bottom: 0.5rem;
-    text-align: center;
-}
-
-.matching-arrow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-top: 2rem;
-    color: #adb5bd;
-}
-
-.matching-pair {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-    align-items: center;
-}
-
-.pair-number {
-    width: 24px;
-    height: 24px;
-    background: #007bff;
-    color: #fff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.7rem;
-    font-weight: 600;
-    flex-shrink: 0;
-}
-
-/* Hotspot Canvas */
-.hotspot-canvas-container {
-    position: relative;
-    border: 2px solid #dee2e6;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #f8f9fa;
-    min-height: 300px;
-}
-
-.hotspot-canvas-container img {
-    display: block;
-    max-width: 100%;
-    cursor: crosshair;
-}
-
-.hotspot-marker {
-    position: absolute;
-    border: 3px solid #dc3545;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.3);
-    animation: pulse-hotspot 2s infinite;
-}
-
-@keyframes pulse-hotspot {
-    0%, 100% { box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.3); }
-    50% { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0.1); }
-}
-
-/* Ordering Items */
-.ordering-container {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 0.75rem;
-}
-
-.ordering-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    margin-bottom: 0.5rem;
-    background: #fff;
-    border: 1px solid #e9ecef;
-    border-radius: 6px;
-    cursor: grab;
-    transition: all 0.2s ease;
-}
-
-.ordering-item:hover {
-    border-color: #17a2b8;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.ordering-item:active {
-    cursor: grabbing;
-}
-
-.ordering-handle {
-    color: #adb5bd;
-    cursor: grab;
-}
-
-.ordering-number {
-    width: 28px;
-    height: 28px;
-    background: #6c757d;
-    color: #fff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    font-weight: 600;
-    flex-shrink: 0;
-}
-
-/* Footer Actions */
-.quiz-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.25rem 1.5rem;
-    background: #f8f9fa;
-    border-top: 1px solid #e9ecef;
-    border-radius: 0 0 12px 12px;
-}
-
-/* Responsive */
-@media (max-width: 1032px) {
-    .question-sidebar {
-        position: static;
-        max-height: none;
-    }
-
-    .matching-container {
-        grid-template-columns: 1fr;
-    }
-
-    .matching-arrow {
-        transform: rotate(90deg);
-        padding: 0.5rem 0;
-    }
 }
 
 /* Type-specific badge colors */
@@ -575,94 +36,299 @@
 .badge-image_labeling { background: #ffcdd2; color: #b71c1c; }
 .badge-numeric { background: #e1f5fe; color: #0277bd; }
 
-/* Dark Mode Support */
-.dark-mode .question-sidebar,
-.dark-mode .quiz-main-area,
-.dark-mode .question-card {
-    background: var(--card-bg);
-    color: var(--card-text);
-    border-color: var(--border);
-}
+/* Points input */
+.points-input { width: 70px; }
 
-.dark-mode .question-type-btn {
-    background: var(--card-bg);
-    border-color: var(--border);
-    color: var(--text-primary);
-}
+/* Question field spacing (used in JS templates) */
+.question-field { margin-bottom: 1rem; }
+.question-field:last-child { margin-bottom: 0; }
 
-.dark-mode .question-type-btn:hover {
-    background: var(--primary-foreground);
-    border-color: var(--primary);
-}
+/* Questions container */
+#questions-container { min-height: 100px; }
 
-.dark-mode .sidebar-title,
-.dark-mode .category-label {
-    color: var(--muted-foreground);
-    border-color: var(--border);
-}
-
-.dark-mode .question-header {
-    background: var(--card-header-bg);
-    border-color: var(--border);
-}
-
-.dark-mode .form-control,
-.dark-mode .form-select {
-    background: var(--card-bg);
-    color: var(--text-primary);
-    border-color: var(--border);
-}
-
-.dark-mode .question-content {
-    background: var(--card-bg);
-}
-
-.dark-mode .add-option-btn,
-.dark-mode .add-pair-btn {
-    background: var(--card-bg);
-    border-color: var(--border);
-    color: var(--text-primary);
-}
-
-/* Mobile Utility Classes */
-.select-narrow {
-    max-width: 150px;
-}
-
-.select-mapping {
-    max-width: 120px;
-}
-
-.video-preview-container {
-    max-height: 300px;
-}
-
-.img-preview-sm {
+/* Image preview */
+.image-preview {
+    max-width: 100%;
     max-height: 200px;
+    border-radius: 8px;
+    margin-top: 0.75rem;
 }
 
-.img-preview-xs {
-    max-height: 100px;
+/* Image upload mini (image choice options) */
+.image-upload-mini {
+    padding: 1rem;
+    cursor: pointer;
+    border: 2px dashed var(--cb-border-dashed, #dee2e6);
+    border-radius: var(--cb-radius-sm, 8px);
+    margin: 0.5rem 0;
+    transition: all 0.2s;
 }
+.image-upload-mini:hover {
+    border-color: var(--primary, #007bff);
+    background: #f8f9ff;
+}
+
+/* Options container (multiple choice) */
+.options-container {
+    background: var(--cb-surface-alt, #f8f9fa);
+    border-radius: 8px;
+    padding: 1rem;
+}
+.option-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background: var(--cb-surface, #fff);
+    border: 1px solid var(--cb-border, #e9ecef);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+.option-item:hover { border-color: var(--primary, #007bff); }
+.option-item.correct { border-color: #28a745; background: #f8fff9; }
+.option-letter {
+    width: 24px;
+    height: 24px;
+    background: #e9ecef;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #495057;
+    flex-shrink: 0;
+}
+.option-item.correct .option-letter {
+    background: #28a745;
+    color: #fff;
+}
+
+/* Matching pairs */
+.matching-container {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0.5rem;
+    align-items: start;
+}
+.matching-column {
+    background: var(--cb-surface-alt, #f8f9fa);
+    border-radius: 8px;
+    padding: 0.75rem;
+}
+.matching-column-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--cb-text-hint, #6c757d);
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+.matching-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 2rem;
+    color: #adb5bd;
+}
+.matching-pair {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    align-items: center;
+}
+.pair-number {
+    width: 24px;
+    height: 24px;
+    background: var(--primary, #007bff);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+/* Hotspot canvas */
+.hotspot-canvas-container {
+    position: relative;
+    border: 2px solid var(--cb-border, #dee2e6);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--cb-surface-alt, #f8f9fa);
+    min-height: 300px;
+}
+.hotspot-canvas-container img {
+    display: block;
+    max-width: 100%;
+    cursor: crosshair;
+}
+.hotspot-marker {
+    position: absolute;
+    border: 3px solid #dc3545;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.3);
+    animation: pulse-hotspot 2s infinite;
+}
+@keyframes pulse-hotspot {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.3); }
+    50% { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0.1); }
+}
+
+/* Ordering items */
+.ordering-container {
+    background: var(--cb-surface-alt, #f8f9fa);
+    border-radius: 8px;
+    padding: 0.75rem;
+}
+.ordering-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: var(--cb-surface, #fff);
+    border: 1px solid var(--cb-border, #e9ecef);
+    border-radius: 6px;
+    cursor: grab;
+    transition: all 0.2s ease;
+}
+.ordering-item:hover { border-color: #17a2b8; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.ordering-item:active { cursor: grabbing; }
+.ordering-handle { color: #adb5bd; cursor: grab; }
+.ordering-number {
+    width: 28px;
+    height: 28px;
+    background: #6c757d;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+/* Mobile sidebar toggle */
+.sidebar-toggle-btn { display: none; }
+@media (max-width: 1032px) {
+    .sidebar-toggle-btn { display: block; }
+    .matching-container { grid-template-columns: 1fr; }
+    .matching-arrow { transform: rotate(90deg); padding: 0.5rem 0; }
+}
+
+/* Utility */
+.select-narrow { max-width: 150px; }
+.select-mapping { max-width: 120px; }
+.video-preview-container { max-height: 300px; }
+.img-preview-sm { max-height: 200px; }
+.img-preview-xs { max-height: 100px; }
 
 @media (max-width: 576px) {
-    .select-narrow,
-    .select-mapping {
-        max-width: 100%;
-    }
+    .select-narrow, .select-mapping { max-width: 100%; }
+    .video-preview-container { max-height: 200px; }
+}
 
-    .video-preview-container {
-        max-height: 200px;
+/* ── Quiz builder: full-height, sidebar-right layout ──────────────────── */
+#quiz-form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.quiz-builder-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 1.5rem;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.quiz-builder-layout > .cb-main {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.quiz-builder-layout > .cb-sidebar {
+    grid-column: 2;
+    grid-row: 1;
+    position: static;
+    max-height: none;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.quiz-builder-layout > .cb-main > .cb-body {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.quiz-builder-layout > .cb-main > .cb-footer {
+    position: static;
+    box-shadow: none;
+}
+
+@media (max-width: 992px) {
+    .quiz-builder-layout {
+        grid-template-columns: 1fr;
+        overflow: visible;
+    }
+    .quiz-builder-layout > .cb-main,
+    .quiz-builder-layout > .cb-sidebar {
+        grid-column: auto;
+        grid-row: auto;
+    }
+    .quiz-builder-layout > .cb-sidebar {
+        order: -1;
+    }
+    #quiz-form {
+        flex: none;
+        display: block;
     }
 }
+
+/* Dark mode overrides (quiz-specific only) */
+.dark-mode .options-container,
+.dark-mode .matching-column,
+.dark-mode .ordering-container {
+    background: var(--light-gray);
+}
+.dark-mode .option-item,
+.dark-mode .ordering-item {
+    background: var(--card-bg);
+    border-color: var(--border);
+    color: var(--card-text);
+}
+.dark-mode .hotspot-canvas-container {
+    border-color: var(--border);
+    background: var(--light-gray);
+}
+.dark-mode .image-upload-mini {
+    border-color: var(--border);
+}
+.dark-mode .image-upload-mini:hover {
+    border-color: var(--primary);
+    background: var(--primary-foreground);
+}
 </style>
-@endsection
+@endpush
 
 @section('content')
 <div class="content-area">
     {{-- Breadcrumb --}}
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
             <li class="breadcrumb-item"><a href="{{ route('modules.show', $informationSheet->module_id) }}">{{ $informationSheet->module->module_name }}</a></li>
             <li class="breadcrumb-item active">Create Self Check</li>
@@ -674,228 +340,233 @@
         <input type="hidden" name="check_number" value="SC-{{ now()->timestamp }}">
         <input type="hidden" name="instructions" value="Answer all questions carefully. Review your answers before submitting.">
 
-        <div class="quiz-builder-container">
-            {{-- LEFT SIDEBAR: Question Types --}}
-            <div class="question-sidebar">
-                <div class="sidebar-title">
+        <div class="quiz-builder-layout">
+            {{-- RIGHT SIDEBAR: Question Types --}}
+            <div class="cb-sidebar">
+                <button class="btn btn-outline-primary w-100 mb-2 sidebar-toggle-btn" type="button" data-bs-toggle="collapse" data-bs-target="#questionTypesSidebar">
+                    <i class="fas fa-plus-circle me-2"></i>Question Types <i class="fas fa-chevron-down ms-1"></i>
+                </button>
+                <div class="collapse show" id="questionTypesSidebar">
+                <div class="cb-sidebar__title d-none d-lg-block">
                     <i class="fas fa-plus-circle me-2"></i>Add Question
                 </div>
 
                 {{-- Basic Questions --}}
-                <div class="question-type-category">
-                    <div class="category-label">
+                <div class="cb-sidebar__group">
+                    <div class="cb-sidebar__group-label">
                         <i class="fas fa-font"></i> Basic
                     </div>
 
-                    <button type="button" class="question-type-btn type-basic" data-type="multiple_choice">
-                        <div class="type-icon"><i class="fas fa-list-ul"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Multiple Choice</span>
-                            <span class="type-desc">Single correct answer</span>
+                    <button type="button" class="cb-sidebar__item" data-type="multiple_choice">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--blue"><i class="fas fa-list-ul"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Multiple Choice</span>
+                            <span class="cb-sidebar__item-desc">Single correct answer</span>
                         </div>
                     </button>
 
-                    <button type="button" class="question-type-btn type-basic" data-type="multiple_select">
-                        <div class="type-icon"><i class="fas fa-check-double"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Multiple Select</span>
-                            <span class="type-desc">Multiple correct answers</span>
+                    <button type="button" class="cb-sidebar__item" data-type="multiple_select">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--blue"><i class="fas fa-check-double"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Multiple Select</span>
+                            <span class="cb-sidebar__item-desc">Multiple correct answers</span>
                         </div>
                     </button>
 
-                    <button type="button" class="question-type-btn type-basic" data-type="true_false">
-                        <div class="type-icon"><i class="fas fa-check-circle"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">True / False</span>
-                            <span class="type-desc">Binary choice</span>
+                    <button type="button" class="cb-sidebar__item" data-type="true_false">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--blue"><i class="fas fa-check-circle"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">True / False</span>
+                            <span class="cb-sidebar__item-desc">Binary choice</span>
                         </div>
                     </button>
 
-                    <button type="button" class="question-type-btn type-basic" data-type="fill_blank">
-                        <div class="type-icon"><i class="fas fa-i-cursor"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Fill in the Blank</span>
-                            <span class="type-desc">Type the answer</span>
+                    <button type="button" class="cb-sidebar__item" data-type="fill_blank">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--blue"><i class="fas fa-i-cursor"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Fill in the Blank</span>
+                            <span class="cb-sidebar__item-desc">Type the answer</span>
                         </div>
                     </button>
 
-                    <button type="button" class="question-type-btn type-basic" data-type="short_answer">
-                        <div class="type-icon"><i class="fas fa-align-left"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Short Answer</span>
-                            <span class="type-desc">Brief text response</span>
+                    <button type="button" class="cb-sidebar__item" data-type="short_answer">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--blue"><i class="fas fa-align-left"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Short Answer</span>
+                            <span class="cb-sidebar__item-desc">Brief text response</span>
                         </div>
                     </button>
 
-                    <button type="button" class="question-type-btn type-basic" data-type="numeric">
-                        <div class="type-icon"><i class="fas fa-calculator"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Numeric</span>
-                            <span class="type-desc">Number with tolerance</span>
+                    <button type="button" class="cb-sidebar__item" data-type="numeric">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--blue"><i class="fas fa-calculator"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Numeric</span>
+                            <span class="cb-sidebar__item-desc">Number with tolerance</span>
                         </div>
                     </button>
                 </div>
 
                 {{-- Interactive Questions --}}
-                <div class="question-type-category">
-                    <div class="category-label">
+                <div class="cb-sidebar__group">
+                    <div class="cb-sidebar__group-label">
                         <i class="fas fa-hand-pointer"></i> Interactive
                     </div>
 
-                    <button type="button" class="question-type-btn type-interactive" data-type="matching">
-                        <div class="type-icon"><i class="fas fa-arrows-alt-h"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Matching</span>
-                            <span class="type-desc">Column A to Column B</span>
+                    <button type="button" class="cb-sidebar__item" data-type="matching">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--green"><i class="fas fa-arrows-alt-h"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Matching</span>
+                            <span class="cb-sidebar__item-desc">Column A to Column B</span>
                         </div>
                     </button>
 
-                    <button type="button" class="question-type-btn type-interactive" data-type="ordering">
-                        <div class="type-icon"><i class="fas fa-sort-numeric-down"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Ordering</span>
-                            <span class="type-desc">Arrange in sequence</span>
+                    <button type="button" class="cb-sidebar__item" data-type="ordering">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--green"><i class="fas fa-sort-numeric-down"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Ordering</span>
+                            <span class="cb-sidebar__item-desc">Arrange in sequence</span>
                         </div>
                     </button>
 
-                    <button type="button" class="question-type-btn type-interactive" data-type="classification">
-                        <div class="type-icon"><i class="fas fa-th-large"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Classification</span>
-                            <span class="type-desc">Sort into categories</span>
+                    <button type="button" class="cb-sidebar__item" data-type="classification">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--green"><i class="fas fa-th-large"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Classification</span>
+                            <span class="cb-sidebar__item-desc">Sort into categories</span>
                         </div>
                     </button>
 
-                    <button type="button" class="question-type-btn type-interactive" data-type="drag_drop">
-                        <div class="type-icon"><i class="fas fa-hand-pointer"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Drag & Drop</span>
-                            <span class="type-desc">Drag items to zones</span>
+                    <button type="button" class="cb-sidebar__item" data-type="drag_drop">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--green"><i class="fas fa-hand-pointer"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Drag & Drop</span>
+                            <span class="cb-sidebar__item-desc">Drag items to zones</span>
                         </div>
                     </button>
 
-                    <button type="button" class="question-type-btn type-interactive" data-type="slider">
-                        <div class="type-icon"><i class="fas fa-sliders-h"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Slider</span>
-                            <span class="type-desc">Select value on range</span>
+                    <button type="button" class="cb-sidebar__item" data-type="slider">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--teal"><i class="fas fa-sliders-h"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Slider</span>
+                            <span class="cb-sidebar__item-desc">Select value on range</span>
                         </div>
                     </button>
                 </div>
 
                 {{-- Image-Based Questions --}}
-                <div class="question-type-category">
-                    <div class="category-label">
+                <div class="cb-sidebar__group">
+                    <div class="cb-sidebar__group-label">
                         <i class="fas fa-image"></i> Image-Based
                     </div>
 
-                    <button type="button" class="question-type-btn type-image" data-type="image_choice">
-                        <div class="type-icon"><i class="fas fa-images"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Image Choice</span>
-                            <span class="type-desc">Select from images</span>
+                    <button type="button" class="cb-sidebar__item" data-type="image_choice">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--red"><i class="fas fa-images"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Image Choice</span>
+                            <span class="cb-sidebar__item-desc">Select from images</span>
                         </div>
                     </button>
 
-                    <button type="button" class="question-type-btn type-image" data-type="image_identification">
-                        <div class="type-icon"><i class="fas fa-search"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Name This Picture</span>
-                            <span class="type-desc">Identify the image</span>
+                    <button type="button" class="cb-sidebar__item" data-type="image_identification">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--red"><i class="fas fa-search"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Name This Picture</span>
+                            <span class="cb-sidebar__item-desc">Identify the image</span>
                         </div>
                     </button>
 
-                    <button type="button" class="question-type-btn type-image" data-type="hotspot">
-                        <div class="type-icon"><i class="fas fa-crosshairs"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Hotspot</span>
-                            <span class="type-desc">Click correct area</span>
+                    <button type="button" class="cb-sidebar__item" data-type="hotspot">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--red"><i class="fas fa-crosshairs"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Hotspot</span>
+                            <span class="cb-sidebar__item-desc">Click correct area</span>
                         </div>
                     </button>
 
-                    <button type="button" class="question-type-btn type-image" data-type="image_labeling">
-                        <div class="type-icon"><i class="fas fa-tags"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Image Labeling</span>
-                            <span class="type-desc">Label parts of image</span>
+                    <button type="button" class="cb-sidebar__item" data-type="image_labeling">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--red"><i class="fas fa-tags"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Image Labeling</span>
+                            <span class="cb-sidebar__item-desc">Label parts of image</span>
                         </div>
                     </button>
                 </div>
 
                 {{-- Media Questions --}}
-                <div class="question-type-category">
-                    <div class="category-label">
+                <div class="cb-sidebar__group">
+                    <div class="cb-sidebar__group-label">
                         <i class="fas fa-play-circle"></i> Media
                     </div>
 
-                    <button type="button" class="question-type-btn type-media" data-type="audio_question">
-                        <div class="type-icon"><i class="fas fa-headphones"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Audio Question</span>
-                            <span class="type-desc">Listen and answer</span>
+                    <button type="button" class="cb-sidebar__item" data-type="audio_question">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--purple"><i class="fas fa-headphones"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Audio Question</span>
+                            <span class="cb-sidebar__item-desc">Listen and answer</span>
                         </div>
                     </button>
 
-                    <button type="button" class="question-type-btn type-media" data-type="video_question">
-                        <div class="type-icon"><i class="fas fa-video"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Video Question</span>
-                            <span class="type-desc">Watch and answer</span>
+                    <button type="button" class="cb-sidebar__item" data-type="video_question">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--indigo"><i class="fas fa-video"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Video Question</span>
+                            <span class="cb-sidebar__item-desc">Watch and answer</span>
                         </div>
                     </button>
                 </div>
 
                 {{-- Advanced Questions --}}
-                <div class="question-type-category">
-                    <div class="category-label">
+                <div class="cb-sidebar__group">
+                    <div class="cb-sidebar__group-label">
                         <i class="fas fa-graduation-cap"></i> Advanced
                     </div>
 
-                    <button type="button" class="question-type-btn type-advanced" data-type="essay">
-                        <div class="type-icon"><i class="fas fa-file-alt"></i></div>
-                        <div class="type-info">
-                            <span class="type-name">Essay</span>
-                            <span class="type-desc">Long form response</span>
+                    <button type="button" class="cb-sidebar__item" data-type="essay">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--orange"><i class="fas fa-file-alt"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Essay</span>
+                            <span class="cb-sidebar__item-desc">Long form response</span>
                         </div>
                     </button>
                 </div>
+                </div>{{-- end collapse --}}
             </div>
 
             {{-- MAIN CONTENT: Quiz Settings & Questions --}}
-            <div class="quiz-main-content">
-                <div class="quiz-header">
+            <div class="cb-main">
+                <div class="cb-header cb-header--self-check">
                     <h4><i class="fas fa-clipboard-list me-2"></i>Create Self Check</h4>
-                    <small class="opacity-75">For: {{ $informationSheet->title }}</small>
+                    <p>For: {{ $informationSheet->title }}</p>
                 </div>
 
-                <div class="quiz-body">
+                <div class="cb-body">
                     {{-- Quiz Settings --}}
-                    <div class="quiz-settings">
+                    <div class="cb-settings">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold">Quiz Title <span class="text-danger">*</span></label>
+                                    <label class="cb-field-label">Quiz Title <span class="required">*</span></label>
                                     <input type="text" class="form-control" name="title"
                                            placeholder="e.g., Chapter 1 Review Quiz" required>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold">Passing Score (%)</label>
+                                    <label class="cb-field-label">Passing Score (%)</label>
                                     <input type="number" class="form-control" name="passing_score"
                                            value="70" min="0" max="100">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold">Time Limit (min)</label>
+                                    <label class="cb-field-label">Time Limit (min)</label>
                                     <input type="number" class="form-control" name="time_limit"
                                            placeholder="No limit" min="1">
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="mb-0">
-                                    <label class="form-label fw-semibold">Description <span class="text-muted fw-normal">(optional)</span></label>
+                                    <label class="cb-field-label">Description <span class="optional">(optional)</span></label>
                                     <textarea class="form-control" name="description" rows="2"
                                               placeholder="Brief description of this quiz..."></textarea>
                                 </div>
@@ -904,11 +575,11 @@
                     </div>
 
                     {{-- Questions Section --}}
-                    <div class="questions-header">
+                    <div class="cb-items-header">
                         <h5>
                             <i class="fas fa-question-circle text-primary me-2"></i>
                             Questions
-                            <span class="question-count-badge" id="question-count">0</span>
+                            <span class="cb-count-badge" id="question-count">0</span>
                         </h5>
                         <div class="text-muted">
                             <small>Total Points: <strong id="total-points">0</strong></small>
@@ -916,7 +587,7 @@
                     </div>
 
                     <div id="questions-container">
-                        <div class="empty-questions" id="empty-state">
+                        <div class="cb-empty-state" id="empty-state">
                             <i class="fas fa-mouse-pointer d-block"></i>
                             <p><strong>No questions yet</strong><br>Click a question type from the left panel to add questions</p>
                         </div>
@@ -924,26 +595,28 @@
                 </div>
 
                 {{-- Footer --}}
-                <div class="quiz-footer">
+                <div class="cb-footer">
                     <a href="{{ route('content.management', ['module' => $informationSheet->module_id]) }}"
                        class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left me-2"></i>Cancel
                     </a>
-                    <button type="submit" class="btn btn-success btn-lg" id="save-btn" disabled>
-                        <i class="fas fa-save me-2"></i>Create Self Check
-                    </button>
+                    <div class="btn-group-footer">
+                        <small class="text-muted" id="save-hint">Add at least one question to enable saving</small>
+                        <button type="submit" name="redirect" value="continue" class="btn btn-primary" id="save-continue-btn" disabled>
+                            <i class="fas fa-plus me-1"></i>Save & Add Another
+                        </button>
+                        <button type="submit" class="btn btn-success" id="save-btn" disabled>
+                            <i class="fas fa-save me-1"></i>Create Self Check
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </form>
 </div>
-
-{{-- Question Templates --}}
-<script id="question-templates" type="text/html">
-</script>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     /*=========================================================================
@@ -1076,7 +749,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Add question button handlers
-    document.querySelectorAll('.question-type-btn').forEach(btn => {
+    document.querySelectorAll('.cb-sidebar__item[data-type]').forEach(btn => {
         btn.addEventListener('click', () => addQuestion(btn.dataset.type));
     });
 
@@ -1090,7 +763,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Create question card
         const card = document.createElement('div');
-        card.className = 'question-card';
+        card.className = 'cb-item-card';
         card.dataset.index = questionIndex;
         card.dataset.type = type;
         card.innerHTML = getQuestionHTML(type, questionIndex, config);
@@ -1116,14 +789,14 @@ document.addEventListener('DOMContentLoaded', function() {
             <input type="hidden" name="questions[${index}][question_type]" value="${type}">
 
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-question me-1"></i>
                     Question Text <span class="required">*</span>
                 </label>
                 ${type === 'fill_blank'
                     ? `<input type="text" class="form-control" name="questions[${index}][question_text]"
                              placeholder="Use ___ for blanks. Example: The capital of France is ___." required>
-                       <div class="field-hint"><i class="fas fa-info-circle me-1"></i>Use three underscores (___) where the blank should appear.</div>`
+                       <div class="cb-field-hint"><i class="fas fa-info-circle me-1"></i>Use three underscores (___) where the blank should appear.</div>`
                     : `<textarea class="form-control" name="questions[${index}][question_text]"
                                  rows="2" placeholder="Enter your question here..." required></textarea>`
                 }
@@ -1132,11 +805,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const imageUpload = `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-image me-1"></i>
                     Question Image <span class="optional">(optional)</span>
                 </label>
-                <div class="image-upload-area" onclick="document.getElementById('img_${index}').click()">
+                <div class="cb-upload-area" onclick="document.getElementById('img_${index}').click()">
                     <i class="fas fa-cloud-upload-alt d-block"></i>
                     <span class="upload-text">Click to upload or drag image here</span>
                     <input type="file" id="img_${index}" class="d-none question-image-file" accept="image/*">
@@ -1148,7 +821,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const explanation = `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-lightbulb me-1"></i>
                     Explanation <span class="optional">(shown after answering)</span>
                 </label>
@@ -1217,9 +890,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         return `
-            <div class="question-card-header">
+            <div class="cb-item-card__header">
                 <div class="left-section">
-                    <div class="question-number">${index}</div>
+                    <div class="cb-item-card__number">${index}</div>
                     <span class="question-type-badge badge-${type}" style="background:${config.bgColor};color:${config.color}">
                         <i class="fas ${config.icon}"></i> ${config.name}
                     </span>
@@ -1235,7 +908,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </button>
                 </div>
             </div>
-            <div class="question-card-body">
+            <div class="cb-item-card__body">
                 ${baseFields}
                 ${['true_false', 'essay'].includes(type) ? '' : imageUpload}
                 ${typeSpecificFields}
@@ -1251,7 +924,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         return `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-list-ol me-1"></i>
                     Answer Options <span class="required">*</span>
                     <span class="optional ms-2">(${hint})</span>
@@ -1283,7 +956,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function getTrueFalseFields(index) {
         return `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-check me-1"></i>
                     Correct Answer <span class="required">*</span>
                 </label>
@@ -1311,13 +984,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function getFillBlankFields(index) {
         return `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-keyboard me-1"></i>
                     Correct Answer(s) <span class="required">*</span>
                 </label>
                 <input type="text" class="form-control" name="questions[${index}][correct_answer]"
                        placeholder="paris, Paris, PARIS" required>
-                <div class="field-hint">
+                <div class="cb-field-hint">
                     <i class="fas fa-info-circle me-1"></i>
                     Separate multiple acceptable answers with commas. Matching is case-insensitive.
                 </div>
@@ -1329,19 +1002,19 @@ document.addEventListener('DOMContentLoaded', function() {
     function getShortAnswerFields(index) {
         return `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-key me-1"></i>
                     Keywords for Auto-Grading <span class="optional">(optional)</span>
                 </label>
                 <input type="text" class="form-control" name="questions[${index}][correct_answer]"
                        placeholder="keyword1, keyword2, keyword3">
-                <div class="field-hint">
+                <div class="cb-field-hint">
                     <i class="fas fa-info-circle me-1"></i>
                     Enter keywords that must appear in the answer. Leave empty for manual grading.
                 </div>
             </div>
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-book me-1"></i>
                     Model Answer <span class="optional">(reference for grading)</span>
                 </label>
@@ -1357,7 +1030,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="question-field">
                 <div class="row">
                     <div class="col-md-6">
-                        <label class="field-label">
+                        <label class="cb-field-label">
                             <i class="fas fa-hashtag me-1"></i>
                             Correct Answer <span class="required">*</span>
                         </label>
@@ -1365,7 +1038,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                placeholder="42" required>
                     </div>
                     <div class="col-md-6">
-                        <label class="field-label">
+                        <label class="cb-field-label">
                             <i class="fas fa-plus-minus me-1"></i>
                             Tolerance (±) <span class="optional">(optional)</span>
                         </label>
@@ -1373,7 +1046,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                placeholder="0.1" value="0">
                     </div>
                 </div>
-                <div class="field-hint mt-2">
+                <div class="cb-field-hint mt-2">
                     <i class="fas fa-info-circle me-1"></i>
                     If tolerance is 0.1 and answer is 42, values from 41.9 to 42.1 will be accepted.
                 </div>
@@ -1385,19 +1058,19 @@ document.addEventListener('DOMContentLoaded', function() {
     function getEssayFields(index) {
         return `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-ruler me-1"></i>
                     Minimum Word Count <span class="optional">(optional)</span>
                 </label>
                 <input type="number" class="form-control" name="questions[${index}][options][min_words]"
                        placeholder="50" min="0">
-                <div class="field-hint">
+                <div class="cb-field-hint">
                     <i class="fas fa-info-circle me-1"></i>
                     Essay questions require manual grading. Set a minimum word count to ensure detailed responses.
                 </div>
             </div>
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-clipboard-check me-1"></i>
                     Grading Rubric <span class="optional">(optional)</span>
                 </label>
@@ -1412,7 +1085,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function getMatchingFields(index) {
         return `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-link me-1"></i>
                     Match Pairs <span class="required">*</span>
                 </label>
@@ -1450,7 +1123,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <button type="button" class="btn btn-sm btn-outline-secondary mt-2 add-match-pair">
                     <i class="fas fa-plus me-1"></i>Add Pair
                 </button>
-                <div class="field-hint mt-2">
+                <div class="cb-field-hint mt-2">
                     <i class="fas fa-info-circle me-1"></i>
                     Items will be shuffled when displayed to students. They must match Column A to Column B.
                 </div>
@@ -1463,7 +1136,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function getOrderingFields(index) {
         return `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-sort me-1"></i>
                     Items in Correct Order <span class="required">*</span>
                 </label>
@@ -1485,7 +1158,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <button type="button" class="btn btn-sm btn-outline-secondary mt-2 add-order-item">
                     <i class="fas fa-plus me-1"></i>Add Item
                 </button>
-                <div class="field-hint mt-2">
+                <div class="cb-field-hint mt-2">
                     <i class="fas fa-info-circle me-1"></i>
                     Enter items in the correct order. They will be shuffled when displayed to students.
                 </div>
@@ -1498,7 +1171,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function getClassificationFields(index) {
         return `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-folder me-1"></i>
                     Categories <span class="required">*</span>
                 </label>
@@ -1523,7 +1196,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </button>
             </div>
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-tags me-1"></i>
                     Items to Classify <span class="required">*</span>
                 </label>
@@ -1557,7 +1230,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function getImageChoiceFields(index) {
         return `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-images me-1"></i>
                     Image Options <span class="required">*</span>
                 </label>
@@ -1596,11 +1269,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function getImageIdentificationFields(index) {
         return `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-image me-1"></i>
                     Image to Identify <span class="required">*</span>
                 </label>
-                <div class="image-upload-area large-upload" onclick="document.getElementById('identify_img_${index}').click()">
+                <div class="cb-upload-area large-upload" onclick="document.getElementById('identify_img_${index}').click()">
                     <i class="fas fa-cloud-upload-alt d-block"></i>
                     <span class="upload-text">Upload the image students need to identify</span>
                     <input type="file" id="identify_img_${index}" class="d-none main-image-file" accept="image/*" required>
@@ -1609,13 +1282,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="main-image-preview mt-2"></div>
             </div>
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-keyboard me-1"></i>
                     Correct Answer(s) <span class="required">*</span>
                 </label>
                 <input type="text" class="form-control" name="questions[${index}][correct_answer]"
                        placeholder="resistor, Resistor, RESISTOR" required>
-                <div class="field-hint">
+                <div class="cb-field-hint">
                     <i class="fas fa-info-circle me-1"></i>
                     Separate multiple acceptable answers with commas (case-insensitive).
                 </div>
@@ -1627,11 +1300,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function getHotspotFields(index) {
         return `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-image me-1"></i>
                     Hotspot Image <span class="required">*</span>
                 </label>
-                <div class="image-upload-area" onclick="document.getElementById('hotspot_img_${index}').click()">
+                <div class="cb-upload-area" onclick="document.getElementById('hotspot_img_${index}').click()">
                     <i class="fas fa-cloud-upload-alt d-block"></i>
                     <span class="upload-text">Upload the image with the target area</span>
                     <input type="file" id="hotspot_img_${index}" class="d-none hotspot-image-file" accept="image/*">
@@ -1639,7 +1312,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-crosshairs me-1"></i>
                     Click on the Image to Set Hotspot <span class="required">*</span>
                 </label>
@@ -1676,11 +1349,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function getImageLabelingFields(index) {
         return `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-image me-1"></i>
                     Image to Label <span class="required">*</span>
                 </label>
-                <div class="image-upload-area" onclick="document.getElementById('label_img_${index}').click()">
+                <div class="cb-upload-area" onclick="document.getElementById('label_img_${index}').click()">
                     <i class="fas fa-cloud-upload-alt d-block"></i>
                     <span class="upload-text">Upload the image with parts to label</span>
                     <input type="file" id="label_img_${index}" class="d-none label-image-file" accept="image/*">
@@ -1689,7 +1362,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="label-image-preview mt-2"></div>
             </div>
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-tags me-1"></i>
                     Labels (Correct Answers) <span class="required">*</span>
                 </label>
@@ -1710,7 +1383,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <button type="button" class="btn btn-sm btn-outline-secondary add-label">
                     <i class="fas fa-plus me-1"></i>Add Label
                 </button>
-                <div class="field-hint mt-2">
+                <div class="cb-field-hint mt-2">
                     <i class="fas fa-info-circle me-1"></i>
                     Students will need to enter these labels in order.
                 </div>
@@ -1723,7 +1396,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function getDragDropFields(index) {
         return `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-hand-rock me-1"></i>
                     Draggable Items <span class="required">*</span>
                 </label>
@@ -1746,7 +1419,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </button>
             </div>
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-bullseye me-1"></i>
                     Drop Zones <span class="required">*</span>
                 </label>
@@ -1773,7 +1446,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <button type="button" class="btn btn-sm btn-outline-secondary add-dropzone">
                     <i class="fas fa-plus me-1"></i>Add Zone
                 </button>
-                <div class="field-hint mt-2">
+                <div class="cb-field-hint mt-2">
                     <i class="fas fa-info-circle me-1"></i>
                     Select which item should be dropped in each zone.
                 </div>
@@ -1788,29 +1461,29 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="question-field">
                 <div class="row">
                     <div class="col-md-3">
-                        <label class="field-label">Min Value</label>
+                        <label class="cb-field-label">Min Value</label>
                         <input type="number" step="any" class="form-control slider-min-input"
                                name="questions[${index}][options][min]" value="0" required>
                     </div>
                     <div class="col-md-3">
-                        <label class="field-label">Max Value</label>
+                        <label class="cb-field-label">Max Value</label>
                         <input type="number" step="any" class="form-control slider-max-input"
                                name="questions[${index}][options][max]" value="100" required>
                     </div>
                     <div class="col-md-3">
-                        <label class="field-label">Step</label>
+                        <label class="cb-field-label">Step</label>
                         <input type="number" step="any" class="form-control slider-step-input"
                                name="questions[${index}][options][step]" value="1">
                     </div>
                     <div class="col-md-3">
-                        <label class="field-label">Tolerance (±)</label>
+                        <label class="cb-field-label">Tolerance (±)</label>
                         <input type="number" step="any" class="form-control"
                                name="questions[${index}][options][tolerance]" value="0">
                     </div>
                 </div>
             </div>
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-sliders-h me-1"></i>
                     Correct Value <span class="required">*</span>
                 </label>
@@ -1832,11 +1505,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function getAudioQuestionFields(index) {
         return `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-music me-1"></i>
                     Audio File <span class="required">*</span>
                 </label>
-                <div class="audio-upload-area" onclick="document.getElementById('audio_file_${index}').click()">
+                <div class="cb-upload-area audio-upload-area" onclick="document.getElementById('audio_file_${index}').click()">
                     <i class="fas fa-headphones d-block"></i>
                     <span class="upload-text">Click to upload audio (MP3, WAV, OGG - Max 20MB)</span>
                     <input type="file" id="audio_file_${index}" class="d-none audio-file-input" accept="audio/*">
@@ -1847,13 +1520,13 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="question-field">
                 <div class="row">
                     <div class="col-md-6">
-                        <label class="field-label">Play Limit</label>
+                        <label class="cb-field-label">Play Limit</label>
                         <input type="number" class="form-control" name="questions[${index}][options][play_limit]"
                                value="0" min="0" placeholder="0 = Unlimited">
                         <small class="text-muted">Number of times students can play the audio (0 = unlimited)</small>
                     </div>
                     <div class="col-md-6">
-                        <label class="field-label">Response Type</label>
+                        <label class="cb-field-label">Response Type</label>
                         <select class="form-select response-type-select" name="questions[${index}][options][response_type]">
                             <option value="text">Text Answer</option>
                             <option value="multiple_choice">Multiple Choice</option>
@@ -1862,7 +1535,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
             <div class="question-field audio-mc-options d-none">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-list-ol me-1"></i>
                     Answer Options <span class="required">*</span>
                 </label>
@@ -1880,13 +1553,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
             <div class="question-field audio-text-answer">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-key me-1"></i>
                     Keywords for Auto-Grading <span class="optional">(optional)</span>
                 </label>
                 <input type="text" class="form-control" name="questions[${index}][correct_answer]"
                        placeholder="keyword1, keyword2, keyword3">
-                <div class="field-hint">
+                <div class="cb-field-hint">
                     <i class="fas fa-info-circle me-1"></i>
                     Enter keywords that must appear in the answer. Leave empty for manual grading.
                 </div>
@@ -1898,11 +1571,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function getVideoQuestionFields(index) {
         return `
             <div class="question-field">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-video me-1"></i>
                     Video File <span class="required">*</span>
                 </label>
-                <div class="video-upload-area" onclick="document.getElementById('video_file_${index}').click()">
+                <div class="cb-upload-area video-upload-area" onclick="document.getElementById('video_file_${index}').click()">
                     <i class="fas fa-film d-block"></i>
                     <span class="upload-text">Click to upload video (MP4, WebM - Max 100MB)</span>
                     <input type="file" id="video_file_${index}" class="d-none video-file-input" accept="video/*">
@@ -1913,17 +1586,17 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="question-field">
                 <div class="row">
                     <div class="col-md-4">
-                        <label class="field-label">Start Time (sec)</label>
+                        <label class="cb-field-label">Start Time (sec)</label>
                         <input type="number" class="form-control" name="questions[${index}][options][start_time]"
                                value="0" min="0">
                     </div>
                     <div class="col-md-4">
-                        <label class="field-label">End Time (sec)</label>
+                        <label class="cb-field-label">End Time (sec)</label>
                         <input type="number" class="form-control" name="questions[${index}][options][end_time]"
                                placeholder="Full video">
                     </div>
                     <div class="col-md-4">
-                        <label class="field-label">Response Type</label>
+                        <label class="cb-field-label">Response Type</label>
                         <select class="form-select response-type-select" name="questions[${index}][options][response_type]">
                             <option value="text">Text Answer</option>
                             <option value="multiple_choice">Multiple Choice</option>
@@ -1932,7 +1605,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
             <div class="question-field video-mc-options d-none">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-list-ol me-1"></i>
                     Answer Options <span class="required">*</span>
                 </label>
@@ -1950,13 +1623,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
             <div class="question-field video-text-answer">
-                <label class="field-label">
+                <label class="cb-field-label">
                     <i class="fas fa-key me-1"></i>
                     Keywords for Auto-Grading <span class="optional">(optional)</span>
                 </label>
                 <input type="text" class="form-control" name="questions[${index}][correct_answer]"
                        placeholder="keyword1, keyword2, keyword3">
-                <div class="field-hint">
+                <div class="cb-field-hint">
                     <i class="fas fa-info-circle me-1"></i>
                     Enter keywords that must appear in the answer. Leave empty for manual grading.
                 </div>
@@ -1971,7 +1644,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (confirm('Delete this question?')) {
                 card.remove();
                 updateCounts();
-                if (container.querySelectorAll('.question-card').length === 0) {
+                if (container.querySelectorAll('.cb-item-card').length === 0) {
                     emptyState.style.display = 'block';
                     saveBtn.disabled = true;
                 }
@@ -2066,7 +1739,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const file = fileInput.files[0];
         if (!file) return;
 
-        const uploadArea = fileInput.closest('.image-upload-area');
+        const uploadArea = fileInput.closest('.cb-upload-area');
         if (uploadArea) {
             uploadArea.innerHTML = '<i class="fas fa-spinner fa-spin d-block"></i><span>Uploading...</span>';
         }
@@ -2087,7 +1760,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 urlInput.value = data.url;
 
                 if (uploadArea) {
-                    uploadArea.classList.add('has-image');
+                    uploadArea.classList.add('has-file');
                     uploadArea.innerHTML = `
                         <i class="fas fa-check-circle d-block text-success"></i>
                         <span class="text-success">Image uploaded</span>
@@ -2729,7 +2402,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update question and point counts
     function updateCounts() {
-        const questions = container.querySelectorAll('.question-card');
+        const questions = container.querySelectorAll('.cb-item-card');
         questionCount.textContent = questions.length;
 
         let points = 0;
@@ -2741,9 +2414,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Update question numbers
         questions.forEach((q, i) => {
-            q.querySelector('.question-number').textContent = i + 1;
+            q.querySelector('.cb-item-card__number').textContent = i + 1;
         });
+
+        // Toggle save buttons and hint
+        const saveContinueBtn = document.getElementById('save-continue-btn');
+        const saveHint = document.getElementById('save-hint');
+        if (questions.length > 0) {
+            saveBtn.disabled = false;
+            if (saveContinueBtn) saveContinueBtn.disabled = false;
+            if (saveHint) saveHint.classList.add('d-none');
+        } else {
+            saveBtn.disabled = true;
+            if (saveContinueBtn) saveContinueBtn.disabled = true;
+            if (saveHint) saveHint.classList.remove('d-none');
+        }
     }
 });
 </script>
-@endsection
+@endpush

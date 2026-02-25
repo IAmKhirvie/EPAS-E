@@ -15,6 +15,8 @@ class RegistrationTable extends Component
 {
     use WithPagination;
 
+    protected $paginationTheme = 'bootstrap';
+
     public string $search = '';
     public string $statusFilter = 'pending';
     public string $sortField = 'created_at';

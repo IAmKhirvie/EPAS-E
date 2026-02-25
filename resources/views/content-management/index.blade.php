@@ -3,7 +3,7 @@
 @section('title', 'Content Management - EPAS-E')
 
 @section('content')
-<div class="container-fluid">
+<div class="content-area">
     <div class="row">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -165,6 +165,15 @@
                                                                     @if($infoSheet->taskSheets && $infoSheet->taskSheets->count() > 0)
                                                                     <span class="badge bg-info">{{ $infoSheet->taskSheets->count() }} Task Sheets</span>
                                                                     @endif
+                                                                    @if($infoSheet->jobSheets && $infoSheet->jobSheets->count() > 0)
+                                                                    <span class="badge bg-secondary">{{ $infoSheet->jobSheets->count() }} Job Sheets</span>
+                                                                    @endif
+                                                                    @if($infoSheet->homeworks && $infoSheet->homeworks->count() > 0)
+                                                                    <span class="badge bg-dark">{{ $infoSheet->homeworks->count() }} Homework</span>
+                                                                    @endif
+                                                                    @if($infoSheet->checklists && $infoSheet->checklists->count() > 0)
+                                                                    <span class="badge bg-danger">{{ $infoSheet->checklists->count() }} Checklists</span>
+                                                                    @endif
                                                                 </div>
                                                             </div>
                                                         </button>
@@ -239,8 +248,126 @@
                                                                                 </p>
                                                                             </div>
                                                                             <div class="btn-group btn-group-sm">
-                                                                                <a href="#" class="btn btn-outline-primary">Edit</a>
-                                                                                <button class="btn btn-outline-danger">Delete</button>
+                                                                                <a href="{{ route('self-checks.edit', [$infoSheet->id, $selfCheck->id]) }}" class="btn btn-outline-primary">Edit</a>
+                                                                                <button class="btn btn-outline-danger delete-self-check-btn"
+                                                                                    data-info-sheet-id="{{ $infoSheet->id }}"
+                                                                                    data-self-check-id="{{ $selfCheck->id }}"
+                                                                                    data-self-check-name="{{ $selfCheck->title }}">
+                                                                                    Delete
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                        @endforeach
+                                                                    </div>
+                                                                </div>
+                                                                @endif
+
+                                                                <!-- Task Sheets -->
+                                                                @if($infoSheet->taskSheets && $infoSheet->taskSheets->count() > 0)
+                                                                <div class="mb-4">
+                                                                    <h6 class="text-info mb-3">
+                                                                        <i class="fas fa-tasks me-2"></i>Task Sheets
+                                                                    </h6>
+                                                                    <div class="list-group">
+                                                                        @foreach($infoSheet->taskSheets as $taskSheet)
+                                                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            <div>
+                                                                                <strong>{{ $taskSheet->task_number ?? '' }}.</strong> {{ $taskSheet->title }}
+                                                                            </div>
+                                                                            <div class="btn-group btn-group-sm">
+                                                                                <a href="{{ route('task-sheets.edit', [$infoSheet->id, $taskSheet->id]) }}" class="btn btn-outline-primary">Edit</a>
+                                                                                <button class="btn btn-outline-danger delete-task-sheet-btn"
+                                                                                    data-info-sheet-id="{{ $infoSheet->id }}"
+                                                                                    data-task-sheet-id="{{ $taskSheet->id }}"
+                                                                                    data-task-sheet-name="{{ $taskSheet->title }}">
+                                                                                    Delete
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                        @endforeach
+                                                                    </div>
+                                                                </div>
+                                                                @endif
+
+                                                                <!-- Job Sheets -->
+                                                                @if($infoSheet->jobSheets && $infoSheet->jobSheets->count() > 0)
+                                                                <div class="mb-4">
+                                                                    <h6 class="text-success mb-3">
+                                                                        <i class="fas fa-briefcase me-2"></i>Job Sheets
+                                                                    </h6>
+                                                                    <div class="list-group">
+                                                                        @foreach($infoSheet->jobSheets as $jobSheet)
+                                                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            <div>
+                                                                                <strong>{{ $jobSheet->job_number ?? '' }}.</strong> {{ $jobSheet->title }}
+                                                                            </div>
+                                                                            <div class="btn-group btn-group-sm">
+                                                                                <a href="{{ route('job-sheets.edit', [$infoSheet->id, $jobSheet->id]) }}" class="btn btn-outline-primary">Edit</a>
+                                                                                <button class="btn btn-outline-danger delete-job-sheet-btn"
+                                                                                    data-info-sheet-id="{{ $infoSheet->id }}"
+                                                                                    data-job-sheet-id="{{ $jobSheet->id }}"
+                                                                                    data-job-sheet-name="{{ $jobSheet->title }}">
+                                                                                    Delete
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                        @endforeach
+                                                                    </div>
+                                                                </div>
+                                                                @endif
+
+                                                                <!-- Homework -->
+                                                                @if($infoSheet->homeworks && $infoSheet->homeworks->count() > 0)
+                                                                <div class="mb-4">
+                                                                    <h6 class="text-secondary mb-3">
+                                                                        <i class="fas fa-book me-2"></i>Homework
+                                                                    </h6>
+                                                                    <div class="list-group">
+                                                                        @foreach($infoSheet->homeworks as $homework)
+                                                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            <div>
+                                                                                <strong>{{ $homework->title }}</strong>
+                                                                                @if($homework->due_date)
+                                                                                <p class="mb-0 text-muted small mt-1">
+                                                                                    Due: {{ $homework->due_date->format('M d, Y') }}
+                                                                                </p>
+                                                                                @endif
+                                                                            </div>
+                                                                            <div class="btn-group btn-group-sm">
+                                                                                <a href="{{ route('homeworks.edit', [$infoSheet->id, $homework->id]) }}" class="btn btn-outline-primary">Edit</a>
+                                                                                <button class="btn btn-outline-danger delete-homework-btn"
+                                                                                    data-info-sheet-id="{{ $infoSheet->id }}"
+                                                                                    data-homework-id="{{ $homework->id }}"
+                                                                                    data-homework-name="{{ $homework->title }}">
+                                                                                    Delete
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                        @endforeach
+                                                                    </div>
+                                                                </div>
+                                                                @endif
+
+                                                                <!-- Checklists -->
+                                                                @if($infoSheet->checklists && $infoSheet->checklists->count() > 0)
+                                                                <div class="mb-4">
+                                                                    <h6 class="text-danger mb-3">
+                                                                        <i class="fas fa-clipboard-check me-2"></i>Checklists
+                                                                    </h6>
+                                                                    <div class="list-group">
+                                                                        @foreach($infoSheet->checklists as $checklist)
+                                                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            <div>
+                                                                                <strong>{{ $checklist->title }}</strong>
+                                                                            </div>
+                                                                            <div class="btn-group btn-group-sm">
+                                                                                <a href="{{ route('checklists.edit', [$infoSheet->id, $checklist->id]) }}" class="btn btn-outline-primary">Edit</a>
+                                                                                <button class="btn btn-outline-danger delete-checklist-btn"
+                                                                                    data-info-sheet-id="{{ $infoSheet->id }}"
+                                                                                    data-checklist-id="{{ $checklist->id }}"
+                                                                                    data-checklist-name="{{ $checklist->title }}">
+                                                                                    Delete
+                                                                                </button>
                                                                             </div>
                                                                         </div>
                                                                         @endforeach
@@ -334,39 +461,70 @@
 </div>
 
 <style>
+    /* Accordion polish */
+    .accordion-item {
+        border-radius: var(--cb-radius-sm) !important;
+        box-shadow: var(--cb-shadow-card);
+        border: 1px solid var(--cb-border);
+        overflow: hidden;
+        margin-bottom: 0.75rem;
+    }
+
+    .accordion-button {
+        transition: all 0.3s ease;
+        border-radius: var(--cb-radius-sm) !important;
+    }
+
     .accordion-button:not(.collapsed) {
         background-color: #e7f1ff;
         color: #0c63e4;
         box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .125);
     }
 
-    .accordion-button {
-        transition: all 0.3s ease;
-    }
-
     .accordion-button:hover {
-        background-color: #f8f9fa;
+        background-color: var(--cb-surface-alt);
     }
 
     .badge {
         font-size: 0.75em;
     }
 
+    /* List item polish */
     .list-group-item {
         border-left: 3px solid transparent;
         transition: all 0.2s ease;
+        border-radius: var(--cb-radius-sm);
     }
 
     .list-group-item:hover {
         border-left-color: #0d6efd;
-        background-color: #f8f9fa;
+        background-color: var(--cb-surface-alt);
+        box-shadow: var(--cb-shadow-card);
     }
 
+    /* Action bar polish */
+    .accordion-body .d-flex.gap-2.p-3 {
+        border-radius: var(--cb-radius-sm);
+        box-shadow: var(--cb-shadow-card);
+    }
+
+    /* Add content section */
     .add-content-section {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        background: linear-gradient(135deg, var(--cb-surface-alt) 0%, var(--cb-border) 100%);
+        border-radius: var(--cb-radius-sm);
+    }
+
+    /* Empty state polish */
+    .text-center.py-5.bg-light {
+        border-radius: var(--cb-radius-md);
     }
 
     /* Dark mode overrides */
+    .dark-mode .accordion-item {
+        border-color: var(--border);
+        box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+
     .dark-mode .accordion-button:not(.collapsed) {
         background-color: var(--card-header-bg);
         color: var(--primary);
@@ -616,6 +774,116 @@
                     showAlert('Information sheet deleted successfully!', 'success');
                 });
             };
+
+            deleteModal.show();
+        });
+
+        // Delete Self-Check
+        $(document).on('click', '.delete-self-check-btn', function(e) {
+            e.preventDefault();
+
+            const infoSheetId = $(this).data('info-sheet-id');
+            const selfCheckId = $(this).data('self-check-id');
+            const selfCheckName = $(this).data('self-check-name');
+
+            $('#deleteConfirmMessage').text(`Are you sure you want to delete the self-check "${selfCheckName}"? All questions will be permanently deleted.`);
+
+            currentDeleteUrl = `/information-sheets/${infoSheetId}/self-checks/${selfCheckId}`;
+
+            currentDeleteCallback = function(response) {
+                $(this).closest('.list-group-item').fadeOut(300, function() {
+                    $(this).remove();
+                    showAlert('Self-check deleted successfully!', 'success');
+                });
+            }.bind(this);
+
+            deleteModal.show();
+        });
+
+        // Delete Task Sheet
+        $(document).on('click', '.delete-task-sheet-btn', function(e) {
+            e.preventDefault();
+
+            const infoSheetId = $(this).data('info-sheet-id');
+            const taskSheetId = $(this).data('task-sheet-id');
+            const taskSheetName = $(this).data('task-sheet-name');
+
+            $('#deleteConfirmMessage').text(`Are you sure you want to delete the task sheet "${taskSheetName}"?`);
+
+            currentDeleteUrl = `/information-sheets/${infoSheetId}/task-sheets/${taskSheetId}`;
+
+            currentDeleteCallback = function(response) {
+                $(this).closest('.list-group-item').fadeOut(300, function() {
+                    $(this).remove();
+                    showAlert('Task sheet deleted successfully!', 'success');
+                });
+            }.bind(this);
+
+            deleteModal.show();
+        });
+
+        // Delete Job Sheet
+        $(document).on('click', '.delete-job-sheet-btn', function(e) {
+            e.preventDefault();
+
+            const infoSheetId = $(this).data('info-sheet-id');
+            const jobSheetId = $(this).data('job-sheet-id');
+            const jobSheetName = $(this).data('job-sheet-name');
+
+            $('#deleteConfirmMessage').text(`Are you sure you want to delete the job sheet "${jobSheetName}"?`);
+
+            currentDeleteUrl = `/information-sheets/${infoSheetId}/job-sheets/${jobSheetId}`;
+
+            currentDeleteCallback = function(response) {
+                $(this).closest('.list-group-item').fadeOut(300, function() {
+                    $(this).remove();
+                    showAlert('Job sheet deleted successfully!', 'success');
+                });
+            }.bind(this);
+
+            deleteModal.show();
+        });
+
+        // Delete Homework
+        $(document).on('click', '.delete-homework-btn', function(e) {
+            e.preventDefault();
+
+            const infoSheetId = $(this).data('info-sheet-id');
+            const homeworkId = $(this).data('homework-id');
+            const homeworkName = $(this).data('homework-name');
+
+            $('#deleteConfirmMessage').text(`Are you sure you want to delete the homework "${homeworkName}"?`);
+
+            currentDeleteUrl = `/information-sheets/${infoSheetId}/homeworks/${homeworkId}`;
+
+            currentDeleteCallback = function(response) {
+                $(this).closest('.list-group-item').fadeOut(300, function() {
+                    $(this).remove();
+                    showAlert('Homework deleted successfully!', 'success');
+                });
+            }.bind(this);
+
+            deleteModal.show();
+        });
+
+        // Delete Checklist
+        $(document).on('click', '.delete-checklist-btn', function(e) {
+            e.preventDefault();
+
+            const infoSheetId = $(this).data('info-sheet-id');
+            const checklistId = $(this).data('checklist-id');
+            const checklistName = $(this).data('checklist-name');
+
+            $('#deleteConfirmMessage').text(`Are you sure you want to delete the checklist "${checklistName}"?`);
+
+            currentDeleteUrl = `/information-sheets/${infoSheetId}/checklists/${checklistId}`;
+
+            currentDeleteCallback = function(response) {
+                $(this).closest('.list-group-item').fadeOut(300, function() {
+                    $(this).remove();
+                    showAlert('Checklist deleted successfully!', 'success');
+                });
+            }.bind(this);
 
             deleteModal.show();
         });

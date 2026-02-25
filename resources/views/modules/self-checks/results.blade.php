@@ -3,79 +3,138 @@
 @section('title', 'Self-Check Results')
 
 @section('content')
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Results Header -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-{{ $passed ? 'success' : 'danger' }} text-white">
-                    <div class="text-center py-3">
-                        <i class="fas {{ $passed ? 'fa-check-circle' : 'fa-times-circle' }} fa-4x mb-3"></i>
-                        <h2 class="mb-2">{{ $passed ? 'Congratulations!' : 'Keep Trying!' }}</h2>
-                        <p class="lead mb-0">
-                            @if($passed)
-                            You passed the self-check assessment!
-                            @else
-                            You didn't pass this time, but you can try again!
-                            @endif
-                        </p>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <!-- Score Display -->
-                    <div class="text-center py-4">
-                        <div class="display-1 text-{{ $passed ? 'success' : 'danger' }}">
+<div class="content-area">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('self-checks.show', $selfCheck) }}">{{ $selfCheck->title }}</a></li>
+            <li class="breadcrumb-item active">Results</li>
+        </ol>
+    </nav>
+
+    <div class="cb-container">
+        {{-- Sidebar --}}
+        <div class="cb-sidebar">
+            <div class="cb-sidebar__title">Results Summary</div>
+
+            {{-- Score --}}
+            <div class="cb-sidebar__group">
+                <div class="cb-sidebar__group-label"><i class="fas fa-chart-bar"></i> Score</div>
+                <div class="cb-sidebar__info">
+                    <div style="text-align: center; padding: 0.5rem 0;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: {{ $passed ? '#198754' : '#dc3545' }};">
                             {{ number_format($percentage, 1) }}%
                         </div>
-                        <p class="text-muted">
-                            You scored <strong>{{ $score }}</strong> out of <strong>{{ $totalPoints }}</strong> points
-                        </p>
-                        <div class="progress mx-auto" style="height: 30px; max-width: 400px;">
+                        <div style="font-size: 0.8rem; color: var(--cb-text-hint);">
+                            {{ $score }} / {{ $totalPoints }} points
+                        </div>
+                        <div class="progress mt-2" style="height: 8px;">
                             <div class="progress-bar bg-{{ $passed ? 'success' : 'danger' }}"
-                                 role="progressbar"
-                                 style="width: {{ $percentage }}%">
-                                {{ number_format($percentage, 1) }}%
-                            </div>
+                                 style="width: {{ $percentage }}%"></div>
                         </div>
                         @if($selfCheck->passing_score)
-                        <p class="text-muted mt-2">Passing score: {{ $selfCheck->passing_score }}%</p>
+                        <div style="font-size: 0.75rem; color: var(--cb-text-hint); margin-top: 0.5rem;">
+                            Passing: {{ $selfCheck->passing_score }}%
+                        </div>
                         @endif
                     </div>
                 </div>
             </div>
 
-            <!-- Detailed Results -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Detailed Results</h5>
+            {{-- Breakdown --}}
+            <div class="cb-sidebar__group">
+                <div class="cb-sidebar__group-label"><i class="fas fa-list-ol"></i> Breakdown</div>
+                <div class="cb-sidebar__info">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><i class="fas fa-check text-success me-1"></i> Correct</span>
+                        <strong class="text-success">{{ collect($results)->where('is_correct', true)->count() }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><i class="fas fa-times text-danger me-1"></i> Incorrect</span>
+                        <strong class="text-danger">{{ collect($results)->where('is_correct', false)->count() }}</strong>
+                    </div>
+                    @if(collect($results)->whereNull('is_correct')->count() > 0)
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><i class="fas fa-clock text-warning me-1"></i> Pending</span>
+                        <strong class="text-warning">{{ collect($results)->whereNull('is_correct')->count() }}</strong>
+                    </div>
+                    @endif
+                    <hr style="margin: 0.5rem 0;">
+                    <div class="d-flex justify-content-between">
+                        <span><strong>Total</strong></span>
+                        <strong>{{ count($results) }}</strong>
+                    </div>
                 </div>
-                <div class="card-body">
+            </div>
+
+            {{-- Test Details --}}
+            <div class="cb-sidebar__group">
+                <div class="cb-sidebar__group-label"><i class="fas fa-info-circle"></i> Test Details</div>
+                <div class="cb-sidebar__info">
+                    <div class="cb-sidebar__info-title">{{ $selfCheck->title }}</div>
+                    {{ $selfCheck->check_number }}
+                </div>
+                <div class="cb-sidebar__info">
+                    <div class="cb-sidebar__info-title">Completed</div>
+                    {{ $submission->completed_at->format('M d, Y H:i') }}
+                </div>
+            </div>
+
+            {{-- Actions --}}
+            <div class="cb-sidebar__group" style="margin-top: auto;">
+                @if(!$passed)
+                <a href="{{ route('self-checks.show', $selfCheck) }}" class="btn btn-primary w-100 btn-sm mb-2">
+                    <i class="fas fa-redo me-1"></i>Try Again
+                </a>
+                @endif
+                <a href="{{ route('information-sheets.show', ['module' => $selfCheck->informationSheet->module_id, 'informationSheet' => $selfCheck->informationSheet->id]) }}"
+                   class="btn btn-outline-secondary w-100 btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Info Sheet
+                </a>
+            </div>
+        </div>
+
+        {{-- Main --}}
+        <div class="cb-main">
+            {{-- Results Header --}}
+            <div class="cb-header" style="background: linear-gradient(135deg, {{ $passed ? '#198754, #20c997' : '#dc3545, #fd7e14' }}); color: #fff;">
+                <div class="text-center py-2">
+                    <i class="fas {{ $passed ? 'fa-check-circle' : 'fa-times-circle' }} fa-3x mb-2" style="opacity: 0.9;"></i>
+                    <h4>{{ $passed ? 'Congratulations!' : 'Keep Trying!' }}</h4>
+                    <p>{{ $passed ? 'You passed the self-check assessment!' : "You didn't pass this time, but you can try again!" }}</p>
+                </div>
+            </div>
+
+            <div class="cb-body">
+                {{-- Detailed Results --}}
+                <div class="cb-section">
+                    <div class="cb-items-header">
+                        <h5><i class="fas fa-list-check"></i> Detailed Results <span class="cb-count-badge">{{ count($results) }}</span></h5>
+                    </div>
+
                     @foreach($results as $index => $result)
-                    <div class="card mb-3 border-{{ $result['is_correct'] === true ? 'success' : ($result['is_correct'] === null ? 'warning' : 'danger') }}">
-                        <div class="card-header bg-{{ $result['is_correct'] === true ? 'success' : ($result['is_correct'] === null ? 'warning' : 'danger') }} bg-opacity-10">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="mb-0">
-                                    @if($result['is_correct'] === true)
-                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                    @elseif($result['is_correct'] === null)
-                                    <i class="fas fa-clock text-warning me-2"></i>
-                                    @else
-                                    <i class="fas fa-times-circle text-danger me-2"></i>
-                                    @endif
-                                    Question {{ $index + 1 }}
-                                </h6>
-                                <span class="badge bg-{{ $result['is_correct'] === true ? 'success' : ($result['is_correct'] === null ? 'warning' : 'secondary') }}">
-                                    {{ $result['points_earned'] }} / {{ $result['question']->points }} pts
+                    @php
+                        $statusColor = $result['is_correct'] === true ? 'success' : ($result['is_correct'] === null ? 'warning' : 'danger');
+                        $statusIcon = $result['is_correct'] === true ? 'fa-check-circle' : ($result['is_correct'] === null ? 'fa-clock' : 'fa-times-circle');
+                    @endphp
+                    <div class="cb-item-card" style="border-left: 4px solid var(--bs-{{ $statusColor }}); margin-top: 1rem;">
+                        <div class="cb-item-card__header">
+                            <div class="left-section">
+                                <span class="cb-item-card__number" style="background: var(--bs-{{ $statusColor }});">
+                                    <i class="fas {{ $statusIcon }}" style="font-size: 0.7rem;"></i>
                                 </span>
+                                <span class="cb-item-card__title">Question {{ $index + 1 }}</span>
+                            </div>
+                            <div class="right-section">
+                                <span class="badge bg-{{ $statusColor }}">{{ $result['points_earned'] }} / {{ $result['question']->points }} pts</span>
                             </div>
                         </div>
-                        <div class="card-body">
-                            <p class="fw-bold">{{ $result['question']->question_text }}</p>
+                        <div class="cb-item-card__body">
+                            <p class="fw-bold mb-3">{{ $result['question']->question_text }}</p>
 
                             @php $qType = $result['question']->question_type; @endphp
 
                             @switch($qType)
-                                {{-- Multiple Choice / True False / Image Choice --}}
                                 @case('multiple_choice')
                                 @case('true_false')
                                 @case('image_choice')
@@ -86,8 +145,8 @@
                                     @endphp
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <p class="mb-1"><strong>Your Answer:</strong></p>
-                                            <p class="{{ $result['is_correct'] ? 'text-success' : 'text-danger' }}">
+                                            <p class="mb-1 cb-field-label">Your Answer:</p>
+                                            <p class="text-{{ $result['is_correct'] ? 'success' : 'danger' }}">
                                                 @if($qType === 'true_false')
                                                     {{ ucfirst($userIndex) ?: '(No answer)' }}
                                                 @elseif(isset($options[$userIndex]))
@@ -99,7 +158,7 @@
                                         </div>
                                         @if(!$result['is_correct'])
                                         <div class="col-md-6">
-                                            <p class="mb-1"><strong>Correct Answer:</strong></p>
+                                            <p class="mb-1 cb-field-label">Correct Answer:</p>
                                             <p class="text-success">
                                                 @if($qType === 'true_false')
                                                     {{ ucfirst($correctIndex) }}
@@ -112,7 +171,6 @@
                                     </div>
                                     @break
 
-                                {{-- Multiple Select --}}
                                 @case('multiple_select')
                                     @php
                                         $options = $result['question']->options ?? [];
@@ -121,35 +179,31 @@
                                     @endphp
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <p class="mb-1"><strong>Your Selections:</strong></p>
+                                            <p class="mb-1 cb-field-label">Your Selections:</p>
                                             @if(empty($userAnswers))
-                                                <p class="text-muted">(No answer)</p>
+                                                <p style="color: var(--cb-text-hint);">(No answer)</p>
                                             @else
                                                 @foreach($userAnswers as $idx)
-                                                    <span class="badge {{ in_array($idx, $correctAnswers) ? 'bg-success' : 'bg-danger' }} me-1 mb-1">
-                                                        {{ chr(65 + $idx) }}. {{ $options[$idx] ?? '' }}
-                                                    </span>
+                                                <span class="badge {{ in_array($idx, $correctAnswers) ? 'bg-success' : 'bg-danger' }} me-1 mb-1">
+                                                    {{ chr(65 + $idx) }}. {{ $options[$idx] ?? '' }}
+                                                </span>
                                                 @endforeach
                                             @endif
                                         </div>
                                         <div class="col-md-6">
-                                            <p class="mb-1"><strong>Correct Answers:</strong></p>
+                                            <p class="mb-1 cb-field-label">Correct Answers:</p>
                                             @foreach($correctAnswers as $idx)
-                                                <span class="badge bg-success me-1 mb-1">
-                                                    {{ chr(65 + $idx) }}. {{ $options[$idx] ?? '' }}
-                                                </span>
+                                            <span class="badge bg-success me-1 mb-1">{{ chr(65 + $idx) }}. {{ $options[$idx] ?? '' }}</span>
                                             @endforeach
                                         </div>
                                     </div>
                                     @if($result['partial_credit'])
-                                    <p class="text-info mt-2 small">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Partial credit: {{ number_format($result['partial_credit'] * 100, 0) }}%
+                                    <p class="text-info mt-2" style="font-size: 0.8rem;">
+                                        <i class="fas fa-info-circle me-1"></i>Partial credit: {{ number_format($result['partial_credit'] * 100, 0) }}%
                                     </p>
                                     @endif
                                     @break
 
-                                {{-- Numeric / Slider --}}
                                 @case('numeric')
                                 @case('slider')
                                     @php
@@ -158,57 +212,48 @@
                                     @endphp
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <p class="mb-1"><strong>Your Answer:</strong></p>
-                                            <p class="{{ $result['is_correct'] ? 'text-success' : 'text-danger' }}">
+                                            <p class="mb-1 cb-field-label">Your Answer:</p>
+                                            <p class="text-{{ $result['is_correct'] ? 'success' : 'danger' }}">
                                                 {{ $result['user_answer'] ?: '(No answer)' }} {{ $unit }}
                                             </p>
                                         </div>
                                         <div class="col-md-6">
-                                            <p class="mb-1"><strong>Correct Answer:</strong></p>
+                                            <p class="mb-1 cb-field-label">Correct Answer:</p>
                                             <p class="text-success">
                                                 {{ $result['question']->correct_answer }} {{ $unit }}
-                                                @if($tolerance > 0)
-                                                    (± {{ $tolerance }})
-                                                @endif
+                                                @if($tolerance > 0) (± {{ $tolerance }}) @endif
                                             </p>
                                         </div>
                                     </div>
                                     @break
 
-                                {{-- Fill Blank / Image Identification --}}
                                 @case('fill_blank')
                                 @case('image_identification')
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <p class="mb-1"><strong>Your Answer:</strong></p>
-                                            <p class="{{ $result['is_correct'] ? 'text-success' : 'text-danger' }}">
+                                            <p class="mb-1 cb-field-label">Your Answer:</p>
+                                            <p class="text-{{ $result['is_correct'] ? 'success' : 'danger' }}">
                                                 {{ $result['user_answer'] ?: '(No answer)' }}
                                             </p>
                                         </div>
                                         @if(!$result['is_correct'])
                                         <div class="col-md-6">
-                                            <p class="mb-1"><strong>Acceptable Answers:</strong></p>
+                                            <p class="mb-1 cb-field-label">Acceptable Answers:</p>
                                             <p class="text-success">{{ $result['question']->correct_answer }}</p>
                                         </div>
                                         @endif
                                     </div>
                                     @break
 
-                                {{-- Matching --}}
                                 @case('matching')
                                     @php
                                         $pairs = $result['question']->options['pairs'] ?? [];
                                         $userMatches = is_array($result['user_answer']) ? $result['user_answer'] : [];
                                     @endphp
                                     <div class="table-responsive">
-                                        <table class="table table-sm table-bordered">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>Column A</th>
-                                                    <th>Your Match</th>
-                                                    <th>Correct Match</th>
-                                                    <th class="text-center">Result</th>
-                                                </tr>
+                                        <table class="table table-sm table-bordered mb-0">
+                                            <thead style="background: var(--cb-surface-alt);">
+                                                <tr><th>Column A</th><th>Your Match</th><th>Correct Match</th><th class="text-center">Result</th></tr>
                                             </thead>
                                             <tbody>
                                                 @foreach($pairs as $pairIndex => $pair)
@@ -218,27 +263,19 @@
                                                 @endphp
                                                 <tr>
                                                     <td>{{ $pair['left'] }}</td>
-                                                    <td class="{{ $isMatch ? 'text-success' : 'text-danger' }}">
-                                                        {{ $userMatchIndex !== null && isset($pairs[$userMatchIndex]) ? $pairs[$userMatchIndex]['right'] : '(Not matched)' }}
-                                                    </td>
+                                                    <td class="text-{{ $isMatch ? 'success' : 'danger' }}">{{ $userMatchIndex !== null && isset($pairs[$userMatchIndex]) ? $pairs[$userMatchIndex]['right'] : '(Not matched)' }}</td>
                                                     <td class="text-success">{{ $pair['right'] }}</td>
-                                                    <td class="text-center">
-                                                        <i class="fas {{ $isMatch ? 'fa-check text-success' : 'fa-times text-danger' }}"></i>
-                                                    </td>
+                                                    <td class="text-center"><i class="fas {{ $isMatch ? 'fa-check text-success' : 'fa-times text-danger' }}"></i></td>
                                                 </tr>
                                                 @endforeach
                                             </tbody>
                                         </table>
                                     </div>
                                     @if($result['partial_credit'])
-                                    <p class="text-info small">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Partial credit: {{ number_format($result['partial_credit'] * 100, 0) }}%
-                                    </p>
+                                    <p class="text-info mt-2" style="font-size: 0.8rem;"><i class="fas fa-info-circle me-1"></i>Partial credit: {{ number_format($result['partial_credit'] * 100, 0) }}%</p>
                                     @endif
                                     @break
 
-                                {{-- Ordering --}}
                                 @case('ordering')
                                     @php
                                         $items = $result['question']->options['items'] ?? [];
@@ -246,34 +283,25 @@
                                     @endphp
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <p class="mb-1"><strong>Your Order:</strong></p>
+                                            <p class="mb-1 cb-field-label">Your Order:</p>
                                             <ol class="mb-0">
                                                 @foreach($userOrder as $idx)
-                                                @php $isCorrectPosition = (int)$idx === array_search($items[$idx] ?? '', $items); @endphp
-                                                <li class="{{ isset($items[$idx]) && $loop->index === (int)$idx ? 'text-success' : 'text-danger' }}">
-                                                    {{ $items[$idx] ?? '?' }}
-                                                </li>
+                                                <li class="text-{{ isset($items[$idx]) && $loop->index === (int)$idx ? 'success' : 'danger' }}">{{ $items[$idx] ?? '?' }}</li>
                                                 @endforeach
                                             </ol>
                                         </div>
                                         <div class="col-md-6">
-                                            <p class="mb-1"><strong>Correct Order:</strong></p>
+                                            <p class="mb-1 cb-field-label">Correct Order:</p>
                                             <ol class="mb-0 text-success">
-                                                @foreach($items as $item)
-                                                <li>{{ $item }}</li>
-                                                @endforeach
+                                                @foreach($items as $item)<li>{{ $item }}</li>@endforeach
                                             </ol>
                                         </div>
                                     </div>
                                     @if($result['partial_credit'])
-                                    <p class="text-info small mt-2">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Partial credit: {{ number_format($result['partial_credit'] * 100, 0) }}%
-                                    </p>
+                                    <p class="text-info mt-2" style="font-size: 0.8rem;"><i class="fas fa-info-circle me-1"></i>Partial credit: {{ number_format($result['partial_credit'] * 100, 0) }}%</p>
                                     @endif
                                     @break
 
-                                {{-- Classification --}}
                                 @case('classification')
                                     @php
                                         $categories = $result['question']->options['categories'] ?? [];
@@ -282,14 +310,9 @@
                                         $userMapping = is_array($result['user_answer']) ? $result['user_answer'] : [];
                                     @endphp
                                     <div class="table-responsive">
-                                        <table class="table table-sm table-bordered">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>Item</th>
-                                                    <th>Your Category</th>
-                                                    <th>Correct Category</th>
-                                                    <th class="text-center">Result</th>
-                                                </tr>
+                                        <table class="table table-sm table-bordered mb-0">
+                                            <thead style="background: var(--cb-surface-alt);">
+                                                <tr><th>Item</th><th>Your Category</th><th>Correct Category</th><th class="text-center">Result</th></tr>
                                             </thead>
                                             <tbody>
                                                 @foreach($items as $itemIndex => $item)
@@ -300,27 +323,19 @@
                                                 @endphp
                                                 <tr>
                                                     <td>{{ $item }}</td>
-                                                    <td class="{{ $isCorrect ? 'text-success' : 'text-danger' }}">
-                                                        {{ $userCat !== null && isset($categories[$userCat]) ? $categories[$userCat] : '(Not selected)' }}
-                                                    </td>
+                                                    <td class="text-{{ $isCorrect ? 'success' : 'danger' }}">{{ $userCat !== null && isset($categories[$userCat]) ? $categories[$userCat] : '(Not selected)' }}</td>
                                                     <td class="text-success">{{ $categories[$correctCat] ?? '?' }}</td>
-                                                    <td class="text-center">
-                                                        <i class="fas {{ $isCorrect ? 'fa-check text-success' : 'fa-times text-danger' }}"></i>
-                                                    </td>
+                                                    <td class="text-center"><i class="fas {{ $isCorrect ? 'fa-check text-success' : 'fa-times text-danger' }}"></i></td>
                                                 </tr>
                                                 @endforeach
                                             </tbody>
                                         </table>
                                     </div>
                                     @if($result['partial_credit'])
-                                    <p class="text-info small">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Partial credit: {{ number_format($result['partial_credit'] * 100, 0) }}%
-                                    </p>
+                                    <p class="text-info mt-2" style="font-size: 0.8rem;"><i class="fas fa-info-circle me-1"></i>Partial credit: {{ number_format($result['partial_credit'] * 100, 0) }}%</p>
                                     @endif
                                     @break
 
-                                {{-- Hotspot --}}
                                 @case('hotspot')
                                     @php
                                         $userCoords = is_array($result['user_answer']) ? $result['user_answer'] : [];
@@ -330,8 +345,8 @@
                                     @endphp
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <p class="mb-1"><strong>Your Click Position:</strong></p>
-                                            <p class="{{ $result['is_correct'] ? 'text-success' : 'text-danger' }}">
+                                            <p class="mb-1 cb-field-label">Your Click:</p>
+                                            <p class="text-{{ $result['is_correct'] ? 'success' : 'danger' }}">
                                                 @if(!empty($userCoords['x']) && !empty($userCoords['y']))
                                                     X: {{ $userCoords['x'] }}%, Y: {{ $userCoords['y'] }}%
                                                 @else
@@ -340,29 +355,21 @@
                                             </p>
                                         </div>
                                         <div class="col-md-6">
-                                            <p class="mb-1"><strong>Target Area:</strong></p>
-                                            <p class="text-success">
-                                                Center: X: {{ $correctX }}%, Y: {{ $correctY }}% (Radius: {{ $radius }}%)
-                                            </p>
+                                            <p class="mb-1 cb-field-label">Target Area:</p>
+                                            <p class="text-success">Center: X: {{ $correctX }}%, Y: {{ $correctY }}% (Radius: {{ $radius }}%)</p>
                                         </div>
                                     </div>
                                     @break
 
-                                {{-- Image Labeling --}}
                                 @case('image_labeling')
                                     @php
                                         $correctLabels = $result['question']->options['labels'] ?? [];
                                         $userLabels = is_array($result['user_answer']) ? $result['user_answer'] : [];
                                     @endphp
                                     <div class="table-responsive">
-                                        <table class="table table-sm table-bordered">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>Part</th>
-                                                    <th>Your Label</th>
-                                                    <th>Correct Label</th>
-                                                    <th class="text-center">Result</th>
-                                                </tr>
+                                        <table class="table table-sm table-bordered mb-0">
+                                            <thead style="background: var(--cb-surface-alt);">
+                                                <tr><th>Part</th><th>Your Label</th><th>Correct Label</th><th class="text-center">Result</th></tr>
                                             </thead>
                                             <tbody>
                                                 @foreach($correctLabels as $labelIndex => $correctLabel)
@@ -372,27 +379,19 @@
                                                 @endphp
                                                 <tr>
                                                     <td>{{ $labelIndex + 1 }}</td>
-                                                    <td class="{{ $isCorrect ? 'text-success' : 'text-danger' }}">
-                                                        {{ $userLabel ?: '(Empty)' }}
-                                                    </td>
+                                                    <td class="text-{{ $isCorrect ? 'success' : 'danger' }}">{{ $userLabel ?: '(Empty)' }}</td>
                                                     <td class="text-success">{{ $correctLabel }}</td>
-                                                    <td class="text-center">
-                                                        <i class="fas {{ $isCorrect ? 'fa-check text-success' : 'fa-times text-danger' }}"></i>
-                                                    </td>
+                                                    <td class="text-center"><i class="fas {{ $isCorrect ? 'fa-check text-success' : 'fa-times text-danger' }}"></i></td>
                                                 </tr>
                                                 @endforeach
                                             </tbody>
                                         </table>
                                     </div>
                                     @if($result['partial_credit'])
-                                    <p class="text-info small">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Partial credit: {{ number_format($result['partial_credit'] * 100, 0) }}%
-                                    </p>
+                                    <p class="text-info mt-2" style="font-size: 0.8rem;"><i class="fas fa-info-circle me-1"></i>Partial credit: {{ number_format($result['partial_credit'] * 100, 0) }}%</p>
                                     @endif
                                     @break
 
-                                {{-- Drag & Drop --}}
                                 @case('drag_drop')
                                     @php
                                         $draggables = $result['question']->options['draggables'] ?? [];
@@ -401,14 +400,9 @@
                                         $userMapping = is_array($result['user_answer']) ? $result['user_answer'] : [];
                                     @endphp
                                     <div class="table-responsive">
-                                        <table class="table table-sm table-bordered">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>Drop Zone</th>
-                                                    <th>You Placed</th>
-                                                    <th>Correct Item</th>
-                                                    <th class="text-center">Result</th>
-                                                </tr>
+                                        <table class="table table-sm table-bordered mb-0">
+                                            <thead style="background: var(--cb-surface-alt);">
+                                                <tr><th>Drop Zone</th><th>You Placed</th><th>Correct Item</th><th class="text-center">Result</th></tr>
                                             </thead>
                                             <tbody>
                                                 @foreach($dropzones as $zoneIndex => $zone)
@@ -419,58 +413,44 @@
                                                 @endphp
                                                 <tr>
                                                     <td>{{ $zone }}</td>
-                                                    <td class="{{ $isCorrect ? 'text-success' : 'text-danger' }}">
-                                                        {{ $userItem !== null && isset($draggables[$userItem]) ? $draggables[$userItem] : '(Not placed)' }}
-                                                    </td>
+                                                    <td class="text-{{ $isCorrect ? 'success' : 'danger' }}">{{ $userItem !== null && isset($draggables[$userItem]) ? $draggables[$userItem] : '(Not placed)' }}</td>
                                                     <td class="text-success">{{ $draggables[$correctItem] ?? '?' }}</td>
-                                                    <td class="text-center">
-                                                        <i class="fas {{ $isCorrect ? 'fa-check text-success' : 'fa-times text-danger' }}"></i>
-                                                    </td>
+                                                    <td class="text-center"><i class="fas {{ $isCorrect ? 'fa-check text-success' : 'fa-times text-danger' }}"></i></td>
                                                 </tr>
                                                 @endforeach
                                             </tbody>
                                         </table>
                                     </div>
                                     @if($result['partial_credit'])
-                                    <p class="text-info small">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Partial credit: {{ number_format($result['partial_credit'] * 100, 0) }}%
-                                    </p>
+                                    <p class="text-info mt-2" style="font-size: 0.8rem;"><i class="fas fa-info-circle me-1"></i>Partial credit: {{ number_format($result['partial_credit'] * 100, 0) }}%</p>
                                     @endif
                                     @break
 
-                                {{-- Short Answer / Essay / Audio / Video --}}
                                 @case('short_answer')
                                 @case('essay')
                                 @case('audio_question')
                                 @case('video_question')
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <p class="mb-1"><strong>Your Answer:</strong></p>
-                                            <div class="p-3 bg-light rounded {{ $result['is_correct'] === true ? 'border-success' : ($result['is_correct'] === null ? 'border-warning' : 'border-danger') }}" style="border-left: 4px solid;">
-                                                {{ $result['user_answer'] ?: '(No answer provided)' }}
-                                            </div>
+                                    <div>
+                                        <p class="mb-1 cb-field-label">Your Answer:</p>
+                                        <div class="p-3 rounded" style="background: var(--cb-surface-alt); border-left: 4px solid var(--bs-{{ $statusColor }});">
+                                            {{ $result['user_answer'] ?: '(No answer provided)' }}
                                         </div>
                                     </div>
                                     @if($result['is_correct'] === null)
-                                    <div class="alert alert-warning mb-0 mt-2">
-                                        <i class="fas fa-info-circle me-2"></i>
-                                        This answer requires manual grading by your instructor.
+                                    <div class="cb-context-badge mt-2" style="background: #fff3cd; border-left: 4px solid #ffc107;">
+                                        <i class="fas fa-info-circle" style="color: #856404;"></i>
+                                        <span style="color: #856404;">This answer requires manual grading by your instructor.</span>
                                     </div>
                                     @elseif($result['partial_credit'] && $result['partial_credit'] < 1)
-                                    <p class="text-info small mt-2">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Keyword match score: {{ number_format($result['partial_credit'] * 100, 0) }}%
-                                    </p>
+                                    <p class="text-info mt-2" style="font-size: 0.8rem;"><i class="fas fa-info-circle me-1"></i>Keyword match: {{ number_format($result['partial_credit'] * 100, 0) }}%</p>
                                     @endif
                                     @break
 
-                                {{-- Default --}}
                                 @default
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <p class="mb-1"><strong>Your Answer:</strong></p>
-                                            <p class="{{ $result['is_correct'] === true ? 'text-success' : ($result['is_correct'] === null ? 'text-warning' : 'text-danger') }}">
+                                            <p class="mb-1 cb-field-label">Your Answer:</p>
+                                            <p class="text-{{ $result['is_correct'] === true ? 'success' : ($result['is_correct'] === null ? 'warning' : 'danger') }}">
                                                 @if(is_array($result['user_answer']))
                                                     {{ json_encode($result['user_answer']) }}
                                                 @else
@@ -480,7 +460,7 @@
                                         </div>
                                         @if($result['question']->correct_answer && $result['is_correct'] === false)
                                         <div class="col-md-6">
-                                            <p class="mb-1"><strong>Correct Answer:</strong></p>
+                                            <p class="mb-1 cb-field-label">Correct Answer:</p>
                                             <p class="text-success">{{ $result['question']->correct_answer }}</p>
                                         </div>
                                         @endif
@@ -488,73 +468,14 @@
                             @endswitch
 
                             @if($result['question']->explanation)
-                            <div class="alert alert-info mb-0 mt-3">
-                                <i class="fas fa-lightbulb me-2"></i>
+                            <div class="mt-3 p-2 rounded" style="background: #e3f2fd; color: #1565c0; font-size: 0.85rem;">
+                                <i class="fas fa-lightbulb me-1"></i>
                                 <strong>Explanation:</strong> {{ $result['question']->explanation }}
                             </div>
                             @endif
                         </div>
                     </div>
                     @endforeach
-                </div>
-            </div>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Summary Card -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Summary</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled mb-0">
-                        <li class="d-flex justify-content-between mb-2">
-                            <span><i class="fas fa-check text-success me-2"></i>Correct</span>
-                            <strong class="text-success">{{ collect($results)->where('is_correct', true)->count() }}</strong>
-                        </li>
-                        <li class="d-flex justify-content-between mb-2">
-                            <span><i class="fas fa-times text-danger me-2"></i>Incorrect</span>
-                            <strong class="text-danger">{{ collect($results)->where('is_correct', false)->count() }}</strong>
-                        </li>
-                        @if(collect($results)->whereNull('is_correct')->count() > 0)
-                        <li class="d-flex justify-content-between mb-2">
-                            <span><i class="fas fa-clock text-warning me-2"></i>Pending Review</span>
-                            <strong class="text-warning">{{ collect($results)->whereNull('is_correct')->count() }}</strong>
-                        </li>
-                        @endif
-                        <hr>
-                        <li class="d-flex justify-content-between">
-                            <span><strong>Total Questions</strong></span>
-                            <strong>{{ count($results) }}</strong>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Self-Check Info -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Test Details</h5>
-                </div>
-                <div class="card-body">
-                    <p class="mb-2"><strong>{{ $selfCheck->title }}</strong></p>
-                    <p class="text-muted mb-2">{{ $selfCheck->check_number }}</p>
-                    <small class="text-muted">Completed: {{ $submission->completed_at->format('M d, Y H:i') }}</small>
-                </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    @if(!$passed)
-                    <a href="{{ route('self-checks.show', $selfCheck) }}" class="btn btn-primary w-100 mb-2">
-                        <i class="fas fa-redo me-2"></i>Try Again
-                    </a>
-                    @endif
-                    <a href="{{ route('information-sheets.show', ['module' => $selfCheck->informationSheet->module_id, 'informationSheet' => $selfCheck->informationSheet->id]) }}" class="btn btn-outline-primary w-100">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Information Sheet
-                    </a>
                 </div>
             </div>
         </div>

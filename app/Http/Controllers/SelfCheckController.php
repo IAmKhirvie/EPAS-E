@@ -114,6 +114,11 @@ class SelfCheckController extends Controller
                 }
             });
 
+            if ($request->input('redirect') === 'continue') {
+                return redirect()->route('self-checks.create', $informationSheet)
+                    ->with('success', 'Self-check created! You can add another.');
+            }
+
             return redirect()->route('courses.index')
                 ->with('success', 'Self-check created successfully!');
         } catch (\Exception $e) {

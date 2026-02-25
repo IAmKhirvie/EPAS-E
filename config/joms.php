@@ -140,7 +140,7 @@ return [
         'max_image_size' => 5120,       // KB (5 MB)
         'max_audio_size' => 20480,      // KB (20 MB)
         'max_video_size' => 102400,     // KB (100 MB)
-        'allowed_document_types' => ['pdf', 'doc', 'docx', 'xlsx', 'xls', 'txt'],
+        'allowed_document_types' => ['pdf', 'doc', 'docx', 'xlsx', 'xls', 'txt', 'ppt', 'pptx'],
         'allowed_image_types' => ['jpg', 'jpeg', 'png', 'gif', 'webp'],
         'allowed_audio_types' => ['mp3', 'wav', 'ogg', 'm4a', 'webm'],
         'allowed_video_types' => ['mp4', 'webm', 'ogg', 'mov'],

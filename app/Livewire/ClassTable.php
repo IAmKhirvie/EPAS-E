@@ -13,10 +13,14 @@ class ClassTable extends Component
 {
     use WithPagination;
 
+    protected $paginationTheme = 'bootstrap';
+
     public string $search = '';
     public string $sectionFilter = '';
     public string $sortField = 'last_name';
     public string $sortDirection = 'asc';
+    public array $selectedStudents = [];
+    public bool $selectAll = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -33,6 +37,18 @@ class ClassTable extends Component
     public function updatingSectionFilter(): void
     {
         $this->resetPage();
+    }
+
+    public function updatedSelectAll(bool $value): void
+    {
+        if ($this->sectionFilter) {
+            $this->selectedStudents = $value
+                ? $this->getSectionStudentsQuery($this->sectionFilter)->pluck('id')->map(fn ($id) => (string) $id)->toArray()
+                : [];
+        } else {
+            $this->selectedStudents = [];
+            $this->selectAll = false;
+        }
     }
 
     public function sortBy(string $field): void

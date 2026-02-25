@@ -3,162 +3,127 @@
 @section('title', 'Create Topic - EPAS-E')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 mb-0">Create New Topic</h1>
-                <a href="{{ route('courses.index') }}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Back to Content Management
-                </a>
-            </div>
+<div class="content-area">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route('courses.index') }}">Courses</a></li>
+            <li class="breadcrumb-item">{{ $informationSheet->module->course->course_name }}</li>
+            <li class="breadcrumb-item">Module {{ $informationSheet->module->module_number }}</li>
+            <li class="breadcrumb-item">Info Sheet {{ $informationSheet->sheet_number }}</li>
+            <li class="breadcrumb-item active">Create Topic</li>
+        </ol>
+    </nav>
 
-            <div class="card">
-                <div class="card-body">
-                    <form action="{{ route('topics.store', $informationSheet->id) }}" method="POST" enctype="multipart/form-data">
-                        @csrf
+    <div class="cb-container--simple">
+        <form action="{{ route('topics.store', $informationSheet->id) }}" method="POST" enctype="multipart/form-data">
+            @csrf
 
-                        <!-- Breadcrumb -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <nav aria-label="breadcrumb">
-                                    <ol class="breadcrumb">
-                                        <li class="breadcrumb-item">{{ $informationSheet->module->course->course_name }}</li>
-                                        <li class="breadcrumb-item">Module {{ $informationSheet->module->module_number }}</li>
-                                        <li class="breadcrumb-item">Info Sheet {{ $informationSheet->sheet_number }}</li>
-                                        <li class="breadcrumb-item active">Create New Topic</li>
-                                    </ol>
-                                </nav>
-                            </div>
-                        </div>
+            <div class="cb-main">
+                <div class="cb-header cb-header--topic">
+                    <h4><i class="fas fa-bookmark me-2"></i>Create New Topic</h4>
+                    <p>Add a topic to Information Sheet {{ $informationSheet->sheet_number }}</p>
+                </div>
 
-                        <!-- Information Sheet Info -->
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label">Information Sheet</label>
-                                    <input type="text" class="form-control"
-                                           value="Sheet {{ $informationSheet->sheet_number }}: {{ $informationSheet->title }}" readonly>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label">Module</label>
-                                    <input type="text" class="form-control"
-                                           value="Module {{ $informationSheet->module->module_number }}: {{ $informationSheet->module->module_name }}" readonly>
-                                </div>
-                            </div>
-                        </div>
+                <div class="cb-body">
+                    {{-- Context --}}
+                    <div class="cb-context-badge">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Info Sheet: <strong>{{ $informationSheet->sheet_number }} &mdash; {{ $informationSheet->title }}</strong></span>
+                    </div>
 
-                        <!-- Topic Details -->
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="topic_number" class="form-label">Topic Number *</label>
+                    {{-- Topic Details --}}
+                    <div class="cb-section">
+                        <div class="cb-section__title"><i class="fas fa-pen"></i> Topic Details</div>
+                        <div class="cb-settings">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="cb-field-label">Topic Number <span class="required">*</span></label>
                                     <input type="text" class="form-control @error('topic_number') is-invalid @enderror"
-                                           id="topic_number" name="topic_number"
-                                           value="{{ old('topic_number') }}"
+                                           name="topic_number" value="{{ old('topic_number') }}"
                                            placeholder="e.g., 1, 2, 3 or 1.1.1" required>
-                                    @error('topic_number')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    @error('topic_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
-                            </div>
-                            <div class="col-md-8">
-                                <div class="form-group">
-                                    <label for="title" class="form-label">Title *</label>
+                                <div class="col-md-8 mb-3">
+                                    <label class="cb-field-label">Title <span class="required">*</span></label>
                                     <input type="text" class="form-control @error('title') is-invalid @enderror"
-                                           id="title" name="title"
-                                           value="{{ old('title') }}"
+                                           name="title" value="{{ old('title') }}"
                                            placeholder="e.g., Scientists Who Contributed to Electricity" required>
-                                    @error('title')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Content (Optional now that we have parts) -->
-                        <div class="form-group mt-4">
-                            <label for="content" class="form-label">Introduction Content</label>
+                    {{-- Introduction Content --}}
+                    <div class="cb-section">
+                        <div class="cb-section__title"><i class="fas fa-align-left"></i> Introduction Content</div>
+                        <div>
                             <textarea class="form-control preserve-whitespace @error('content') is-invalid @enderror"
-                                    id="content" name="content"
-                                    rows="6"
-                                    placeholder="Enter introductory content for this topic (optional if using parts below)...">{{ old('content') }}</textarea>
-                            @error('content')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                            <div class="form-text">
-                                <small>
-                                    <strong>Formatting tips:</strong> Use empty lines to separate paragraphs.
-                                    Basic formatting allowed: <code>&lt;b&gt;</code> <code>&lt;i&gt;</code> <code>&lt;u&gt;</code>
-                                    <code>&lt;strong&gt;</code> <code>&lt;em&gt;</code> <code>&lt;br&gt;</code>
-                                </small>
+                                      name="content" rows="6"
+                                      placeholder="Enter introductory content for this topic (optional if using parts below)...">{{ old('content') }}</textarea>
+                            @error('content')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            <div class="cb-field-hint">
+                                <strong>Formatting tips:</strong> Use empty lines to separate paragraphs.
+                                Basic formatting: &lt;b&gt; &lt;i&gt; &lt;u&gt; &lt;strong&gt; &lt;em&gt; &lt;br&gt;
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Content Parts Section -->
-                        <div class="mt-5">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div>
-                                    <h5 class="mb-1"><i class="fas fa-puzzle-piece text-primary me-2"></i>Content Parts</h5>
-                                    <small class="text-muted">Add multiple parts with images and explanations (e.g., list of scientists)</small>
+                    {{-- Content Parts --}}
+                    <div class="cb-section">
+                        <div class="cb-items-header">
+                            <h5><i class="fas fa-puzzle-piece"></i> Content Parts <span class="cb-count-badge">0</span></h5>
+                            <small style="color: var(--cb-text-hint);">Add multiple parts with images and explanations</small>
+                        </div>
+
+                        <div id="partsContainer">
+                            {{-- Parts added dynamically --}}
+                        </div>
+
+                        <div id="noPartsMessage" class="cb-empty-state">
+                            <i class="fas fa-puzzle-piece"></i>
+                            <p>No parts added yet. Click "Add Part" to create content sections with images.</p>
+                        </div>
+
+                        <button type="button" class="cb-add-btn" id="addPartBtn">
+                            <i class="fas fa-plus"></i> Add Part
+                        </button>
+                    </div>
+
+                    {{-- Settings --}}
+                    <div class="cb-section">
+                        <div class="cb-section__title"><i class="fas fa-cog"></i> Settings</div>
+                        <div class="cb-settings">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label class="cb-field-label">Display Order</label>
+                                    <input type="number" class="form-control @error('order') is-invalid @enderror"
+                                           name="order" value="{{ old('order', $nextOrder ?? 0) }}" min="0">
+                                    @error('order')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    <div class="cb-field-hint">Lower numbers appear first</div>
                                 </div>
-                                <button type="button" class="btn btn-success btn-sm" id="addPartBtn">
-                                    <i class="fas fa-plus me-1"></i> Add Part
-                                </button>
-                            </div>
-
-                            <div id="partsContainer">
-                                <!-- Parts will be added here dynamically -->
-                            </div>
-
-                            <div id="noPartsMessage" class="text-center py-4 bg-light rounded border-dashed">
-                                <i class="fas fa-info-circle text-muted fa-2x mb-2"></i>
-                                <p class="text-muted mb-0">No parts added yet. Click "Add Part" to create content sections with images.</p>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Order -->
-                        <div class="form-group mt-4">
-                            <label for="order" class="form-label">Order</label>
-                            <input type="number" class="form-control @error('order') is-invalid @enderror"
-                                   id="order" name="order"
-                                   value="{{ old('order', $nextOrder ?? 0) }}"
-                                   min="0">
-                            @error('order')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="form-group mt-4">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Create Topic
-                            </button>
-                            <a href="{{ route('courses.index') }}" class="btn btn-outline-secondary">
-                                Cancel
-                            </a>
-                        </div>
-                    </form>
+                <div class="cb-footer">
+                    <a href="{{ route('courses.index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </a>
+                    <div class="btn-group-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Create Topic
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
 @push('styles')
 <style>
-.breadcrumb {
-    background-color: #f8f9fa;
-    padding: 0.75rem 1rem;
-    border-radius: 0.375rem;
-}
-
-.breadcrumb-item.active {
-    color: #6c757d;
-}
-
 .preserve-whitespace {
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -166,14 +131,10 @@
     line-height: 1.5;
 }
 
-.border-dashed {
-    border: 2px dashed #dee2e6 !important;
-}
-
 .part-card {
-    background: #fff;
-    border: 1px solid #e9ecef;
-    border-radius: 0.5rem;
+    background: var(--cb-surface);
+    border: 1px solid var(--cb-border);
+    border-radius: var(--cb-radius-sm);
     padding: 1.25rem;
     margin-bottom: 1rem;
     position: relative;
@@ -181,14 +142,14 @@
 }
 
 .part-card:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: var(--cb-shadow-hover);
 }
 
 .part-number {
     position: absolute;
     top: -12px;
     left: 15px;
-    background: #0d6efd;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
     color: white;
     padding: 2px 12px;
     border-radius: 12px;
@@ -205,20 +166,20 @@
 .image-preview-container {
     width: 150px;
     height: 150px;
-    border: 2px dashed #dee2e6;
-    border-radius: 0.5rem;
+    border: 2px dashed var(--cb-border-dashed);
+    border-radius: var(--cb-radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     overflow: hidden;
     transition: all 0.2s;
-    background: #f8f9fa;
+    background: var(--cb-surface-alt);
 }
 
 .image-preview-container:hover {
-    border-color: #0d6efd;
-    background: #e7f1ff;
+    border-color: #f59e0b;
+    background: #fffbeb;
 }
 
 .image-preview-container img {
@@ -229,12 +190,27 @@
 
 .image-preview-container .placeholder-content {
     text-align: center;
-    color: #6c757d;
+    color: var(--cb-text-hint);
 }
 
 .image-preview-container .placeholder-content i {
     font-size: 2rem;
     margin-bottom: 0.5rem;
+}
+
+.dark-mode .part-card {
+    background: var(--card-bg);
+    border-color: var(--border);
+}
+
+.dark-mode .image-preview-container {
+    background: var(--input-bg);
+    border-color: var(--border);
+}
+
+.dark-mode .image-preview-container:hover {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
 }
 </style>
 @endpush
@@ -247,9 +223,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const noPartsMessage = document.getElementById('noPartsMessage');
     const addPartBtn = document.getElementById('addPartBtn');
 
-    function updateNoPartsMessage() {
+    function updatePartsUI() {
         const parts = partsContainer.querySelectorAll('.part-card');
-        noPartsMessage.style.display = parts.length === 0 ? 'block' : 'none';
+        noPartsMessage.style.display = parts.length === 0 ? 'flex' : 'none';
+        // Update count badge
+        const badge = document.querySelector('.cb-count-badge');
+        if (badge) badge.textContent = parts.length;
     }
 
     function renumberParts() {
@@ -270,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             <div class="row mt-2">
                 <div class="col-md-3">
-                    <label class="form-label small text-muted">Image</label>
+                    <label class="cb-field-label small">Image</label>
                     <div class="image-preview-container" onclick="this.querySelector('input').click()">
                         <input type="file" name="part_images[${index}]" accept="image/*" class="d-none" onchange="previewPartImage(this)">
                         <div class="placeholder-content">
@@ -280,13 +259,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 <div class="col-md-9">
-                    <div class="form-group mb-3">
-                        <label class="form-label small text-muted">Title / Name</label>
+                    <div class="mb-3">
+                        <label class="cb-field-label small">Title / Name</label>
                         <input type="text" class="form-control" name="parts[${index}][title]"
                                placeholder="e.g., Benjamin Franklin">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label small text-muted">Explanation / Description</label>
+                    <div>
+                        <label class="cb-field-label small">Explanation / Description</label>
                         <textarea class="form-control" name="parts[${index}][explanation]" rows="3"
                                   placeholder="e.g., American scientist and inventor who discovered that lightning is electrical..."></textarea>
                     </div>
@@ -300,14 +279,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const card = createPartCard(partIndex);
         partsContainer.appendChild(card);
         partIndex++;
-        updateNoPartsMessage();
+        updatePartsUI();
     });
 
     window.removePart = function(btn) {
         const card = btn.closest('.part-card');
         card.remove();
         renumberParts();
-        updateNoPartsMessage();
+        updatePartsUI();
 
         // Re-index remaining parts
         const parts = partsContainer.querySelectorAll('.part-card');
@@ -336,9 +315,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    updateNoPartsMessage();
+    updatePartsUI();
 });
 </script>
 @endpush
-
 @endsection

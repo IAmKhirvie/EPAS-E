@@ -40,13 +40,10 @@ const NETWORK_FIRST_PATTERNS = [
 
 // Install event - cache static assets
 self.addEventListener('install', event => {
-    console.log('[SW] Installing service worker...');
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
-                console.log('[SW] Caching static assets');
                 return cache.addAll(STATIC_ASSETS).catch(err => {
-                    console.warn('[SW] Some static assets failed to cache:', err);
                 });
             })
             .then(() => self.skipWaiting())
@@ -55,14 +52,12 @@ self.addEventListener('install', event => {
 
 // Activate event - clean up old caches and take control immediately
 self.addEventListener('activate', event => {
-    console.log('[SW] Activating service worker...');
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames
                     .filter(name => name !== CACHE_NAME)
                     .map(name => {
-                        console.log('[SW] Deleting old cache:', name);
                         return caches.delete(name);
                     })
             );
@@ -133,7 +128,6 @@ async function cacheFirst(request) {
         }
         return response;
     } catch (error) {
-        console.error('[SW] Cache-first fetch failed:', error);
         return new Response('Offline', { status: 503 });
     }
 }
@@ -149,7 +143,6 @@ async function networkFirst(request) {
         }
         return response;
     } catch (error) {
-        console.log('[SW] Network failed, trying cache:', request.url);
         const cached = await caches.match(request);
         if (cached) {
             return cached;
@@ -200,7 +193,6 @@ async function trimCache(name, maxItems) {
 self.addEventListener('message', event => {
     // Handle skip waiting to activate new service worker immediately
     if (event.data.type === 'SKIP_WAITING') {
-        console.log('[SW] Received SKIP_WAITING message, activating...');
         self.skipWaiting();
         return;
     }
@@ -240,7 +232,6 @@ async function cacheModule(moduleId, urls) {
                 await cache.put(url, response);
             }
         } catch (error) {
-            console.warn(`[SW] Failed to cache ${url}:`, error);
             failures.push(url);
         }
     }
