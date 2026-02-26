@@ -93,6 +93,11 @@ class UserTable extends Component
 
     public function bulkActivate(): void
     {
+        if (Auth::user()->role !== Roles::ADMIN) {
+            session()->flash('error', 'Only administrators can perform bulk actions.');
+            return;
+        }
+
         $updated = User::whereIn('id', $this->selectedUsers)->update(['stat' => 1]);
         $this->selectedUsers = [];
         $this->selectAll = false;
@@ -101,6 +106,11 @@ class UserTable extends Component
 
     public function bulkDeactivate(): void
     {
+        if (Auth::user()->role !== Roles::ADMIN) {
+            session()->flash('error', 'Only administrators can perform bulk actions.');
+            return;
+        }
+
         $ids = collect($this->selectedUsers)->filter(fn ($id) => (int) $id !== Auth::id());
         $updated = User::whereIn('id', $ids)->update(['stat' => 0]);
         $this->selectedUsers = [];
@@ -110,6 +120,11 @@ class UserTable extends Component
 
     public function bulkDelete(): void
     {
+        if (Auth::user()->role !== Roles::ADMIN) {
+            session()->flash('error', 'Only administrators can perform bulk actions.');
+            return;
+        }
+
         $ids = collect($this->selectedUsers)
             ->filter(fn ($id) => (int) $id !== Auth::id());
         $deleted = User::whereIn('id', $ids)->where('role', '!=', Roles::ADMIN)->delete();
@@ -194,15 +209,19 @@ class UserTable extends Component
                 : $query->whereRaw('1 = 0');
         }
 
+        $student = Roles::STUDENT;
+        $instructor = Roles::INSTRUCTOR;
+        $admin = Roles::ADMIN;
+
         return $query->selectRaw("
             COUNT(*) as total,
-            SUM(CASE WHEN role = 'student' THEN 1 ELSE 0 END) as students,
-            SUM(CASE WHEN role = 'instructor' THEN 1 ELSE 0 END) as instructors,
-            SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) as admins,
+            SUM(CASE WHEN role = ? THEN 1 ELSE 0 END) as students,
+            SUM(CASE WHEN role = ? THEN 1 ELSE 0 END) as instructors,
+            SUM(CASE WHEN role = ? THEN 1 ELSE 0 END) as admins,
             SUM(CASE WHEN stat = 0 OR stat IS NULL THEN 1 ELSE 0 END) as pending,
             SUM(CASE WHEN stat = 1 THEN 1 ELSE 0 END) as active,
             SUM(CASE WHEN email_verified_at IS NULL THEN 1 ELSE 0 END) as unverified
-        ")->first()->toArray();
+        ", [$student, $instructor, $admin])->first()->toArray();
     }
 
     public function render()

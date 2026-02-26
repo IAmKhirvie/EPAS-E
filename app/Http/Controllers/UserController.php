@@ -54,15 +54,22 @@ class UserController extends Controller
 
         try {
             $validated['password'] = Hash::make($validated['password']);
-            // Handle checkbox: if not present, default to false (pending approval)
-            $validated['stat'] = $request->has('stat') ? true : false;
+            $validated['stat'] = $request->has('stat') ? 1 : 0;
 
             // Handle custom section: if section is 'custom', use custom_section value
             if (isset($validated['section']) && $validated['section'] === 'custom') {
                 $validated['section'] = $request->input('custom_section', '');
             }
 
-            User::create($validated);
+            // Handle role separately (not mass-assignable for security)
+            $role = $validated['role'] ?? null;
+            unset($validated['role']);
+
+            $user = User::create($validated);
+            if ($role) {
+                $user->role = $role;
+                $user->save();
+            }
 
             return redirect()
                 ->route('private.users.index')
@@ -145,8 +152,12 @@ class UserController extends Controller
             }
             unset($validated['custom_section']);
 
+            // Handle role separately (not mass-assignable for security)
+            $role = $validated['role'] ?? null;
+            unset($validated['role']);
+
             if ($viewer->role === Roles::INSTRUCTOR) {
-                unset($validated['role']);
+                $role = null; // Instructors cannot change roles
             }
 
             if (!empty($validated['password'])) {
@@ -156,6 +167,11 @@ class UserController extends Controller
             }
 
             $user->update($validated);
+
+            if ($role && $viewer->role === Roles::ADMIN) {
+                $user->role = $role;
+                $user->save();
+            }
 
             $redirectRoute = $user->role === Roles::STUDENT ? 'private.students.index' :
                             ($user->role === Roles::INSTRUCTOR ? 'private.instructors.index' : 'private.users.index');

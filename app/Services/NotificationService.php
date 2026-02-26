@@ -8,7 +8,8 @@ use App\Models\Notification;
 use App\Models\Homework;
 use App\Models\ForumThread;
 use App\Models\Conversation;
-use Illuminate\Support\Facades\Mail;
+use App\Jobs\SendNotificationEmail;
+use Illuminate\Support\Facades\Log;
 
 class NotificationService
 {
@@ -250,15 +251,16 @@ class NotificationService
     protected function sendEmail(User $user, string $subject, string $body): bool
     {
         try {
-            return $this->mailer->sendNotificationEmail(
+            SendNotificationEmail::dispatch(
                 $user->email,
                 $user->full_name,
                 $subject,
                 $this->formatEmailBody($body),
                 $body
             );
+            return true;
         } catch (\Exception $e) {
-            \Log::error("Failed to send email notification: " . $e->getMessage());
+            Log::error("Failed to dispatch email notification: " . $e->getMessage());
             return false;
         }
     }

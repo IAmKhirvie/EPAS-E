@@ -12,7 +12,7 @@
     </nav>
 
     <div class="cb-container--simple">
-        <form method="POST" action="{{ route('modules.store') }}">
+        <form method="POST" action="{{ route('courses.modules.store', $course) }}">
             @csrf
 
             <div class="cb-main">

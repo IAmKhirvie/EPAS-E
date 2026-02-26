@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Constants\Roles;
 use App\Models\Registration;
 use App\Models\User;
 use App\Models\Announcement;
@@ -227,7 +228,7 @@ class RegistrationService
                 'ext_name' => $registration->ext_name,
                 'email' => $registration->email,
                 'password' => $registration->password,
-                'role' => 'student',
+                'role' => Roles::STUDENT,
                 'department_id' => 1,
                 'stat' => 1, // Active
                 'email_verified_at' => $registration->email_verified_at,
@@ -341,7 +342,7 @@ class RegistrationService
     protected function emailAdmins(string $subject, string $bodyHtml, string $bodyText): void
     {
         try {
-            $admins = User::where('role', 'admin')->where('stat', 1)->get();
+            $admins = User::where('role', Roles::ADMIN)->where('stat', 1)->get();
             foreach ($admins as $admin) {
                 $this->mailerService->sendNotificationEmail(
                     $admin->email,

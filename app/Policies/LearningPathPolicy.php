@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\LearningPath;
+use App\Constants\Roles;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -28,7 +29,7 @@ class LearningPathPolicy
         }
 
         return $user->id === $learningPath->created_by ||
-               in_array(strtolower($user->role), ['admin']);
+               $user->role === Roles::ADMIN;
     }
 
     /**
@@ -36,7 +37,7 @@ class LearningPathPolicy
      */
     public function create(User $user): bool
     {
-        return in_array(strtolower($user->role), ['admin', 'instructor']);
+        return in_array($user->role, [Roles::ADMIN, Roles::INSTRUCTOR]);
     }
 
     /**
@@ -44,7 +45,7 @@ class LearningPathPolicy
      */
     public function update(User $user, LearningPath $learningPath): bool
     {
-        if (strtolower($user->role) === 'admin') {
+        if ($user->role === Roles::ADMIN) {
             return true;
         }
 
@@ -56,7 +57,7 @@ class LearningPathPolicy
      */
     public function delete(User $user, LearningPath $learningPath): bool
     {
-        if (strtolower($user->role) === 'admin') {
+        if ($user->role === Roles::ADMIN) {
             return true;
         }
 

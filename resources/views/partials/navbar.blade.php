@@ -137,14 +137,25 @@
 
         <!-- User menu -->
         <div class="navbar-item">
-            <button class="user-button" id="user-menu-btn">
+            @php $user = Auth::user(); @endphp
+            {{-- Desktop: compact avatar button --}}
+            <button class="user-button user-button--desktop" id="user-menu-btn">
                 <div class="avatar">
-                    @php
-                    $user = Auth::user();
-                    @endphp
                     <img id="navbar-avatar" src="{{ $user->profile_image_url }}" alt="User Avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
                     <span class="avatar-fallback" id="navbar-fallback" style="display: {{ $user->profile_image ? 'none' : 'flex' }};">{{ $user->initials }}</span>
                 </div>
+            </button>
+            {{-- Mobile: ID card strip button --}}
+            <button class="user-button user-button--mobile" id="user-menu-btn-mobile">
+                <div class="avatar">
+                    <img src="{{ $user->profile_image_url }}" alt="Avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                    <span class="avatar-fallback" style="display: {{ $user->profile_image ? 'none' : 'flex' }};">{{ $user->initials }}</span>
+                </div>
+                <div class="user-button__info">
+                    <span class="user-button__name">{{ $user->first_name }}</span>
+                    <span class="user-button__role">{{ ucfirst($user->role) }}</span>
+                </div>
+                <i class="fas fa-chevron-down user-button__arrow"></i>
             </button>
             <div class="dropdown" id="user-dropdown">
                 <div class="dropdown-content">
@@ -292,9 +303,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Toggle dark mode when switch changes
     toggle.addEventListener('change', function() {
-        if (window.topNavbar) {
-            window.topNavbar.toggleDarkMode();
-        }
+        var isDark = document.body.classList.contains('dark-mode');
+        var newTheme = isDark ? 'light' : 'dark';
+        document.body.classList.toggle('dark-mode', !isDark);
+        document.documentElement.classList.toggle('dark-mode', !isDark);
+        localStorage.setItem('theme', newTheme);
+        // Update the navbar icon
+        var icon = document.getElementById('dark-mode-icon');
+        if (icon) icon.className = !isDark ? 'fas fa-sun' : 'fas fa-moon';
+        // Notify other components
+        window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: newTheme } }));
     });
 
     // Sync when theme changes from other sources

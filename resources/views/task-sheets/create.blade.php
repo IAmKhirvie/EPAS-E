@@ -4,10 +4,10 @@
 
 @section('content')
 <div class="content-area">
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('modules.show', $informationSheet->module_id) }}">{{ $informationSheet->module->module_name }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$informationSheet->module->course_id, $informationSheet->module, $informationSheet->module->slug]) }}">{{ $informationSheet->module->module_name }}</a></li>
             <li class="breadcrumb-item active">Create Task Sheet</li>
         </ol>
     </nav>
@@ -15,220 +15,176 @@
     <form action="{{ route('task-sheets.store', $informationSheet) }}" method="POST" enctype="multipart/form-data" id="taskSheetForm">
         @csrf
 
-        <div class="cb-container">
-            {{-- Sidebar --}}
-            <div class="cb-sidebar">
-                <div class="cb-sidebar__title">Task Sheet Guide</div>
-
-                <div class="cb-sidebar__group">
-                    <div class="cb-sidebar__group-label"><i class="fas fa-info-circle"></i> Sections</div>
-                    <a href="#section-basic" class="cb-sidebar__item">
-                        <span class="cb-sidebar__item-icon cb-sidebar__item-icon--blue"><i class="fas fa-pen"></i></span>
-                        <span class="cb-sidebar__item-text">
-                            <span class="cb-sidebar__item-name">Basic Info</span>
-                            <span class="cb-sidebar__item-desc">Title, number, description</span>
-                        </span>
-                    </a>
-                    <a href="#section-objectives" class="cb-sidebar__item">
-                        <span class="cb-sidebar__item-icon cb-sidebar__item-icon--green"><i class="fas fa-bullseye"></i></span>
-                        <span class="cb-sidebar__item-text">
-                            <span class="cb-sidebar__item-name">Objectives</span>
-                            <span class="cb-sidebar__item-desc">Learning goals</span>
-                        </span>
-                    </a>
-                    <a href="#section-materials" class="cb-sidebar__item">
-                        <span class="cb-sidebar__item-icon cb-sidebar__item-icon--orange"><i class="fas fa-tools"></i></span>
-                        <span class="cb-sidebar__item-text">
-                            <span class="cb-sidebar__item-name">Materials</span>
-                            <span class="cb-sidebar__item-desc">Equipment needed</span>
-                        </span>
-                    </a>
-                    <a href="#section-safety" class="cb-sidebar__item">
-                        <span class="cb-sidebar__item-icon cb-sidebar__item-icon--red"><i class="fas fa-shield-alt"></i></span>
-                        <span class="cb-sidebar__item-text">
-                            <span class="cb-sidebar__item-name">Safety</span>
-                            <span class="cb-sidebar__item-desc">Precautions</span>
-                        </span>
-                    </a>
-                    <a href="#section-items" class="cb-sidebar__item">
-                        <span class="cb-sidebar__item-icon cb-sidebar__item-icon--purple"><i class="fas fa-list-check"></i></span>
-                        <span class="cb-sidebar__item-text">
-                            <span class="cb-sidebar__item-name">Task Items</span>
-                            <span class="cb-sidebar__item-desc">Parts to evaluate</span>
-                        </span>
-                    </a>
-                </div>
-
-                <div class="cb-sidebar__info">
-                    <div class="cb-sidebar__info-title"><i class="fas fa-lightbulb"></i> Tips</div>
-                    Be specific with objectives and expected findings. Students will use these to self-assess their work.
-                </div>
-            </div>
-
-            {{-- Main Panel --}}
+        <div class="cb-builder-layout">
+            {{-- MAIN CONTENT --}}
             <div class="cb-main">
                 <div class="cb-header cb-header--task">
                     <h4><i class="fas fa-clipboard-list me-2"></i>Create Task Sheet</h4>
-                    <p>Define tasks with items, objectives, and safety guidelines</p>
+                    <p>For: {{ $informationSheet->title }}</p>
                 </div>
 
                 <div class="cb-body">
-                    {{-- Context Badge --}}
-                    <div class="cb-context-badge">
-                        <i class="fas fa-file-alt"></i>
-                        <span>Information Sheet: <strong>{{ $informationSheet->title }}</strong></span>
-                    </div>
-
-                    {{-- Basic Info --}}
-                    <div class="cb-section" id="section-basic">
-                        <div class="cb-section__title"><i class="fas fa-pen"></i> Basic Information</div>
-                        <div class="cb-settings">
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="cb-field-label">Task Number <span class="required">*</span></label>
-                                    <input type="text" class="form-control @error('task_number') is-invalid @enderror" name="task_number" value="{{ old('task_number') }}" placeholder="e.g., TS-1.1" required>
-                                    @error('task_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                </div>
-                                <div class="col-md-8 mb-3">
-                                    <label class="cb-field-label">Title <span class="required">*</span></label>
-                                    <input type="text" class="form-control @error('title') is-invalid @enderror" name="title" value="{{ old('title') }}" required>
-                                    @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                </div>
+                    {{-- Compact Settings --}}
+                    <div class="cb-settings">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="cb-field-label">Task Number <span class="required">*</span></label>
+                                <input type="text" class="form-control @error('task_number') is-invalid @enderror" name="task_number" value="{{ old('task_number') }}" placeholder="e.g., TS-1.1" required>
+                                @error('task_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
-                            <div class="mb-3">
+                            <div class="col-md-5 mb-3">
+                                <label class="cb-field-label">Title <span class="required">*</span></label>
+                                <input type="text" class="form-control @error('title') is-invalid @enderror" name="title" value="{{ old('title') }}" required>
+                                @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="cb-field-label">Reference Image <span class="optional">(optional)</span></label>
+                                <input type="file" class="form-control form-control-sm @error('image') is-invalid @enderror" name="image" accept="image/*">
+                                @error('image')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
                                 <label class="cb-field-label">Description <span class="optional">(optional)</span></label>
-                                <textarea class="form-control @error('description') is-invalid @enderror" name="description" rows="3">{{ old('description') }}</textarea>
+                                <textarea class="form-control @error('description') is-invalid @enderror" name="description" rows="2">{{ old('description') }}</textarea>
                                 @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
-                            <div>
+                            <div class="col-md-6 mb-3">
                                 <label class="cb-field-label">Instructions <span class="required">*</span></label>
-                                <textarea class="form-control @error('instructions') is-invalid @enderror" name="instructions" rows="4" required>{{ old('instructions') }}</textarea>
-                                <div class="cb-field-hint">Provide clear step-by-step instructions for students</div>
+                                <textarea class="form-control @error('instructions') is-invalid @enderror" name="instructions" rows="2" required>{{ old('instructions') }}</textarea>
                                 @error('instructions')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                         </div>
                     </div>
 
-                    {{-- Objectives --}}
-                    <div class="cb-section" id="section-objectives">
-                        <div class="cb-section__title"><i class="fas fa-bullseye"></i> Objectives</div>
-                        <div id="objectives-container">
-                            <div class="cb-list-item">
-                                <i class="fas fa-grip-vertical cb-list-item__handle"></i>
-                                <input type="text" class="form-control" name="objectives[]" placeholder="Enter objective" required>
-                                <button type="button" class="cb-list-item__remove" onclick="DynamicForm.removeListItem(this)"><i class="fas fa-times"></i></button>
+                    {{-- Objectives, Materials, Safety in compact row --}}
+                    <div class="cb-detail-row">
+                        <div class="cb-detail-col">
+                            <div class="cb-section__title"><i class="fas fa-bullseye"></i> Objectives</div>
+                            <div id="objectives-container">
+                                <div class="cb-list-item">
+                                    <i class="fas fa-grip-vertical cb-list-item__handle"></i>
+                                    <input type="text" class="form-control form-control-sm" name="objectives[]" placeholder="Enter objective" required>
+                                    <button type="button" class="cb-list-item__remove" onclick="DynamicForm.removeListItem(this)"><i class="fas fa-times"></i></button>
+                                </div>
                             </div>
+                            <button type="button" class="cb-add-btn mt-1" onclick="DynamicForm.addListItem('objectives-container', 'objectives[]', 'Enter objective', true)">
+                                <i class="fas fa-plus"></i> Add Objective
+                            </button>
                         </div>
-                        <button type="button" class="cb-add-btn mt-2" onclick="DynamicForm.addListItem('objectives-container', 'objectives[]', 'Enter objective', true)">
-                            <i class="fas fa-plus"></i> Add Objective
-                        </button>
-                    </div>
-
-                    {{-- Materials --}}
-                    <div class="cb-section" id="section-materials">
-                        <div class="cb-section__title"><i class="fas fa-tools"></i> Materials / Equipment</div>
-                        <div id="materials-container">
-                            <div class="cb-list-item">
-                                <i class="fas fa-grip-vertical cb-list-item__handle"></i>
-                                <input type="text" class="form-control" name="materials[]" placeholder="Enter material" required>
-                                <button type="button" class="cb-list-item__remove" onclick="DynamicForm.removeListItem(this)"><i class="fas fa-times"></i></button>
+                        <div class="cb-detail-col">
+                            <div class="cb-section__title"><i class="fas fa-tools"></i> Materials</div>
+                            <div id="materials-container">
+                                <div class="cb-list-item">
+                                    <i class="fas fa-grip-vertical cb-list-item__handle"></i>
+                                    <input type="text" class="form-control form-control-sm" name="materials[]" placeholder="Enter material" required>
+                                    <button type="button" class="cb-list-item__remove" onclick="DynamicForm.removeListItem(this)"><i class="fas fa-times"></i></button>
+                                </div>
                             </div>
+                            <button type="button" class="cb-add-btn mt-1" onclick="DynamicForm.addListItem('materials-container', 'materials[]', 'Enter material', true)">
+                                <i class="fas fa-plus"></i> Add Material
+                            </button>
                         </div>
-                        <button type="button" class="cb-add-btn mt-2" onclick="DynamicForm.addListItem('materials-container', 'materials[]', 'Enter material', true)">
-                            <i class="fas fa-plus"></i> Add Material
-                        </button>
-                    </div>
-
-                    {{-- Safety --}}
-                    <div class="cb-section" id="section-safety">
-                        <div class="cb-section__title"><i class="fas fa-shield-alt"></i> Safety Precautions</div>
-                        <div id="safety-container">
-                            <div class="cb-list-item">
-                                <i class="fas fa-grip-vertical cb-list-item__handle"></i>
-                                <input type="text" class="form-control" name="safety_precautions[]" placeholder="Enter safety precaution">
-                                <button type="button" class="cb-list-item__remove" onclick="DynamicForm.removeListItem(this)"><i class="fas fa-times"></i></button>
+                        <div class="cb-detail-col">
+                            <div class="cb-section__title"><i class="fas fa-shield-alt"></i> Safety</div>
+                            <div id="safety-container">
+                                <div class="cb-list-item">
+                                    <i class="fas fa-grip-vertical cb-list-item__handle"></i>
+                                    <input type="text" class="form-control form-control-sm" name="safety_precautions[]" placeholder="Enter precaution">
+                                    <button type="button" class="cb-list-item__remove" onclick="DynamicForm.removeListItem(this)"><i class="fas fa-times"></i></button>
+                                </div>
                             </div>
+                            <button type="button" class="cb-add-btn mt-1" onclick="DynamicForm.addListItem('safety-container', 'safety_precautions[]', 'Enter precaution')">
+                                <i class="fas fa-plus"></i> Add Precaution
+                            </button>
                         </div>
-                        <button type="button" class="cb-add-btn mt-2" onclick="DynamicForm.addListItem('safety-container', 'safety_precautions[]', 'Enter safety precaution')">
-                            <i class="fas fa-plus"></i> Add Safety Precaution
-                        </button>
                     </div>
 
                     {{-- Task Items --}}
-                    <div class="cb-section" id="section-items">
-                        <div class="cb-items-header">
-                            <h5><i class="fas fa-list-check"></i> Task Items <span class="cb-count-badge">1</span></h5>
-                        </div>
-
-                        <div id="items-container">
-                            <div class="cb-item-card item-card">
-                                <div class="cb-item-card__header">
-                                    <div class="left-section">
-                                        <span class="cb-item-card__number">1</span>
-                                        <span class="cb-item-card__title">Item #1</span>
-                                    </div>
-                                    <div class="right-section">
-                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="DynamicForm.removeItemCard(this, 'item-card', 'Item')">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="cb-item-card__body">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="cb-field-label">Part Name <span class="required">*</span></label>
-                                            <input type="text" class="form-control" name="items[0][part_name]" required>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="cb-field-label">Description <span class="required">*</span></label>
-                                            <input type="text" class="form-control" name="items[0][description]" required>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="cb-field-label">Expected Finding <span class="required">*</span></label>
-                                            <input type="text" class="form-control" name="items[0][expected_finding]" required>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="cb-field-label">Acceptable Range <span class="required">*</span></label>
-                                            <input type="text" class="form-control" name="items[0][acceptable_range]" required>
-                                        </div>
-                                        <input type="hidden" name="items[0][order]" value="0">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <button type="button" class="cb-add-btn" onclick="addTaskItem()">
-                            <i class="fas fa-plus"></i> Add Task Item
-                        </button>
+                    <div class="cb-items-header">
+                        <h5>
+                            <i class="fas fa-list-check text-primary me-2"></i>
+                            Task Items
+                            <span class="cb-count-badge" id="item-count">0</span>
+                        </h5>
                     </div>
 
-                    {{-- Image Upload --}}
-                    <div class="cb-section">
-                        <div class="cb-section__title"><i class="fas fa-image"></i> Reference Image</div>
-                        <label class="cb-upload-area" id="imageUploadArea">
-                            <input type="file" class="d-none" name="image" accept="image/*" onchange="handleImageSelect(this)">
-                            <i class="fas fa-cloud-upload-alt d-block"></i>
-                            <div class="cb-upload-area__text">
-                                <strong>Click to upload</strong> or drag and drop<br>
-                                <small>PNG, JPG, GIF up to 5MB</small>
-                            </div>
-                            <img id="imagePreview" class="img-fluid mt-2 d-none" style="max-height: 200px; border-radius: 8px;">
-                        </label>
-                        @error('image')<div class="text-danger mt-1" style="font-size: 0.85rem;">{{ $message }}</div>@enderror
+                    <div id="items-container">
+                        <div class="cb-empty-state" id="empty-state">
+                            <i class="fas fa-mouse-pointer d-block"></i>
+                            <p><strong>No task items yet</strong><br>Click a template from the right panel or add a blank item</p>
+                        </div>
                     </div>
                 </div>
 
                 {{-- Footer --}}
                 <div class="cb-footer">
                     <a href="{{ route('information-sheets.show', ['module' => $informationSheet->module_id, 'informationSheet' => $informationSheet->id]) }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-times me-1"></i>Cancel
+                        <i class="fas fa-arrow-left me-2"></i>Cancel
                     </a>
                     <div class="btn-group-footer">
-                        <span class="cb-footer__hint d-none d-md-inline">All fields marked * are required</span>
-                        <button type="submit" class="btn btn-primary">
+                        <small class="text-muted" id="save-hint">Add at least one task item to enable saving</small>
+                        <button type="submit" class="btn btn-primary" id="save-btn" disabled>
                             <i class="fas fa-save me-1"></i>Create Task Sheet
                         </button>
                     </div>
+                </div>
+            </div>
+
+            {{-- RIGHT SIDEBAR --}}
+            <div class="cb-sidebar">
+                <div class="cb-sidebar__title">
+                    <i class="fas fa-plus-circle me-2"></i>Add Task Item
+                </div>
+
+                <div class="cb-sidebar__group">
+                    <div class="cb-sidebar__group-label"><i class="fas fa-bolt"></i> Quick Templates</div>
+
+                    <button type="button" class="cb-sidebar__item" onclick="addTemplateItem('measurement')">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--blue"><i class="fas fa-ruler"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Measurement</span>
+                            <span class="cb-sidebar__item-desc">Measure & record values</span>
+                        </div>
+                    </button>
+
+                    <button type="button" class="cb-sidebar__item" onclick="addTemplateItem('inspection')">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--green"><i class="fas fa-search"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Inspection</span>
+                            <span class="cb-sidebar__item-desc">Visual check & condition</span>
+                        </div>
+                    </button>
+
+                    <button type="button" class="cb-sidebar__item" onclick="addTemplateItem('testing')">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--orange"><i class="fas fa-vial"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Testing</span>
+                            <span class="cb-sidebar__item-desc">Functional test & results</span>
+                        </div>
+                    </button>
+
+                    <button type="button" class="cb-sidebar__item" onclick="addTemplateItem('assembly')">
+                        <div class="cb-sidebar__item-icon cb-sidebar__item-icon--purple"><i class="fas fa-cogs"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Assembly</span>
+                            <span class="cb-sidebar__item-desc">Assemble & verify parts</span>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="cb-sidebar__group">
+                    <div class="cb-sidebar__group-label"><i class="fas fa-plus"></i> Manual</div>
+                    <button type="button" class="cb-sidebar__item" onclick="addTaskItem()">
+                        <div class="cb-sidebar__item-icon"><i class="fas fa-plus"></i></div>
+                        <div class="cb-sidebar__item-text">
+                            <span class="cb-sidebar__item-name">Blank Item</span>
+                            <span class="cb-sidebar__item-desc">Add empty task item</span>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="cb-sidebar__info">
+                    <div class="cb-sidebar__info-title"><i class="fas fa-lightbulb"></i> Tips</div>
+                    Be specific with expected findings and acceptable ranges. Students will self-assess against these values.
                 </div>
             </div>
         </div>
@@ -236,44 +192,96 @@
 </div>
 
 <script>
-let itemCount = 1;
+let itemCount = 0;
 
-function addTaskItem() {
-    DynamicForm.addItemCard('items-container', 'item-card', (count) => `
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="cb-field-label">Part Name <span class="required">*</span></label>
-                <input type="text" class="form-control" name="items[${count}][part_name]" required>
+const templates = {
+    measurement: { part: 'Measurement Point', desc: 'Measure the specified component', expected: 'Within specification', range: '±5%' },
+    inspection:  { part: 'Inspection Point', desc: 'Visually inspect for defects or damage', expected: 'No visible defects', range: 'Pass/Fail' },
+    testing:     { part: 'Test Point', desc: 'Perform functional test', expected: 'Operates correctly', range: 'Pass/Fail' },
+    assembly:    { part: 'Assembly Point', desc: 'Assemble components as instructed', expected: 'Properly assembled', range: 'Pass/Fail' }
+};
+
+function addTaskItem(partName = '', description = '', expected = '', range = '') {
+    const container = document.getElementById('items-container');
+    const emptyState = document.getElementById('empty-state');
+    if (emptyState) emptyState.remove();
+
+    const card = document.createElement('div');
+    card.className = 'cb-item-card item-card';
+    card.innerHTML = `
+        <div class="cb-item-card__header">
+            <div class="left-section">
+                <span class="cb-item-card__number">${itemCount + 1}</span>
+                <span class="cb-item-card__title">Item #${itemCount + 1}</span>
             </div>
-            <div class="col-md-6 mb-3">
-                <label class="cb-field-label">Description <span class="required">*</span></label>
-                <input type="text" class="form-control" name="items[${count}][description]" required>
+            <div class="right-section">
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeItem(this)">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
             </div>
-            <div class="col-md-6 mb-3">
-                <label class="cb-field-label">Expected Finding <span class="required">*</span></label>
-                <input type="text" class="form-control" name="items[${count}][expected_finding]" required>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="cb-field-label">Acceptable Range <span class="required">*</span></label>
-                <input type="text" class="form-control" name="items[${count}][acceptable_range]" required>
-            </div>
-            <input type="hidden" name="items[${count}][order]" value="${count}">
         </div>
-    `, 'Item');
+        <div class="cb-item-card__body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="cb-field-label">Part Name <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="items[${itemCount}][part_name]" value="${partName}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="cb-field-label">Description <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="items[${itemCount}][description]" value="${description}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="cb-field-label">Expected Finding <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="items[${itemCount}][expected_finding]" value="${expected}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="cb-field-label">Acceptable Range <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="items[${itemCount}][acceptable_range]" value="${range}" required>
+                </div>
+                <input type="hidden" name="items[${itemCount}][order]" value="${itemCount}">
+            </div>
+        </div>
+    `;
+    container.appendChild(card);
     itemCount++;
+    updateUI();
 }
 
-function handleImageSelect(input) {
-    const area = document.getElementById('imageUploadArea');
-    const preview = document.getElementById('imagePreview');
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            preview.src = e.target.result;
-            preview.classList.remove('d-none');
-            area.classList.add('has-file');
-        };
-        reader.readAsDataURL(input.files[0]);
+function addTemplateItem(type) {
+    const t = templates[type];
+    addTaskItem(t.part, t.desc, t.expected, t.range);
+}
+
+function removeItem(btn) {
+    btn.closest('.item-card').remove();
+    renumberItems();
+    updateUI();
+}
+
+function renumberItems() {
+    document.querySelectorAll('#items-container .item-card').forEach((card, i) => {
+        card.querySelector('.cb-item-card__number').textContent = i + 1;
+        card.querySelector('.cb-item-card__title').textContent = `Item #${i + 1}`;
+    });
+}
+
+function updateUI() {
+    const count = document.querySelectorAll('#items-container .item-card').length;
+    document.getElementById('item-count').textContent = count;
+    document.getElementById('save-btn').disabled = count === 0;
+    document.getElementById('save-hint').textContent = count === 0
+        ? 'Add at least one task item to enable saving'
+        : `${count} item${count > 1 ? 's' : ''} ready`;
+
+    if (count === 0) {
+        const container = document.getElementById('items-container');
+        if (!document.getElementById('empty-state')) {
+            container.innerHTML = `
+                <div class="cb-empty-state" id="empty-state">
+                    <i class="fas fa-mouse-pointer d-block"></i>
+                    <p><strong>No task items yet</strong><br>Click a template from the right panel or add a blank item</p>
+                </div>`;
+        }
     }
 }
 </script>

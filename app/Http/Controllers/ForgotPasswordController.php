@@ -42,7 +42,7 @@ class ForgotPasswordController extends Controller
             ])->save();
 
             // Send reset email using PHPMailerService
-            $mailer = new PHPMailerService();
+            $mailer = app(PHPMailerService::class);
             $resetUrl = URL::temporarySignedRoute(
                 'password.reset',
                 now()->addHours(1),

@@ -143,9 +143,13 @@ class TwoFactorController extends Controller
         }
     }
 
-    public function regenerateBackupCodes()
+    public function regenerateBackupCodes(Request $request)
     {
         try {
+            $request->validate([
+                'password' => 'required|current_password',
+            ]);
+
             $codes = $this->twoFactorService->regenerateBackupCodes(auth()->user());
 
             return view('auth.two-factor.backup-codes', compact('codes'));

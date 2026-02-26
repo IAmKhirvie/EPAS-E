@@ -75,7 +75,7 @@
     </script>
     @stack('styles')
 </head>
-<body class="modern-layout">
+<body class="modern-layout" data-user-role="{{ auth()->user()->role ?? '' }}">
 
   {{-- Header --}}
   @include('partials.navbar')
@@ -395,6 +395,7 @@
     <script src="{{ dynamic_asset('js/app.js') }}"></script>
 
     <!-- Utility Scripts -->
+    <script src="{{ dynamic_asset('js/utils/dark-mode.js') }}"></script>
     <script src="{{ dynamic_asset('js/utils/dynamic-form.js') }}"></script>
 
     <!-- Component Script -->

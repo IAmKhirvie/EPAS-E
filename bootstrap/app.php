@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->alias([
             'check.role' => \App\Http\Middleware\CheckRole::class,
+            'check.active' => \App\Http\Middleware\CheckUserActive::class,
             'rate.limit' => \App\Http\Middleware\RateLimitMiddleware::class,
             'two-factor' => \App\Http\Middleware\TwoFactorMiddleware::class,
             'audit.log' => \App\Http\Middleware\AuditLogMiddleware::class,
@@ -115,7 +116,7 @@ return Application::configure(basePath: dirname(__DIR__))
             Log::error('QueryException', [
                 'message' => $e->getMessage(),
                 'sql' => $e->getSql(),
-                'bindings' => $e->getBindings(),
+                'bindings' => '[REDACTED]',
                 'url' => $request->fullUrl(),
                 'user_id' => $request->user()?->id,
             ]);
@@ -130,7 +131,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
             return redirect()->back()
                 ->with('error', 'A database error occurred. Please try again later.')
-                ->with('error_debug', app()->hasDebugModeEnabled() ? $e->getMessage() : null);
+                ->with('error_debug', null);
         });
 
         // ── HTTP Exceptions (403, 404, 419, 429, 500, 503) ──
@@ -179,7 +180,7 @@ return Application::configure(basePath: dirname(__DIR__))
             $message = 'An unexpected error occurred. Please try again.';
             return redirect()->back()
                 ->with('error', $message)
-                ->with('error_debug', app()->hasDebugModeEnabled() ? $e->getMessage() : null);
+                ->with('error_debug', null);
         });
 
         // ── Catch-All: Any unhandled exception ──
@@ -205,6 +206,6 @@ return Application::configure(basePath: dirname(__DIR__))
             // Never expose raw error messages to users
             return redirect()->back()
                 ->with('error', 'An unexpected error occurred. Please try again later.')
-                ->with('error_debug', app()->hasDebugModeEnabled() ? $e->getMessage() : null);
+                ->with('error_debug', null);
         });
     })->create();

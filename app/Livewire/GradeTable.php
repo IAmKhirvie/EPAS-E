@@ -114,11 +114,13 @@ class GradeTable extends Component
             ->groupBy('user_id')
             ->pluck('avg_percentage', 'user_id');
 
-        $homeworkAvgs = HomeworkSubmission::whereIn('user_id', $studentIds)
-            ->whereNotNull('score')
-            ->selectRaw('user_id, AVG(score / (SELECT max_points FROM homeworks WHERE homeworks.id = homework_submissions.homework_id) * 100) as avg_score')
-            ->groupBy('user_id')
-            ->pluck('avg_score', 'user_id');
+        $homeworkAvgs = HomeworkSubmission::whereIn('homework_submissions.user_id', $studentIds)
+            ->whereNotNull('homework_submissions.score')
+            ->join('homeworks', 'homeworks.id', '=', 'homework_submissions.homework_id')
+            ->where('homeworks.max_points', '>', 0)
+            ->selectRaw('homework_submissions.user_id, AVG(homework_submissions.score / homeworks.max_points * 100) as avg_score')
+            ->groupBy('homework_submissions.user_id')
+            ->pluck('avg_score', 'homework_submissions.user_id');
 
         $completedCounts = UserProgress::whereIn('user_id', $studentIds)
             ->where('status', 'completed')

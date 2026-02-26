@@ -24,7 +24,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function register(): void
     {
-        //
+        $this->app->singleton(\App\Services\PHPMailerService::class, function ($app) {
+            return new \App\Services\PHPMailerService();
+        });
     }
 
     public function boot(): void

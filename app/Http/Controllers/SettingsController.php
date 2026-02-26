@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Models\User;
 use App\Models\Setting;
@@ -45,7 +46,7 @@ class SettingsController extends Controller
         }
 
         try {
-            $mailer = new PHPMailerService();
+            $mailer = app(PHPMailerService::class);
 
             $verificationUrl = URL::temporarySignedRoute(
                 'verification.verify',
@@ -110,7 +111,7 @@ class SettingsController extends Controller
 
             // Send verification email to new address
             try {
-                $mailer = new PHPMailerService();
+                $mailer = app(PHPMailerService::class);
                 $verificationUrl = URL::temporarySignedRoute(
                     'verification.verify',
                     now()->addMinutes(60),
@@ -156,7 +157,7 @@ class SettingsController extends Controller
         }
 
         // Store new image
-        $imageName = time() . '_' . $user->id . '.' . $request->profile_image->extension();
+        $imageName = Str::uuid() . '.' . $request->profile_image->extension();
         $request->profile_image->storeAs('public/profile-images', $imageName);
 
         $user->update(['profile_image' => $imageName]);
@@ -312,16 +313,23 @@ class SettingsController extends Controller
         }
 
         try {
-            // Log out first
-            Auth::logout();
-
-            // Soft delete or anonymize
-            $user->update([
+            // Deactivate and anonymize the account
+            $user->forceFill([
                 'email' => 'deleted_' . $user->id . '@deleted.local',
                 'first_name' => 'Deleted',
                 'last_name' => 'User',
-                'is_deleted' => true,
-            ]);
+                'stat' => 0,
+                'password' => Hash::make(Str::random(64)),
+                'remember_token' => null,
+                'reset_token' => null,
+                'two_factor_secret' => null,
+                'two_factor_backup_codes' => null,
+            ])->save();
+
+            // Invalidate session and log out
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
 
             return redirect('/')->with('success', 'Your account has been deleted.');
         } catch (\Exception $e) {
@@ -362,7 +370,7 @@ class SettingsController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            // Use defaults if settings table doesn't exist
+            Log::warning('Failed to load user settings', ['user_id' => $user->id, 'error' => $e->getMessage()]);
         }
 
         return $defaults;
@@ -376,7 +384,7 @@ class SettingsController extends Controller
                 ['value' => $value]
             );
         } catch (\Exception $e) {
-            // Silently fail if settings table doesn't exist
+            Log::warning('Failed to save user setting', ['user_id' => $user->id, 'key' => $key, 'error' => $e->getMessage()]);
         }
     }
 
@@ -399,7 +407,7 @@ class SettingsController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            // Use defaults
+            Log::warning('Failed to load system settings', ['error' => $e->getMessage()]);
         }
 
         return $defaults;
@@ -413,7 +421,7 @@ class SettingsController extends Controller
                 ['value' => $value]
             );
         } catch (\Exception $e) {
-            // Silently fail
+            Log::warning('Failed to save system setting', ['key' => $key, 'error' => $e->getMessage()]);
         }
     }
 }

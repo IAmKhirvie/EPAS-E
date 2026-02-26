@@ -30,6 +30,8 @@ return [
 
     'force_https' => env('FORCE_HTTPS', false),
 
+    'trusted_proxies' => env('TRUSTED_PROXIES'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode

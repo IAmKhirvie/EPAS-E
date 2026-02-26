@@ -15,9 +15,9 @@
         <span class="nav-label">Grades</span>
     </a>
 
-    <a href="{{ dynamic_route('modules.index') }}" class="nav-link {{ Request::is('modules*') ? 'active' : '' }}">
+    <a href="{{ dynamic_route('courses.index') }}" class="nav-link {{ Request::is('courses*') || Request::is('modules*') ? 'active' : '' }}">
         <i class="fas fa-book-open"></i>
-        <span class="nav-label">Modules</span>
+        <span class="nav-label">Courses</span>
     </a>
 
     <a href="{{ route('settings.index') }}" class="nav-link {{ Request::routeIs('settings.*') ? 'active' : '' }}">

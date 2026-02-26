@@ -19,7 +19,7 @@
                 </div>
                 @if(isset($canEdit) && $canEdit)
                 <div>
-                    <a href="{{ route('modules.create') }}?course_id={{ $course->id }}" class="btn btn-primary">
+                    <a href="{{ route('courses.modules.create', $course) }}" class="btn btn-primary">
                         <i class="fas fa-plus me-2"></i>Create Module
                     </a>
                     <a href="{{ route('courses.edit', $course) }}" class="btn btn-outline-secondary">
@@ -111,13 +111,13 @@
                                 <div class="card-footer bg-transparent">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="d-flex gap-1">
-                                            <a href="{{ route('modules.show', $module) }}" class="btn btn-outline-primary btn-sm">
+                                            <a href="{{ route('courses.modules.show', [$course, $module, $module->slug]) }}" class="btn btn-outline-primary btn-sm">
                                                 <i class="fas fa-eye me-1"></i>View Module
                                             </a>
-                                            <a href="{{ route('modules.print', $module) }}" class="btn btn-outline-secondary btn-sm" target="_blank" title="Print Preview">
+                                            <a href="{{ route('courses.modules.print', [$course, $module]) }}" class="btn btn-outline-secondary btn-sm" target="_blank" title="Print Preview">
                                                 <i class="fas fa-print"></i>
                                             </a>
-                                            <a href="{{ route('modules.download', $module) }}" class="btn btn-outline-success btn-sm" title="Download for Offline">
+                                            <a href="{{ route('courses.modules.download', [$course, $module]) }}" class="btn btn-outline-success btn-sm" title="Download for Offline">
                                                 <i class="fas fa-download"></i>
                                             </a>
                                         </div>
@@ -128,12 +128,12 @@
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end">
                                                 <li>
-                                                    <a class="dropdown-item" href="{{ route('modules.edit', $module) }}">
+                                                    <a class="dropdown-item" href="{{ route('courses.modules.edit', [$course, $module]) }}">
                                                         <i class="fas fa-edit me-2"></i>Edit
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <a class="dropdown-item" href="{{ route('information-sheets.create', $module) }}">
+                                                    <a class="dropdown-item" href="{{ route('courses.modules.sheets.create', [$course, $module]) }}">
                                                         <i class="fas fa-file-alt me-2"></i>Add Content
                                                     </a>
                                                 </li>
@@ -141,7 +141,7 @@
                                                     <hr class="dropdown-divider">
                                                 </li>
                                                 <li>
-                                                    <form action="{{ route('modules.destroy', $module) }}" method="POST" class="d-inline">
+                                                    <form action="{{ route('courses.modules.destroy', [$course, $module]) }}" method="POST" class="d-inline">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Are you sure? This will delete all associated information sheets and content.')">
@@ -164,7 +164,7 @@
                         <h5>No Modules Created</h5>
                         <p class="text-muted">This course doesn't have any modules yet.</p>
                         @if(in_array(auth()->user()->role, ['admin', 'instructor']))
-                        <a href="{{ route('modules.create') }}?course_id={{ $course->id }}" class="btn btn-primary">
+                        <a href="{{ route('courses.modules.create', $course) }}" class="btn btn-primary">
                             <i class="fas fa-plus me-2"></i>Create First Module
                         </a>
                         @endif

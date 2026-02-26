@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Constants\Roles;
 use App\Models\User;
 use App\Models\Department;
 use Illuminate\Support\Collection;
@@ -165,7 +166,7 @@ class UsersImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         }
 
         // Validate role if provided
-        if (!empty($data['role']) && !in_array($data['role'], ['admin', 'instructor', 'student'])) {
+        if (!empty($data['role']) && !in_array($data['role'], [Roles::ADMIN, Roles::INSTRUCTOR, Roles::STUDENT])) {
             $errors[] = 'Invalid role (must be admin, instructor, or student)';
         }
 
