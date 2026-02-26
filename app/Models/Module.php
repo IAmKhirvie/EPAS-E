@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Module extends Model
 {
@@ -15,11 +16,41 @@ class Module extends Model
     {
         parent::boot();
 
+        static::creating(function ($module) {
+            if (empty($module->slug)) {
+                $module->slug = static::generateUniqueSlug($module->module_title, $module->course_id);
+            }
+        });
+
+        static::updating(function ($module) {
+            if ($module->isDirty('module_title') && !$module->isDirty('slug')) {
+                $module->slug = static::generateUniqueSlug($module->module_title, $module->course_id, $module->id);
+            }
+        });
+
         static::deleting(function ($module) {
             $module->informationSheets()->each(function ($sheet) {
                 $sheet->delete();
             });
         });
+    }
+
+    protected static function generateUniqueSlug(string $title, ?int $courseId, ?int $excludeId = null): string
+    {
+        $baseSlug = Str::slug($title);
+        $slug = $baseSlug;
+        $counter = 1;
+
+        while (static::where('course_id', $courseId)
+            ->where('slug', $slug)
+            ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
+            ->exists()
+        ) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 
     protected $fillable = [
@@ -28,6 +59,7 @@ class Module extends Model
         'qualification_title',
         'unit_of_competency',
         'module_title',
+        'slug',
         'module_number',
         'module_name',
         'table_of_contents',

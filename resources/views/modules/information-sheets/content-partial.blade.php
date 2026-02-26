@@ -151,7 +151,7 @@
             <h3>Self-Check</h3>
         </div>
         <p class="text-muted mb-3">Test your understanding of this information sheet.</p>
-        <a href="{{ route('modules.information-sheets.self-check', [$sheet->module_id, $sheet->id]) }}" class="btn btn-warning">
+        <a href="{{ route('courses.modules.information-sheets.self-check', [$sheet->module->course_id, $sheet->module_id, $sheet->id]) }}" class="btn btn-warning">
             <i class="fas fa-play me-1"></i> Start Self-Check
         </a>
     </div>

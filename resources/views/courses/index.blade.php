@@ -66,7 +66,7 @@
                                                                 </a>
                                                             </li>
                                                             <li>
-                                                                <a class="dropdown-item" href="{{ route('modules.create') }}?course_id={{ $course->id }}">
+                                                                <a class="dropdown-item" href="{{ route('courses.modules.create', $course) }}">
                                                                     <i class="fas fa-plus me-2"></i>Add Module
                                                                 </a>
                                                             </li>

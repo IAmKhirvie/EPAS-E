@@ -63,7 +63,7 @@ class RegistrationTable extends Component
     {
         try {
             $registration = Registration::findOrFail($id);
-            $service = new RegistrationService(new PHPMailerService());
+            $service = new RegistrationService(app(PHPMailerService::class));
             $result = $service->approveRegistration($registration, Auth::id());
 
             if ($result['success']) {
@@ -82,7 +82,7 @@ class RegistrationTable extends Component
     {
         try {
             $registration = Registration::findOrFail($id);
-            $service = new RegistrationService(new PHPMailerService());
+            $service = new RegistrationService(app(PHPMailerService::class));
             $result = $service->rejectRegistration($registration, Auth::id(), $reason);
 
             if ($result['success']) {
@@ -106,7 +106,7 @@ class RegistrationTable extends Component
                 return;
             }
 
-            $service = new RegistrationService(new PHPMailerService());
+            $service = new RegistrationService(app(PHPMailerService::class));
             $sent = $service->resendVerificationEmail($registration);
 
             session()->flash($sent ? 'success' : 'error',
@@ -137,7 +137,7 @@ class RegistrationTable extends Component
     public function bulkApprove(): void
     {
         try {
-            $service = new RegistrationService(new PHPMailerService());
+            $service = new RegistrationService(app(PHPMailerService::class));
             $approved = 0;
             $failed = 0;
 
@@ -162,7 +162,7 @@ class RegistrationTable extends Component
     public function bulkReject(): void
     {
         try {
-            $service = new RegistrationService(new PHPMailerService());
+            $service = new RegistrationService(app(PHPMailerService::class));
             $rejected = 0;
 
             foreach ($this->selectedRegistrations as $id) {

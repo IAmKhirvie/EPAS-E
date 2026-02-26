@@ -65,43 +65,14 @@ trait SanitizesContent
      */
     private function basicSanitize(string $content): string
     {
-        // Remove NULL bytes
-        $content = str_replace("\0", '', $content);
+        Log::warning('HTMLPurifier not available, using fallback sanitizer. Install ezyang/htmlpurifier for better XSS protection.');
 
-        // Convert all special characters to HTML entities
-        $content = htmlspecialchars($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        // Safe fallback: strip all tags except basic formatting (no attributes allowed)
+        $allowed = '<b><i><u><strong><em><p><br><ul><ol><li><h1><h2><h3><h4><h5><h6><blockquote><pre><code>';
+        $content = strip_tags($content, $allowed);
 
-        // Define allowed tags and their safe replacements
-        $allowedTags = [
-            '&lt;b&gt;' => '<b>',
-            '&lt;/b&gt;' => '</b>',
-            '&lt;strong&gt;' => '<strong>',
-            '&lt;/strong&gt;' => '</strong>',
-            '&lt;i&gt;' => '<i>',
-            '&lt;/i&gt;' => '</i>',
-            '&lt;em&gt;' => '<em>',
-            '&lt;/em&gt;' => '</em>',
-            '&lt;u&gt;' => '<u>',
-            '&lt;/u&gt;' => '</u>',
-            '&lt;br&gt;' => '<br>',
-            '&lt;br/&gt;' => '<br>',
-            '&lt;br /&gt;' => '<br>',
-            '&lt;p&gt;' => '<p>',
-            '&lt;/p&gt;' => '</p>',
-            '&lt;ul&gt;' => '<ul>',
-            '&lt;/ul&gt;' => '</ul>',
-            '&lt;ol&gt;' => '<ol>',
-            '&lt;/ol&gt;' => '</ol>',
-            '&lt;li&gt;' => '<li>',
-            '&lt;/li&gt;' => '</li>',
-            '&lt;code&gt;' => '<code>',
-            '&lt;/code&gt;' => '</code>',
-        ];
-
-        // Restore allowed tags
-        foreach ($allowedTags as $escaped => $original) {
-            $content = str_ireplace($escaped, $original, $content);
-        }
+        // Remove any attributes from the remaining allowed tags to prevent XSS
+        $content = preg_replace('/<(\w+)\s+[^>]*>/', '<$1>', $content);
 
         return $content;
     }

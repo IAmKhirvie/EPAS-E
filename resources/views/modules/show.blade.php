@@ -556,7 +556,7 @@ foreach($module->informationSheets as $sheet) {
     }
 }
 @endphp
-{!! json_encode($focusContent) !!}
+@json($focusContent)
 </script>
 @endsection
 

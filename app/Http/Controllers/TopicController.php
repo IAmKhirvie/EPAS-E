@@ -29,10 +29,9 @@ class TopicController extends Controller
 
     public function store(StoreTopicRequest $request, $informationSheetId)
     {
-        // Debug: Log the request
         Log::info('Topic store method called', [
             'information_sheet_id' => $informationSheetId,
-            'request_data' => $request->all()
+            'user_id' => auth()->id(),
         ]);
 
         $informationSheet = InformationSheet::findOrFail($informationSheetId);

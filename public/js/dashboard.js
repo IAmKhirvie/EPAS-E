@@ -13,7 +13,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadStudentDashboard() {
     try {
-        const response = await fetch('/student/dashboard-data');
+        const response = await fetch('/student/dashboard-data', {
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        });
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }

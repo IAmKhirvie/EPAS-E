@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Cache;
  */
 class PendingActivitiesService
 {
+    private array $studentIdCache = [];
     // =========================================================================
     // PUBLIC METHODS - Student Activities
     // =========================================================================
@@ -189,6 +190,10 @@ class PendingActivitiesService
      */
     public function getStudentIdsForInstructor(User $user): Collection
     {
+        if (isset($this->studentIdCache[$user->id])) {
+            return $this->studentIdCache[$user->id];
+        }
+
         $query = User::where('role', Roles::STUDENT);
 
         if ($user->role === Roles::INSTRUCTOR) {
@@ -196,11 +201,11 @@ class PendingActivitiesService
             if ($sections->isNotEmpty()) {
                 $query->whereIn('section', $sections);
             } else {
-                return collect();
+                return $this->studentIdCache[$user->id] = collect();
             }
         }
 
-        return $query->pluck('id');
+        return $this->studentIdCache[$user->id] = $query->pluck('id');
     }
 
     // =========================================================================
@@ -234,6 +239,8 @@ class PendingActivitiesService
 
         return SelfCheck::whereNotIn('id', $submittedIds)
             ->with('informationSheet.module')
+            ->latest()
+            ->limit(20)
             ->get()
             ->map(fn($item) => [
                 'type' => 'self_check',
@@ -258,6 +265,8 @@ class PendingActivitiesService
 
         return Homework::whereNotIn('id', $submittedIds)
             ->with('informationSheet.module')
+            ->latest()
+            ->limit(20)
             ->get()
             ->map(fn($item) => [
                 'type' => 'homework',
@@ -283,6 +292,8 @@ class PendingActivitiesService
 
         return TaskSheet::whereNotIn('id', $submittedIds)
             ->with('informationSheet.module')
+            ->latest()
+            ->limit(20)
             ->get()
             ->map(fn($item) => [
                 'type' => 'task_sheet',
@@ -307,6 +318,8 @@ class PendingActivitiesService
 
         return JobSheet::whereNotIn('id', $submittedIds)
             ->with('informationSheet.module')
+            ->latest()
+            ->limit(20)
             ->get()
             ->map(fn($item) => [
                 'type' => 'job_sheet',

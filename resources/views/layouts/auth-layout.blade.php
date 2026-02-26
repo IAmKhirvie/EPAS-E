@@ -10,7 +10,19 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="{{ dynamic_asset('css/app.css') }}">
+  <link rel="stylesheet" href="{{ dynamic_asset('css/base/reset.css') }}">
+  <link rel="stylesheet" href="{{ dynamic_asset('css/base/typography.css') }}">
+  <link rel="stylesheet" href="{{ dynamic_asset('css/layout/header.css') }}">
+  <link rel="stylesheet" href="{{ dynamic_asset('css/layout/public-header.css') }}">
+  <link rel="stylesheet" href="{{ dynamic_asset('css/pages/auth.css') }}">
+  <link rel="stylesheet" href="{{ dynamic_asset('css/components/buttons.css') }}">
+  <link rel="stylesheet" href="{{ dynamic_asset('css/components/forms.css') }}">
+  <link rel="stylesheet" href="{{ dynamic_asset('css/components/utilities.css') }}">
+  <link rel="stylesheet" href="{{ dynamic_asset('css/components/error-popup.css') }}">
+
   @vite(['resources/css/app.css'])
   
   <style>

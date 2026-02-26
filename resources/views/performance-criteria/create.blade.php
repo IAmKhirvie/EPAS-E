@@ -4,8 +4,8 @@
 
 @section('content')
 <div class="content-area">
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
             <li class="breadcrumb-item active">Performance Criteria</li>
         </ol>
@@ -16,8 +16,90 @@
         <input type="hidden" name="type" value="{{ $type }}">
         <input type="hidden" name="related_id" value="{{ $relatedId }}">
 
-        <div class="cb-container">
-            {{-- Sidebar: Quick-add template buttons --}}
+        <div class="cb-builder-layout">
+            {{-- MAIN CONTENT --}}
+            <div class="cb-main">
+                <div class="cb-header cb-header--criteria">
+                    <h4><i class="fas fa-clipboard-list me-2"></i>Performance Criteria Checklist</h4>
+                    <p>Evaluate student performance with observable criteria</p>
+                </div>
+
+                <div class="cb-body">
+                    @if($taskSheet)
+                    <div class="cb-context-badge">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Task Sheet: <strong>{{ $taskSheet->title }} ({{ $taskSheet->task_number }})</strong></span>
+                    </div>
+                    @elseif($jobSheet)
+                    <div class="cb-context-badge">
+                        <i class="fas fa-hard-hat"></i>
+                        <span>Job Sheet: <strong>{{ $jobSheet->title }} ({{ $jobSheet->job_number }})</strong></span>
+                    </div>
+                    @endif
+
+                    <div class="cb-items-header">
+                        <h5>
+                            <i class="fas fa-clipboard-list text-primary me-2"></i>
+                            Evaluation Criteria
+                            <span class="cb-count-badge" id="criteria-count">1</span>
+                        </h5>
+                    </div>
+
+                    <div id="criteria-container">
+                        <div class="cb-item-card criteria-card">
+                            <div class="cb-item-card__header">
+                                <div class="left-section">
+                                    <span class="cb-item-card__number">1</span>
+                                    <span class="cb-item-card__title">Criterion #1</span>
+                                </div>
+                                <div class="right-section">
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="DynamicForm.removeItemCard(this, 'criteria-card', 'Criterion')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="cb-item-card__body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="cb-field-label">Description <span class="required">*</span></label>
+                                        <input type="text" class="form-control" name="criteria[0][description]" placeholder="What is being evaluated" required>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="cb-field-label">Observed <span class="required">*</span></label>
+                                        <select class="form-select" name="criteria[0][observed]" required>
+                                            <option value="">Select...</option>
+                                            <option value="1">Yes</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="cb-field-label">Remarks <span class="optional">(optional)</span></label>
+                                        <input type="text" class="form-control" name="criteria[0][remarks]" placeholder="Notes">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="cb-add-btn" onclick="addCriterion()">
+                        <i class="fas fa-plus"></i> Add Criterion
+                    </button>
+                </div>
+
+                <div class="cb-footer">
+                    <a href="{{ route('courses.index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Cancel
+                    </a>
+                    <div class="btn-group-footer">
+                        <span class="cb-footer__hint d-none d-md-inline">All fields marked * are required</span>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Submit Performance Criteria
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {{-- RIGHT SIDEBAR --}}
             <div class="cb-sidebar">
                 <div class="cb-sidebar__title">Quick Add Templates</div>
 
@@ -66,87 +148,6 @@
                 </div>
             </div>
 
-            {{-- Main Panel --}}
-            <div class="cb-main">
-                <div class="cb-header cb-header--criteria">
-                    <h4><i class="fas fa-clipboard-list me-2"></i>Performance Criteria Checklist</h4>
-                    <p>Evaluate student performance with observable criteria</p>
-                </div>
-
-                <div class="cb-body">
-                    {{-- Context Badge --}}
-                    @if($taskSheet)
-                    <div class="cb-context-badge">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span>Task Sheet: <strong>{{ $taskSheet->title }} ({{ $taskSheet->task_number }})</strong></span>
-                    </div>
-                    @elseif($jobSheet)
-                    <div class="cb-context-badge">
-                        <i class="fas fa-hard-hat"></i>
-                        <span>Job Sheet: <strong>{{ $jobSheet->title }} ({{ $jobSheet->job_number }})</strong></span>
-                    </div>
-                    @endif
-
-                    {{-- Criteria Items --}}
-                    <div class="cb-section">
-                        <div class="cb-items-header">
-                            <h5><i class="fas fa-clipboard-list"></i> Evaluation Criteria <span class="cb-count-badge">1</span></h5>
-                        </div>
-
-                        <div id="criteria-container">
-                            <div class="cb-item-card criteria-card">
-                                <div class="cb-item-card__header">
-                                    <div class="left-section">
-                                        <span class="cb-item-card__number">1</span>
-                                        <span class="cb-item-card__title">Criterion #1</span>
-                                    </div>
-                                    <div class="right-section">
-                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="DynamicForm.removeItemCard(this, 'criteria-card', 'Criterion')">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="cb-item-card__body">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="cb-field-label">Description <span class="required">*</span></label>
-                                            <input type="text" class="form-control" name="criteria[0][description]" placeholder="What is being evaluated" required>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <label class="cb-field-label">Observed <span class="required">*</span></label>
-                                            <select class="form-select" name="criteria[0][observed]" required>
-                                                <option value="">Select...</option>
-                                                <option value="1">Yes</option>
-                                                <option value="0">No</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <label class="cb-field-label">Remarks <span class="optional">(optional)</span></label>
-                                            <input type="text" class="form-control" name="criteria[0][remarks]" placeholder="Notes">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <button type="button" class="cb-add-btn" onclick="addCriterion()">
-                            <i class="fas fa-plus"></i> Add Criterion
-                        </button>
-                    </div>
-                </div>
-
-                <div class="cb-footer">
-                    <a href="{{ route('courses.index') }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-times me-1"></i>Cancel
-                    </a>
-                    <div class="btn-group-footer">
-                        <span class="cb-footer__hint d-none d-md-inline">All fields marked * are required</span>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-1"></i>Submit Performance Criteria
-                        </button>
-                    </div>
-                </div>
-            </div>
         </div>
     </form>
 </div>

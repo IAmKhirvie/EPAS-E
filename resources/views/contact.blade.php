@@ -13,6 +13,15 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- App CSS -->
+    <link rel="stylesheet" href="{{ dynamic_asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/base/reset.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/base/typography.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/layout/header.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/layout/public-header.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/components/buttons.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/components/utilities.css') }}">
+
     @vite(['resources/css/app.css'])
 </head>
 <body class="auth-page-body">

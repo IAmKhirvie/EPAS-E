@@ -281,7 +281,7 @@ Route::middleware(['auth'])->group(function () {
 |
 */
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
@@ -297,20 +297,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'redirectToRoleDashboard'])->name('dashboard');
 
     // Student Dashboard
-    Route::prefix('student')->name('student.')->group(function () {
+    Route::prefix('student')->name('student.')->middleware('check.role:student')->group(function () {
         Route::get('/dashboard', [StudentDashboard::class, 'index'])->name('dashboard');
         Route::get('/dashboard-data', [DashboardController::class, 'getStudentDashboardData'])->name('dashboard-data');
         Route::get('/progress-data', [StudentDashboard::class, 'getProgressData'])->name('progress-data');
     });
 
     // Admin Dashboard
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware('check.role:admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/dashboard-data', [DashboardController::class, 'getAdminDashboardData']);
     });
 
     // Instructor Dashboard Data
-    Route::get('/instructor/dashboard-data', [DashboardController::class, 'getInstructorDashboardData']);
+    Route::get('/instructor/dashboard-data', [DashboardController::class, 'getInstructorDashboardData'])->middleware('check.role:admin,instructor');
 
     // Shared Dashboard Progress Endpoints
     Route::get('/dashboard/progress-data', [DashboardController::class, 'getProgressData']);
@@ -395,19 +395,23 @@ Route::middleware(['auth'])->group(function () {
             ->name('courses.assign-instructor')
             ->middleware('check.role:admin');
 
-        // Module Management
-        Route::resource('modules', ModuleController::class)->except(['index', 'show']);
-        Route::post('/modules/{module}/upload-image', [ModuleController::class, 'uploadImage'])->name('modules.upload-image');
-        Route::delete('/modules/{module}/images/{image}', [ModuleController::class, 'deleteImage'])->name('modules.delete-image');
+        // Module Management (nested under courses)
+        Route::prefix('courses/{course}')->name('courses.modules.')->group(function () {
+            Route::get('/modules/create', [ModuleController::class, 'create'])->name('create');
+            Route::post('/modules', [ModuleController::class, 'store'])->name('store');
+            Route::get('/module-{module}/edit', [ModuleController::class, 'edit'])->name('edit');
+            Route::put('/module-{module}', [ModuleController::class, 'update'])->name('update');
+            Route::delete('/module-{module}', [ModuleController::class, 'destroy'])->name('destroy');
+            Route::post('/module-{module}/upload-image', [ModuleController::class, 'uploadImage'])->name('upload-image');
+            Route::delete('/module-{module}/images/{image}', [ModuleController::class, 'deleteImage'])->name('delete-image');
 
-        // Information Sheet Management
-        Route::prefix('modules/{module}')->group(function () {
-            Route::get('/information-sheets/create', [InformationSheetController::class, 'create'])->name('information-sheets.create');
-            Route::post('/information-sheets', [InformationSheetController::class, 'store'])->name('information-sheets.store');
-            Route::get('/information-sheets/{informationSheet}/edit', [InformationSheetController::class, 'edit'])->name('information-sheets.edit');
-            Route::put('/information-sheets/{informationSheet}', [InformationSheetController::class, 'update'])->name('information-sheets.update');
-            Route::delete('/information-sheets/{informationSheet}', [InformationSheetController::class, 'destroy'])->name('information-sheets.destroy');
-            Route::get('/information-sheets/{informationSheet}/download', [InformationSheetController::class, 'download'])->name('information-sheets.download');
+            // Information Sheet CRUD (nested under modules)
+            Route::get('/module-{module}/sheets/create', [InformationSheetController::class, 'create'])->name('sheets.create');
+            Route::post('/module-{module}/sheets', [InformationSheetController::class, 'store'])->name('sheets.store');
+            Route::get('/module-{module}/sheets/{informationSheet}/edit', [InformationSheetController::class, 'edit'])->name('sheets.edit');
+            Route::put('/module-{module}/sheets/{informationSheet}', [InformationSheetController::class, 'update'])->name('sheets.update');
+            Route::delete('/module-{module}/sheets/{informationSheet}', [InformationSheetController::class, 'destroy'])->name('sheets.destroy');
+            Route::get('/module-{module}/sheets/{informationSheet}/download', [InformationSheetController::class, 'download'])->name('sheets.download');
         });
 
         // Topic Management
@@ -423,24 +427,126 @@ Route::middleware(['auth'])->group(function () {
     // Content View Routes (All authenticated users)
     Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [CourseController::class, 'show'])->name('courses.show');
-    Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
-    Route::get('/modules/{module}', [ModuleController::class, 'show'])->name('modules.show');
-    Route::get('/modules/{module}/download', [ModuleController::class, 'downloadPdf'])->name('modules.download');
-    Route::get('/modules/{module}/print', [ModuleController::class, 'printPreview'])->name('modules.print');
-    Route::get('/modules/{module}/progress', [ModuleController::class, 'getModuleProgress'])->name('modules.progress');
 
-    // Information Sheet View Routes
-    Route::prefix('modules/{module}')->group(function () {
-        Route::get('/information-sheets/{informationSheet}', [ModuleController::class, 'showInformationSheet'])->name('information-sheets.show');
+    // Module View Routes (nested under courses)
+    Route::prefix('courses/{course}')->name('courses.modules.')->group(function () {
+        // Specific routes MUST come before the catch-all {slug?} route
+        Route::get('/module-{module}/progress', [ModuleController::class, 'getModuleProgress'])->name('progress');
+        Route::get('/module-{module}/download', [ModuleController::class, 'downloadPdf'])->name('download');
+        Route::get('/module-{module}/print', [ModuleController::class, 'printPreview'])->name('print');
+
+        // AJAX Content Endpoints
+        Route::get('/module-{module}/sheets/{informationSheet}/content', [ModuleController::class, 'getSheetContent'])->name('sheet-content');
+        Route::get('/module-{module}/sheets/{informationSheet}/topics/{topic}', [ModuleController::class, 'getTopicContent'])->name('topic-content');
+        Route::get('/module-{module}/sheets/{informationSheet}/self-check', [ModuleController::class, 'getSelfCheckContent'])->name('self-check');
+        Route::get('/module-{module}/sheets/{informationSheet}/task-sheet', [ModuleController::class, 'getTaskSheetContent'])->name('task-sheet');
+        Route::get('/module-{module}/sheets/{informationSheet}/job-sheet', [ModuleController::class, 'getJobSheetContent'])->name('job-sheet');
+
+        // Information Sheet View
+        Route::get('/module-{module}/information-sheets/{informationSheet}', [ModuleController::class, 'showInformationSheet'])->name('information-sheet');
+        Route::get('/module-{module}/information-sheets/{informationSheet}/topics/{topic}', [ModuleController::class, 'showTopic'])->name('topic');
+
+        // Unified module show (catch-all slug — MUST be last)
+        Route::get('/module-{module}/{slug?}', [ModuleController::class, 'show'])->name('show');
     });
 
-    // Information Sheet Content API (AJAX loading)
-    Route::get('/modules/information-sheets/{informationSheet}/content', [ModuleController::class, 'getSheetContent'])->name('information-sheets.content');
+    // Backward Compatibility Redirects
+    Route::get('/modules', function () {
+        return redirect()->route('courses.index');
+    })->name('modules.index');
 
-    // Topic Content Routes
+    Route::get('/modules/{module}', function (\App\Models\Module $module) {
+        return redirect()->route('courses.modules.show', [$module->course_id, $module, $module->slug]);
+    })->name('modules.show');
+
+    Route::get('/modules/{module}/download', function (\App\Models\Module $module) {
+        return redirect()->route('courses.modules.download', [$module->course_id, $module]);
+    })->name('modules.download');
+
+    Route::get('/modules/{module}/print', function (\App\Models\Module $module) {
+        return redirect()->route('courses.modules.print', [$module->course_id, $module]);
+    })->name('modules.print');
+
+    Route::get('/modules/{module}/progress', function (\App\Models\Module $module) {
+        return redirect()->route('courses.modules.progress', [$module->course_id, $module]);
+    })->name('modules.progress');
+
+    // Backward compatibility: legacy module CRUD routes (redirect to course-nested equivalents)
+    Route::get('/modules/create', function (Request $request) {
+        $courseId = $request->query('course_id');
+        if ($courseId) {
+            return redirect()->route('courses.modules.create', $courseId);
+        }
+        return redirect()->route('courses.index');
+    })->name('modules.create');
+
+    Route::post('/modules', function (Request $request) {
+        $courseId = $request->input('course_id');
+        if ($courseId) {
+            return app(ModuleController::class)->store($request, \App\Models\Course::findOrFail($courseId));
+        }
+        return redirect()->route('courses.index')->with('error', 'Course is required to create a module.');
+    })->name('modules.store');
+
+    Route::get('/modules/{module}/edit', function (\App\Models\Module $module) {
+        return redirect()->route('courses.modules.edit', [$module->course_id, $module]);
+    })->name('modules.edit');
+
+    Route::put('/modules/{module}', function (Request $request, \App\Models\Module $module) {
+        return redirect()->route('courses.modules.update', [$module->course_id, $module]);
+    })->name('modules.update');
+
+    Route::delete('/modules/{module}', function (\App\Models\Module $module) {
+        return redirect()->route('courses.modules.destroy', [$module->course_id, $module]);
+    })->name('modules.destroy');
+
+    // Backward compatibility: legacy information sheet routes
+    Route::get('/modules/{module}/information-sheets/create', function (\App\Models\Module $module) {
+        return redirect()->route('courses.modules.sheets.create', [$module->course_id, $module]);
+    })->name('information-sheets.create');
+
+    Route::post('/modules/{module}/information-sheets', function (Request $request, \App\Models\Module $module) {
+        return app(InformationSheetController::class)->store($request, $module);
+    })->name('information-sheets.store');
+
+    Route::get('/modules/{module}/information-sheets/{informationSheet}/edit', function (\App\Models\Module $module, \App\Models\InformationSheet $informationSheet) {
+        return redirect()->route('courses.modules.sheets.edit', [$module->course_id, $module, $informationSheet]);
+    })->name('information-sheets.edit');
+
+    Route::put('/modules/{module}/information-sheets/{informationSheet}', function (Request $request, \App\Models\Module $module, \App\Models\InformationSheet $informationSheet) {
+        return app(InformationSheetController::class)->update($request, $informationSheet);
+    })->name('information-sheets.update');
+
+    Route::delete('/modules/{module}/information-sheets/{informationSheet}', function (\App\Models\Module $module, \App\Models\InformationSheet $informationSheet) {
+        return app(InformationSheetController::class)->destroy($informationSheet);
+    })->name('information-sheets.destroy');
+
+    Route::get('/modules/{module}/information-sheets/{informationSheet}/download', function (\App\Models\Module $module, \App\Models\InformationSheet $informationSheet) {
+        return app(InformationSheetController::class)->download($informationSheet);
+    })->name('information-sheets.download');
+
+    Route::get('/modules/{module}/information-sheets/{informationSheet}', function (\App\Models\Module $module, \App\Models\InformationSheet $informationSheet) {
+        return redirect()->route('courses.modules.information-sheet', [$module->course_id, $module, $informationSheet]);
+    })->name('information-sheets.show');
+
+    // Backward compatibility: legacy AJAX content routes
+    Route::get('/modules/information-sheets/{informationSheet}/content', function (\App\Models\InformationSheet $informationSheet) {
+        $module = $informationSheet->module;
+        return redirect()->route('courses.modules.sheet-content', [$module->course_id, $module, $informationSheet]);
+    })->name('information-sheets.content');
+
+    Route::get('/modules/information-sheets/{informationSheet}/topics/{topic}', function (\App\Models\InformationSheet $informationSheet, \App\Models\Topic $topic) {
+        $module = $informationSheet->module;
+        return redirect()->route('courses.modules.topic-content', [$module->course_id, $module, $informationSheet, $topic]);
+    })->name('information-sheets.topics.content');
+
+    // Backward compatibility: legacy self-check by sheet route
+    Route::get('/modules/{module}/information-sheets/{informationSheet}/self-check', function (\App\Models\Module $module, \App\Models\InformationSheet $informationSheet) {
+        return redirect()->route('courses.modules.information-sheets.self-check', [$module->course_id, $module, $informationSheet]);
+    })->name('modules.information-sheets.self-check');
+
+    // Topic Content Routes (keep flat for AJAX compatibility)
     Route::get('/topics/{topic}/content', [TopicController::class, 'getContent'])->name('topics.content');
-    Route::get('/modules/information-sheets/{informationSheet}/topics/{topic}', [TopicController::class, 'getTopicContent'])->name('information-sheets.topics.content');
-    Route::get('/modules/{module}/information-sheets/{informationSheet}/topics/{topic}', [ModuleController::class, 'showTopic'])->name('modules.topics.show');
 
     // Module Content API
     Route::get('/module-content/{module}/{contentType}', [ModuleContentController::class, 'show'])->name('module-content.show');
@@ -524,7 +630,7 @@ Route::middleware(['auth'])->group(function () {
     // Self Checks
     Route::get('/self-checks/{selfCheck}', [SelfCheckController::class, 'show'])->name('self-checks.show');
     Route::post('/self-checks/{selfCheck}/submit', [SelfCheckController::class, 'submit'])->name('self-checks.submit');
-    Route::get('/modules/{module}/information-sheets/{informationSheet}/self-check', [SelfCheckController::class, 'showBySheet'])->name('modules.information-sheets.self-check');
+    Route::get('/courses/{course}/module-{module}/information-sheets/{informationSheet}/self-check', [SelfCheckController::class, 'showBySheet'])->name('courses.modules.information-sheets.self-check');
 
     // Task Sheets
     Route::get('/task-sheets/{taskSheet}', [TaskSheetController::class, 'show'])->name('task-sheets.show');
@@ -687,7 +793,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/enable', [TwoFactorController::class, 'enable'])->name('enable');
         Route::get('/manage', [TwoFactorController::class, 'manage'])->name('manage');
         Route::delete('/disable', [TwoFactorController::class, 'disable'])->name('disable');
-        Route::get('/backup-codes', [TwoFactorController::class, 'regenerateBackupCodes'])->name('backup-codes');
+        Route::post('/backup-codes', [TwoFactorController::class, 'regenerateBackupCodes'])->name('backup-codes');
     });
 
     /*

@@ -26,22 +26,12 @@ class ModuleController extends Controller
     {
         $this->moduleService = $moduleService;
     }
-    public function index()
-    {
-        $modules = Module::with(['course', 'informationSheets'])
-            ->where('is_active', true)
-            ->orderBy('order')
-            ->get();
 
-        return view('modules.index', compact('modules'));
-    }
-
-    public function store(Request $request)
+    public function store(Request $request, Course $course)
     {
         $this->authorize('create', Module::class);
 
         $validated = $request->validate([
-            'course_id' => 'required|exists:courses,id', // Add this
             'qualification_title' => 'required|string|max:255',
             'unit_of_competency' => 'required|string|max:255',
             'module_title' => 'required|string|max:255',
@@ -54,9 +44,9 @@ class ModuleController extends Controller
         ]);
 
         try {
-            $module = DB::transaction(function () use ($validated) {
+            $module = DB::transaction(function () use ($validated, $course) {
                 return Module::create([
-                    'course_id' => $validated['course_id'],
+                    'course_id' => $course->id,
                     'qualification_title' => $validated['qualification_title'],
                     'unit_of_competency' => $validated['unit_of_competency'],
                     'module_title' => $validated['module_title'],
@@ -67,45 +57,57 @@ class ModuleController extends Controller
                     'introduction' => $validated['introduction'],
                     'learning_outcomes' => $validated['learning_outcomes'],
                     'is_active' => true,
-                    'order' => Module::where('course_id', $validated['course_id'])->max('order') + 1,
+                    'order' => Module::where('course_id', $course->id)->max('order') + 1,
                 ]);
             });
 
-            return redirect()->route('courses.show', $module->course_id)
+            return redirect()->route('courses.show', $course)
                 ->with('success', 'Module created successfully!');
 
         } catch (\Exception $e) {
             Log::error('Module creation failed: ' . $e->getMessage());
-            
+
             return back()->withInput()
                 ->with('error', 'Failed to create module. Please try again.');
         }
     }
 
-
-    public function show(Module $module)
+    public function show(Course $course, Module $module, ?string $slug = null)
     {
+        $this->verifyModuleBelongsToCourse($course, $module);
+
+        // Redirect to canonical URL with slug if missing
+        if ($slug === null && $module->slug) {
+            return redirect()->route('courses.modules.show', [$course, $module, $module->slug]);
+        }
+
         $module->load([
             'informationSheets.selfChecks',
-            'informationSheets.topics'
+            'informationSheets.taskSheets',
+            'informationSheets.jobSheets',
+            'informationSheets.topics',
+            'course',
         ]);
 
-        return view('modules.show', compact('module'));
+        return view('modules.show-unified', compact('module', 'course'));
     }
 
-    public function showInformationSheet(Module $module, InformationSheet $informationSheet)
+    public function showInformationSheet(Course $course, Module $module, InformationSheet $informationSheet)
     {
+        $this->verifyModuleBelongsToCourse($course, $module);
+
         // Get all sheets for navigation
         $allSheets = $module->informationSheets()->orderBy('sheet_number')->get();
         $currentIndex = $allSheets->search(function($sheet) use ($informationSheet) {
             return $sheet->id === $informationSheet->id;
         });
-        
+
         $prevSheet = $currentIndex > 0 ? $allSheets[$currentIndex - 1] : null;
         $nextSheet = $currentIndex < $allSheets->count() - 1 ? $allSheets[$currentIndex + 1] : null;
 
         return view('modules.information-sheets.show', [
             'module' => $module,
+            'course' => $course,
             'informationSheet' => $informationSheet,
             'prevSheet' => $prevSheet,
             'nextSheet' => $nextSheet,
@@ -114,10 +116,11 @@ class ModuleController extends Controller
         ]);
     }
 
-    public function getContent(Module $module, $contentType)
+    public function getContent(Course $course, Module $module, $contentType)
     {
+        $this->verifyModuleBelongsToCourse($course, $module);
+
         try {
-            // Return specific module content based on type
             $viewMap = [
                 'introduction' => 'modules.content.introduction',
                 'electric-history' => 'modules.content.electric-history',
@@ -144,19 +147,20 @@ class ModuleController extends Controller
         }
     }
 
-    public function showTopic(Module $module, InformationSheet $informationSheet, Topic $topic)
+    public function showTopic(Course $course, Module $module, InformationSheet $informationSheet, Topic $topic)
     {
-        // Verify relationships
-        if ($topic->information_sheet_id !== $informationSheet->id || 
+        $this->verifyModuleBelongsToCourse($course, $module);
+
+        if ($topic->information_sheet_id !== $informationSheet->id ||
             $informationSheet->module_id !== $module->id) {
             abort(404);
         }
 
-        // Track progress via service
         $this->moduleService->trackTopicProgress($topic);
 
         return view('modules.topics.show', [
             'module' => $module,
+            'course' => $course,
             'informationSheet' => $informationSheet,
             'topic' => $topic,
             'nextTopic' => $topic->getNextTopic(),
@@ -164,82 +168,69 @@ class ModuleController extends Controller
         ]);
     }
 
-    public function submitSelfCheck(Request $request, SelfCheck $selfCheck)
+    public function getTopicContent(Course $course, Module $module, InformationSheet $informationSheet, Topic $topic)
     {
-        $validated = $request->validate([
-            'answers' => 'required|array',
-            'time_spent' => 'required|integer'
-        ]);
+        $this->verifyModuleBelongsToCourse($course, $module);
 
-        $score = $this->moduleService->calculateScore($selfCheck, $validated['answers']);
-        $maxScore = $this->moduleService->getMaxScore($selfCheck);
-        $minScore = $selfCheck->min_score ?? ($maxScore * 0.7);
-        $passed = $score >= $minScore;
+        if ($topic->information_sheet_id !== $informationSheet->id ||
+            $informationSheet->module_id !== $module->id) {
+            return response()->json(['success' => false, 'message' => 'Not found'], 404);
+        }
 
-        // Update user progress
-        UserProgress::updateOrCreate(
-            [
-                'user_id' => auth()->id(),
-                'module_id' => $selfCheck->informationSheet->module_id,
-                'progressable_type' => SelfCheck::class,
-                'progressable_id' => $selfCheck->id
-            ],
-            [
-                'status' => $passed ? 'passed' : 'failed',
-                'score' => $score,
-                'max_score' => $maxScore,
-                'time_spent' => $validated['time_spent'],
-                'answers' => $validated['answers'],
-                'completed_at' => now()
-            ]
-        );
+        try {
+            $html = view('modules.information-sheets.topics.content-partial', [
+                'topic' => $topic,
+            ])->render();
 
-        return response()->json([
-            'success' => true,
-            'score' => $score,
-            'max_score' => $maxScore,
-            'min_score_required' => $minScore,
-            'passed' => $passed
-        ]);
+            return response()->json(['success' => true, 'html' => $html]);
+        } catch (\Exception $e) {
+            Log::error('Failed to load topic content: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to load topic.']);
+        }
     }
-    
-    public function create()
+
+    public function create(Course $course)
     {
         $user = Auth::user();
 
-        // Filter courses based on user role
-        $query = Course::where('is_active', true);
-        if ($user->role === Roles::INSTRUCTOR) {
-            $query->where('instructor_id', $user->id);
+        // Verify instructor owns this course
+        if ($user->role === Roles::INSTRUCTOR && $course->instructor_id !== $user->id) {
+            abort(403);
         }
 
-        $courses = $query->orderBy('course_name')->get();
-        return view('modules.create', compact('courses'));
+        $courses = Course::where('is_active', true)
+            ->when($user->role === Roles::INSTRUCTOR, fn ($q) => $q->where('instructor_id', $user->id))
+            ->orderBy('course_name')
+            ->get();
+
+        return view('modules.create', compact('courses', 'course'));
     }
 
-    public function getModuleProgress(Module $module)
+    public function getModuleProgress(Course $course, Module $module)
     {
+        $this->verifyModuleBelongsToCourse($course, $module);
+
         $progress = $this->moduleService->getProgress($module, auth()->id());
         return response()->json($progress);
     }
 
-    public function edit(Module $module)
+    public function edit(Course $course, Module $module)
     {
+        $this->verifyModuleBelongsToCourse($course, $module);
         $this->authorize('update', $module);
         $user = Auth::user();
 
-        // Filter courses based on user role
-        $query = Course::where('is_active', true);
-        if ($user->role === Roles::INSTRUCTOR) {
-            $query->where('instructor_id', $user->id);
-        }
+        $courses = Course::where('is_active', true)
+            ->when($user->role === Roles::INSTRUCTOR, fn ($q) => $q->where('instructor_id', $user->id))
+            ->orderBy('course_name')
+            ->get();
 
-        $courses = $query->orderBy('course_name')->get();
-        return view('modules.edit', compact('module', 'courses'));
+        return view('modules.edit', compact('module', 'courses', 'course'));
     }
 
-    public function update(Request $request, Module $module)
+    public function update(Request $request, Course $course, Module $module)
     {
+        $this->verifyModuleBelongsToCourse($course, $module);
         $this->authorize('update', $module);
 
         $validated = $request->validate([
@@ -270,12 +261,12 @@ class ModuleController extends Controller
         }
     }
 
-    public function destroy(Module $module)
+    public function destroy(Course $course, Module $module)
     {
+        $this->verifyModuleBelongsToCourse($course, $module);
         $this->authorize('delete', $module);
 
         try {
-            // Check if module has information sheets
             if ($module->informationSheets()->count() > 0) {
                 if (request()->expectsJson()) {
                     return response()->json([
@@ -310,11 +301,10 @@ class ModuleController extends Controller
         }
     }
 
-    /**
-     * Upload image for module
-     */
-    public function uploadImage(Request $request, Module $module)
+    public function uploadImage(Request $request, Course $course, Module $module)
     {
+        $this->verifyModuleBelongsToCourse($course, $module);
+
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|mimetypes:image/jpeg,image/png,image/gif,image/webp|max:' . config('joms.uploads.max_image_size', 5120),
             'caption' => 'nullable|string|max:255',
@@ -330,11 +320,10 @@ class ModuleController extends Controller
         }
     }
 
-    /**
-     * Delete image from module
-     */
-    public function deleteImage(Request $request, Module $module, $imageIndex)
+    public function deleteImage(Request $request, Course $course, Module $module, $imageIndex)
     {
+        $this->verifyModuleBelongsToCourse($course, $module);
+
         try {
             $this->moduleService->deleteImage($module, (int) $imageIndex);
             return redirect()->back()->with('success', 'Image deleted successfully!');
@@ -344,16 +333,17 @@ class ModuleController extends Controller
         }
     }
 
-    /**
-     * Get sheet content via AJAX
-     */
-    public function getSheetContent(InformationSheet $informationSheet)
+    public function getSheetContent(Course $course, Module $module, InformationSheet $informationSheet)
     {
+        $this->verifyModuleBelongsToCourse($course, $module);
+
         try {
-            $informationSheet->load(['topics', 'selfChecks']);
+            $informationSheet->load(['topics', 'selfChecks', 'taskSheets', 'jobSheets']);
 
             $html = view('modules.information-sheets.content-partial', [
-                'sheet' => $informationSheet
+                'sheet' => $informationSheet,
+                'course' => $course,
+                'module' => $module,
             ])->render();
 
             return response()->json([
@@ -376,12 +366,97 @@ class ModuleController extends Controller
         }
     }
 
-    /**
-     * Download module as printable HTML/PDF
-     */
-    public function downloadPdf(Module $module)
+    public function getSelfCheckContent(Course $course, Module $module, InformationSheet $informationSheet)
     {
-        // Load all related content
+        $this->verifyModuleBelongsToCourse($course, $module);
+
+        try {
+            $informationSheet->load(['selfChecks.questions']);
+            $selfCheck = $informationSheet->selfChecks->first();
+
+            if (!$selfCheck) {
+                return response()->json([
+                    'success' => false,
+                    'html' => '<div class="alert alert-info">No self-check available for this information sheet.</div>'
+                ]);
+            }
+
+            $html = view('modules.partials.self-check-inline', [
+                'selfCheck' => $selfCheck,
+                'informationSheet' => $informationSheet,
+                'module' => $module,
+                'course' => $course,
+            ])->render();
+
+            return response()->json(['success' => true, 'html' => $html]);
+        } catch (\Exception $e) {
+            Log::error('Failed to load self-check content: ' . $e->getMessage());
+            return response()->json(['success' => false, 'html' => '<div class="alert alert-danger">Failed to load self-check.</div>']);
+        }
+    }
+
+    public function getTaskSheetContent(Course $course, Module $module, InformationSheet $informationSheet)
+    {
+        $this->verifyModuleBelongsToCourse($course, $module);
+
+        try {
+            $informationSheet->load(['taskSheets.items']);
+            $taskSheet = $informationSheet->taskSheets->first();
+
+            if (!$taskSheet) {
+                return response()->json([
+                    'success' => false,
+                    'html' => '<div class="alert alert-info">No task sheet available for this information sheet.</div>'
+                ]);
+            }
+
+            $html = view('modules.partials.task-sheet-inline', [
+                'taskSheet' => $taskSheet,
+                'informationSheet' => $informationSheet,
+                'module' => $module,
+                'course' => $course,
+            ])->render();
+
+            return response()->json(['success' => true, 'html' => $html]);
+        } catch (\Exception $e) {
+            Log::error('Failed to load task sheet content: ' . $e->getMessage());
+            return response()->json(['success' => false, 'html' => '<div class="alert alert-danger">Failed to load task sheet.</div>']);
+        }
+    }
+
+    public function getJobSheetContent(Course $course, Module $module, InformationSheet $informationSheet)
+    {
+        $this->verifyModuleBelongsToCourse($course, $module);
+
+        try {
+            $informationSheet->load(['jobSheets.steps']);
+            $jobSheet = $informationSheet->jobSheets->first();
+
+            if (!$jobSheet) {
+                return response()->json([
+                    'success' => false,
+                    'html' => '<div class="alert alert-info">No job sheet available for this information sheet.</div>'
+                ]);
+            }
+
+            $html = view('modules.partials.job-sheet-inline', [
+                'jobSheet' => $jobSheet,
+                'informationSheet' => $informationSheet,
+                'module' => $module,
+                'course' => $course,
+            ])->render();
+
+            return response()->json(['success' => true, 'html' => $html]);
+        } catch (\Exception $e) {
+            Log::error('Failed to load job sheet content: ' . $e->getMessage());
+            return response()->json(['success' => false, 'html' => '<div class="alert alert-danger">Failed to load job sheet.</div>']);
+        }
+    }
+
+    public function downloadPdf(Course $course, Module $module)
+    {
+        $this->verifyModuleBelongsToCourse($course, $module);
+
         $module->load([
             'informationSheets.topics',
             'informationSheets.selfChecks.questions',
@@ -391,10 +466,8 @@ class ModuleController extends Controller
 
         $exportDate = now()->format('F j, Y g:i A');
 
-        // Render the PDF view
         $html = view('exports.module-pdf', compact('module', 'exportDate'))->render();
 
-        // Return as downloadable HTML file (can be printed to PDF by user)
         $filename = \Illuminate\Support\Str::slug($module->module_name) . '-' . date('Y-m-d') . '.html';
 
         return Response::make($html, 200, [
@@ -403,12 +476,10 @@ class ModuleController extends Controller
         ]);
     }
 
-    /**
-     * Preview module for printing (opens in new tab)
-     */
-    public function printPreview(Module $module)
+    public function printPreview(Course $course, Module $module)
     {
-        // Load all related content
+        $this->verifyModuleBelongsToCourse($course, $module);
+
         $module->load([
             'informationSheets.topics',
             'informationSheets.selfChecks.questions',
@@ -419,5 +490,12 @@ class ModuleController extends Controller
         $exportDate = now()->format('F j, Y g:i A');
 
         return view('exports.module-pdf', compact('module', 'exportDate'));
+    }
+
+    private function verifyModuleBelongsToCourse(Course $course, Module $module): void
+    {
+        if ($module->course_id !== $course->id) {
+            abort(404);
+        }
     }
 }

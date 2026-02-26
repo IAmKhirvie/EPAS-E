@@ -12,7 +12,7 @@
     </nav>
 
     <div class="cb-container--simple">
-        <form method="POST" action="{{ route('modules.update', $module) }}">
+        <form method="POST" action="{{ route('courses.modules.update', [$course, $module]) }}">
             @csrf
             @method('PUT')
 
@@ -107,7 +107,7 @@
                 </div>
 
                 <div class="cb-footer">
-                    <a href="{{ route('modules.index') }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('courses.show', $course) }}" class="btn btn-outline-secondary">
                         <i class="fas fa-times me-1"></i>Cancel
                     </a>
                     <div class="btn-group-footer">

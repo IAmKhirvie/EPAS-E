@@ -68,12 +68,20 @@ class TopNavbar {
             });
         }
 
-        // User menu
+        // User menu (desktop + mobile buttons both open the same dropdown)
         const userMenuBtn = document.getElementById('user-menu-btn');
+        const userMenuBtnMobile = document.getElementById('user-menu-btn-mobile');
         const userDropdown = document.getElementById('user-dropdown');
 
         if (userMenuBtn && userDropdown) {
             userMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.togglePopover('user-dropdown');
+            });
+        }
+
+        if (userMenuBtnMobile && userDropdown) {
+            userMenuBtnMobile.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.togglePopover('user-dropdown');
             });

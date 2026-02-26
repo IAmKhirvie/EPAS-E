@@ -77,7 +77,7 @@
                                 <a href="{{ route('courses.edit', $course->id) }}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit me-1"></i>Edit Course
                                 </a>
-                                <a href="{{ route('modules.create') }}?course_id={{ $course->id }}" class="btn btn-sm btn-outline-success">
+                                <a href="{{ route('courses.modules.create', $course) }}" class="btn btn-sm btn-outline-success">
                                     <i class="fas fa-plus me-1"></i>Add Module
                                 </a>
 
@@ -123,10 +123,10 @@
                                         <div class="accordion-body bg-white border rounded">
                                             <!-- Module Actions -->
                                             <div class="d-flex gap-2 mb-3 p-3 bg-light rounded">
-                                                <a href="{{ route('modules.edit', $module->id) }}" class="btn btn-sm btn-outline-primary">
+                                                <a href="{{ route('courses.modules.edit', [$course, $module]) }}" class="btn btn-sm btn-outline-primary">
                                                     <i class="fas fa-edit me-1"></i>Edit Module
                                                 </a>
-                                                <a href="{{ route('information-sheets.create', $module->id) }}" class="btn btn-sm btn-outline-success">
+                                                <a href="{{ route('courses.modules.sheets.create', [$course, $module]) }}" class="btn btn-sm btn-outline-success">
                                                     <i class="fas fa-plus me-1"></i>Add Information Sheet
                                                 </a>
 
@@ -435,7 +435,7 @@
                                 <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
                                 <h5>No Modules Created</h5>
                                 <p class="text-muted mb-3">This course doesn't have any modules yet.</p>
-                                <a href="{{ route('modules.create') }}?course_id={{ $course->id }}" class="btn btn-primary">
+                                <a href="{{ route('courses.modules.create', $course) }}" class="btn btn-primary">
                                     <i class="fas fa-plus me-1"></i>Create First Module
                                 </a>
                             </div>

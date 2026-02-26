@@ -4,7 +4,7 @@ if (!function_exists('dynamic_asset')) {
     function dynamic_asset($path)
     {
         // Use secure_asset() for production or when FORCE_HTTPS is enabled (e.g. Cloudflare Tunnel)
-        if (config('app.env') === 'production' || env('FORCE_HTTPS', false)) {
+        if (config('app.env') === 'production' || config('app.force_https', false)) {
             return secure_asset($path);
         }
         return asset($path);

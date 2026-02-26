@@ -15,9 +15,9 @@ class RegisterController extends Controller
 {
     protected RegistrationService $registrationService;
 
-    public function __construct()
+    public function __construct(PHPMailerService $mailer)
     {
-        $this->registrationService = new RegistrationService(new PHPMailerService());
+        $this->registrationService = new RegistrationService($mailer);
     }
 
     public function showRegistrationForm()

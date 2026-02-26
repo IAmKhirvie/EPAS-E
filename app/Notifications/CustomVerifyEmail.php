@@ -17,7 +17,7 @@ class CustomVerifyEmail extends Notification
 
     public function __construct()
     {
-        $this->mailer = new PHPMailerService();
+        $this->mailer = app(PHPMailerService::class);
     }
 
     public function via($notifiable)

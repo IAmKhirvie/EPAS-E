@@ -205,11 +205,18 @@ class EnrollmentTable extends Component
             $base->byInstructor($user->id);
         }
 
+        $counts = $base->selectRaw("
+            COUNT(*) as all_count,
+            SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+            SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,
+            SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected
+        ")->first();
+
         return [
-            'all' => (clone $base)->count(),
-            'pending' => (clone $base)->pending()->count(),
-            'approved' => (clone $base)->approved()->count(),
-            'rejected' => (clone $base)->rejected()->count(),
+            'all' => (int) $counts->all_count,
+            'pending' => (int) $counts->pending,
+            'approved' => (int) $counts->approved,
+            'rejected' => (int) $counts->rejected,
         ];
     }
 

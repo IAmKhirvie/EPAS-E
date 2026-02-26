@@ -58,10 +58,15 @@ class PrivateLoginController extends Controller
     protected function handleLogin(Request $request, string $expectedRole)
     {
         try {
-            $key = "{$expectedRole}-login:" . $request->ip();
+            $ipKey = "{$expectedRole}-login:" . $request->ip();
+            $emailKey = "{$expectedRole}-login:" . strtolower((string) $request->input('email', ''));
+            $key = $ipKey;
 
-            // Check if locked out
-            $lockout = $this->isLockedOut($key);
+            // Check if locked out (by IP or by email)
+            $lockout = $this->isLockedOut($ipKey);
+            if (!$lockout['locked']) {
+                $lockout = $this->isLockedOut($emailKey);
+            }
             if ($lockout['locked']) {
                 return back()->withErrors([
                     'email' => 'Too many failed login attempts. Please try again in ' . $this->formatTime($lockout['remaining']) . '.',
@@ -94,7 +99,7 @@ class PrivateLoginController extends Controller
                 }
 
                 // Check if user is approved
-                if ($user->stat == 0) {
+                if ((int) $user->stat !== 1) {
                     Auth::logout();
                     return back()->withErrors([
                         'email' => 'Your account is pending approval. Please contact administrator.',
@@ -102,7 +107,8 @@ class PrivateLoginController extends Controller
                 }
 
                 // Clear rate limits on successful login
-                $this->clearRateLimits($key);
+                $this->clearRateLimits($ipKey);
+                $this->clearRateLimits($emailKey);
 
                 $user->last_login = now();
                 $user->save();
@@ -113,11 +119,12 @@ class PrivateLoginController extends Controller
                 return redirect('/dashboard');
             }
 
-            // Record failed attempt
-            $this->recordFailedAttempt($key);
+            // Record failed attempt on both keys
+            $this->recordFailedAttempt($ipKey);
+            $this->recordFailedAttempt($emailKey);
 
             // Show warning when approaching lockout
-            $config = $this->getRateLimitConfig($key);
+            $config = $this->getRateLimitConfig($ipKey);
             $remaining = $config['max'] - $config['attempts'];
             $warning = '';
 

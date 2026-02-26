@@ -3,240 +3,181 @@
 @section('title', $homework->title)
 
 @section('content')
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Homework Content -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-info text-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="badge bg-light text-info me-2">{{ $homework->homework_number }}</span>
-                            <h4 class="mb-0 d-inline">{{ $homework->title }}</h4>
-                        </div>
-                        @if(auth()->user()->role === 'admin' || auth()->user()->role === 'instructor')
-                        <div class="dropdown">
-                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-cog"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('homeworks.edit', [$homework->informationSheet, $homework]) }}">
-                                        <i class="fas fa-edit me-2"></i>Edit
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form action="{{ route('homeworks.destroy', [$homework->informationSheet, $homework]) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this homework?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="dropdown-item text-danger">
-                                            <i class="fas fa-trash me-2"></i>Delete
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </div>
-                        @endif
-                    </div>
-                </div>
-                <div class="card-body">
-                    <!-- Due Date Alert -->
-                    @if($homework->is_past_due)
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-2"></i>This homework is past due!
-                    </div>
-                    @elseif($homework->days_until_due <= 3)
-                    <div class="alert alert-warning">
-                        <i class="fas fa-clock me-2"></i>Due in {{ $homework->days_until_due }} day(s)!
-                    </div>
-                    @endif
+<div class="content-area">
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$homework->informationSheet->module->course_id, $homework->informationSheet->module, $homework->informationSheet->module->slug]) }}">{{ $homework->informationSheet->module->module_name }}</a></li>
+            <li class="breadcrumb-item active">{{ $homework->title }}</li>
+        </ol>
+    </nav>
 
-                    @if($homework->description)
-                    <p class="lead">{{ $homework->description }}</p>
-                    @endif
-
-                    <!-- Instructions -->
-                    <div class="mb-4">
-                        <h5><i class="fas fa-list-ol text-info me-2"></i>Instructions</h5>
-                        <div class="bg-light p-3 rounded">
-                            {!! nl2br(e($homework->instructions)) !!}
-                        </div>
-                    </div>
-
-                    <!-- Reference Images -->
-                    @if(count($homework->reference_images_list) > 0)
-                    <div class="mb-4">
-                        <h5><i class="fas fa-images text-info me-2"></i>Reference Images</h5>
-                        <div class="row">
-                            @foreach($homework->reference_images_list as $image)
-                            <div class="col-md-4 mb-3">
-                                <a href="{{ Storage::url($image) }}" target="_blank">
-                                    <img src="{{ Storage::url($image) }}" alt="Reference" class="img-fluid rounded shadow-sm">
-                                </a>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    @endif
-                </div>
+    <div class="cb-show">
+        {{-- Header --}}
+        <div class="cb-show__header cb-header--homework">
+            <div class="cb-show__header-left">
+                <h4><i class="fas fa-book-open me-2"></i>{{ $homework->title }}</h4>
+                <p>{{ $homework->homework_number }}@if($homework->description) &mdash; {{ Str::limit($homework->description, 80) }}@endif</p>
             </div>
-
-            <!-- Student Submission Form -->
-            @if(auth()->user()->role === 'student')
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-upload me-2"></i>Submit Your Work</h5>
+            <div class="cb-show__header-right">
+                <span class="badge bg-light text-dark"><i class="fas fa-star me-1"></i>{{ $homework->max_points }} pts</span>
+                <span class="badge bg-{{ $homework->is_past_due ? 'danger' : 'light' }} {{ $homework->is_past_due ? '' : 'text-dark' }}">
+                    <i class="fas fa-calendar me-1"></i>{{ $homework->due_date->format('M d, Y h:i A') }}
+                </span>
+                @if(in_array(auth()->user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]))
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="fas fa-cog"></i></button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ route('homeworks.edit', [$homework->informationSheet, $homework]) }}"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form action="{{ route('homeworks.destroy', [$homework->informationSheet, $homework]) }}" method="POST" onsubmit="return confirm('Delete this homework?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="dropdown-item text-danger"><i class="fas fa-trash me-2"></i>Delete</button>
+                            </form>
+                        </li>
+                    </ul>
                 </div>
-                <div class="card-body">
-                    <form action="{{ route('homeworks.submit', $homework) }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <div class="mb-3">
-                            <label for="submission_file" class="form-label">Upload File <span class="text-danger">*</span></label>
-                            <input type="file" class="form-control" id="submission_file" name="submission_file" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.zip" required>
-                            <small class="text-muted">Accepted formats: JPG, PNG, PDF, DOC, DOCX, ZIP (Max: 10MB)</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Description/Notes</label>
-                            <textarea class="form-control" id="description" name="description" rows="3" placeholder="Add any notes about your submission..."></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="work_hours" class="form-label">Time Spent (hours)</label>
-                            <input type="number" class="form-control" id="work_hours" name="work_hours" step="0.5" min="0" placeholder="How long did this take?">
-                        </div>
-                        <button type="submit" class="btn btn-primary" {{ $homework->is_past_due ? 'disabled' : '' }}>
-                            <i class="fas fa-paper-plane me-1"></i>Submit Homework
-                        </button>
-                        @if($homework->is_past_due)
-                        <small class="text-danger ms-2">Submissions are closed</small>
-                        @endif
-                    </form>
-                </div>
+                @endif
+                <a href="{{ route('information-sheets.show', ['module' => $homework->informationSheet->module_id, 'informationSheet' => $homework->informationSheet->id]) }}" class="btn btn-sm btn-light">
+                    <i class="fas fa-arrow-left me-1"></i>Back
+                </a>
             </div>
-            @endif
-
-            <!-- Submissions List (for instructors) -->
-            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'instructor')
-            <div class="card shadow-sm">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Submissions ({{ $homework->submission_count }})</h5>
-                </div>
-                <div class="card-body">
-                    @if($homework->submissions->count() > 0)
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Student</th>
-                                    <th>Submitted</th>
-                                    <th>Score</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($homework->submissions as $submission)
-                                <tr>
-                                    <td>{{ $submission->user->first_name }} {{ $submission->user->last_name }}</td>
-                                    <td>
-                                        {{ $submission->submitted_at->format('M d, Y H:i') }}
-                                        @if($submission->is_late)
-                                        <span class="badge bg-danger">Late</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($submission->score !== null)
-                                        <span class="badge bg-{{ $submission->score >= 70 ? 'success' : 'warning' }}">
-                                            {{ $submission->score }}/{{ $homework->max_points }}
-                                        </span>
-                                        @else
-                                        <span class="badge bg-secondary">Not graded</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <a href="{{ Storage::url($submission->file_path) }}" class="btn btn-sm btn-outline-primary" target="_blank">
-                                            <i class="fas fa-download"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                    @else
-                    <p class="text-muted text-center mb-0">No submissions yet</p>
-                    @endif
-                </div>
-            </div>
-            @endif
         </div>
 
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Due Date & Points -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-{{ $homework->is_past_due ? 'danger' : 'primary' }} text-white">
-                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Deadline</h5>
-                </div>
-                <div class="card-body text-center">
-                    <h3 class="text-{{ $homework->is_past_due ? 'danger' : 'primary' }}">
-                        {{ $homework->due_date->format('M d, Y') }}
-                    </h3>
-                    <p class="text-muted mb-0">{{ $homework->due_date->format('h:i A') }}</p>
-                    <hr>
-                    <div class="d-flex justify-content-around">
-                        <div>
-                            <h4 class="text-info mb-0">{{ $homework->max_points }}</h4>
-                            <small class="text-muted">Max Points</small>
-                        </div>
-                        <div>
-                            <h4 class="text-success mb-0">{{ $homework->submission_count }}</h4>
-                            <small class="text-muted">Submissions</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        {{-- Status strip --}}
+        <div class="cb-meta-strip">
+            @if($homework->is_past_due)
+            <span class="cb-meta-chip cb-meta-chip--danger"><i class="fas fa-exclamation-circle"></i> Past Due</span>
+            @elseif($homework->days_until_due <= 3)
+            <span class="cb-meta-chip cb-meta-chip--warning"><i class="fas fa-clock"></i> {{ $homework->days_until_due }} day(s) left</span>
+            @else
+            <span class="cb-meta-chip cb-meta-chip--success"><i class="fas fa-clock"></i> {{ $homework->days_until_due }} days left</span>
+            @endif
+            <span class="cb-meta-chip cb-meta-chip--info"><i class="fas fa-star"></i> {{ $homework->max_points }} max points</span>
+            <span class="cb-meta-chip cb-meta-chip--purple"><i class="fas fa-users"></i> {{ $homework->submission_count }} submissions</span>
+        </div>
 
-            <!-- Requirements -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Requirements</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        @foreach($homework->requirements_list as $requirement)
-                        <li class="list-group-item">
-                            <i class="fas fa-check-square text-warning me-2"></i>{{ $requirement }}
-                        </li>
-                        @endforeach
-                    </ul>
-                </div>
+        {{-- Horizontal meta: Requirements | Guidelines | Instructions --}}
+        <div class="cb-meta-sections">
+            <div class="cb-meta-section">
+                <div class="cb-meta-section__title"><i class="fas fa-list-check" style="color:#f57c00;"></i> Requirements</div>
+                <ul class="cb-meta-section__list">
+                    @foreach($homework->requirements_list as $req)
+                    <li><i class="fas fa-check-square" style="color:#ffa726;"></i> {{ $req }}</li>
+                    @endforeach
+                </ul>
             </div>
-
-            <!-- Submission Guidelines -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Submission Guidelines</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        @foreach($homework->submission_guidelines_list as $guideline)
-                        <li class="list-group-item">
-                            <i class="fas fa-info-circle text-success me-2"></i>{{ $guideline }}
-                        </li>
-                        @endforeach
-                    </ul>
-                </div>
+            <div class="cb-meta-section">
+                <div class="cb-meta-section__title"><i class="fas fa-clipboard-check" style="color:#388e3c;"></i> Submission Guidelines</div>
+                <ul class="cb-meta-section__list">
+                    @foreach($homework->submission_guidelines_list as $guide)
+                    <li><i class="fas fa-info-circle" style="color:#66bb6a;"></i> {{ $guide }}</li>
+                    @endforeach
+                </ul>
             </div>
-
-            <!-- Navigation -->
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <a href="{{ route('information-sheets.show', ['module' => $homework->informationSheet->module_id, 'informationSheet' => $homework->informationSheet->id]) }}" class="btn btn-outline-primary w-100">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Information Sheet
-                    </a>
+            <div class="cb-meta-section" style="grid-column: span 2;">
+                <div class="cb-meta-section__title"><i class="fas fa-file-alt" style="color:#5c6bc0;"></i> Instructions</div>
+                <div style="font-size: 0.8rem; color: var(--cb-text-label); line-height: 1.5;">
+                    {!! nl2br(e($homework->instructions)) !!}
                 </div>
             </div>
         </div>
+
+        {{-- Reference Images --}}
+        @if(count($homework->reference_images_list) > 0)
+        <div class="cb-show__body" style="padding-bottom: 0.75rem;">
+            <div class="cb-items-header" style="margin-bottom: 0.5rem; padding-bottom: 0.5rem;">
+                <h5><i class="fas fa-images"></i> Reference Images</h5>
+            </div>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                @foreach($homework->reference_images_list as $image)
+                <a href="{{ Storage::url($image) }}" target="_blank">
+                    <img src="{{ Storage::url($image) }}" alt="Reference" class="img-fluid rounded" style="max-height: 120px; border: 1px solid var(--cb-border);">
+                </a>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        {{-- Student Submission --}}
+        @if(auth()->user()->role === \App\Constants\Roles::STUDENT)
+        <form action="{{ route('homeworks.submit', $homework) }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="cb-show__body" style="border-top: 2px solid var(--cb-border); padding-top: 1rem;">
+                <div class="cb-items-header" style="margin-bottom: 0.75rem; padding-bottom: 0.5rem;">
+                    <h5><i class="fas fa-upload"></i> Submit Your Work</h5>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label class="cb-field-label">Upload File <span class="required">*</span></label>
+                        <label class="cb-upload-area" style="padding: 1rem;">
+                            <input type="file" class="d-none" name="submission_file" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.zip" required onchange="this.closest('.cb-upload-area').classList.add('has-file'); this.closest('.cb-upload-area').querySelector('.upload-name').textContent = this.files[0].name;">
+                            <i class="fas fa-cloud-upload-alt d-block" style="font-size: 1.5rem;"></i>
+                            <div class="cb-upload-area__text"><strong>Click to upload</strong><br><small>JPG, PNG, PDF, DOC, ZIP</small></div>
+                            <span class="upload-name" style="color: #388e3c; font-weight: 600; font-size: 0.8rem;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="cb-field-label">Notes <span class="optional">(optional)</span></label>
+                        <textarea class="form-control form-control-sm" name="description" rows="4" placeholder="Notes about your submission..."></textarea>
+                    </div>
+                    <div>
+                        <label class="cb-field-label">Time Spent <span class="optional">(optional)</span></label>
+                        <input type="number" class="form-control form-control-sm" name="work_hours" step="0.5" min="0" placeholder="Hours">
+                    </div>
+                </div>
+            </div>
+            <div class="cb-show__footer">
+                <small style="color: var(--cb-text-hint);"><i class="fas fa-info-circle me-1"></i>Upload your file before submitting.</small>
+                <button type="submit" class="btn btn-success" {{ $homework->is_past_due ? 'disabled' : '' }}>
+                    <i class="fas fa-paper-plane me-1"></i>Submit Homework
+                    @if($homework->is_past_due)<small class="ms-1">(Closed)</small>@endif
+                </button>
+            </div>
+        </form>
+        @endif
+
+        {{-- Instructor: Submissions --}}
+        @if(in_array(auth()->user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]))
+        <div class="cb-show__body" style="border-top: 2px solid var(--cb-border); padding-top: 1rem;">
+            <div class="cb-items-header" style="margin-bottom: 0.75rem; padding-bottom: 0.5rem;">
+                <h5><i class="fas fa-users"></i> Submissions <span class="cb-count-badge">{{ $homework->submissions->count() }}</span></h5>
+            </div>
+
+            @if($homework->submissions->count() > 0)
+            <div class="cb-grid">
+                @foreach($homework->submissions as $submission)
+                <div class="cb-item-card cb-item-card--compact">
+                    <div class="cb-item-card__header">
+                        <div class="left-section">
+                            <span class="cb-item-card__number"><i class="fas fa-user"></i></span>
+                            <span class="cb-item-card__title">{{ $submission->user->first_name }} {{ $submission->user->last_name }}</span>
+                            @if($submission->is_late)<span class="badge bg-danger" style="font-size:0.65rem;">Late</span>@endif
+                        </div>
+                        <div class="right-section">
+                            @if($submission->score !== null)
+                            <span class="badge bg-{{ $submission->score >= 70 ? 'success' : 'warning' }}">{{ $submission->score }}/{{ $homework->max_points }}</span>
+                            @else
+                            <span class="badge bg-secondary">Ungraded</span>
+                            @endif
+                            <a href="{{ Storage::url($submission->file_path) }}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="fas fa-download"></i></a>
+                        </div>
+                    </div>
+                    <div class="cb-item-card__body" style="padding: 0.5rem 0.75rem;">
+                        <small style="color: var(--cb-text-hint);"><i class="fas fa-clock me-1"></i>{{ $submission->submitted_at->format('M d, Y h:i A') }}</small>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @else
+            <div class="cb-empty-state" style="padding: 1.5rem;">
+                <i class="fas fa-inbox d-block" style="font-size: 2rem;"></i>
+                <p><strong>No submissions yet</strong></p>
+            </div>
+            @endif
+        </div>
+        @endif
     </div>
 </div>
 @endsection

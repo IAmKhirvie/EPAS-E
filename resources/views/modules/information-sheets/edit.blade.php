@@ -83,7 +83,7 @@
                 </div>
 
                 <div class="cb-footer">
-                    <a href="{{ route('modules.show', $module) }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('courses.modules.show', [$module->course_id, $module, $module->slug]) }}" class="btn btn-outline-secondary">
                         <i class="fas fa-times me-1"></i>Cancel
                     </a>
                     <div class="btn-group-footer">

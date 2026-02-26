@@ -39,7 +39,7 @@ class InformationSheetController extends Controller
 
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = \Illuminate\Support\Str::uuid() . '.' . $file->getClientOriginalExtension();
                 $filePath = $file->storeAs('information-sheets', $filename, 'public');
 
                 $validated['file_path'] = $filePath;
@@ -97,7 +97,7 @@ class InformationSheetController extends Controller
                 }
 
                 $file = $request->file('file');
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = \Illuminate\Support\Str::uuid() . '.' . $file->getClientOriginalExtension();
                 $filePath = $file->storeAs('information-sheets', $filename, 'public');
 
                 $validated['file_path'] = $filePath;

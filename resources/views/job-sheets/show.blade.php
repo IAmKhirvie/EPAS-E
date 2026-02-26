@@ -3,198 +3,161 @@
 @section('title', $jobSheet->title)
 
 @section('content')
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Job Sheet Content -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-success text-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="badge bg-light text-success me-2">{{ $jobSheet->job_number }}</span>
-                            <h4 class="mb-0 d-inline">{{ $jobSheet->title }}</h4>
+<div class="content-area">
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$jobSheet->informationSheet->module->course_id, $jobSheet->informationSheet->module, $jobSheet->informationSheet->module->slug]) }}">{{ $jobSheet->informationSheet->module->module_name }}</a></li>
+            <li class="breadcrumb-item active">{{ $jobSheet->title }}</li>
+        </ol>
+    </nav>
+
+    <div class="cb-show">
+        {{-- Header --}}
+        <div class="cb-show__header cb-header--job">
+            <div class="cb-show__header-left">
+                <h4><i class="fas fa-hard-hat me-2"></i>{{ $jobSheet->title }}</h4>
+                <p>{{ $jobSheet->job_number }}@if($jobSheet->description) &mdash; {{ Str::limit($jobSheet->description, 80) }}@endif</p>
+            </div>
+            <div class="cb-show__header-right">
+                <span class="badge bg-light text-dark"><i class="fas fa-list-ol me-1"></i>{{ $jobSheet->steps->count() }} Steps</span>
+                @if(in_array(auth()->user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]))
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="fas fa-cog"></i></button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ route('job-sheets.edit', [$jobSheet->informationSheet, $jobSheet]) }}"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form action="{{ route('job-sheets.destroy', [$jobSheet->informationSheet, $jobSheet]) }}" method="POST" onsubmit="return confirm('Delete this job sheet?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="dropdown-item text-danger"><i class="fas fa-trash me-2"></i>Delete</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+                @endif
+                <a href="{{ route('information-sheets.show', ['module' => $jobSheet->informationSheet->module_id, 'informationSheet' => $jobSheet->informationSheet->id]) }}" class="btn btn-sm btn-light">
+                    <i class="fas fa-arrow-left me-1"></i>Back
+                </a>
+            </div>
+        </div>
+
+        {{-- Horizontal meta: Objectives | Tools | Safety | References --}}
+        <div class="cb-meta-sections">
+            <div class="cb-meta-section">
+                <div class="cb-meta-section__title"><i class="fas fa-bullseye" style="color:#388e3c;"></i> Objectives</div>
+                <ul class="cb-meta-section__list">
+                    @foreach($jobSheet->objectives_list as $obj)
+                    <li><i class="fas fa-check-circle" style="color:#66bb6a;"></i> {{ $obj }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            <div class="cb-meta-section">
+                <div class="cb-meta-section__title"><i class="fas fa-wrench" style="color:#f57c00;"></i> Tools Required</div>
+                <ul class="cb-meta-section__list">
+                    @foreach($jobSheet->tools_required_list as $tool)
+                    <li><i class="fas fa-tools" style="color:#ffa726;"></i> {{ $tool }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            <div class="cb-meta-section">
+                <div class="cb-meta-section__title"><i class="fas fa-shield-alt" style="color:#e53935;"></i> Safety</div>
+                <ul class="cb-meta-section__list">
+                    @foreach($jobSheet->safety_requirements_list as $safety)
+                    <li><i class="fas fa-exclamation-triangle" style="color:#ef5350;"></i> {{ $safety }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @if(count($jobSheet->reference_materials_list) > 0)
+            <div class="cb-meta-section">
+                <div class="cb-meta-section__title"><i class="fas fa-book" style="color:#5c6bc0;"></i> References</div>
+                <ul class="cb-meta-section__list">
+                    @foreach($jobSheet->reference_materials_list as $ref)
+                    <li><i class="fas fa-file-alt" style="color:#7986cb;"></i> {{ $ref }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+        </div>
+
+        {{-- Steps Grid --}}
+        <div class="cb-show__body">
+            <div class="cb-items-header" style="margin-bottom: 0.75rem; padding-bottom: 0.5rem;">
+                <h5><i class="fas fa-list-ol"></i> Procedure Steps <span class="cb-count-badge">{{ $jobSheet->steps->count() }}</span></h5>
+            </div>
+
+            <div class="cb-grid">
+                @foreach($jobSheet->steps->sortBy('step_number') as $step)
+                <div class="cb-item-card cb-item-card--compact">
+                    <div class="cb-item-card__header">
+                        <div class="left-section">
+                            <span class="cb-item-card__number">{{ $step->step_number }}</span>
+                            <span class="cb-item-card__title">Step {{ $step->step_number }}</span>
                         </div>
-                        @if(auth()->user()->role === 'admin' || auth()->user()->role === 'instructor')
-                        <div class="dropdown">
-                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-cog"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('job-sheets.edit', [$jobSheet->informationSheet, $jobSheet]) }}">
-                                        <i class="fas fa-edit me-2"></i>Edit
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form action="{{ route('job-sheets.destroy', [$jobSheet->informationSheet, $jobSheet]) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this job sheet?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="dropdown-item text-danger">
-                                            <i class="fas fa-trash me-2"></i>Delete
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
+                    </div>
+                    <div class="cb-item-card__body">
+                        <p style="font-size: 0.8rem; margin-bottom: 0.5rem; color: var(--cb-text-label);">{{ $step->instruction }}</p>
+                        <div class="cb-meta-chip cb-meta-chip--green" style="white-space: normal;">
+                            <i class="fas fa-check-circle"></i> {{ $step->expected_outcome }}
+                        </div>
+                        @if($step->image_path)
+                        <div style="margin-top: 0.5rem;">
+                            <img src="{{ Storage::url($step->image_path) }}" alt="Step {{ $step->step_number }}" class="img-fluid rounded" style="max-height: 120px;">
                         </div>
                         @endif
                     </div>
                 </div>
-                <div class="card-body">
-                    @if($jobSheet->description)
-                    <p class="lead">{{ $jobSheet->description }}</p>
-                    @endif
-
-                    <!-- Steps -->
-                    <div class="mb-4">
-                        <h5><i class="fas fa-list-ol text-success me-2"></i>Procedure Steps</h5>
-                        <div class="timeline">
-                            @foreach($jobSheet->steps->sortBy('step_number') as $step)
-                            <div class="card mb-3 border-start border-success border-4">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-start">
-                                        <div class="step-number bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; min-width: 40px;">
-                                            <strong>{{ $step->step_number }}</strong>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-2">Step {{ $step->step_number }}</h6>
-                                            <p class="mb-2">{{ $step->instruction }}</p>
-                                            <div class="alert alert-success py-2 mb-0">
-                                                <small><strong>Expected Outcome:</strong> {{ $step->expected_outcome }}</small>
-                                            </div>
-                                            @if($step->image_path)
-                                            <div class="mt-2">
-                                                <img src="{{ Storage::url($step->image_path) }}" alt="Step {{ $step->step_number }}" class="img-fluid rounded" style="max-height: 200px;">
-                                            </div>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
+                @endforeach
             </div>
+        </div>
 
-            <!-- Student Submission Form -->
-            @if(auth()->user()->role === 'student')
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-paper-plane me-2"></i>Submit Your Work</h5>
+        {{-- Student Submission --}}
+        @if(auth()->user()->role === \App\Constants\Roles::STUDENT)
+        <form action="{{ route('job-sheets.submit', $jobSheet) }}" method="POST">
+            @csrf
+            <div class="cb-show__body" style="border-top: 2px solid var(--cb-border); padding-top: 1rem;">
+                <div class="cb-items-header" style="margin-bottom: 0.75rem; padding-bottom: 0.5rem;">
+                    <h5><i class="fas fa-paper-plane"></i> Submit Your Work</h5>
                 </div>
-                <div class="card-body">
-                    <form action="{{ route('job-sheets.submit', $jobSheet) }}" method="POST">
-                        @csrf
-                        <div class="mb-3">
-                            <label class="form-label">Completed Steps <span class="text-danger">*</span></label>
+
+                <div class="cb-show__split">
+                    {{-- Left: Completed steps --}}
+                    <div>
+                        <label class="cb-field-label"><i class="fas fa-check-double me-1"></i>Completed Steps</label>
+                        <div style="background: var(--cb-surface-alt); border-radius: var(--cb-radius-sm); padding: 0.75rem;">
                             @foreach($jobSheet->steps->sortBy('step_number') as $step)
-                            <div class="form-check">
+                            <div class="form-check mb-1">
                                 <input class="form-check-input" type="checkbox" name="completed_steps[]" value="{{ $step->id }}" id="step{{ $step->id }}">
-                                <label class="form-check-label" for="step{{ $step->id }}">
+                                <label class="form-check-label" for="step{{ $step->id }}" style="font-size: 0.8rem;">
                                     Step {{ $step->step_number }}: {{ Str::limit($step->instruction, 50) }}
                                 </label>
                             </div>
                             @endforeach
                         </div>
+                    </div>
+                    {{-- Right: Text fields --}}
+                    <div>
                         <div class="mb-3">
-                            <label for="observations" class="form-label">Observations <span class="text-danger">*</span></label>
-                            <textarea class="form-control" id="observations" name="observations" rows="3" required placeholder="Describe what you observed during the job..."></textarea>
+                            <label class="cb-field-label">Observations <span class="required">*</span></label>
+                            <textarea class="form-control form-control-sm" name="observations" rows="2" required placeholder="What you observed..."></textarea>
                         </div>
                         <div class="mb-3">
-                            <label for="challenges" class="form-label">Challenges Encountered</label>
-                            <textarea class="form-control" id="challenges" name="challenges" rows="2" placeholder="Any difficulties you faced..."></textarea>
+                            <label class="cb-field-label">Challenges <span class="optional">(optional)</span></label>
+                            <textarea class="form-control form-control-sm" name="challenges" rows="2" placeholder="Difficulties faced..."></textarea>
                         </div>
-                        <div class="mb-3">
-                            <label for="solutions" class="form-label">Solutions Applied</label>
-                            <textarea class="form-control" id="solutions" name="solutions" rows="2" placeholder="How you solved the challenges..."></textarea>
+                        <div>
+                            <label class="cb-field-label">Solutions <span class="optional">(optional)</span></label>
+                            <textarea class="form-control form-control-sm" name="solutions" rows="2" placeholder="How you solved them..."></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-check me-1"></i>Submit Job Sheet
-                        </button>
-                    </form>
+                    </div>
                 </div>
             </div>
-            @endif
-        </div>
-
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Objectives -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="fas fa-bullseye me-2"></i>Objectives</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        @foreach($jobSheet->objectives_list as $objective)
-                        <li class="list-group-item">
-                            <i class="fas fa-check-circle text-success me-2"></i>{{ $objective }}
-                        </li>
-                        @endforeach
-                    </ul>
-                </div>
+            <div class="cb-show__footer">
+                <small style="color: var(--cb-text-hint);"><i class="fas fa-info-circle me-1"></i>Check completed steps and fill in observations.</small>
+                <button type="submit" class="btn btn-success"><i class="fas fa-check me-1"></i>Submit Job Sheet</button>
             </div>
-
-            <!-- Tools Required -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0"><i class="fas fa-tools me-2"></i>Tools Required</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        @foreach($jobSheet->tools_required_list as $tool)
-                        <li class="list-group-item">
-                            <i class="fas fa-wrench text-warning me-2"></i>{{ $tool }}
-                        </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Safety Requirements -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Safety Requirements</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        @foreach($jobSheet->safety_requirements_list as $safety)
-                        <li class="list-group-item list-group-item-danger">
-                            <i class="fas fa-shield-alt me-2"></i>{{ $safety }}
-                        </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Reference Materials -->
-            @if(count($jobSheet->reference_materials_list) > 0)
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="fas fa-book me-2"></i>References</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        @foreach($jobSheet->reference_materials_list as $ref)
-                        <li class="list-group-item">
-                            <i class="fas fa-file-alt text-secondary me-2"></i>{{ $ref }}
-                        </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-            @endif
-
-            <!-- Navigation -->
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <a href="{{ route('information-sheets.show', ['module' => $jobSheet->informationSheet->module_id, 'informationSheet' => $jobSheet->informationSheet->id]) }}" class="btn btn-outline-primary w-100">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Information Sheet
-                    </a>
-                </div>
-            </div>
-        </div>
+        </form>
+        @endif
     </div>
 </div>
 @endsection

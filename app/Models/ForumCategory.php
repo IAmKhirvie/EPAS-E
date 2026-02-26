@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Constants\Roles;
 use Illuminate\Support\Str;
 
 class ForumCategory extends Model
@@ -95,6 +96,6 @@ class ForumCategory extends Model
         if (!$this->admin_only_post) {
             return true;
         }
-        return in_array($user->role, ['admin', 'instructor']);
+        return in_array($user->role, [Roles::ADMIN, Roles::INSTRUCTOR]);
     }
 }

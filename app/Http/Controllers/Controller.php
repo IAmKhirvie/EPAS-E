@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Constants\Roles;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
  */
 abstract class Controller
 {
+    use AuthorizesRequests;
     /**
      * Check if the current user is an admin.
      *

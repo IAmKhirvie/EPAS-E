@@ -138,7 +138,10 @@ class PHPMailerService
 
     protected function getVerificationEmailTemplate($user, $verificationUrl)
     {
-        $fullName = $user->first_name . ' ' . $user->last_name;
+        $fullName = htmlspecialchars($user->first_name . ' ' . $user->last_name, ENT_QUOTES, 'UTF-8');
+        $firstName = htmlspecialchars($user->first_name, ENT_QUOTES, 'UTF-8');
+        $email = htmlspecialchars($user->email, ENT_QUOTES, 'UTF-8');
+        $safeUrl = htmlspecialchars($verificationUrl, ENT_QUOTES, 'UTF-8');
         
         return "
         <!DOCTYPE html>
@@ -172,26 +175,26 @@ class PHPMailerService
             <div class='content'>
                 <h2 style='color: #333;'>Verify Your Email Address</h2>
                 
-                <p>Hello <strong>{$user->first_name}</strong>,</p>
-                
+                <p>Hello <strong>{$firstName}</strong>,</p>
+
                 <p>Thank you for registering with EPAS-E Learning Management System. Please verify your email address to complete your registration.</p>
-                
+
                 <div class='details'>
                     <p><strong>Account Details:</strong></p>
                     <ul>
                         <li><strong>Name:</strong> {$fullName}</li>
-                        <li><strong>Email:</strong> {$user->email}</li>
+                        <li><strong>Email:</strong> {$email}</li>
                     </ul>
                 </div>
-                
+
                 <p style='text-align: center;'>
-                    <a href='{$verificationUrl}' class='button' style='color: #ffffff !important;'>
+                    <a href='{$safeUrl}' class='button' style='color: #ffffff !important;'>
                         Verify Email Address
                     </a>
                 </p>
-                
+
                 <p>If the button doesn't work, copy and paste this link in your browser:</p>
-                <div class='url-box'>{$verificationUrl}</div>
+                <div class='url-box'>{$safeUrl}</div>
                 
                 <p>If you did not create an account, please ignore this email.</p>
                 
@@ -301,7 +304,10 @@ class PHPMailerService
 
     protected function getPasswordResetEmailTemplate($user, $resetUrl)
     {
-        $fullName = $user->first_name . ' ' . $user->last_name;
+        $fullName = htmlspecialchars($user->first_name . ' ' . $user->last_name, ENT_QUOTES, 'UTF-8');
+        $firstName = htmlspecialchars($user->first_name, ENT_QUOTES, 'UTF-8');
+        $email = htmlspecialchars($user->email, ENT_QUOTES, 'UTF-8');
+        $safeUrl = htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8');
         
         return "
         <!DOCTYPE html>
@@ -336,26 +342,26 @@ class PHPMailerService
             <div class='content'>
                 <h2 style='color: #333;'>Reset Your Password</h2>
                 
-                <p>Hello <strong>{$user->first_name}</strong>,</p>
-                
+                <p>Hello <strong>{$firstName}</strong>,</p>
+
                 <p>You are receiving this email because we received a password reset request for your account.</p>
-                
+
                 <div class='details'>
                     <p><strong>Account Details:</strong></p>
                     <ul>
                         <li><strong>Name:</strong> {$fullName}</li>
-                        <li><strong>Email:</strong> {$user->email}</li>
+                        <li><strong>Email:</strong> {$email}</li>
                     </ul>
                 </div>
-                
+
                 <p style='text-align: center;'>
-                    <a href='{$resetUrl}' class='button' style='color: #ffffff !important;'>
+                    <a href='{$safeUrl}' class='button' style='color: #ffffff !important;'>
                         Reset Password
                     </a>
                 </p>
-                
+
                 <p>If the button doesn't work, copy and paste this link in your browser:</p>
-                <div class='url-box'>{$resetUrl}</div>
+                <div class='url-box'>{$safeUrl}</div>
                 
                 <div class='warning'>
                     <p><strong>Important:</strong> This password reset link will expire in 1 hour.</p>

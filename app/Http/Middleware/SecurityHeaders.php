@@ -30,13 +30,16 @@ class SecurityHeaders
         $response->headers->set('Expires', 'Fri, 01 Jan 1990 00:00:00 GMT');
 
         // Content Security Policy
+        // Allow Vite dev server in local development
+        $viteDevServer = config('app.debug') ? ' http://127.0.0.1:5173' : '';
+
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com",
-            "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.googleapis.com",
+            "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com" . $viteDevServer, // unsafe-inline required for Livewire/Alpine
+            "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.googleapis.com" . $viteDevServer,
             "font-src 'self' data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com",
             "img-src 'self' data: https: blob:",
-            "connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
+            "connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com" . ($viteDevServer ? ' ws://127.0.0.1:5173' . $viteDevServer : ''),
             "frame-src 'self' https://www.google.com https://maps.google.com",
             "frame-ancestors 'none'",
             "base-uri 'self'",
