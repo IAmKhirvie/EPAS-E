@@ -409,23 +409,74 @@ class SelfCheckController extends Controller
 
     public function edit(InformationSheet $informationSheet, SelfCheck $selfCheck)
     {
-        $selfCheck->load('questions');
-        return view('modules.self-checks.edit', compact('informationSheet', 'selfCheck'));
+        $selfCheck->load('questions.options');
+
+        // Build structured question data for the JS quiz builder
+        $existingQuestions = $selfCheck->questions->sortBy('order')->values()->map(function ($q) {
+            $data = [
+                'id' => $q->id,
+                'question_type' => $q->question_type,
+                'question_text' => $q->question_text,
+                'points' => $q->points,
+                'correct_answer' => $q->correct_answer,
+                'explanation' => $q->explanation,
+                'metadata' => $q->metadata ? json_decode($q->metadata, true) : null,
+                'option_texts' => $q->options->sortBy('order')->pluck('option_text')->values()->toArray(),
+            ];
+            return $data;
+        });
+
+        return view('modules.self-checks.edit', compact('informationSheet', 'selfCheck', 'existingQuestions'));
     }
 
     public function update(UpdateSelfCheckRequest $request, InformationSheet $informationSheet, SelfCheck $selfCheck)
     {
-        $validated = $request->validated();
-
         try {
-            $selfCheck->update([
-                'check_number' => $request->check_number,
-                'title' => $request->title,
-                'description' => $request->description,
-                'instructions' => $request->instructions,
-                'time_limit' => $request->time_limit,
-                'passing_score' => $request->passing_score,
-            ]);
+            DB::transaction(function () use ($request, $selfCheck) {
+                // Calculate total points
+                $totalPoints = collect($request->questions)->sum('points');
+
+                // Update self-check metadata
+                $selfCheck->update([
+                    'check_number' => $request->check_number,
+                    'title' => $request->title,
+                    'description' => $request->description,
+                    'instructions' => $request->instructions,
+                    'time_limit' => $request->time_limit,
+                    'passing_score' => $request->passing_score,
+                    'total_points' => $totalPoints,
+                ]);
+
+                // Delete all existing questions (cascade deletes options)
+                $selfCheck->questions()->delete();
+
+                // Recreate questions from form data
+                $order = 0;
+                foreach ($request->questions as $questionData) {
+                    $order++;
+
+                    $options = $this->processQuestionOptions(
+                        $questionData['question_type'],
+                        $questionData['options'] ?? []
+                    );
+
+                    $correctAnswer = $this->processCorrectAnswer(
+                        $questionData['question_type'],
+                        $questionData['correct_answer'] ?? null,
+                        $options
+                    );
+
+                    SelfCheckQuestion::create([
+                        'self_check_id' => $selfCheck->id,
+                        'question_text' => $questionData['question_text'],
+                        'question_type' => $questionData['question_type'],
+                        'points' => $questionData['points'],
+                        'correct_answer' => $correctAnswer,
+                        'explanation' => $questionData['explanation'] ?? null,
+                        'order' => $order,
+                    ]);
+                }
+            });
 
             return redirect()->route('courses.index')
                 ->with('success', 'Self-check updated successfully!');

@@ -69,11 +69,15 @@ class BulkEnrollStudents implements ShouldQueue
 
     protected function processChunk(BulkOperationLog $operation, array $studentIds): void
     {
+        // Batch-fetch all students in this chunk to avoid N+1
+        $students = User::whereIn('id', $studentIds)
+            ->where('role', 'student')
+            ->get()
+            ->keyBy('id');
+
         foreach ($studentIds as $studentId) {
             try {
-                $student = User::where('id', $studentId)
-                    ->where('role', 'student')
-                    ->first();
+                $student = $students->get($studentId);
 
                 if (!$student) {
                     $operation->addError([

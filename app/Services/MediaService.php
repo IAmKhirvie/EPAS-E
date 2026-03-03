@@ -213,7 +213,8 @@ class MediaService
      */
     protected function generateFileName(UploadedFile $file): string
     {
-        return Str::uuid() . '.' . $file->getClientOriginalExtension();
+        $extension = $file->guessExtension() ?: $file->getClientOriginalExtension();
+        return Str::uuid() . '.' . $extension;
     }
 
     /**

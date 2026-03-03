@@ -31,6 +31,7 @@ class StoreUserRequest extends FormRequest
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+=\-\[\]{}|:;<>,.?\/~`])[A-Za-z\d@$!%*?&#^()_+=\-\[\]{}|:;<>,.?\/~`]{8,}$/',
             ],
             'section'       => 'nullable|string|max:255',
+            'school_year'   => 'nullable|string|max:20',
             'room_number'   => 'nullable|string|max:255',
         ];
     }

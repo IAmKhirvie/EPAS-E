@@ -53,11 +53,11 @@ class RegisterController extends Controller
                 'required',
                 'confirmed',
                 'min:8',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/',
+                'regex:' . config('joms.password.regex'),
             ],
             'terms' => 'required|accepted',
         ], [
-            'password.regex' => 'The password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+            'password.regex' => config('joms.password.message', 'The password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.'),
             'terms.required' => 'You must accept the Terms and Conditions and Privacy Policy.',
         ]);
 
@@ -82,7 +82,7 @@ class RegisterController extends Controller
             $emailSent = $this->registrationService->sendVerificationEmail($registration);
 
             if (!$emailSent) {
-                Log::error("Failed to send verification email to: {$registration->email}");
+                Log::error("Failed to send verification email for registration ID: {$registration->id}");
                 // Don't fail registration, just warn
             }
 

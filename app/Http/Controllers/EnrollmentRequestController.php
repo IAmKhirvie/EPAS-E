@@ -123,6 +123,10 @@ class EnrollmentRequestController extends Controller
             return redirect()->back()->with('error', 'This request has already been processed.');
         }
 
+        $request->validate([
+            'admin_notes' => 'nullable|string|max:1000',
+        ]);
+
         $adminNotes = $request->input('admin_notes');
 
         try {

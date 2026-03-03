@@ -122,7 +122,7 @@ class TwoFactorService
     {
         $codes = [];
         for ($i = 0; $i < $count; $i++) {
-            $codes[] = strtoupper(substr(md5(random_bytes(32)), 0, 8));
+            $codes[] = strtoupper(bin2hex(random_bytes(4)));
         }
         return $codes;
     }

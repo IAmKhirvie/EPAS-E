@@ -83,26 +83,11 @@ class PrivateLoginController extends Controller
             if (Auth::attempt($credentials, $request->filled('remember'))) {
                 $user = Auth::user();
 
-                // Validate role
-                if ($expectedRole === Roles::ADMIN && $user->role !== Roles::ADMIN) {
+                // Validate role and account status — use generic message to avoid info leakage
+                if ($user->role !== $expectedRole || (int) $user->stat !== 1) {
                     Auth::logout();
                     return back()->withErrors([
-                        'email' => 'Access denied. This login is for administrators only.',
-                    ])->withInput($request->only('email'));
-                }
-
-                if ($expectedRole === Roles::INSTRUCTOR && $user->role !== Roles::INSTRUCTOR) {
-                    Auth::logout();
-                    return back()->withErrors([
-                        'email' => 'Access denied. This login is for instructors only.',
-                    ])->withInput($request->only('email'));
-                }
-
-                // Check if user is approved
-                if ((int) $user->stat !== 1) {
-                    Auth::logout();
-                    return back()->withErrors([
-                        'email' => 'Your account is pending approval. Please contact administrator.',
+                        'email' => 'Invalid credentials.',
                     ]);
                 }
 
@@ -114,6 +99,7 @@ class PrivateLoginController extends Controller
                 $user->save();
 
                 $request->session()->regenerate();
+                $request->session()->put('login_at', now());
                 $request->session()->forget('url.intended');
 
                 return redirect('/dashboard');

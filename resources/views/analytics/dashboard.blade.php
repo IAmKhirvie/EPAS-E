@@ -97,8 +97,8 @@
                     <h5 class="mb-0"><i class="fas fa-chart-bar me-2 text-primary"></i>Module Performance</h5>
                     <small class="text-muted">Pass vs Fail rates by module</small>
                 </div>
-                <div class="card-body">
-                    <canvas id="modulePerformanceChart" height="250"></canvas>
+                <div class="card-body chart-container">
+                    <canvas id="modulePerformanceChart"></canvas>
                 </div>
             </div>
         </div>
@@ -110,8 +110,8 @@
                     <h5 class="mb-0"><i class="fas fa-chart-pie me-2 text-success"></i>Overall Results</h5>
                     <small class="text-muted">Total pass vs fail distribution</small>
                 </div>
-                <div class="card-body d-flex align-items-center justify-content-center">
-                    <canvas id="overallResultsChart" height="200"></canvas>
+                <div class="card-body chart-container d-flex align-items-center justify-content-center">
+                    <canvas id="overallResultsChart"></canvas>
                 </div>
             </div>
         </div>
@@ -255,35 +255,6 @@
                             </li>
                         @endforelse
                     </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Weekly Engagement Chart -->
-    <div class="row mb-4">
-        <!-- Module Pass/Fail Chart -->
-        <div class="col-lg-8 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pb-0">
-                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2 text-primary"></i>Module Performance</h5>
-                    <small class="text-muted">Pass vs Fail rates by module</small>
-                </div>
-                <div class="card-body" class="chart-container">
-                    <canvas id="modulePerformanceChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Overall Pass/Fail Pie Chart -->
-        <div class="col-lg-4 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pb-0">
-                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2 text-success"></i>Overall Results</h5>
-                    <small class="text-muted">Total pass vs fail distribution</small>
-                </div>
-                <div class="card-body d-flex align-items-center justify-content-center" class="chart-container">
-                    <canvas id="overallResultsChart"></canvas>
                 </div>
             </div>
         </div>

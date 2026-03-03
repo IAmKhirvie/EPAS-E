@@ -47,17 +47,11 @@ class LoginController extends Controller
             $credentials = $request->only('email', 'password');
 
             if (Auth::attempt($credentials, $request->filled('remember'))) {
-                if (Auth::user()->role !== Roles::STUDENT) {
+                // Validate role and account status — use generic message to avoid info leakage
+                if (Auth::user()->role !== Roles::STUDENT || (int) Auth::user()->stat !== 1) {
                     Auth::logout();
                     return back()->withErrors([
-                        'email' => 'An Error Occurred please approach the administrator.',
-                    ]);
-                }
-
-                if ((int) Auth::user()->stat !== 1) {
-                    Auth::logout();
-                    return back()->withErrors([
-                        'email' => 'Your account is pending approval. Please contact administrator.',
+                        'email' => 'Invalid credentials.',
                     ]);
                 }
 
@@ -70,6 +64,7 @@ class LoginController extends Controller
                 $user->save();
 
                 $request->session()->regenerate();
+                $request->session()->put('login_at', now());
                 $request->session()->forget('url.intended');
 
                 return redirect('/student/dashboard');

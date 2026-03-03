@@ -15,8 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Trust Cloudflare Tunnel proxy (forwards HTTPS as HTTP locally)
-        $middleware->trustProxies(at: '*');
+        // Trust proxies (set TRUSTED_PROXIES in .env)
+        // Note: env() is correct here — config() is not available during middleware setup
+        $proxies = env('TRUSTED_PROXIES', '');
+        if ($proxies !== '' && $proxies !== null) {
+            $middleware->trustProxies(at: $proxies === '*' ? '*' : explode(',', $proxies));
+        }
 
         // Configure auth redirects
         $middleware->redirectGuestsTo('/login');
@@ -26,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             App\Http\Middleware\TrustProxies::class,
             App\Http\Middleware\SecurityHeaders::class,
+            App\Http\Middleware\AbsoluteSessionTimeout::class,
         ]);
         $middleware->alias([
             'check.role' => \App\Http\Middleware\CheckRole::class,
@@ -185,14 +190,22 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // ── Catch-All: Any unhandled exception ──
         $exceptions->render(function (\Throwable $e, $request) {
-            Log::error('Unhandled Exception', [
+            // Let Laravel handle validation exceptions normally (redirect back with errors)
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
+                return null;
+            }
+
+            $logContext = [
                 'exception' => get_class($e),
                 'message' => $e->getMessage(),
                 'file' => $e->getFile() . ':' . $e->getLine(),
-                'trace' => $e->getTraceAsString(),
                 'url' => $request->fullUrl(),
                 'user_id' => $request->user()?->id,
-            ]);
+            ];
+            if (config('app.debug')) {
+                $logContext['trace'] = $e->getTraceAsString();
+            }
+            Log::error('Unhandled Exception', $logContext);
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([

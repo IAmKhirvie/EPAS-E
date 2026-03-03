@@ -12,7 +12,7 @@
         </ol>
     </nav>
 
-    <form action="{{ route('task-sheets.update', [$informationSheet, $taskSheet]) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('task-sheets.update', [$informationSheet, $taskSheet]) }}" method="POST" enctype="multipart/form-data" class="cb-builder-layout-form">
         @csrf
         @method('PUT')
 

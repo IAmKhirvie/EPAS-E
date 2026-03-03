@@ -155,8 +155,8 @@ Route::prefix('reset-password')->group(function () {
 
 // Registration Verification (public routes for email verification flow)
 Route::get('/verify-registration/{token}', [RegisterController::class, 'verifyEmail'])->name('registration.verify');
-Route::post('/registration/resend', [RegisterController::class, 'resendVerification'])->name('registration.resend');
-Route::post('/registration/status', [RegisterController::class, 'checkStatus'])->name('registration.status');
+Route::post('/registration/resend', [RegisterController::class, 'resendVerification'])->middleware('throttle:3,1')->name('registration.resend');
+Route::post('/registration/status', [RegisterController::class, 'checkStatus'])->middleware('throttle:5,1')->name('registration.status');
 
 // Admin Authentication
 Route::prefix('admin')->group(function () {
@@ -199,12 +199,18 @@ Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) 
 
     // Check if already verified
     if ($user->hasVerifiedEmail()) {
+        if (Auth::check()) {
+            return redirect()->route('settings.index')->with('success', 'Email already verified.');
+        }
         return redirect('/login')->with('status', 'Email already verified. You can login.');
     }
 
     // Mark email as verified
     $user->markEmailAsVerified();
 
+    if (Auth::check()) {
+        return redirect()->route('settings.index')->with('success', 'Email verified successfully!');
+    }
     return redirect('/login')->with('status', 'Email verified successfully! You can now login.');
 })->middleware(['signed'])->name('verification.verify');
 
@@ -828,7 +834,6 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::post('/password', [SettingsController::class, 'updatePassword'])->name('password');
         Route::post('/notifications', [SettingsController::class, 'updateNotifications'])->name('notifications');
         Route::post('/appearance', [SettingsController::class, 'updateAppearance'])->name('appearance');
-        Route::post('/privacy', [SettingsController::class, 'updatePrivacy'])->name('privacy');
         Route::post('/system', [SettingsController::class, 'updateSystem'])->name('system')->middleware('check.role:admin');
         Route::get('/export', [SettingsController::class, 'exportData'])->name('export');
         Route::post('/delete-account', [SettingsController::class, 'deleteAccount'])->name('delete-account');

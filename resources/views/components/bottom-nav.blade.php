@@ -5,19 +5,21 @@
         <span class="nav-label">Home</span>
     </a>
 
-    <a href="{{ dynamic_route('courses.index') }}" class="nav-link {{ Request::is('courses*') ? 'active' : '' }}">
-        <i class="fas fa-book"></i>
-        <span class="nav-label">Courses</span>
-    </a>
-
     <a href="{{ dynamic_route('grades.index') }}" class="nav-link {{ Request::is('grades*') ? 'active' : '' }}">
         <i class="fas fa-graduation-cap"></i>
         <span class="nav-label">Grades</span>
     </a>
 
-    <a href="{{ dynamic_route('courses.index') }}" class="nav-link {{ Request::is('courses*') || Request::is('modules*') ? 'active' : '' }}">
-        <i class="fas fa-book-open"></i>
+    <a href="{{ dynamic_route('courses.index') }}" class="nav-link nav-link-center {{ Request::is('courses*') || Request::is('modules*') ? 'active' : '' }}">
+        <span class="center-btn">
+            <i class="fas fa-book-open"></i>
+        </span>
         <span class="nav-label">Courses</span>
+    </a>
+
+    <a href="{{ route('private.announcements.index') }}" class="nav-link {{ Request::is('announcements*') ? 'active' : '' }}">
+        <i class="fas fa-bullhorn"></i>
+        <span class="nav-label">News</span>
     </a>
 
     <a href="{{ route('settings.index') }}" class="nav-link {{ Request::routeIs('settings.*') ? 'active' : '' }}">
@@ -34,13 +36,13 @@
         bottom: 0;
         left: 0;
         right: 0;
-        height: 60px;
+        height: 68px;
         background: var(--bottom-nav-bg, #ffffff);
         border-top: 1px solid var(--bottom-nav-border, #e5e7eb);
         justify-content: space-around;
         align-items: center;
         z-index: var(--z-navbar); /* 100 — below sidebar/backdrop */
-        padding: 0 0.5rem;
+        padding: 6px 0.5rem 10px;
         box-shadow: 0 -2px 10px var(--bottom-nav-shadow, rgba(0,0,0,0.05));
     }
 
@@ -50,7 +52,7 @@
         }
 
         body {
-            padding-bottom: 70px !important;
+            padding-bottom: 78px !important;
         }
     }
 
@@ -111,9 +113,69 @@
         transition: color 0.2s ease;
     }
 
+    /* ── Center Courses FAB (behind the card) ── */
+    .bottom-nav .nav-link-center {
+        position: relative;
+        max-width: 90px;
+        z-index: -1;
+    }
+
+    .bottom-nav .nav-link-center .center-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: var(--bs-primary, #4f46e5);
+        color: #ffffff;
+        box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+        margin-top: -38px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .bottom-nav .nav-link-center .center-btn i {
+        font-size: 1.5rem;
+        color: #ffffff;
+        margin-bottom: 0;
+    }
+
+    .bottom-nav .nav-link-center:hover .center-btn,
+    .bottom-nav .nav-link-center:focus .center-btn {
+        transform: scale(1.08);
+        box-shadow: 0 6px 18px rgba(79, 70, 229, 0.5);
+    }
+
+    .bottom-nav .nav-link-center:active .center-btn {
+        transform: scale(0.95);
+    }
+
+    .bottom-nav .nav-link-center .nav-label {
+        margin-top: 2px;
+    }
+
+    /* Override active indicator for center button */
+    .bottom-nav .nav-link-center.active::after {
+        display: none;
+    }
+
+    .bottom-nav .nav-link-center.active .center-btn {
+        box-shadow: 0 4px 18px rgba(79, 70, 229, 0.55);
+    }
+
+    /* Override hover background for center button */
+    .bottom-nav .nav-link-center:hover,
+    .bottom-nav .nav-link-center:focus {
+        background: none;
+    }
+
     /* Active press effect */
     .bottom-nav .nav-link:active {
         transform: scale(0.92);
+    }
+
+    .bottom-nav .nav-link-center:active {
+        transform: none; /* handled by .center-btn */
     }
 
     /* Safe area padding for notched devices */
@@ -138,6 +200,10 @@
         --bottom-nav-text: #94a3b8;
     }
 
+    .dark-mode .bottom-nav .nav-link-center .center-btn {
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.5);
+    }
+
     /* Hide bottom nav when keyboard is open on mobile */
     @media (max-height: 500px) {
         .bottom-nav {
@@ -158,6 +224,16 @@
 
         .bottom-nav .nav-label {
             font-size: 0.5625rem;
+        }
+
+        .bottom-nav .nav-link-center .center-btn {
+            width: 44px;
+            height: 44px;
+            margin-top: -20px;
+        }
+
+        .bottom-nav .nav-link-center .center-btn i {
+            font-size: 1.2rem;
         }
     }
 </style>

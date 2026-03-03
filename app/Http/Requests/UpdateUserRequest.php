@@ -33,6 +33,7 @@ class UpdateUserRequest extends FormRequest
             'stat'           => 'required|boolean',
             'password'       => 'nullable|string|min:6|confirmed',
             'section'        => 'nullable|string|max:255',
+            'school_year'    => 'nullable|string|max:20',
             'custom_section' => 'nullable|string|max:255',
             'room_number'    => 'nullable|string|max:255',
         ];

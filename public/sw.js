@@ -1,6 +1,6 @@
 // EPAS-E Service Worker
 // Update CACHE_VERSION when deploying new assets to bust the cache
-const CACHE_VERSION = '2026-02-25';
+const CACHE_VERSION = '2026-03-03r';
 const CACHE_NAME = `epas-e-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline.html';
 
@@ -91,7 +91,8 @@ self.addEventListener('fetch', event => {
         url.pathname.startsWith('/logout') ||
         url.pathname.startsWith('/verify') ||
         url.pathname.startsWith('/email/') ||
-        url.pathname.startsWith('/password')) {
+        url.pathname.startsWith('/password') ||
+        url.pathname.startsWith('/settings')) {
         // Just fetch, don't cache auth routes at all
         return;
     }
