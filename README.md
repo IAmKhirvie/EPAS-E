@@ -1,115 +1,195 @@
-<h1 align="center">
-  Mailpit - email testing for developers
-</h1>
+# EPAS-E LMS
 
-<div align="center">
-    <a href="https://github.com/axllent/mailpit/actions/workflows/tests.yml"><img src="https://github.com/axllent/mailpit/actions/workflows/tests.yml/badge.svg" alt="CI Tests status"></a>
-    <a href="https://github.com/axllent/mailpit/actions/workflows/release-build.yml"><img src="https://github.com/axllent/mailpit/actions/workflows/release-build.yml/badge.svg" alt="CI build status"></a>
-    <a href="https://github.com/axllent/mailpit/actions/workflows/build-docker.yml"><img src="https://github.com/axllent/mailpit/actions/workflows/build-docker.yml/badge.svg" alt="CI Docker build status"></a>
-    <a href="https://github.com/axllent/mailpit/actions/workflows/codeql-analysis.yml"><img src="https://github.com/axllent/mailpit/actions/workflows/codeql-analysis.yml/badge.svg" alt="Code quality"></a>
-    <a href="https://goreportcard.com/report/github.com/axllent/mailpit"><img src="https://goreportcard.com/badge/github.com/axllent/mailpit" alt="Go Report Card"></a>
-    <br>
-    <a href="https://github.com/axllent/mailpit/releases/latest"><img src="https://img.shields.io/github/v/release/axllent/mailpit.svg" alt="Latest release"></a>
-    <a href="https://hub.docker.com/r/axllent/mailpit"><img src="https://img.shields.io/docker/pulls/axllent/mailpit.svg" alt="Docker pulls"></a>
-</div>
-<br>
-<p align="center">
-  <a href="https://mailpit.axllent.org">Website</a>  •
-  <a href="https://mailpit.axllent.org/docs/">Documentation</a>  •
-  <a href="https://mailpit.axllent.org/docs/api-v1/">API</a>
-</p>
+**Electronic Products Assembly and Servicing - Enhanced**
 
-<hr>
+A comprehensive Learning Management System built with Laravel 12 for Philippine K-12 vocational/technical training programs.
 
-**Mailpit** is a small, fast, low memory, zero-dependency, multi-platform email testing tool & API for developers.
+## Tech Stack
 
-It acts as an SMTP server, provides a modern web interface to view & test captured emails, and includes an API for automated integration testing.
-
-Mailpit was originally **inspired** by MailHog which is [no longer maintained](https://github.com/mailhog/MailHog/issues/442#issuecomment-1493415258) and hasn't seen active development or security updates for a few years now.
-
-![Mailpit](https://raw.githubusercontent.com/axllent/mailpit/develop/server/ui-src/screenshot.png)
-
+| Layer | Technology |
+|-------|-----------|
+| Backend | Laravel 12, PHP 8.2+ |
+| Frontend | Blade + Livewire + Tailwind CSS v4 + Bootstrap 5 |
+| Build | Vite |
+| Database | MySQL / MariaDB (SQLite for testing) |
+| Auth | Laravel Sanctum + Session + 2FA (TOTP) |
+| Mail | PHPMailer (SMTP) |
+| PDF | DomPDF |
+| Excel | Maatwebsite/Excel |
 
 ## Features
 
-- Runs entirely from a single [static binary](https://mailpit.axllent.org/docs/install/)
-- Modern web UI to view emails (formatted HTML, highlighted HTML source, text, headers, raw source, and MIME attachments
-including image thumbnails), including optional [HTTPS](https://mailpit.axllent.org/docs/configuration/https/)
-- Optional [basic authentication](https://mailpit.axllent.org/docs/configuration/frontend-authentication/) for web UI & API
-- [HTML check](https://mailpit.axllent.org/docs/usage/html-check/) to test & score mail client compatibility with HTML emails
-- [Link check](https://mailpit.axllent.org/docs/usage/link-check/) to test message links (HTML & text) & linked images
-- [Spam check](https://mailpit.axllent.org/docs/usage/spamassassin/) to test message "spamminess" using a running SpamAssassin server
-- [Create screenshots](https://mailpit.axllent.org/docs/usage/html-screenshots/) of HTML messages via web UI
-- `List-Unsubscribe` syntax validation
-- Mobile and tablet HTML preview toggle in desktop mode
-- Advanced [mail search](https://mailpit.axllent.org/docs/usage/search-filters/)
-- [Message tagging](https://mailpit.axllent.org/docs/usage/tagging/)
-- Real-time web UI updates using web sockets for new mail & optional browser notifications for new mail (when accessed
-via either HTTPS or `localhost` only)
-- SMTP server with optional [STARTTLS & SMTP authentication](https://mailpit.axllent.org/docs/configuration/smtp-authentication/) (including an
-"accept any" mode)
-- [SMTP relaying](https://mailpit.axllent.org/docs/configuration/smtp-relay/) (message release) - relay messages via a different SMTP server
-including an optional allowlist of accepted recipients
-- Fast SMTP processing & storing - approximately 70-100 emails per second depending on CPU, network speed & email size,
-easily handling tens of thousands of emails
-- Configurable automatic email pruning (default keeps the most recent 500 emails)
-- A simple [REST API](https://mailpit.axllent.org/docs/api-v1/) for integration testing
-- Optional [webhook](https://mailpit.axllent.org/docs/integration/webhook/) for received messages
-- Multi-architecture [Docker images](https://mailpit.axllent.org/docs/install/docker/)
+### Learning & Assessment
+- **Course hierarchy**: Course > Module > Information Sheet > Topic
+- **4 assessment types**: Self-Check (auto-graded, 14+ question types), Homework (manual grading), Task Sheet (practical tasks), Job Sheet (step-by-step procedures)
+- **Competency checklists** with item-level ratings
+- **Module prerequisites** with circular dependency detection
+- **Certificate generation** with PDF export and public verification
 
+### Grading (Philippine K-12 Scale)
+- Weighted module grades: Self-checks 20%, Homeworks 30%, Task sheets 25%, Job sheets 25%
+- Scale: Outstanding (90-100), Very Satisfactory (85-89), Satisfactory (80-84), Fairly Satisfactory (75-79), Did Not Meet (0-74)
+- GPA calculation (4.0 scale)
+- Grade export to CSV/Excel
+
+### Gamification
+- Activity-based points (daily login, submissions, completions, perfect scores)
+- Badge system with multiple criteria types (points, streaks, milestones)
+- Leaderboards and streak tracking
+
+### Communication
+- Role-targeted announcements with comments
+- Discussion forums with threads, voting, best answers, and subscriptions
+- Email notifications via queued jobs
+
+### User Management
+- 3 roles: Admin, Instructor, Student
+- Multi-stage registration (email verification + admin approval)
+- Bulk operations (import, activate, deactivate, assign sections)
+- Instructor-scoped class/section management
+
+### Security
+- Two-factor authentication (TOTP with backup codes)
+- Rate limiting (login, registration, password reset)
+- Comprehensive audit logging
+- Content sanitization (XSS prevention)
+- Security headers (CSP, X-Frame-Options)
+- Session management (8hr absolute, 30min idle timeout)
+- Password policy enforcement
+
+### Performance
+- 100% server-side search, pagination, sorting, and filtering (Livewire components)
+- N+1 query prevention with batch prefetching and aggregate queries
+- Multi-tier caching (dashboard 10 min, grades 5 min, analytics 1 hr)
+- 16+ composite database indexes
+
+## Requirements
+
+- PHP 8.2+ with extensions: mbstring, xml, gd, zip, fileinfo, curl, openssl, pdo_mysql
+- Composer 2.x+
+- Node.js 18+
+- MySQL 5.7+ / MariaDB 10.3+ (or SQLite for development)
 
 ## Installation
 
-The Mailpit web UI listens by default on `http://0.0.0.0:8025` and the SMTP port on `0.0.0.0:1025`.
-
-Mailpit runs as a single binary and can be installed in different ways:
-
-
-### Install via package managers
-
-- **Mac**: `brew install mailpit` (to run automatically in the background: `brew services start mailpit`)
-- **Arch Linux**: available in the AUR as `mailpit`
-- **FreeBSD**: `pkg install mailpit`
-
-
-### Install via bash script (Linux & Mac)
-
-Linux & Mac users can install it directly to `/usr/local/bin/mailpit` with:
-
 ```bash
-sudo bash < <(curl -sL https://raw.githubusercontent.com/axllent/mailpit/develop/install.sh)
+# Clone the repository
+git clone https://github.com/IAmKhirvie/EPAS-E.git
+cd EPAS-E
+
+# Install dependencies
+composer install
+npm install
+
+# Environment setup
+cp .env.example .env
+php artisan key:generate
+
+# Database setup
+php artisan migrate
+php artisan db:seed
+
+# Start development servers
+php artisan serve
+npm run dev
 ```
 
+The app will be available at `http://127.0.0.1:8000`.
 
-### Download static binary (Windows, Linux and Mac)
+## Project Structure
 
-Static binaries can always be found on the [releases](https://github.com/axllent/mailpit/releases/latest). The `mailpit` binary can be extracted and copied to your `$PATH`, or simply run as `./mailpit`.
+```
+app/
+├── Constants/       # Role constants (ADMIN, INSTRUCTOR, STUDENT)
+├── Exports/         # Excel exporters (grades, progress)
+├── Http/
+│   ├── Controllers/ # 34 controllers
+│   ├── Middleware/   # 8 custom middleware
+│   ├── Requests/    # Form request validation
+│   └── Traits/
+├── Imports/         # CSV/Excel user import
+├── Jobs/            # Queued jobs (email, bulk operations)
+├── Livewire/        # 9 interactive table/list components
+├── Models/          # 58 Eloquent models
+├── Observers/       # Submission lifecycle hooks
+├── Policies/        # 5 authorization policies
+├── Services/        # 19 business logic services
+└── Traits/          # HasCommonScopes, HasMedia
+```
 
+### Key Services
 
-### Docker
+| Service | Purpose |
+|---------|---------|
+| `GradingService` | Philippine K-12 grade calculation, GPA, rankings |
+| `SelfCheckGradingService` | Auto-grading for 14+ question types |
+| `GamificationService` | Points, badges, streaks with race condition prevention |
+| `NotificationService` | Multi-channel notification orchestration |
+| `AnalyticsService` | Dashboard metrics, progress tracking |
+| `DashboardStatisticsService` | Role-based dashboard data aggregation |
+| `CertificateService` | PDF certificate generation and verification |
+| `PrerequisiteService` | Module access gating and dependency checking |
+| `ContentSanitizationService` | XSS/injection protection |
+| `AuditLogService` | System action logging |
 
-See [Docker instructions](https://mailpit.axllent.org/docs/install/docker/) for 386, amd64 & arm64 images.
+## Code Quality Fixes & Updates
 
+### Critical Bug Fixes
+- **User::isActive()**: Fixed boolean comparison — `$this->stat === true` changed to `(int) $this->stat === 1` (tinyInteger column requires integer comparison)
+- **NotificationService**: Fixed incorrect method name `sendMail()` → `sendNotificationEmail()`, added division-by-zero guard
+- **PHPMailerService**: Replaced all `env()` calls with `config()` (prevents null values when running `php artisan config:cache`)
+- **GamificationService**: Fixed `increment()` + `save()` overwrite bug — switched to direct assignment with `DB::transaction()` and `lockForUpdate()` for concurrent safety
 
-### Compile from source
+### Model Relationship Fixes
+- Fixed 6 models with incorrect `belongsTo` foreign key inference — added explicit FK parameters where column name differs from Eloquent's convention
 
-To build Mailpit from source, see [Building from source](https://mailpit.axllent.org/docs/install/source/).
+### Database Normalization (1NF-4NF)
+- `users.stat`: Changed from string to tinyInteger (0/1)
+- Dropped redundant announcement tables
+- Fixed `certificates.status` enum
+- Added `description` and `is_active` columns to `information_sheets`
+- Replaced MySQL-only `FIND_IN_SET` with portable LIKE patterns for SQLite compatibility
+- Updated all `'stat', true/false` comparisons to `'stat', 1/0` across ~20 files
 
+### Performance Optimizations
+- **GradesController**: Eliminated N+1 queries via `prefetchStudentSubmissions()` batch method
+- **GradingService**: Simplified nested `whereHas` with pre-fetched `sheetIds`
+- **AnalyticsService**:
+  - `calculateAverageProgress`: N+1 → single aggregate query
+  - `getModuleMetrics`: 4N queries → 1 batched GROUP BY query
+  - `getDailyActiveUsers`: loop → single GROUP BY
+- **GradeTable (Livewire)**: 3 aggregate queries for entire paginated page instead of N per-student
+- Added DB transactions to `SelfCheckController::store`, `JobSheetController::store`, `TaskSheetController::store`
+- Added 16+ composite database indexes across 11+ tables
 
-## Usage
+### Other Fixes
+- **Media::boot()**: Changed `deleting` → `forceDeleting` event (prevents file loss on soft-delete)
+- **Homework**: Added null `due_date` guards on `is_past_due`/`days_until_due` accessors
+- **SelfCheck**: `completion_rate` now counts active students instead of ALL users
+- **Module**: Auto-generated slugs for URL-friendly routes
 
-Run `mailpit -h` to see options. More information can be seen in [the docs](https://mailpit.axllent.org/docs/configuration/runtime-options/).
+## Testing
 
-If installed using homebrew, you may run `brew services start mailpit` to always run mailpit automatically.
+```bash
+php artisan test
+```
 
+- PHPUnit with SQLite `:memory:` for fast execution
+- Feature tests covering auth, CRUD, grade export, role-based access
+- Route helper usage (`route()`) instead of hardcoded paths
+- Factories for all major models with role-specific states
 
-### Testing Mailpit
+## Configuration
 
-Please refer to [the documentation](https://mailpit.axllent.org/docs/install/testing/) on how to easily test email delivery to Mailpit.
+Centralized in `config/joms.php`:
+- Grading thresholds and scale
+- Password policy and rate limits
+- Gamification point values
+- Session timeouts
+- File upload limits (10MB docs, 5MB images, 20MB audio, 100MB video)
+- Cache TTL values
+- SMTP mail settings
 
+## License
 
-### Configuring sendmail
-
-Mailpit's SMTP server (default on port 1025), so you will likely need to configure your sending application to deliver mail via that port. 
-A common MTA (Mail Transfer Agent) that delivers system emails to an SMTP server is `sendmail`, used by many applications, including PHP. 
-Mailpit can also act as substitute for sendmail. For instructions on how to set this up, please refer to the [sendmail documentation](https://mailpit.axllent.org/docs/install/sendmail/).
+MIT
