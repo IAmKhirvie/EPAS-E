@@ -28,6 +28,10 @@ class UserTable extends Component
     public array $selectedUsers = [];
     public bool $selectAll = false;
 
+    public bool $showBulkAssign = false;
+    public string $bulkSection = '';
+    public string $bulkSchoolYear = '';
+
     protected $queryString = [
         'search' => ['except' => ''],
         'roleFilter' => ['except' => '', 'as' => 'role'],
@@ -86,7 +90,14 @@ class UserTable extends Component
             session()->flash('error', 'You cannot delete your own account.');
             return;
         }
-        User::where('id', $userId)->where('role', '!=', Roles::ADMIN)->delete();
+
+        $user = User::find($userId);
+        if (!$user) {
+            session()->flash('error', 'User not found.');
+            return;
+        }
+
+        $user->delete();
         $this->selectedUsers = array_diff($this->selectedUsers, [(string) $userId]);
         session()->flash('success', 'User deleted successfully.');
     }
@@ -127,10 +138,40 @@ class UserTable extends Component
 
         $ids = collect($this->selectedUsers)
             ->filter(fn ($id) => (int) $id !== Auth::id());
-        $deleted = User::whereIn('id', $ids)->where('role', '!=', Roles::ADMIN)->delete();
+        $deleted = User::whereIn('id', $ids)->delete();
         $this->selectedUsers = [];
         $this->selectAll = false;
         session()->flash('success', "{$deleted} user(s) deleted.");
+    }
+
+    public function bulkAssignSection(): void
+    {
+        if (Auth::user()->role !== Roles::ADMIN) {
+            session()->flash('error', 'Only administrators can perform bulk actions.');
+            return;
+        }
+
+        if (empty($this->bulkSection) && empty($this->bulkSchoolYear)) {
+            session()->flash('error', 'Please enter a section or school year.');
+            return;
+        }
+
+        $data = [];
+        if (!empty($this->bulkSection)) {
+            $data['section'] = $this->bulkSection;
+        }
+        if (!empty($this->bulkSchoolYear)) {
+            $data['school_year'] = $this->bulkSchoolYear;
+        }
+
+        $updated = User::whereIn('id', $this->selectedUsers)->update($data);
+
+        $this->selectedUsers = [];
+        $this->selectAll = false;
+        $this->showBulkAssign = false;
+        $this->bulkSection = '';
+        $this->bulkSchoolYear = '';
+        session()->flash('success', "{$updated} user(s) assigned successfully.");
     }
 
     private function getUserQuery()
@@ -189,7 +230,7 @@ class UserTable extends Component
             'department' => 'department_id',
             default => in_array($field, [
                 'id', 'first_name', 'last_name', 'student_id', 'email',
-                'role', 'section', 'stat', 'created_at',
+                'role', 'section', 'school_year', 'stat', 'created_at',
             ]) ? $field : 'created_at',
         };
     }

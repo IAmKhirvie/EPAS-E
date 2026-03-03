@@ -160,21 +160,31 @@
 
                             <!-- Dynamic Fields based on Role -->
                             <div id="studentFields" class="role-dependent" style="display: none;">
-                                <div class="mb-3">
-                                    <label class="form-label">Section</label>
-                                    <select name="section" class="form-select @error('section') is-invalid @enderror" id="sectionSelect">
-                                        <option value="">-- Select Section --</option>
-                                        <option value="A1" {{ old('section', $user->section) == 'A1' ? 'selected' : '' }}>A1</option>
-                                        <option value="B1" {{ old('section', $user->section) == 'B1' ? 'selected' : '' }}>B1</option>
-                                        <option value="C1" {{ old('section', $user->section) == 'C1' ? 'selected' : '' }}>C1</option>
-                                        <option value="D1" {{ old('section', $user->section) == 'D1' ? 'selected' : '' }}>D1</option>
-                                        <option value="custom">-- Custom Section --</option>
-                                    </select>
-                                    <input type="text" name="custom_section" class="form-control mt-2 d-none" 
-                                        id="customSectionInput" placeholder="Enter custom section (e.g., EPAS-A1, Grade 11)">
-                                    @error('section')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">School Year</label>
+                                        <input type="text" name="school_year" class="form-control @error('school_year') is-invalid @enderror"
+                                               value="{{ old('school_year', $user->school_year) }}" placeholder="e.g., 2025-2026">
+                                        @error('school_year')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Section / Batch</label>
+                                        <select name="section" class="form-select @error('section') is-invalid @enderror" id="sectionSelect">
+                                            <option value="">-- Select Section --</option>
+                                            <option value="A1" {{ old('section', $user->section) == 'A1' ? 'selected' : '' }}>A1</option>
+                                            <option value="B1" {{ old('section', $user->section) == 'B1' ? 'selected' : '' }}>B1</option>
+                                            <option value="C1" {{ old('section', $user->section) == 'C1' ? 'selected' : '' }}>C1</option>
+                                            <option value="D1" {{ old('section', $user->section) == 'D1' ? 'selected' : '' }}>D1</option>
+                                            <option value="custom">-- Custom Section --</option>
+                                        </select>
+                                        <input type="text" name="custom_section" class="form-control mt-2 d-none"
+                                            id="customSectionInput" placeholder="e.g., Batch 1, EPAS-B1">
+                                        @error('section')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
 

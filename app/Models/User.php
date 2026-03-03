@@ -57,6 +57,15 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, HasApiTokens, Notifiable, SoftDeletes, HasCommonScopes;
 
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user) {
+            if ($user->role === \App\Constants\Roles::INSTRUCTOR) {
+                \App\Models\Course::where('instructor_id', $user->id)->update(['instructor_id' => null]);
+            }
+        });
+    }
+
     protected $fillable = [
         'first_name',
         'middle_name',
@@ -69,6 +78,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'student_id',
         'profile_image',
         'section',
+        'school_year',
         'room_number',
         'email_verified_at',
         'total_points',
@@ -215,13 +225,24 @@ class User extends Authenticatable implements MustVerifyEmail
     // =========================================================================
 
     /**
-     * Get the user's full name.
+     * Get the middle initial (e.g. "Nayve" → "N.").
+     */
+    public function getMiddleInitialAttribute(): ?string
+    {
+        if (!$this->middle_name) {
+            return null;
+        }
+        return strtoupper(substr($this->middle_name, 0, 1)) . '.';
+    }
+
+    /**
+     * Get the user's full name (uses middle initial when present).
      */
     public function getFullNameAttribute(): string
     {
         $parts = array_filter([
             $this->first_name,
-            $this->middle_name,
+            $this->middle_initial,
             $this->last_name,
             $this->ext_name,
         ]);

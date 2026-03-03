@@ -2,13 +2,15 @@
 
 namespace App\Http\Requests;
 
+use App\Constants\Roles;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreJobSheetRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $user = $this->user();
+        return $user && in_array($user->role, [Roles::ADMIN, Roles::INSTRUCTOR]);
     }
 
     public function rules(): array

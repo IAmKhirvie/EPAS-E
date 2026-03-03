@@ -70,11 +70,28 @@ class PHPMailerService
         Log::info("PHPMailerService initialized", ['host' => config('joms.mail.host'), 'from' => $fromAddress]);
     }
 
+    /**
+     * Check if SMTP credentials are still placeholders.
+     */
+    public function hasValidCredentials(): bool
+    {
+        $username = config('joms.mail.username', '');
+        $password = config('joms.mail.password', '');
+        $placeholders = ['your-email@example.com', 'your-gmail@gmail.com', 'your-app-password', 'your-16-char-app-password', '', null];
+
+        return !in_array($username, $placeholders, true) && !in_array($password, $placeholders, true);
+    }
+
     public function sendVerificationEmail($user, $verificationUrl)
     {
         try {
+            if (!$this->hasValidCredentials()) {
+                Log::warning('SMTP credentials not configured. Email not sent.', ['to' => $user->id]);
+                return false;
+            }
+
             $this->debugOutput = '';
-            Log::info("Sending verification email to: {$user->email}");
+            Log::info("Sending verification email to user ID: {$user->id}");
 
             // Clear any previous addresses and attachments
             $this->mail->clearAddresses();

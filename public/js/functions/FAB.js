@@ -4,16 +4,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const fabMain = document.getElementById('fabMain');
     const fabOptions = document.querySelectorAll('.fab-option');
     const overlay = document.getElementById('overlay');
-    const fabBackdrop = document.getElementById('fab-backdrop'); // Get the fab backdrop
-    
+    const fabBackdrop = document.getElementById('fab-backdrop');
+
     // Sidebar elements
     const createCourseSidebar = document.getElementById('createCourseSidebar');
     const createModuleSidebar = document.getElementById('createModuleSidebar');
+    const createAnnouncementSidebar = document.getElementById('createAnnouncementSidebar');
     const addUserSidebar = document.getElementById('addUserSidebar');
-    
+
     // Close buttons
     const closeCourseSidebar = document.getElementById('closeCourseSidebar');
     const closeModuleSidebar = document.getElementById('closeModuleSidebar');
+    const closeAnnouncementSidebar = document.getElementById('closeAnnouncementSidebar');
     const closeUserSidebar = document.getElementById('closeSidebar');
 
     // Only initialize if FAB exists (user is not student)
@@ -27,10 +29,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add ARIA labels to FAB option buttons
         var fabOptionCourse = document.getElementById('fabOptionCourse');
         var fabOptionModule = document.getElementById('fabOptionModule');
+        var fabOptionAnnouncement = document.getElementById('fabOptionAnnouncement');
         var fabOptionEnroll = document.getElementById('fabOptionEnroll');
         if (fabOptionCourse) fabOptionCourse.setAttribute('aria-label', 'Create Course');
         if (fabOptionModule) fabOptionModule.setAttribute('aria-label', 'Create Module');
-        if (fabOptionEnroll) fabOptionEnroll.setAttribute('aria-label', 'Enroll User');
+        if (fabOptionAnnouncement) fabOptionAnnouncement.setAttribute('aria-label', 'Create Announcement');
+        if (fabOptionEnroll) fabOptionEnroll.setAttribute('aria-label', 'Add User');
 
         // Helper to update aria-expanded state
         function updateFabAriaState() {
@@ -45,7 +49,6 @@ document.addEventListener('DOMContentLoaded', function() {
             fabContainer.classList.toggle('active');
             updateFabAriaState();
 
-            // Toggle the backdrop
             if (fabBackdrop) {
                 if (fabContainer.classList.contains('active')) {
                     fabBackdrop.classList.add('active');
@@ -67,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
         fabOptions.forEach(option => {
             option.addEventListener('click', function(e) {
                 e.stopPropagation();
-                
+
                 // Close FAB options and backdrop
                 fabContainer.classList.remove('active');
                 updateFabAriaState();
@@ -76,27 +79,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 const optionId = this.id;
-                
+
                 switch(optionId) {
                     case 'fabOptionCourse':
                         if (createCourseSidebar) {
                             openSidebar(createCourseSidebar);
                         } else {
-                            window.location.href = "{{ route('courses.create') }}";
+                            window.location.href = '/courses/create';
                         }
                         break;
                     case 'fabOptionModule':
                         if (createModuleSidebar) {
                             openSidebar(createModuleSidebar);
                         } else {
-                            window.location.href = "{{ route('modules.create') }}";
+                            window.location.href = '/modules/create';
+                        }
+                        break;
+                    case 'fabOptionAnnouncement':
+                        if (createAnnouncementSidebar) {
+                            openSidebar(createAnnouncementSidebar);
+                        } else {
+                            window.location.href = '/announcements/create';
                         }
                         break;
                     case 'fabOptionEnroll':
                         if (addUserSidebar) {
                             openSidebar(addUserSidebar);
                         } else {
-                            window.location.href = "{{ route('users.index') }}";
+                            window.location.href = '/private/users';
                         }
                         break;
                 }
@@ -143,6 +153,13 @@ document.addEventListener('DOMContentLoaded', function() {
             closeModuleSidebar.addEventListener('click', function(e) {
                 e.stopPropagation();
                 closeSidebarFunc(createModuleSidebar);
+            });
+        }
+
+        if (closeAnnouncementSidebar && createAnnouncementSidebar) {
+            closeAnnouncementSidebar.addEventListener('click', function(e) {
+                e.stopPropagation();
+                closeSidebarFunc(createAnnouncementSidebar);
             });
         }
 
@@ -196,6 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function closeAllSidebars() {
             if (createCourseSidebar) createCourseSidebar.classList.remove('active');
             if (createModuleSidebar) createModuleSidebar.classList.remove('active');
+            if (createAnnouncementSidebar) createAnnouncementSidebar.classList.remove('active');
             if (addUserSidebar) addUserSidebar.classList.remove('active');
 
             overlay.classList.remove('active');
@@ -235,31 +253,36 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
+        const createAnnouncementForm = document.getElementById('createAnnouncementForm');
+        if (createAnnouncementForm && createAnnouncementSidebar) {
+            createAnnouncementForm.addEventListener('submit', function() {
+                setTimeout(function() {
+                    closeSidebarFunc(createAnnouncementSidebar);
+                }, 1000);
+            });
+        }
+
         // Role-based field display in add user form
         const roleSelect = document.getElementById('role');
-        const sectionField = document.getElementById('section')?.closest('.mb-3');
-        const roomField = document.getElementById('room_number')?.closest('.mb-3');
+        const studentFields = document.getElementById('student-fields');
+        const instructorFields = document.getElementById('instructor-fields');
 
         function toggleFieldsBasedOnRole() {
-            if (!roleSelect || !sectionField || !roomField) return;
-            
+            if (!roleSelect) return;
+
             const role = roleSelect.value;
-            
-            if (role === 'student') {
-                sectionField.style.display = 'block';
-                roomField.style.display = 'none';
-            } else if (role === 'instructor') {
-                sectionField.style.display = 'none';
-                roomField.style.display = 'block';
-            } else {
-                sectionField.style.display = 'none';
-                roomField.style.display = 'none';
+
+            if (studentFields) {
+                studentFields.style.display = role === 'student' ? '' : 'none';
+            }
+            if (instructorFields) {
+                instructorFields.style.display = role === 'instructor' ? '' : 'none';
             }
         }
 
         if (roleSelect) {
             roleSelect.addEventListener('change', toggleFieldsBasedOnRole);
-            toggleFieldsBasedOnRole(); 
+            toggleFieldsBasedOnRole();
         }
 
         // Close FAB options when window loses focus

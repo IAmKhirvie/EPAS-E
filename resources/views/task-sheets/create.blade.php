@@ -12,7 +12,7 @@
         </ol>
     </nav>
 
-    <form action="{{ route('task-sheets.store', $informationSheet) }}" method="POST" enctype="multipart/form-data" id="taskSheetForm">
+    <form action="{{ route('task-sheets.store', $informationSheet) }}" method="POST" enctype="multipart/form-data" id="taskSheetForm" class="cb-builder-layout-form">
         @csrf
 
         <div class="cb-builder-layout">

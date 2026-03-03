@@ -27,11 +27,7 @@
 </head>
 
 <body class="auth-page-body">
-    @auth
-    @include('partials.navbar')
-    @else
     @include('partials.header')
-    @endauth
 
     <div class="content-container">
         <div class="content">
@@ -480,19 +476,22 @@
 
     @include('partials.footer')
 
+    @auth
+    @include('components.bottom-nav')
+    @endauth
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    @auth
-    <script src="{{ dynamic_asset('js/components/navbar.js')}}"></script>
-    <!-- Logout Form for authenticated navbar -->
-    <form id="logout-form" action="{{ dynamic_route('logout') }}" method="POST" style="display: none;">
-        @csrf
-    </form>
-    @else
-    <script src="{{ dynamic_asset('js/public-header.js')}}"></script>
     <script src="{{ dynamic_asset('js/utils/dark-mode.js')}}"></script>
     <script src="{{ dynamic_asset('js/components/public-darkmode.js')}}"></script>
+
+    @guest
+    <script src="{{ dynamic_asset('js/public-header.js')}}"></script>
+    @endguest
+
+    @auth
+    <script src="{{ dynamic_asset('js/public-header-auth.js')}}"></script>
     @endauth
 </body>
 

@@ -67,10 +67,37 @@
             <button wire:click="bulkDeactivate" wire:confirm="Deactivate selected users?" class="btn btn-warning btn-sm">
                 <i class="fas fa-ban me-1"></i> Deactivate
             </button>
+            <button wire:click="$toggle('showBulkAssign')" class="btn btn-info btn-sm">
+                <i class="fas fa-users-cog me-1"></i> Assign Section
+            </button>
             <button wire:click="bulkDelete" wire:confirm="Delete selected users? This cannot be undone." class="btn btn-danger btn-sm">
                 <i class="fas fa-trash me-1"></i> Delete
             </button>
         </div>
+
+        @if($showBulkAssign)
+            <div class="mb-3 p-3 bg-light rounded border">
+                <div class="d-flex flex-wrap align-items-end gap-2">
+                    <div style="min-width: 160px;">
+                        <label class="form-label small mb-1">Section / Batch</label>
+                        <input type="text" wire:model="bulkSection" class="form-control form-control-sm"
+                            placeholder="e.g., A1, Batch 1">
+                    </div>
+                    <div style="min-width: 160px;">
+                        <label class="form-label small mb-1">School Year</label>
+                        <input type="text" wire:model="bulkSchoolYear" class="form-control form-control-sm"
+                            placeholder="e.g., 2025-2026">
+                    </div>
+                    <button wire:click="bulkAssignSection" wire:confirm="Assign section/school year to {{ count($selectedUsers) }} selected user(s)?"
+                        class="btn btn-primary btn-sm">
+                        <i class="fas fa-check me-1"></i> Apply
+                    </button>
+                    <button wire:click="$set('showBulkAssign', false)" class="btn btn-outline-secondary btn-sm">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        @endif
     @endif
 
     {{-- Loading Indicator --}}
@@ -116,7 +143,12 @@
                             @endif
                         </th>
                     @endif
-                    <th>Section</th>
+                    <th style="cursor:pointer;" wire:click="sortBy('section')">
+                        Section
+                        @if($sortField === 'section')
+                            <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                        @endif
+                    </th>
                     <th style="cursor:pointer;" wire:click="sortBy('stat')">
                         Status
                         @if($sortField === 'stat')
@@ -160,7 +192,12 @@
                                 </span>
                             </td>
                         @endif
-                        <td>{{ $user->section ?? '-' }}</td>
+                        <td>
+                            {{ $user->section ?? '-' }}
+                            @if($user->school_year)
+                                <br><small class="text-muted">{{ $user->school_year }}</small>
+                            @endif
+                        </td>
                         <td>
                             @if((int) $user->stat === 1)
                                 <span class="badge bg-success">Active</span>

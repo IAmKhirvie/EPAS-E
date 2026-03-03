@@ -44,7 +44,10 @@ trait HasMedia
      */
     public function addMediaFromUrl(string $url, string $collection = 'default'): Media
     {
-        $contents = file_get_contents($url);
+        $contents = @file_get_contents($url);
+        if ($contents === false) {
+            throw new \RuntimeException("Failed to fetch media from URL: {$url}");
+        }
         $fileName = Str::uuid() . '.' . pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
         $path = $collection . '/' . $fileName;
 
@@ -70,6 +73,10 @@ trait HasMedia
     public function addMediaFromBase64(string $base64, string $collection = 'default', string $extension = 'png'): Media
     {
         $data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $base64));
+        $maxSize = config('joms.uploads.max_image_size', 5120) * 1024; // convert KB to bytes
+        if (strlen($data) > $maxSize) {
+            throw new \RuntimeException('Base64 media exceeds maximum allowed size.');
+        }
         $fileName = Str::uuid() . '.' . $extension;
         $path = $collection . '/' . $fileName;
 
@@ -149,7 +156,8 @@ trait HasMedia
      */
     protected function generateFileName(UploadedFile $file): string
     {
-        return Str::uuid() . '.' . $file->getClientOriginalExtension();
+        $extension = $file->guessExtension() ?: $file->getClientOriginalExtension();
+        return Str::uuid() . '.' . $extension;
     }
 
     /**

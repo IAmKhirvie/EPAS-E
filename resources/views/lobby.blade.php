@@ -27,11 +27,7 @@
 </head>
 
 <body>
-    @auth
-    @include('partials.navbar')
-    @else
     @include('partials.header')
-    @endauth
 
     <!-- Hero Section with Slideshow -->
     <section class="hero-section">
@@ -204,19 +200,25 @@
 
     @include('partials.footer')
 
+    @auth
+    @include('components.bottom-nav')
+    @endauth
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Hero slideshow -->
     <script src="{{ dynamic_asset('js/lobby.js')}}"></script>
+    <script src="{{ dynamic_asset('js/utils/slideshow.js')}}"></script>
+    <script src="{{ dynamic_asset('js/utils/dark-mode.js')}}"></script>
+    <script src="{{ dynamic_asset('js/components/public-darkmode.js')}}"></script>
+
+    @guest
+    <script src="{{ dynamic_asset('js/public-header.js')}}"></script>
+    @endguest
 
     @auth
-    <script src="{{ dynamic_asset('js/components/navbar.js')}}"></script>
-    @else
-    <script src="{{ dynamic_asset('js/public-header.js')}}"></script>
-    <script src="{{ dynamic_asset('js/utils/dark-mode.js')}}"></script>
-    <script src="{{ dynamic_asset('js/utils/slideshow.js')}}"></script>
-    <script src="{{ dynamic_asset('js/components/public-darkmode.js')}}"></script>
+    <script src="{{ dynamic_asset('js/public-header-auth.js')}}"></script>
     @endauth
 </body>
 

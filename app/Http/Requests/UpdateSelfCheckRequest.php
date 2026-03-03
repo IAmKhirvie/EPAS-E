@@ -20,6 +20,13 @@ class UpdateSelfCheckRequest extends FormRequest
             'instructions' => 'required|string',
             'time_limit' => 'nullable|integer|min:1',
             'passing_score' => 'nullable|integer|min:0|max:100',
+            'questions' => 'required|array|min:1',
+            'questions.*.question_text' => 'required|string',
+            'questions.*.question_type' => 'required|in:multiple_choice,multiple_select,true_false,fill_blank,short_answer,numeric,matching,ordering,classification,image_choice,image_identification,hotspot,image_labeling,audio_question,video_question,drag_drop,slider,essay',
+            'questions.*.points' => 'required|integer|min:1',
+            'questions.*.options' => 'nullable|array',
+            'questions.*.correct_answer' => 'nullable',
+            'questions.*.explanation' => 'nullable|string',
         ];
     }
 }

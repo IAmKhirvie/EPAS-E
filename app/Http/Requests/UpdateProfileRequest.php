@@ -17,6 +17,7 @@ class UpdateProfileRequest extends FormRequest
 
         return [
             'first_name' => 'required|string|max:255|regex:/^[\pL\s\-\']+$/u',
+            'middle_name' => 'nullable|string|max:255|regex:/^[\pL\s\-\']+$/u',
             'last_name' => 'required|string|max:255|regex:/^[\pL\s\-\']+$/u',
             'email' => 'required|email:rfc,dns|unique:users,email,' . $userId,
             'phone' => 'nullable|string|max:20|regex:/^[\d\s\-\+\(\)]+$/',
@@ -28,6 +29,7 @@ class UpdateProfileRequest extends FormRequest
     {
         return [
             'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and apostrophes.',
+            'middle_name.regex' => 'Middle name can only contain letters, spaces, hyphens, and apostrophes.',
             'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and apostrophes.',
             'email.email' => 'Please enter a valid email address.',
             'phone.regex' => 'Phone number can only contain digits, spaces, hyphens, plus signs, and parentheses.',

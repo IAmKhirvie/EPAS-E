@@ -22,17 +22,11 @@
                         <a href="#appearance" class="list-group-item list-group-item-action" data-bs-toggle="list">
                             <i class="fas fa-palette me-2"></i> Appearance
                         </a>
-                        <a href="#privacy" class="list-group-item list-group-item-action" data-bs-toggle="list">
-                            <i class="fas fa-shield-alt me-2"></i> Privacy
-                        </a>
                         @if(Auth::user()->role === 'admin')
                         <a href="#system" class="list-group-item list-group-item-action" data-bs-toggle="list">
                             <i class="fas fa-cog me-2"></i> System Settings
                         </a>
                         @endif
-                        <a href="#api-tokens" class="list-group-item list-group-item-action" data-bs-toggle="list">
-                            <i class="fas fa-key me-2"></i> API Tokens
-                        </a>
                         <a href="#data" class="list-group-item list-group-item-action" data-bs-toggle="list">
                             <i class="fas fa-database me-2"></i> Data & Account
                         </a>
@@ -96,11 +90,18 @@
                             <form action="{{ route('settings.profile') }}" method="POST">
                                 @csrf
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <label class="form-label">First Name</label>
                                         <input type="text" name="first_name" class="form-control" value="{{ $user->first_name }}" required>
                                     </div>
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Middle Name</label>
+                                        <input type="text" name="middle_name" class="form-control" value="{{ $user->middle_name ?? '' }}" placeholder="Optional">
+                                        @if($user->middle_initial)
+                                            <small class="text-muted">Middle Initial: {{ $user->middle_initial }}</small>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-4 mb-3">
                                         <label class="form-label">Last Name</label>
                                         <input type="text" name="last_name" class="form-control" value="{{ $user->last_name }}" required>
                                     </div>
@@ -121,12 +122,10 @@
                                     </div>
                                     @if(!$user->hasVerifiedEmail())
                                         <div class="mt-2">
-                                            <form action="{{ route('settings.resend-verification') }}" method="POST" class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-envelope me-1"></i> Resend Verification Email
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-sm btn-outline-primary" id="resendVerificationBtn"
+                                                    onclick="document.getElementById('resendVerificationForm').submit();">
+                                                <i class="fas fa-envelope me-1"></i> Resend Verification Email
+                                            </button>
                                             <small class="text-muted d-block mt-1">
                                                 Check your inbox and spam folder for the verification email.
                                             </small>
@@ -147,6 +146,11 @@
                             </form>
                         </div>
                     </div>
+                    @if(!$user->hasVerifiedEmail())
+                        <form id="resendVerificationForm" action="{{ route('settings.resend-verification') }}" method="POST" class="d-none">
+                            @csrf
+                        </form>
+                    @endif
                 </div>
 
                 <!-- Password & Security -->
@@ -306,48 +310,6 @@
                     </div>
                 </div>
 
-                <!-- Privacy -->
-                <div class="tab-pane fade" id="privacy">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white border-0 py-3">
-                            <h5 class="mb-0"><i class="fas fa-shield-alt me-2 text-primary"></i>Privacy Settings</h5>
-                        </div>
-                        <div class="card-body">
-                            <form action="{{ route('settings.privacy') }}" method="POST">
-                                @csrf
-                                <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" name="show_profile" id="showProfile"
-                                           {{ $settings['privacy']['show_profile'] ?? true ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="showProfile">
-                                        <strong>Show Profile to Others</strong>
-                                        <br><small class="text-muted">Allow other users to view your profile</small>
-                                    </label>
-                                </div>
-                                <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" name="show_progress" id="showProgress"
-                                           {{ $settings['privacy']['show_progress'] ?? true ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="showProgress">
-                                        <strong>Show Progress to Classmates</strong>
-                                        <br><small class="text-muted">Allow classmates to see your course progress</small>
-                                    </label>
-                                </div>
-                                <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" name="show_leaderboard" id="showLeaderboard"
-                                           {{ $settings['privacy']['show_leaderboard'] ?? true ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="showLeaderboard">
-                                        <strong>Appear on Leaderboard</strong>
-                                        <br><small class="text-muted">Show your name on public leaderboards</small>
-                                    </label>
-                                </div>
-
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-1"></i> Save Privacy Settings
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- System Settings (Admin Only) -->
                 @if(Auth::user()->role === 'admin')
                 <div class="tab-pane fade" id="system">
@@ -375,7 +337,7 @@
                                 <h6 class="text-muted mb-3">System Toggles</h6>
                                 <div class="form-check form-switch mb-3">
                                     <input class="form-check-input" type="checkbox" name="registration_enabled" id="registrationEnabled"
-                                           {{ $systemSettings['registration_enabled'] ?? true ? 'checked' : '' }}>
+                                           value="1" {{ $systemSettings['registration_enabled'] ?? true ? 'checked' : '' }}>
                                     <label class="form-check-label" for="registrationEnabled">
                                         <strong>Enable Registration</strong>
                                         <br><small class="text-muted">Allow new users to register</small>
@@ -383,21 +345,12 @@
                                 </div>
                                 <div class="form-check form-switch mb-3">
                                     <input class="form-check-input" type="checkbox" name="require_approval" id="requireApproval"
-                                           {{ $systemSettings['require_approval'] ?? true ? 'checked' : '' }}>
+                                           value="1" {{ $systemSettings['require_approval'] ?? true ? 'checked' : '' }}>
                                     <label class="form-check-label" for="requireApproval">
                                         <strong>Require Admin Approval</strong>
                                         <br><small class="text-muted">New registrations require admin approval</small>
                                     </label>
                                 </div>
-                                <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" name="maintenance_mode" id="maintenanceMode"
-                                           {{ $systemSettings['maintenance_mode'] ?? false ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="maintenanceMode">
-                                        <strong class="text-danger">Maintenance Mode</strong>
-                                        <br><small class="text-muted">Put site in maintenance mode (only admins can access)</small>
-                                    </label>
-                                </div>
-
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-save me-1"></i> Save System Settings
                                 </button>
@@ -406,19 +359,6 @@
                     </div>
                 </div>
                 @endif
-
-                <!-- API Tokens -->
-                <div class="tab-pane fade" id="api-tokens">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white border-0 py-3">
-                            <h5 class="mb-0"><i class="fas fa-key me-2 text-primary"></i>API Tokens</h5>
-                            <small class="text-muted">Manage API tokens for external application access.</small>
-                        </div>
-                        <div class="card-body">
-                            <livewire:api-token-manager />
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Data & Account -->
                 <div class="tab-pane fade" id="data">

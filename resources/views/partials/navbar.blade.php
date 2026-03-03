@@ -147,8 +147,8 @@
             </button>
             {{-- Mobile: ID card strip button --}}
             <button class="user-button user-button--mobile" id="user-menu-btn-mobile">
-                <div class="avatar">
-                    <img src="{{ $user->profile_image_url }}" alt="Avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="avatar" id="mobile-avatar-trigger" title="Tap to change photo">
+                    <img src="{{ $user->profile_image_url }}" alt="User Avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
                     <span class="avatar-fallback" style="display: {{ $user->profile_image ? 'none' : 'flex' }};">{{ $user->initials }}</span>
                 </div>
                 <div class="user-button__info">
@@ -160,20 +160,21 @@
             <div class="dropdown" id="user-dropdown">
                 <div class="dropdown-content">
                     {{-- Profile Header —  ID card style --}}
-                    <div class="user-card-header">
-                        <div class="user-card-avatar">
-                            <img src="{{ $user->profile_image_url }}" alt="Avatar"
-                                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                            <span class="avatar-fallback"
-                                  style="display: {{ $user->profile_image ? 'none' : 'flex' }};">{{ $user->initials }}</span>
+                    <div class="user-card-header" id="dropdown-avatar-trigger" title="Tap to change photo"
+                         style="cursor: pointer; {{ $user->profile_image ? 'background-image: url(' . $user->profile_image_url . ');' : '' }}">
+                        <div class="user-card-header-overlay"></div>
+                        @if(!$user->profile_image)
+                        <span class="user-card-header-initials">{{ $user->initials }}</span>
+                        @endif
+                        <div class="user-card-header-info">
+                            <h2 class="user-card-name">{{ $user->full_name }}</h2>
+                            <h3 class="user-card-subtitle">
+                                <span class="user-card-role-badge role-{{ $user->role }}">{{ $user->role_display }}</span>
+                                @if($user->student_id)
+                                <span class="user-card-id">ID: {{ $user->student_id }}</span>
+                                @endif
+                            </h3>
                         </div>
-                        <h2 class="user-card-name">{{ $user->full_name }}</h2>
-                        <h3 class="user-card-subtitle">
-                            <span class="user-card-role-badge role-{{ $user->role }}">{{ $user->role_display }}</span>
-                            @if($user->student_id)
-                            <span class="user-card-id">ID: {{ $user->student_id }}</span>
-                            @endif
-                        </h3>
                     </div>
 
                     <div class="dropdown-divider"></div>
@@ -291,6 +292,39 @@
 <form id="logout-form" action="{{ dynamic_route('logout') }}" method="POST" style="display: none;">
     @csrf
 </form>
+
+<!-- Avatar Upload Form (hidden) -->
+<form id="navbar-avatar-form" action="{{ dynamic_route('profile.avatar.update') }}" method="POST" enctype="multipart/form-data" style="display: none;">
+    @csrf
+    <input type="file" id="navbar-avatar-upload" name="avatar" accept="image/*">
+</form>
+
+<!-- Avatar upload trigger script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var fileInput = document.getElementById('navbar-avatar-upload');
+    var form = document.getElementById('navbar-avatar-form');
+    if (!fileInput || !form) return;
+
+    // All avatar triggers (mobile avatar, dropdown avatar)
+    ['mobile-avatar-trigger', 'dropdown-avatar-trigger'].forEach(function(id) {
+        var trigger = document.getElementById(id);
+        if (!trigger) return;
+        trigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            fileInput.click();
+        });
+    });
+
+    // Auto-submit when file is selected
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files.length > 0) {
+            form.submit();
+        }
+    });
+});
+</script>
 
 <!-- Dark mode toggle sync for user card -->
 <script>

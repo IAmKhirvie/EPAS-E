@@ -59,20 +59,27 @@
     <script>
         // Immediately check and apply dark mode before page renders
         (function() {
+            // Sync server-side theme cookie to localStorage
+            var cookieMatch = document.cookie.match(/(?:^|; )theme=([^;]*)/);
+            if (cookieMatch && cookieMatch[1] && cookieMatch[1] !== localStorage.getItem('theme')) {
+                localStorage.setItem('theme', cookieMatch[1]);
+            }
+
             const savedTheme = localStorage.getItem('theme');
             const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            
+
             // Apply theme immediately to prevent flash
             if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
                 document.documentElement.classList.add('dark-mode');
             } else {
                 document.documentElement.classList.remove('dark-mode');
             }
-            
+
             // Store the initial theme for reference
             window.initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
         })();
     </script>
+    @livewireStyles
     @stack('styles')
 </head>
 <body class="modern-layout" data-user-role="{{ auth()->user()->role ?? '' }}">
@@ -115,9 +122,14 @@
                     <span class="fab-label">Create Module</span>
                 </button>
 
+                <button class="fab-option" id="fabOptionAnnouncement">
+                    <i class="fas fa-bullhorn"></i>
+                    <span class="fab-label">Create Announcement</span>
+                </button>
+
                 <button class="fab-option" id="fabOptionEnroll">
                     <i class="fas fa-user-plus"></i>
-                    <span class="fab-label">Enroll User</span>
+                    <span class="fab-label">Add User</span>
                 </button>
             </div>
         </div>
@@ -241,149 +253,216 @@
             </div>
         </div>
 
-        <!-- Universal Slide-in Sidebar for Add User -->
-        @isset($departments)
-            <div class="slide-sidebar" id="addUserSidebar">
-                <div class="slide-sidebar-header">
-                    <h5>Add New User</h5>
-                    <button class="close-sidebar" id="closeSidebar">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="slide-sidebar-content">
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <strong>Please fix the following errors:</strong>
-                            <ul class="mb-0 mt-2 ps-3">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    <form method="POST" action="{{ route('private.users.store') }}" id="addUserForm">
-                        @csrf
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label for="first_name" class="form-label required-field">First Name</label>
-                                    <input type="text" name="first_name" id="first_name" class="form-control" value="{{ old('first_name') }}" required>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label for="middle_name" class="form-label">Middle Name</label>
-                                    <input type="text" name="middle_name" id="middle_name" class="form-control" value="{{ old('middle_name') }}">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label for="last_name" class="form-label required-field">Last Name</label>
-                                    <input type="text" name="last_name" id="last_name" class="form-control" value="{{ old('last_name') }}" required>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label for="ext_name" class="form-label">Extension Name</label>
-                                    <input type="text" name="ext_name" id="ext_name" class="form-control" value="{{ old('ext_name') }}">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label for="student_id" class="form-label required-field">student ID</label>
-                                    <input type="text" name="student_id" id="student_id" class="form-control" value="{{ old('student_id') }}" required>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label for="email" class="form-label required-field">Email</label>
-                                    <input type="email" name="email" id="email" class="form-control" value="{{ old('email') }}" required>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label for="password" class="form-label required-field">Password</label>
-                                    <input type="password" name="password" id="password" class="form-control" required>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label for="password_confirmation" class="form-label required-field">Confirm Password</label>
-                                    <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" required>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label for="department_id" class="form-label required-field">Department</label>
-                                    <select name="department_id" id="department_id" class="form-select" required>
-                                        <option value="" disabled {{ old('department_id') ? '' : 'selected' }}>Select Department</option>
-                                        @foreach($departments as $department)
-                                            <option value="{{ $department->id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>
-                                                {{ $department->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label for="role" class="form-label required-field">Role</label>
-                                    <select name="role" id="role" class="form-select" required>
-                                        <option value="" disabled {{ old('role') ? '' : 'selected' }}>Select Role</option>
-                                        <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                                        <option value="student" {{ old('role') == 'student' ? 'selected' : '' }}>Student</option>
-                                        <option value="instructor" {{ old('role') == 'instructor' ? 'selected' : '' }}>Instructor</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- New Section and Room Number Fields -->
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label for="section" class="form-label">Section (For Students)</label>
-                                    <input type="text" name="section" id="section" class="form-control" value="{{ old('section') }}" placeholder="e.g., Section A, Grade 11">
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label for="room_number" class="form-label">Room Number (For Instructors)</label>
-                                    <input type="text" name="room_number" id="room_number" class="form-control" value="{{ old('room_number') }}" placeholder="e.g., Room 101, Lab 2">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="stat" class="form-label required-field">Status</label>
-                            <select name="stat" id="stat" class="form-select" required>
-                                <option value="1" {{ old('stat') == '1' ? 'selected' : '' }}>Active</option>
-                                <option value="0" {{ old('stat') == '0' ? 'selected' : '' }}>Inactive</option>
-                            </select>
-                        </div>
-                        
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Add User</button>
-                        </div>
-                    </form>
-                </div>
+        <!-- Create Announcement Sidebar -->
+        <div class="slide-sidebar" id="createAnnouncementSidebar">
+            <div class="slide-sidebar-header">
+                <h5>Create Announcement</h5>
+                <button class="close-sidebar" id="closeAnnouncementSidebar">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            
-            <div class="fab-backdrop" id="fab-backdrop"></div>
-        @endisset
+            <div class="slide-sidebar-content">
+                <form method="POST" action="{{ route('private.announcements.store') }}" id="createAnnouncementForm">
+                    @csrf
+
+                    <div class="mb-3">
+                        <label for="fab_title" class="form-label required-field">Title</label>
+                        <input type="text" name="title" id="fab_title" class="form-control"
+                               value="{{ old('title') }}" placeholder="Announcement title" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fab_content" class="form-label required-field">Content</label>
+                        <textarea name="content" id="fab_content" class="form-control" rows="5"
+                                  placeholder="Write your announcement..." required>{{ old('content') }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fab_publish_at" class="form-label">Publish Date</label>
+                        <input type="datetime-local" name="publish_at" id="fab_publish_at" class="form-control"
+                               value="{{ old('publish_at') }}">
+                        <small class="form-text text-muted">Leave empty to publish immediately.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fab_deadline" class="form-label">Deadline (Optional)</label>
+                        <input type="datetime-local" name="deadline" id="fab_deadline" class="form-control"
+                               value="{{ old('deadline') }}">
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="fab_is_urgent" name="is_urgent" value="1"
+                                       {{ old('is_urgent') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="fab_is_urgent">Mark as Urgent</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="fab_is_pinned" name="is_pinned" value="1"
+                                       {{ old('is_pinned') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="fab_is_pinned">Pin to Top</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Create Announcement</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add User Sidebar -->
+        @php $departments = $departments ?? \App\Models\Department::all(); @endphp
+        <div class="slide-sidebar" id="addUserSidebar">
+            <div class="slide-sidebar-header">
+                <h5>Add New User</h5>
+                <button class="close-sidebar" id="closeSidebar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="slide-sidebar-content">
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <strong>Please fix the following errors:</strong>
+                        <ul class="mb-0 mt-2 ps-3">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('private.users.store') }}" id="addUserForm">
+                    @csrf
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="first_name" class="form-label required-field">First Name</label>
+                                <input type="text" name="first_name" id="first_name" class="form-control" value="{{ old('first_name') }}" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="middle_name" class="form-label">Middle Name</label>
+                                <input type="text" name="middle_name" id="middle_name" class="form-control" value="{{ old('middle_name') }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="last_name" class="form-label required-field">Last Name</label>
+                                <input type="text" name="last_name" id="last_name" class="form-control" value="{{ old('last_name') }}" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="ext_name" class="form-label">Extension Name</label>
+                                <input type="text" name="ext_name" id="ext_name" class="form-control" value="{{ old('ext_name') }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="student_id" class="form-label required-field">Student ID</label>
+                                <input type="text" name="student_id" id="student_id" class="form-control" value="{{ old('student_id') }}" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="email" class="form-label required-field">Email</label>
+                                <input type="email" name="email" id="email" class="form-control" value="{{ old('email') }}" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="password" class="form-label required-field">Password</label>
+                                <input type="password" name="password" id="password" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="password_confirmation" class="form-label required-field">Confirm Password</label>
+                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="department_id" class="form-label required-field">Department</label>
+                                <select name="department_id" id="department_id" class="form-select" required>
+                                    <option value="" disabled {{ old('department_id') ? '' : 'selected' }}>Select Department</option>
+                                    @foreach($departments as $department)
+                                        <option value="{{ $department->id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>
+                                            {{ $department->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="role" class="form-label required-field">Role</label>
+                                <select name="role" id="role" class="form-select" required>
+                                    <option value="" disabled {{ old('role') ? '' : 'selected' }}>Select Role</option>
+                                    <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                                    <option value="student" {{ old('role') == 'student' ? 'selected' : '' }}>Student</option>
+                                    <option value="instructor" {{ old('role') == 'instructor' ? 'selected' : '' }}>Instructor</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" id="student-fields">
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="school_year" class="form-label">School Year</label>
+                                <input type="text" name="school_year" id="school_year" class="form-control" value="{{ old('school_year') }}" placeholder="e.g., 2025-2026">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="section" class="form-label">Section / Batch</label>
+                                <input type="text" name="section" id="section" class="form-control" value="{{ old('section') }}" placeholder="e.g., Batch 1, EPAS-B1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="instructor-fields">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="room_number" class="form-label">Room Number</label>
+                                <input type="text" name="room_number" id="room_number" class="form-control" value="{{ old('room_number') }}" placeholder="e.g., Room 101, Lab 2">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="stat" class="form-label required-field">Status</label>
+                        <select name="stat" id="stat" class="form-select" required>
+                            <option value="1" {{ old('stat') == '1' ? 'selected' : '' }}>Active</option>
+                            <option value="0" {{ old('stat') == '0' ? 'selected' : '' }}>Inactive</option>
+                        </select>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Add User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="fab-backdrop" id="fab-backdrop"></div>
     @endif
 @endauth
 
@@ -456,37 +535,6 @@
       console.log('Time:', new Date().toISOString());
       console.groupEnd();
     @endif
-  </script>
-
-  <!-- Scroll-to-Top Button (mobile) -->
-  <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top">
-    <i class="fas fa-chevron-up"></i>
-  </button>
-  <script>
-    (function() {
-        const scrollBtn = document.getElementById('scrollToTop');
-        if (!scrollBtn) return;
-
-        // Show/hide based on scroll position
-        let ticking = false;
-        window.addEventListener('scroll', function() {
-            if (!ticking) {
-                window.requestAnimationFrame(function() {
-                    if (window.scrollY > 300) {
-                        scrollBtn.classList.add('visible');
-                    } else {
-                        scrollBtn.classList.remove('visible');
-                    }
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        });
-
-        scrollBtn.addEventListener('click', function() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    })();
   </script>
 
   <!-- PWA Service Worker Registration -->
@@ -576,5 +624,6 @@
         });
     };
   </script>
+  @livewireScripts
 </body>
 </html>

@@ -31,7 +31,7 @@ class SecurityHeaders
 
         // Content Security Policy
         // Allow Vite dev server in local development
-        $viteDevServer = config('app.debug') ? ' http://127.0.0.1:5173' : '';
+        $viteDevServer = (config('app.debug') && config('app.env') !== 'production') ? ' http://127.0.0.1:5173' : '';
 
         $csp = implode('; ', [
             "default-src 'self'",
