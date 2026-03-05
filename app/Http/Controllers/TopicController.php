@@ -7,6 +7,7 @@ use App\Models\InformationSheet;
 use App\Http\Requests\StoreTopicRequest;
 use App\Http\Requests\UpdateTopicRequest;
 use App\Services\ContentSanitizationService;
+use App\Services\DocumentConversionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -59,6 +60,12 @@ class TopicController extends Controller
                 $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
                 $validated['file_path'] = $file->storeAs('topics', $filename, 'public');
                 $validated['original_filename'] = $file->getClientOriginalName();
+
+                $ext = strtolower($file->getClientOriginalExtension());
+                if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'])) {
+                    $validated['document_content'] = app(DocumentConversionService::class)
+                        ->convertToHtml(Storage::disk('public')->path($validated['file_path']), $ext);
+                }
             }
 
             $topic = $informationSheet->topics()->create($validated);
@@ -126,6 +133,14 @@ class TopicController extends Controller
                 $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
                 $validated['file_path'] = $file->storeAs('topics', $filename, 'public');
                 $validated['original_filename'] = $file->getClientOriginalName();
+
+                $ext = strtolower($file->getClientOriginalExtension());
+                if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'])) {
+                    $validated['document_content'] = app(DocumentConversionService::class)
+                        ->convertToHtml(Storage::disk('public')->path($validated['file_path']), $ext);
+                } else {
+                    $validated['document_content'] = null;
+                }
             }
 
             $topic->update($validated);

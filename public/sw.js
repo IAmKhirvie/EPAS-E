@@ -1,6 +1,6 @@
 // EPAS-E Service Worker
 // Update CACHE_VERSION when deploying new assets to bust the cache
-const CACHE_VERSION = '2026-03-05d';
+const CACHE_VERSION = '2026-03-05i';
 const CACHE_NAME = `epas-e-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline.html';
 
@@ -80,6 +80,11 @@ self.addEventListener('fetch', event => {
 
     // Skip external requests
     if (url.origin !== location.origin) {
+        return;
+    }
+
+    // Never cache HTML navigation requests — they may contain flash messages
+    if (request.mode === 'navigate') {
         return;
     }
 

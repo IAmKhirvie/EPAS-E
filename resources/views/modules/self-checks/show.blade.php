@@ -167,6 +167,17 @@
 
             @else
             {{-- ═══════ Instructor/Admin: Preview ═══════ --}}
+
+            {{-- Reveal Answers Toggle --}}
+            <div class="d-flex align-items-center gap-2 mb-3 p-2 bg-light rounded">
+                <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" id="revealAnswersToggle" role="switch">
+                    <label class="form-check-label fw-semibold" for="revealAnswersToggle">
+                        <i class="fas fa-eye me-1"></i>Reveal Answers
+                    </label>
+                </div>
+            </div>
+
             @foreach($selfCheck->questions->sortBy('order') as $index => $question)
             <div class="sc-question-card">
                 <div class="sc-question-card__header">
@@ -179,13 +190,19 @@
                     <span class="badge bg-primary">{{ $question->points }} pts</span>
                 </div>
                 <div class="sc-question-card__body">
+                    @if(!empty($question->options['question_image']))
+                    <div class="text-center mb-3">
+                        <img src="{{ $question->options['question_image'] }}" alt="Question Image" class="img-fluid rounded" style="max-height: 300px;">
+                    </div>
+                    @endif
+
                     <p class="mb-2"><strong>{{ $question->question_text }}</strong></p>
 
                     @if($question->question_type === 'multiple_choice' || $question->question_type === 'image_choice')
                         @php $options = array_filter($question->options ?? [], fn($v, $k) => is_int($k), ARRAY_FILTER_USE_BOTH); @endphp
                         <div class="ms-3">
                             @foreach($options as $optIndex => $option)
-                            <div class="{{ $question->correct_answer == $optIndex ? 'text-success fw-bold' : '' }}" style="padding: 0.25rem 0;">
+                            <div class="answer-option {{ $question->correct_answer == $optIndex ? 'correct-answer' : '' }}" style="padding: 0.25rem 0;">
                                 @if(is_array($option))
                                     {{ chr(65 + $optIndex) }}. {{ $option['label'] ?? 'Option' }}
                                     @if(!empty($option['image']))
@@ -195,7 +212,9 @@
                                     {{ chr(65 + $optIndex) }}. {{ $option }}
                                 @endif
                                 @if($question->correct_answer == $optIndex)
-                                    <i class="fas fa-check ms-2"></i>
+                                <span class="correct-indicator d-none">
+                                    <i class="fas fa-check ms-2 text-success"></i>
+                                </span>
                                 @endif
                             </div>
                             @endforeach
@@ -215,29 +234,34 @@
                             <div class="col-5">
                                 <strong class="d-block mb-1" style="font-size: 0.8rem; color: #6c757d;">Column B</strong>
                                 @foreach($pairs as $pair)
-                                <div class="p-2 mb-1" style="border: 1px solid #d4edda; border-radius: 6px; background: #f8fff9;">{{ $pair['right'] }}</div>
+                                <div class="p-2 mb-1 answer-reveal d-none" style="border: 1px solid #d4edda; border-radius: 6px; background: #f8fff9;">{{ $pair['right'] }}</div>
+                                <div class="p-2 mb-1 answer-hide" style="border: 1px solid #dee2e6; border-radius: 6px;">{{ $pair['right'] }}</div>
                                 @endforeach
                             </div>
                         </div>
                     @elseif($question->question_type === 'ordering')
                         @php $items = $question->options['items'] ?? []; @endphp
                         <div class="ms-3 mt-2">
-                            <strong class="d-block mb-1" style="font-size: 0.8rem; color: #6c757d;">Correct Order:</strong>
+                            <strong class="d-block mb-1 answer-reveal d-none" style="font-size: 0.8rem; color: #6c757d;">Correct Order:</strong>
                             @foreach($items as $itemIndex => $item)
                             <div class="d-flex align-items-center mb-1">
-                                <span class="badge bg-secondary me-2">{{ $itemIndex + 1 }}</span>
+                                <span class="badge bg-secondary me-2 answer-reveal d-none">{{ $itemIndex + 1 }}</span>
+                                <span class="badge bg-light text-dark me-2 answer-hide">{{ $itemIndex + 1 }}</span>
                                 {{ $item }}
                             </div>
                             @endforeach
                         </div>
                     @else
-                        <p class="text-success mb-0 ms-3">
+                        <p class="mb-0 ms-3 answer-reveal d-none" style="color: #198754;">
                             <i class="fas fa-check me-1"></i><strong>Answer:</strong> {{ $question->correct_answer }}
+                        </p>
+                        <p class="mb-0 ms-3 answer-hide text-muted">
+                            <i class="fas fa-eye-slash me-1"></i><em>Answer hidden</em>
                         </p>
                     @endif
 
                     @if($question->explanation)
-                    <div class="mt-2 ms-3" style="color: #0288d1; font-size: 0.85rem;">
+                    <div class="mt-2 ms-3 answer-reveal d-none" style="color: #0288d1; font-size: 0.85rem;">
                         <i class="fas fa-lightbulb me-1"></i>
                         <strong>Explanation:</strong> {{ $question->explanation }}
                     </div>
@@ -486,6 +510,10 @@
 .doc-viewer__nav-btn:disabled { opacity: 0.35; cursor: default; }
 .doc-viewer__page-info { font-size: 0.85rem; color: #6c757d; min-width: 90px; text-align: center; }
 .doc-viewer__fade-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 40px; background: linear-gradient(transparent, #fff); pointer-events: none; border-radius: 0 0 4px 4px; }
+.doc-viewer__logical-page { padding: 0.5rem 0; }
+.doc-viewer__logical-page table { width: 100%; border-collapse: collapse; }
+.doc-viewer__logical-page table th, .doc-viewer__logical-page table td { border: 1px solid #dee2e6; padding: 0.4rem 0.6rem; font-size: 0.85rem; }
+.doc-viewer__logical-page table th { background: #f8f9fa; font-weight: 600; }
 
 /* Timer */
 .assessment-timer {
@@ -517,6 +545,36 @@
 @endpush
 
 @push('scripts')
+<script>
+// Reveal Answers Toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.getElementById('revealAnswersToggle');
+    if (!toggle) return;
+
+    toggle.addEventListener('change', function() {
+        const revealed = this.checked;
+
+        // Toggle correct answer highlighting on multiple choice
+        document.querySelectorAll('.correct-answer').forEach(el => {
+            el.classList.toggle('text-success', revealed);
+            el.classList.toggle('fw-bold', revealed);
+        });
+
+        // Toggle check indicators
+        document.querySelectorAll('.correct-indicator').forEach(el => {
+            el.classList.toggle('d-none', !revealed);
+        });
+
+        // Toggle answer-reveal / answer-hide pairs
+        document.querySelectorAll('.answer-reveal').forEach(el => {
+            el.classList.toggle('d-none', !revealed);
+        });
+        document.querySelectorAll('.answer-hide').forEach(el => {
+            el.classList.toggle('d-none', revealed);
+        });
+    });
+});
+</script>
 @if($selfCheck->document_content)
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -528,34 +586,68 @@ document.addEventListener('DOMContentLoaded', function() {
     var prevBtn = document.getElementById('docPrev');
     var nextBtn = document.getElementById('docNext');
     var pageInfo = document.getElementById('docPageInfo');
-    var PAGE_HEIGHT, totalHeight, totalPages, currentPage = 1;
+    var currentPage = 1;
 
-    function update() {
-        totalHeight = content.scrollHeight;
-        PAGE_HEIGHT = page.clientHeight;
-        totalPages = Math.max(1, Math.ceil(totalHeight / PAGE_HEIGHT));
-        if (totalPages <= 1) { nav.style.display = 'none'; fade.style.display = 'none'; return; }
-        nav.style.display = 'flex';
-        pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
-        prevBtn.disabled = currentPage <= 1;
-        nextBtn.disabled = currentPage >= totalPages;
-        page.scrollTop = (currentPage - 1) * PAGE_HEIGHT;
-        fade.style.display = currentPage < totalPages ? 'block' : 'none';
+    // Check for logical pages (PPTX slides, PDF pages, XLSX sheets)
+    var logicalPages = content.querySelectorAll('.doc-viewer__logical-page');
+    var useLogicalPages = logicalPages.length > 1;
+
+    if (useLogicalPages) {
+        var totalPages = logicalPages.length;
+        fade.style.display = 'none';
+        page.style.overflowY = 'auto';
+        page.style.overflowX = 'hidden';
+        page.style.scrollbarWidth = 'thin';
+
+        function showLogicalPage() {
+            logicalPages.forEach(function(lp, i) {
+                lp.style.display = (i === currentPage - 1) ? 'block' : 'none';
+            });
+            if (totalPages <= 1) { nav.style.display = 'none'; return; }
+            nav.style.display = 'flex';
+            pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+            page.scrollTop = 0;
+        }
+        showLogicalPage();
+        prevBtn.addEventListener('click', function() { if (currentPage > 1) { currentPage--; showLogicalPage(); } });
+        nextBtn.addEventListener('click', function() { if (currentPage < totalPages) { currentPage++; showLogicalPage(); } });
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+            if (e.key === 'ArrowLeft' && currentPage > 1) { currentPage--; showLogicalPage(); }
+            if (e.key === 'ArrowRight' && currentPage < totalPages) { currentPage++; showLogicalPage(); }
+        });
+    } else {
+        // Fallback: scroll-based pagination for DOCX and other single-flow content
+        var PAGE_HEIGHT, totalHeight, totalPages;
+        function update() {
+            totalHeight = content.scrollHeight;
+            PAGE_HEIGHT = page.clientHeight;
+            totalPages = Math.max(1, Math.ceil(totalHeight / PAGE_HEIGHT));
+            if (totalPages <= 1) { nav.style.display = 'none'; fade.style.display = 'none'; return; }
+            nav.style.display = 'flex';
+            pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+            page.scrollTop = (currentPage - 1) * PAGE_HEIGHT;
+            fade.style.display = currentPage < totalPages ? 'block' : 'none';
+        }
+        page.classList.add('doc-viewer__page--scrollable');
+        page.style.scrollbarWidth = 'none';
+        var s = document.createElement('style');
+        s.textContent = '#docPage::-webkit-scrollbar{display:none}';
+        document.head.appendChild(s);
+        prevBtn.addEventListener('click', function() { if (currentPage > 1) { currentPage--; update(); } });
+        nextBtn.addEventListener('click', function() { if (currentPage < totalPages) { currentPage++; update(); } });
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+            if (e.key === 'ArrowLeft' && currentPage > 1) { currentPage--; update(); }
+            if (e.key === 'ArrowRight' && currentPage < totalPages) { currentPage++; update(); }
+        });
+        update();
+        window.addEventListener('resize', update);
     }
-    page.classList.add('doc-viewer__page--scrollable');
-    page.style.scrollbarWidth = 'none';
-    var s = document.createElement('style');
-    s.textContent = '#docPage::-webkit-scrollbar{display:none}';
-    document.head.appendChild(s);
-    prevBtn.addEventListener('click', function() { if (currentPage > 1) { currentPage--; update(); } });
-    nextBtn.addEventListener('click', function() { if (currentPage < totalPages) { currentPage++; update(); } });
-    document.addEventListener('keydown', function(e) {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
-        if (e.key === 'ArrowLeft' && currentPage > 1) { currentPage--; update(); }
-        if (e.key === 'ArrowRight' && currentPage < totalPages) { currentPage++; update(); }
-    });
-    update();
-    window.addEventListener('resize', update);
 });
 </script>
 @endif

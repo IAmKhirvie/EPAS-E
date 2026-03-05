@@ -85,6 +85,18 @@
             @endif
         </div>
 
+        {{-- Document Viewer --}}
+        @if($jobSheet->document_content || $jobSheet->file_path)
+        <div style="padding: 0.75rem 1.5rem;">
+            @include('components.document-viewer', [
+                'documentContent' => $jobSheet->document_content,
+                'filePath' => $jobSheet->file_path,
+                'originalFilename' => $jobSheet->original_filename,
+                'downloadRoute' => route('job-sheets.download', $jobSheet),
+            ])
+        </div>
+        @endif
+
         {{-- Steps Grid --}}
         <div class="cb-show__body">
             <div class="cb-items-header" style="margin-bottom: 0.75rem; padding-bottom: 0.5rem;">
@@ -166,3 +178,12 @@
     </div>
 </div>
 @endsection
+
+@if(!empty($jobSheet->document_content))
+@push('styles')
+@include('components.document-viewer-css')
+@endpush
+@push('scripts')
+@include('components.document-viewer-js')
+@endpush
+@endif

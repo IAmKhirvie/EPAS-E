@@ -18,7 +18,7 @@ class UpdateDocumentAssessmentRequest extends FormRequest
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'instructions' => 'required|string',
-            'document' => 'nullable|file|mimes:pdf,doc,docx,ppt,pptx|max:' . config('joms.uploads.max_document_size', 10240),
+            'document' => 'nullable|file|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx|max:' . config('joms.uploads.max_document_size', 10240),
             'document_content' => 'nullable|string',
             'max_points' => 'required|integer|min:1',
             'time_limit' => 'nullable|integer|min:1',

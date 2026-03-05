@@ -56,6 +56,11 @@ class DocumentAssessment extends Model
         return in_array($this->file_type, ['docx', 'pptx']);
     }
 
+    public function getIsPreviewableAttribute(): bool
+    {
+        return in_array($this->file_type, ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf']);
+    }
+
     public function getIsPdfAttribute(): bool
     {
         return $this->file_type === 'pdf';

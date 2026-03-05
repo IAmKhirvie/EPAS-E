@@ -31,6 +31,11 @@ class CourseController extends Controller
             $query->where('instructor_id', $user->id);
         }
 
+        // Students only see courses targeting their section
+        if ($user->role === Roles::STUDENT) {
+            $query->forSection($user->section);
+        }
+
         $courses = $query->orderBy('order')->get();
 
         return view('courses.index', compact('courses'));
@@ -71,7 +76,8 @@ class CourseController extends Controller
         $this->authorize('create', Course::class);
 
         $instructors = User::where('role', Roles::INSTRUCTOR)->where('stat', 1)->orderBy('last_name')->get();
-        return view('courses.create', compact('instructors'));
+        $sections = User::whereNotNull('section')->where('section', '!=', '')->distinct()->pluck('section')->sort()->values();
+        return view('courses.create', compact('instructors', 'sections'));
     }
 
     public function store(Request $request)
@@ -84,6 +90,7 @@ class CourseController extends Controller
             'description' => 'nullable|string',
             'sector' => 'nullable|string|max:255',
             'instructor_id' => 'nullable|exists:users,id',
+            'target_sections' => 'nullable|string|max:500',
         ]);
 
         try {
@@ -93,6 +100,7 @@ class CourseController extends Controller
                 'description' => $validated['description'],
                 'sector' => $validated['sector'],
                 'instructor_id' => $validated['instructor_id'] ?? null,
+                'target_sections' => $validated['target_sections'] ?? null,
                 'is_active' => true,
                 'order' => Course::max('order') + 1,
             ]);
@@ -131,7 +139,8 @@ class CourseController extends Controller
             ? User::where('role', Roles::INSTRUCTOR)->where('stat', 1)->orderBy('last_name')->get()
             : collect();
 
-        return view('courses.edit', compact('course', 'instructors'));
+        $sections = User::whereNotNull('section')->where('section', '!=', '')->distinct()->pluck('section')->sort()->values();
+        return view('courses.edit', compact('course', 'instructors', 'sections'));
     }
 
     public function update(Request $request, Course $course)
@@ -145,6 +154,7 @@ class CourseController extends Controller
             'description' => 'nullable|string',
             'sector' => 'nullable|string|max:255',
             'is_active' => 'boolean',
+            'target_sections' => 'nullable|string|max:500',
         ];
 
         // Only admin can change instructor assignment

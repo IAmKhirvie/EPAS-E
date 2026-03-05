@@ -40,7 +40,7 @@ class DocumentAssessmentController extends Controller
 
                 // Convert document to HTML if editable type
                 $documentContent = null;
-                if (in_array($extension, ['docx', 'doc', 'pptx', 'ppt'])) {
+                if (in_array($extension, ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'])) {
                     $fullPath = Storage::disk('public')->path($filePath);
                     $documentContent = $this->conversionService->convertToHtml($fullPath, $extension);
                 }
@@ -126,7 +126,7 @@ class DocumentAssessmentController extends Controller
 
                     // Convert new document to HTML
                     $documentContent = null;
-                    if (in_array($extension, ['docx', 'doc', 'pptx', 'ppt'])) {
+                    if (in_array($extension, ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'])) {
                         $fullPath = Storage::disk('public')->path($filePath);
                         $documentContent = $this->conversionService->convertToHtml($fullPath, $extension);
                     }
@@ -267,7 +267,7 @@ class DocumentAssessmentController extends Controller
     public function convert(Request $request)
     {
         $request->validate([
-            'document' => 'required|file|mimes:doc,docx,ppt,pptx|max:' . config('joms.uploads.max_document_size', 10240),
+            'document' => 'required|file|mimes:doc,docx,ppt,pptx,xls,xlsx,pdf|max:' . config('joms.uploads.max_document_size', 10240),
         ]);
 
         try {

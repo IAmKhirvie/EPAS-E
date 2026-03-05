@@ -1023,3 +1023,68 @@
 #docPreviewContent p,
 .doc-viewer__page div,
 .doc-viewer__page p { overflow-wrap: break-word; }
+
+/* ── Dark mode immunity for document previews ───────────────────────────
+   Document content must always render in light mode because converted
+   HTML (from DOCX/PPTX) has its own colors and backgrounds.
+   Dark mode variables must NOT bleed into these containers. */
+.dark-mode #docPreviewContent,
+.dark-mode .doc-viewer__page {
+    color: #212529 !important;
+    background: #fff !important;
+}
+
+.dark-mode #docPreviewContent *,
+.dark-mode .doc-viewer__page * {
+    color: inherit !important;
+}
+
+.dark-mode #docPreviewContent h1,
+.dark-mode #docPreviewContent h2,
+.dark-mode #docPreviewContent h3,
+.dark-mode #docPreviewContent h4,
+.dark-mode #docPreviewContent h5,
+.dark-mode #docPreviewContent h6,
+.dark-mode .doc-viewer__page h1,
+.dark-mode .doc-viewer__page h2,
+.dark-mode .doc-viewer__page h3,
+.dark-mode .doc-viewer__page h4,
+.dark-mode .doc-viewer__page h5,
+.dark-mode .doc-viewer__page h6 {
+    color: #212529 !important;
+}
+
+.dark-mode #docPreviewContent p,
+.dark-mode #docPreviewContent span,
+.dark-mode #docPreviewContent li,
+.dark-mode #docPreviewContent td,
+.dark-mode #docPreviewContent th,
+.dark-mode .doc-viewer__page p,
+.dark-mode .doc-viewer__page span,
+.dark-mode .doc-viewer__page li,
+.dark-mode .doc-viewer__page td,
+.dark-mode .doc-viewer__page th {
+    color: #212529 !important;
+}
+
+.dark-mode #docPreviewContent table,
+.dark-mode .doc-viewer__page table {
+    background: #fff !important;
+}
+
+.dark-mode #docPreviewContent table th,
+.dark-mode .doc-viewer__page table th {
+    background: #f8f9fa !important;
+    color: #212529 !important;
+}
+
+.dark-mode #docPreviewContent table td,
+.dark-mode .doc-viewer__page table td {
+    background: #fff !important;
+    border-color: #dee2e6 !important;
+}
+
+.dark-mode #docPreviewContent a,
+.dark-mode .doc-viewer__page a {
+    color: #0d6efd !important;
+}

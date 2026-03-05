@@ -83,12 +83,12 @@
                         <div class="cb-settings">
                             <label class="cb-upload-area" id="docUploadArea">
                                 <input type="file" class="d-none" name="document" id="documentInput"
-                                       accept=".pdf,.doc,.docx,.ppt,.pptx" required
+                                       accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" required
                                        onchange="handleDocumentUpload(this)">
                                 <i class="fas fa-cloud-upload-alt d-block"></i>
                                 <div class="cb-upload-area__text">
                                     <strong>Click to upload document</strong> or drag and drop<br>
-                                    <small>DOCX, PPTX (editable) or PDF (view-only) &mdash; max 10MB</small>
+                                    <small>DOCX, PPTX, XLSX, PDF &mdash; max 10MB</small>
                                 </div>
                                 <span class="upload-name" id="uploadFileName"></span>
                             </label>
@@ -199,12 +199,7 @@ async function handleDocumentUpload(input) {
     document.getElementById('editorSection').classList.add('d-none');
     document.getElementById('convertingSpinner').classList.add('d-none');
 
-    if (ext === 'pdf') {
-        document.getElementById('pdfWarning').classList.remove('d-none');
-        return;
-    }
-
-    if (['docx', 'pptx', 'doc', 'ppt'].includes(ext)) {
+    if (['docx', 'pptx', 'doc', 'ppt', 'pdf', 'xlsx', 'xls'].includes(ext)) {
         // Show loading
         document.getElementById('convertingSpinner').classList.remove('d-none');
 

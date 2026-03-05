@@ -99,7 +99,7 @@ class SelfCheckController extends Controller
 
                     // Convert DOCX/PPTX to HTML for inline viewing
                     $ext = strtolower($file->getClientOriginalExtension());
-                    if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt'])) {
+                    if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'])) {
                         $conversionService = app(DocumentConversionService::class);
                         $fullPath = Storage::disk('public')->path($createData['file_path']);
                         $html = $conversionService->convertToHtml($fullPath, $ext);
@@ -521,7 +521,7 @@ class SelfCheckController extends Controller
 
                     // Convert DOCX/PPTX to HTML for inline viewing
                     $ext = strtolower($file->getClientOriginalExtension());
-                    if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt'])) {
+                    if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'])) {
                         $conversionService = app(DocumentConversionService::class);
                         $fullPath = Storage::disk('public')->path($updateData['file_path']);
                         $html = $conversionService->convertToHtml($fullPath, $ext);

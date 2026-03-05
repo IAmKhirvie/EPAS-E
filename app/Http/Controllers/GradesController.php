@@ -209,6 +209,7 @@ class GradesController extends Controller
     private function studentGrades(User $student): View
     {
         $modules = Module::where('is_active', true)
+            ->whereHas('course', fn($q) => $q->forSection($student->section))
             ->with([
                 'informationSheets.selfChecks',
                 'informationSheets.homeworks',

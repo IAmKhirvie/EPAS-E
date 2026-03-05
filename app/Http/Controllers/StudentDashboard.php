@@ -53,13 +53,16 @@ class StudentDashboard extends Controller
     
     private function getCircleProgressData($user)
     {
-        // Get total activities (information sheets + self checks)
-        $totalActivities = InformationSheet::whereHas('module', function($query) {
-            $query->where('is_active', true);
+        // Get total activities (information sheets + self checks) for student's section
+        $section = $user->section;
+        $totalActivities = InformationSheet::whereHas('module', function($query) use ($section) {
+            $query->where('is_active', true)
+                  ->whereHas('course', fn($q) => $q->forSection($section));
         })->count();
-        
-        $totalActivities += \App\Models\SelfCheck::whereHas('informationSheet.module', function($query) {
-            $query->where('is_active', true);
+
+        $totalActivities += \App\Models\SelfCheck::whereHas('informationSheet.module', function($query) use ($section) {
+            $query->where('is_active', true)
+                  ->whereHas('course', fn($q) => $q->forSection($section));
         })->count();
         
         // Get completed activities
@@ -129,9 +132,9 @@ class StudentDashboard extends Controller
             ->first();
             
         if ($latestProgress) {
-            $module = $latestProgress->progressable->module ?? Module::where('is_active', true)->first();
+            $module = $latestProgress->progressable->module ?? Module::where('is_active', true)->whereHas('course', fn($q) => $q->forSection($user->section))->first();
         } else {
-            $module = Module::where('is_active', true)->first();
+            $module = Module::where('is_active', true)->whereHas('course', fn($q) => $q->forSection($user->section))->first();
         }
         
         if (!$module) {

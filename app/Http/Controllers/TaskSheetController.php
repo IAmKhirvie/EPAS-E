@@ -7,6 +7,7 @@ use App\Models\TaskSheet;
 use App\Models\TaskSheetItem;
 use App\Http\Requests\StoreTaskSheetRequest;
 use App\Http\Requests\UpdateTaskSheetRequest;
+use App\Services\DocumentConversionService;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,14 +34,21 @@ class TaskSheetController extends Controller
 
             $filePath = null;
             $originalFilename = null;
+            $documentContent = null;
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
                 $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
                 $filePath = $file->storeAs('task-sheets', $filename, 'public');
                 $originalFilename = $file->getClientOriginalName();
+
+                $ext = strtolower($file->getClientOriginalExtension());
+                if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'])) {
+                    $documentContent = app(DocumentConversionService::class)
+                        ->convertToHtml(Storage::disk('public')->path($filePath), $ext);
+                }
             }
 
-            DB::transaction(function () use ($request, $informationSheet, $imagePath, $filePath, $originalFilename) {
+            DB::transaction(function () use ($request, $informationSheet, $imagePath, $filePath, $originalFilename, $documentContent) {
                 $taskSheet = TaskSheet::create([
                     'information_sheet_id' => $informationSheet->id,
                     'task_number' => $request->task_number,
@@ -53,6 +61,7 @@ class TaskSheetController extends Controller
                     'image_path' => $imagePath,
                     'file_path' => $filePath,
                     'original_filename' => $originalFilename,
+                    'document_content' => $documentContent,
                 ]);
 
                 foreach ($request->items as $itemData) {
@@ -99,6 +108,7 @@ class TaskSheetController extends Controller
 
             $filePath = $taskSheet->file_path;
             $originalFilename = $taskSheet->original_filename;
+            $documentContent = $taskSheet->document_content;
             if ($request->hasFile('file')) {
                 if ($filePath) {
                     Storage::disk('public')->delete($filePath);
@@ -107,6 +117,14 @@ class TaskSheetController extends Controller
                 $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
                 $filePath = $file->storeAs('task-sheets', $filename, 'public');
                 $originalFilename = $file->getClientOriginalName();
+
+                $ext = strtolower($file->getClientOriginalExtension());
+                if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'])) {
+                    $documentContent = app(DocumentConversionService::class)
+                        ->convertToHtml(Storage::disk('public')->path($filePath), $ext);
+                } else {
+                    $documentContent = null;
+                }
             }
 
             $taskSheet->update([
@@ -120,6 +138,7 @@ class TaskSheetController extends Controller
                 'image_path' => $imagePath,
                 'file_path' => $filePath,
                 'original_filename' => $originalFilename,
+                'document_content' => $documentContent,
             ]);
 
             return redirect()->route('content.management')

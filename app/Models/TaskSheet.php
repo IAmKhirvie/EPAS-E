@@ -21,6 +21,7 @@ class TaskSheet extends Model
         'image_path',
         'file_path',
         'original_filename',
+        'document_content',
         'estimated_duration',
         'difficulty_level',
     ];

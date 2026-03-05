@@ -7,6 +7,7 @@ use App\Models\JobSheet;
 use App\Models\JobSheetStep;
 use App\Http\Requests\StoreJobSheetRequest;
 use App\Http\Requests\UpdateJobSheetRequest;
+use App\Services\DocumentConversionService;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,14 +29,21 @@ class JobSheetController extends Controller
         try {
             $filePath = null;
             $originalFilename = null;
+            $documentContent = null;
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
                 $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
                 $filePath = $file->storeAs('job-sheets', $filename, 'public');
                 $originalFilename = $file->getClientOriginalName();
+
+                $ext = strtolower($file->getClientOriginalExtension());
+                if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'])) {
+                    $documentContent = app(DocumentConversionService::class)
+                        ->convertToHtml(Storage::disk('public')->path($filePath), $ext);
+                }
             }
 
-            DB::transaction(function () use ($request, $informationSheet, $filePath, $originalFilename) {
+            DB::transaction(function () use ($request, $informationSheet, $filePath, $originalFilename, $documentContent) {
                 $jobSheet = JobSheet::create([
                     'information_sheet_id' => $informationSheet->id,
                     'job_number' => $request->job_number,
@@ -43,6 +51,7 @@ class JobSheetController extends Controller
                     'description' => $request->description,
                     'file_path' => $filePath,
                     'original_filename' => $originalFilename,
+                    'document_content' => $documentContent,
                     'objectives' => $request->objectives,
                     'tools_required' => $request->tools_required,
                     'safety_requirements' => $request->safety_requirements,
@@ -89,6 +98,7 @@ class JobSheetController extends Controller
         try {
             $filePath = $jobSheet->file_path;
             $originalFilename = $jobSheet->original_filename;
+            $documentContent = $jobSheet->document_content;
             if ($request->hasFile('file')) {
                 if ($filePath) {
                     Storage::disk('public')->delete($filePath);
@@ -97,6 +107,14 @@ class JobSheetController extends Controller
                 $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
                 $filePath = $file->storeAs('job-sheets', $filename, 'public');
                 $originalFilename = $file->getClientOriginalName();
+
+                $ext = strtolower($file->getClientOriginalExtension());
+                if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'])) {
+                    $documentContent = app(DocumentConversionService::class)
+                        ->convertToHtml(Storage::disk('public')->path($filePath), $ext);
+                } else {
+                    $documentContent = null;
+                }
             }
 
             $jobSheet->update([
@@ -105,6 +123,7 @@ class JobSheetController extends Controller
                 'description' => $request->description,
                 'file_path' => $filePath,
                 'original_filename' => $originalFilename,
+                'document_content' => $documentContent,
                 'objectives' => $request->objectives,
                 'tools_required' => $request->tools_required,
                 'safety_requirements' => $request->safety_requirements,

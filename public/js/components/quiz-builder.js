@@ -189,11 +189,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <i class="fas fa-image me-1"></i>
                     Question Image <span class="optional">(optional)</span>
                 </label>
+                <input type="hidden" name="questions[${index}][options][question_image]" class="image-url-input">
                 <div class="cb-upload-area" onclick="document.getElementById('img_${index}').click()">
                     <i class="fas fa-cloud-upload-alt d-block"></i>
                     <span class="upload-text">Click to upload or drag image here</span>
                     <input type="file" id="img_${index}" class="d-none question-image-file" accept="image/*">
-                    <input type="hidden" name="questions[${index}][options][question_image]" class="image-url-input">
                 </div>
                 <div class="image-preview-container mt-2"></div>
             </div>
@@ -653,11 +653,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <i class="fas fa-image me-1"></i>
                     Image to Identify <span class="required">*</span>
                 </label>
+                <input type="hidden" name="questions[${index}][options][main_image]" class="main-image-url" required>
                 <div class="cb-upload-area large-upload" onclick="document.getElementById('identify_img_${index}').click()">
                     <i class="fas fa-cloud-upload-alt d-block"></i>
                     <span class="upload-text">Upload the image students need to identify</span>
                     <input type="file" id="identify_img_${index}" class="d-none main-image-file" accept="image/*" required>
-                    <input type="hidden" name="questions[${index}][options][main_image]" class="main-image-url" required>
                 </div>
                 <div class="main-image-preview mt-2"></div>
             </div>
@@ -684,11 +684,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <i class="fas fa-image me-1"></i>
                     Hotspot Image <span class="required">*</span>
                 </label>
+                <input type="hidden" name="questions[${index}][options][hotspot_image]" class="hotspot-image-url">
                 <div class="cb-upload-area" onclick="document.getElementById('hotspot_img_${index}').click()">
                     <i class="fas fa-cloud-upload-alt d-block"></i>
                     <span class="upload-text">Upload the image with the target area</span>
                     <input type="file" id="hotspot_img_${index}" class="d-none hotspot-image-file" accept="image/*">
-                    <input type="hidden" name="questions[${index}][options][hotspot_image]" class="hotspot-image-url">
                 </div>
             </div>
             <div class="question-field">
@@ -733,11 +733,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <i class="fas fa-image me-1"></i>
                     Image to Label <span class="required">*</span>
                 </label>
+                <input type="hidden" name="questions[${index}][options][label_image]" class="label-image-url">
                 <div class="cb-upload-area" onclick="document.getElementById('label_img_${index}').click()">
                     <i class="fas fa-cloud-upload-alt d-block"></i>
                     <span class="upload-text">Upload the image with parts to label</span>
                     <input type="file" id="label_img_${index}" class="d-none label-image-file" accept="image/*">
-                    <input type="hidden" name="questions[${index}][options][label_image]" class="label-image-url">
                 </div>
                 <div class="label-image-preview mt-2"></div>
             </div>
@@ -889,11 +889,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <i class="fas fa-music me-1"></i>
                     Audio File <span class="required">*</span>
                 </label>
+                <input type="hidden" name="questions[${index}][options][audio_url]" class="audio-url-input">
                 <div class="cb-upload-area audio-upload-area" onclick="document.getElementById('audio_file_${index}').click()">
                     <i class="fas fa-headphones d-block"></i>
                     <span class="upload-text">Click to upload audio (MP3, WAV, OGG - Max 20MB)</span>
                     <input type="file" id="audio_file_${index}" class="d-none audio-file-input" accept="audio/*">
-                    <input type="hidden" name="questions[${index}][options][audio_url]" class="audio-url-input">
                 </div>
                 <audio controls class="audio-preview mt-2 d-none w-100"></audio>
             </div>
@@ -955,11 +955,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <i class="fas fa-video me-1"></i>
                     Video File <span class="required">*</span>
                 </label>
+                <input type="hidden" name="questions[${index}][options][video_url]" class="video-url-input">
                 <div class="cb-upload-area video-upload-area" onclick="document.getElementById('video_file_${index}').click()">
                     <i class="fas fa-film d-block"></i>
                     <span class="upload-text">Click to upload video (MP4, WebM - Max 100MB)</span>
                     <input type="file" id="video_file_${index}" class="d-none video-file-input" accept="video/*">
-                    <input type="hidden" name="questions[${index}][options][video_url]" class="video-url-input">
                 </div>
                 <video controls class="video-preview mt-2 d-none w-100" style="max-height:300px"></video>
             </div>
