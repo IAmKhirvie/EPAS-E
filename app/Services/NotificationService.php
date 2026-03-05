@@ -123,7 +123,7 @@ class NotificationService
     /**
      * Send notification for new announcement.
      */
-    public function notifyAnnouncement(User $user, string $title, bool $isUrgent = false): void
+    public function notifyAnnouncement(User $user, string $title, bool $isUrgent = false, bool $sendEmail = true): void
     {
         $this->createNotification($user, 'announcement', [
             'title' => $isUrgent ? 'Urgent Announcement' : 'New Announcement',
@@ -131,7 +131,7 @@ class NotificationService
             'is_urgent' => $isUrgent,
         ]);
 
-        if ($user->getNotificationPreference('email_announcement', true)) {
+        if ($sendEmail && $user->getNotificationPreference('email_announcement', true)) {
             $urgentPrefix = $isUrgent ? '[URGENT] ' : '';
             $this->sendEmail($user, "{$urgentPrefix}New Announcement",
                 "A new announcement has been posted: \"{$title}\"\n\nLog in to read the full announcement.");
@@ -255,7 +255,7 @@ class NotificationService
      * Send notification for a new announcement to targeted users.
      * Respects target_roles and target_sections.
      */
-    public function notifyNewAnnouncement(Announcement $announcement): void
+    public function notifyNewAnnouncement(Announcement $announcement, bool $sendEmail = true): void
     {
         $query = User::where('stat', 1);
 
@@ -283,7 +283,7 @@ class NotificationService
         $users = $query->get();
 
         foreach ($users as $user) {
-            $this->notifyAnnouncement($user, $announcement->title, $announcement->is_urgent);
+            $this->notifyAnnouncement($user, $announcement->title, $announcement->is_urgent, $sendEmail);
         }
     }
 
