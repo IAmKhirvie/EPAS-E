@@ -29,7 +29,7 @@ class DocumentConversionService
                 'pdf' => $this->convertPdfToHtml($filePath),
                 default => null,
             };
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Document conversion failed', [
                 'file' => $filePath,
                 'extension' => $extension,
@@ -83,7 +83,7 @@ class DocumentConversionService
                                 if ($font->isItalic()) {
                                     $text = '<em>' . $text . '</em>';
                                 }
-                                if ($font->isUnderline()) {
+                                if ($font->getUnderline() !== \PhpOffice\PhpPresentation\Style\Font::UNDERLINE_NONE) {
                                     $text = '<u>' . $text . '</u>';
                                 }
                             }
