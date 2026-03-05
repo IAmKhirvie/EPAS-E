@@ -23,6 +23,7 @@ class UpdateJobSheetRequest extends FormRequest
             'tools_required' => 'required|array|min:1',
             'safety_requirements' => 'required|array|min:1',
             'reference_materials' => 'nullable|array',
+            'file' => 'nullable|file|mimes:pdf,xlsx,xls,doc,docx,ppt,pptx|max:' . config('joms.uploads.max_document_size', 10240),
         ];
     }
 }

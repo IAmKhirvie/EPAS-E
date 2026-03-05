@@ -62,7 +62,7 @@ class PerformanceCriteriaController extends Controller
 
             $performanceCriteria->update(['score' => $score]);
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', 'Performance criteria submitted successfully!');
         } catch (\Exception $e) {
             Log::error('Performance criteria creation failed', ['error' => $e->getMessage(), 'user_id' => auth()->id()]);
@@ -109,7 +109,7 @@ class PerformanceCriteriaController extends Controller
 
             $performanceCriteria->update(['score' => $score]);
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', 'Performance criteria updated successfully!');
         } catch (\Exception $e) {
             Log::error('Performance criteria update failed', ['error' => $e->getMessage(), 'performance_criteria_id' => $performanceCriteria->id]);

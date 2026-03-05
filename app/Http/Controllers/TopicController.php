@@ -10,6 +10,7 @@ use App\Services\ContentSanitizationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use App\Http\Controllers\AnnouncementController;
 
 
@@ -52,6 +53,14 @@ class TopicController extends Controller
 
             Log::info('Content sanitized successfully');
 
+            // Handle document upload
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $validated['file_path'] = $file->storeAs('topics', $filename, 'public');
+                $validated['original_filename'] = $file->getClientOriginalName();
+            }
+
             $topic = $informationSheet->topics()->create($validated);
             
             // Load relationships for the announcement
@@ -71,7 +80,7 @@ class TopicController extends Controller
             
             Log::info('Topic created and announcement sent');
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', "Topic '{$topic->title}' created successfully!");
 
         } catch (\Exception $e) {
@@ -108,9 +117,20 @@ class TopicController extends Controller
             $parts = $this->sanitizer->processPartsWithImages($request, $validated['parts'] ?? [], $topic->parts ?? []);
             $validated['parts'] = $parts;
 
+            // Handle document upload
+            if ($request->hasFile('file')) {
+                if ($topic->file_path) {
+                    Storage::disk('public')->delete($topic->file_path);
+                }
+                $file = $request->file('file');
+                $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $validated['file_path'] = $file->storeAs('topics', $filename, 'public');
+                $validated['original_filename'] = $file->getClientOriginalName();
+            }
+
             $topic->update($validated);
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', "Topic '{$topic->title}' updated successfully!");
 
         } catch (\Exception $e) {
@@ -126,6 +146,20 @@ class TopicController extends Controller
         try {
             $topic = Topic::findOrFail($topicId);
             $topicTitle = $topic->title;
+
+            // Clean up files
+            if ($topic->file_path) {
+                Storage::disk('public')->delete($topic->file_path);
+            }
+            if ($topic->parts) {
+                foreach ($topic->parts as $part) {
+                    if (!empty($part['image'])) {
+                        $filename = basename($part['image']);
+                        Storage::disk('public')->delete('topic-images/' . $filename);
+                    }
+                }
+            }
+
             $topic->delete();
 
             if (request()->expectsJson()) {
@@ -134,7 +168,7 @@ class TopicController extends Controller
                 ]);
             }
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', "Topic '{$topicTitle}' deleted successfully!");
 
         } catch (\Exception $e) {
@@ -208,6 +242,20 @@ class TopicController extends Controller
         }
     }
 
+    public function download(Topic $topic)
+    {
+        if (!$topic->file_path) {
+            return redirect()->back()->with('error', 'No file attached to this topic.');
+        }
+
+        $filePath = Storage::disk('public')->path($topic->file_path);
+        if (!file_exists($filePath)) {
+            return redirect()->back()->with('error', 'File not found.');
+        }
+
+        return response()->download($filePath, $topic->original_filename);
+    }
+
     /**
      * Delete a specific part image
      */
@@ -220,7 +268,7 @@ class TopicController extends Controller
             if (isset($parts[$partIndex]) && !empty($parts[$partIndex]['image'])) {
                 // Delete file from storage
                 $filename = basename($parts[$partIndex]['image']);
-                Storage::delete('public/topic-images/' . $filename);
+                Storage::disk('public')->delete('topic-images/' . $filename);
 
                 // Remove image from part
                 $parts[$partIndex]['image'] = null;

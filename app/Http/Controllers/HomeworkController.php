@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InformationSheet;
 use App\Models\Homework;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -57,7 +58,7 @@ class HomeworkController extends Controller
                 'max_points' => $request->max_points,
             ]);
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', 'Homework created successfully!');
         } catch (\Exception $e) {
             Log::error('Homework creation failed', [
@@ -117,7 +118,7 @@ class HomeworkController extends Controller
                 'max_points' => $request->max_points,
             ]);
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', 'Homework updated successfully!');
         } catch (\Exception $e) {
             Log::error('Homework update failed', [
@@ -175,6 +176,10 @@ class HomeworkController extends Controller
                 'work_hours' => $request->work_hours,
                 'submitted_at' => now(),
             ]);
+
+            // Notify instructor of submission
+            $homework->loadMissing('informationSheet.module.course.instructor');
+            app(NotificationService::class)->notifySubmissionReceived(auth()->user(), 'homework', $homework);
 
             return redirect()->route('homeworks.show', $homework)
                 ->with('success', 'Homework submitted successfully!');

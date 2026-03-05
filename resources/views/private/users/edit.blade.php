@@ -31,6 +31,46 @@
             </div>
         @endif
 
+        {{-- Pending Items Panel --}}
+        @if(isset($pendingItems))
+            @php
+                $hasPending = ($pendingItems['pending_approval'] ?? false)
+                    || $pendingItems['pending_registrations']->count() > 0
+                    || $pendingItems['pending_enrollments']->count() > 0
+                    || $pendingItems['unread_notifications']->count() > 0;
+            @endphp
+            @if($hasPending)
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <h6 class="alert-heading mb-2">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Pending Items for {{ $user->full_name }}
+                    </h6>
+                    <ul class="mb-0">
+                        @if($pendingItems['pending_approval'])
+                            <li><strong>Account pending approval</strong> — this user's account is inactive (stat=0)</li>
+                        @endif
+                        @if($pendingItems['pending_registrations']->count() > 0)
+                            <li>
+                                <a href="{{ route('private.registrations.index') }}">
+                                    {{ $pendingItems['pending_registrations']->count() }} pending registration(s)
+                                </a>
+                            </li>
+                        @endif
+                        @if($pendingItems['pending_enrollments']->count() > 0)
+                            <li>
+                                <a href="{{ route('private.enrollments.index') }}">
+                                    {{ $pendingItems['pending_enrollments']->count() }} pending enrollment request(s)
+                                </a>
+                            </li>
+                        @endif
+                        @if($pendingItems['unread_notifications']->count() > 0)
+                            <li>{{ $pendingItems['unread_notifications']->count() }} unread notification(s)</li>
+                        @endif
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+        @endif
+
         <div class="card">
             <div class="card-body">
                 <form action="{{ route('private.users.update', $user->id) }}" method="POST">

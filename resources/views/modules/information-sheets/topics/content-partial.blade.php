@@ -7,6 +7,14 @@
         </div>
     </div>
 
+    @if($topic->file_path)
+    <div class="mb-4">
+        <a href="{{ route('topics.download', $topic) }}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-download me-1"></i>{{ $topic->original_filename }}
+        </a>
+    </div>
+    @endif
+
     @if($topic->content)
     <div class="content-body basic-formatting mb-4">
         {!! $topic->content !!}

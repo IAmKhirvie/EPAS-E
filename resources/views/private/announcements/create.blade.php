@@ -94,6 +94,40 @@
                             </div>
                         </div>
 
+                        <div class="row">
+                            <!-- Target Roles -->
+                            <div class="col-md-6 mb-3">
+                                <label for="target_roles" class="form-label">Target Roles</label>
+                                <select class="form-select @error('target_roles') is-invalid @enderror"
+                                        id="target_roles" name="target_roles">
+                                    <option value="" {{ old('target_roles') === null ? 'selected' : '' }}>All Roles</option>
+                                    <option value="student" {{ old('target_roles') === 'student' ? 'selected' : '' }}>Students Only</option>
+                                    <option value="instructor" {{ old('target_roles') === 'instructor' ? 'selected' : '' }}>Instructors Only</option>
+                                    <option value="admin" {{ old('target_roles') === 'admin' ? 'selected' : '' }}>Admins Only</option>
+                                    <option value="student,instructor" {{ old('target_roles') === 'student,instructor' ? 'selected' : '' }}>Students & Instructors</option>
+                                    <option value="admin,instructor" {{ old('target_roles') === 'admin,instructor' ? 'selected' : '' }}>Admins & Instructors</option>
+                                </select>
+                                <div class="form-text">Leave as "All Roles" to reach everyone.</div>
+                                @error('target_roles')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- Target Sections -->
+                            <div class="col-md-6 mb-3">
+                                <label for="target_sections" class="form-label">Target Sections</label>
+                                <input type="text" class="form-control @error('target_sections') is-invalid @enderror"
+                                       id="target_sections" name="target_sections" value="{{ old('target_sections') }}"
+                                       placeholder="e.g., A1,B1,C1">
+                                <div class="form-text">
+                                    Comma-separated list of sections. Leave empty to reach all sections.
+                                </div>
+                                @error('target_sections')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
                         <!-- Current Time Display -->
                         <div class="alert alert-info">
                             <div class="d-flex align-items-center">

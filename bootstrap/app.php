@@ -195,6 +195,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null;
             }
 
+            // Let Laravel handle authentication exceptions (redirect to login page)
+            if ($e instanceof \Illuminate\Auth\AuthenticationException) {
+                return null;
+            }
+
             $logContext = [
                 'exception' => get_class($e),
                 'message' => $e->getMessage(),

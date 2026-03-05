@@ -21,7 +21,8 @@ class Announcement extends Model
         'is_urgent',
         'publish_at',
         'deadline',
-        'target_roles' // Add this
+        'target_roles',
+        'target_sections',
     ];
 
     protected $casts = [
@@ -53,6 +54,7 @@ class Announcement extends Model
     public function scopeForUser($query, $user)
     {
         $role = $user->role;
+        $section = $user->section;
 
         return $query->where(function ($q) use ($role) {
             $q->where('target_roles', 'all')
@@ -61,6 +63,15 @@ class Announcement extends Model
               ->orWhere('target_roles', 'like', $role . ',%')
               ->orWhere('target_roles', 'like', '%,' . $role . ',%')
               ->orWhere('target_roles', 'like', '%,' . $role);
+        })->where(function ($q) use ($section) {
+            $q->whereNull('target_sections')
+              ->orWhere('target_sections', '');
+            if ($section) {
+                $q->orWhere('target_sections', $section)
+                  ->orWhere('target_sections', 'like', $section . ',%')
+                  ->orWhere('target_sections', 'like', '%,' . $section . ',%')
+                  ->orWhere('target_sections', 'like', '%,' . $section);
+            }
         });
     }
 }

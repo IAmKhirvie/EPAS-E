@@ -61,7 +61,7 @@ class InformationSheetController extends Controller
 
             $informationSheet = $module->informationSheets()->create($validated);
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', "Information Sheet {$informationSheet->sheet_number} created successfully!");
 
         } catch (\Exception $e) {
@@ -119,7 +119,7 @@ class InformationSheetController extends Controller
 
             $informationSheet->update($validated);
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', "Information Sheet {$informationSheet->sheet_number} updated successfully!");
 
         } catch (\Exception $e) {
@@ -163,7 +163,7 @@ class InformationSheetController extends Controller
                 ]);
             }
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', "Information Sheet {$sheetNumber} deleted successfully!");
 
         } catch (\Exception $e) {

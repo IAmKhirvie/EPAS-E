@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Imports\UsersImport;
+use App\Services\PendingItemsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -133,7 +134,8 @@ class UserController extends Controller
         }
 
         $departments = Department::all();
-        return view('private.users.edit', compact('user', 'departments'));
+        $pendingItems = app(PendingItemsService::class)->getPendingItemsForUser($user->id);
+        return view('private.users.edit', compact('user', 'departments', 'pendingItems'));
     }
 
     public function update(UpdateUserRequest $request, User $user)

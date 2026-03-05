@@ -34,7 +34,7 @@ class ChecklistController extends Controller
                 'completed_at' => now(),
             ]);
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', 'Checklist created successfully!');
         } catch (\Exception $e) {
             Log::error('Checklist store failed', [
@@ -74,7 +74,7 @@ class ChecklistController extends Controller
                 'completed_at' => now(),
             ]);
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', 'Checklist updated successfully!');
         } catch (\Exception $e) {
             Log::error('Checklist update failed', [

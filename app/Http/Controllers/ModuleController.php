@@ -85,6 +85,7 @@ class ModuleController extends Controller
             'informationSheets.selfChecks',
             'informationSheets.taskSheets',
             'informationSheets.jobSheets',
+            'informationSheets.documentAssessments',
             'informationSheets.topics',
             'course',
         ]);
@@ -94,26 +95,8 @@ class ModuleController extends Controller
 
     public function showInformationSheet(Course $course, Module $module, InformationSheet $informationSheet)
     {
-        $this->verifyModuleBelongsToCourse($course, $module);
-
-        // Get all sheets for navigation
-        $allSheets = $module->informationSheets()->orderBy('sheet_number')->get();
-        $currentIndex = $allSheets->search(function($sheet) use ($informationSheet) {
-            return $sheet->id === $informationSheet->id;
-        });
-
-        $prevSheet = $currentIndex > 0 ? $allSheets[$currentIndex - 1] : null;
-        $nextSheet = $currentIndex < $allSheets->count() - 1 ? $allSheets[$currentIndex + 1] : null;
-
-        return view('modules.information-sheets.show', [
-            'module' => $module,
-            'course' => $course,
-            'informationSheet' => $informationSheet,
-            'prevSheet' => $prevSheet,
-            'nextSheet' => $nextSheet,
-            'currentSheetNumber' => $currentIndex + 1,
-            'totalSheets' => $allSheets->count()
-        ]);
+        // Redirect to the unified module page
+        return redirect()->route('courses.modules.show', [$course, $module, $module->slug]);
     }
 
     public function getContent(Course $course, Module $module, $contentType)

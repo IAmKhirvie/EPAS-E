@@ -5,69 +5,102 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ==================== TOC NAVIGATION ====================
 
-    // Sheet links - toggle subitems and load content
-    document.querySelectorAll('.sheet-link').forEach(link => {
-        link.addEventListener('click', function (e) {
+    // Build navigation index for prev/next
+    var navItems = [];
+    navItems.push({ type: 'overview', el: document.querySelector('[data-section="overview"]') });
+
+    document.querySelectorAll('.sidebar-topic-item').forEach(function (item) {
+        // Skip direct links (self-checks, doc assessments) — they navigate away
+        if (item.tagName === 'A') return;
+        navItems.push({ type: 'topic', el: item });
+    });
+
+    var currentNavIndex = 0;
+    var prevBtn = document.getElementById('sidebarPrev');
+    var nextBtn = document.getElementById('sidebarNext');
+
+    function updateNavButtons() {
+        if (prevBtn) prevBtn.disabled = currentNavIndex <= 0;
+        if (nextBtn) nextBtn.disabled = currentNavIndex >= navItems.length - 1;
+    }
+
+    function navigateTo(index) {
+        if (index < 0 || index >= navItems.length) return;
+        currentNavIndex = index;
+        var item = navItems[index];
+        if (item.el) item.el.click();
+        updateNavButtons();
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', function () { navigateTo(currentNavIndex - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { navigateTo(currentNavIndex + 1); });
+
+    // Sheet headers - toggle expand
+    document.querySelectorAll('.sidebar-sheet-header').forEach(function (header) {
+        header.addEventListener('click', function (e) {
             e.preventDefault();
-            const sheetId = this.dataset.sheetId;
-            const subitems = this.nextElementSibling;
-            const icon = this.querySelector('.toggle-icon');
+            var parent = this.closest('.sidebar-sheet-item');
+            var wasExpanded = parent.classList.contains('expanded');
 
-            if (subitems) {
-                const isVisible = subitems.style.display !== 'none';
-                subitems.style.display = isVisible ? 'none' : 'block';
-                icon.classList.toggle('fa-chevron-down', isVisible);
-                icon.classList.toggle('fa-chevron-up', !isVisible);
+            // Collapse all
+            document.querySelectorAll('.sidebar-sheet-item').forEach(function (item) {
+                item.classList.remove('expanded');
+            });
+
+            if (!wasExpanded) {
+                parent.classList.add('expanded');
             }
-
-            loadSheetContent(sheetId);
-            setActiveLink(this);
         });
     });
 
-    // Sub-links: content, topics, assessments
-    document.querySelectorAll('.toc-sublink').forEach(link => {
-        link.addEventListener('click', function (e) {
-            e.preventDefault();
-            const sheetId = this.dataset.sheetId;
-            const topicId = this.dataset.topicId;
-            const assessment = this.dataset.assessment;
+    // Topic items (non-link) — load content via AJAX
+    document.querySelectorAll('.sidebar-topic-item:not(a)').forEach(function (item) {
+        item.addEventListener('click', function () {
+            var sheetId = this.dataset.sheetId;
+            var topicId = this.dataset.topicId;
+            var assessment = this.dataset.assessment;
+            var action = this.dataset.action;
 
             if (assessment) {
                 loadAssessmentContent(sheetId, assessment);
             } else if (topicId) {
                 loadTopicContent(sheetId, topicId);
-            } else {
+            } else if (action === 'content') {
                 loadSheetContent(sheetId);
             }
-            setActiveSublink(this);
+
+            setActiveItem(this);
             closeMobileToc();
+
+            // Update nav index
+            for (var i = 0; i < navItems.length; i++) {
+                if (navItems[i].el === this) { currentNavIndex = i; break; }
+            }
+            updateNavButtons();
         });
     });
 
     // Overview link
-    const overviewLink = document.querySelector('[data-section="overview"]');
+    var overviewLink = document.querySelector('[data-section="overview"]');
     if (overviewLink) {
         overviewLink.addEventListener('click', function (e) {
             e.preventDefault();
             document.getElementById('overviewSection').style.display = 'block';
             document.getElementById('dynamicContent').style.display = 'none';
-            setActiveLink(this);
+            setActiveItem(this);
             closeMobileToc();
+            currentNavIndex = 0;
+            updateNavButtons();
         });
     }
 
-    function setActiveLink(element) {
-        document.querySelectorAll('.toc-link').forEach(l => l.classList.remove('active'));
-        document.querySelectorAll('.toc-sublink').forEach(l => l.classList.remove('active'));
+    function setActiveItem(element) {
+        document.querySelectorAll('.sidebar-toc-link').forEach(function (l) { l.classList.remove('active'); });
+        document.querySelectorAll('.sidebar-topic-item').forEach(function (l) { l.classList.remove('active'); });
         element.classList.add('active');
     }
 
-    function setActiveSublink(element) {
-        document.querySelectorAll('.toc-sublink').forEach(l => l.classList.remove('active'));
-        document.querySelectorAll('.toc-link').forEach(l => l.classList.remove('active'));
-        element.classList.add('active');
-    }
+    updateNavButtons();
 
     // ==================== CONTENT LOADING ====================
 

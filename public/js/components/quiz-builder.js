@@ -1143,8 +1143,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     uploadArea.classList.add('has-file');
                     uploadArea.innerHTML = `
                         <i class="fas fa-check-circle d-block text-success"></i>
-                        <span class="text-success">Image uploaded</span>
-                        <img src="${data.url}" class="image-preview mt-2">
+                        <span class="text-success d-block">Image uploaded</span>
+                        <img src="${data.url}" class="image-preview mt-2 d-block mx-auto">
                     `;
                 }
 
@@ -1834,6 +1834,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const explanationInput = card.querySelector(`[name="questions[${idx}][explanation]"]`);
             if (explanationInput) explanationInput.value = q.explanation || '';
+
+            // Restore question image if present
+            if (q.question_image) {
+                const imageUrlInput = card.querySelector('.image-url-input');
+                if (imageUrlInput) imageUrlInput.value = q.question_image;
+                const previewContainer = card.querySelector('.image-preview-container');
+                if (previewContainer) {
+                    previewContainer.innerHTML = `<img src="${q.question_image}" class="img-fluid rounded" style="max-height:200px">`;
+                }
+            }
 
             // Set type-specific fields
             switch(q.question_type) {

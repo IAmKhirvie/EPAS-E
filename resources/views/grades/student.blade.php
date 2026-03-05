@@ -147,11 +147,12 @@
     <div class="row mb-4">
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white">
-                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Performance by Category</h6>
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Performance by Category</h6>
+                    <small class="text-muted">Click a dot to view the activity</small>
                 </div>
-                <div class="card-body">
-                    <canvas id="categoryChart" height="200"></canvas>
+                <div class="card-body" style="position: relative;">
+                    <canvas id="categoryChart" height="220"></canvas>
                 </div>
             </div>
         </div>
@@ -547,102 +548,231 @@ document.addEventListener('DOMContentLoaded', function() {
         }]
     });
 
-    // Category Performance Chart
+    // Build activity points data for the Performance by Category chart
     @php
-        $categoryData = [
-            'Self-Checks' => 0,
-            'Homeworks' => 0,
-            'Task Sheets' => 0,
-            'Job Sheets' => 0
-        ];
+        $chartPoints = [];
         $categoryCounts = [
             'Self-Checks' => 0,
             'Homeworks' => 0,
             'Task Sheets' => 0,
-            'Job Sheets' => 0
+            'Job Sheets' => 0,
         ];
+        $activityIndex = 0;
 
-        foreach($gradesData as $moduleData) {
-            foreach($moduleData['self_checks'] as $item) {
-                if($item['percentage']) {
-                    $categoryData['Self-Checks'] += $item['percentage'];
+        foreach ($gradesData as $moduleData) {
+            $moduleName = $moduleData['module']->title;
+
+            foreach ($moduleData['self_checks'] as $item) {
+                if ($item['percentage'] !== null) {
                     $categoryCounts['Self-Checks']++;
+                    $chartPoints[] = [
+                        'x' => $activityIndex,
+                        'y' => round($item['percentage'], 1),
+                        'type' => 'Self-Check',
+                        'title' => $item['title'],
+                        'module' => $moduleName,
+                        'sheet' => $item['information_sheet'],
+                        'score' => ($item['score'] ?? 0) . '/' . ($item['max_score'] ?? 0),
+                        'grade' => $item['grade'] ?? 'N/A',
+                        'url' => '/self-checks/' . $item['id'],
+                    ];
+                    $activityIndex++;
                 }
             }
-            foreach($moduleData['homeworks'] as $item) {
-                if($item['percentage']) {
-                    $categoryData['Homeworks'] += $item['percentage'];
+            foreach ($moduleData['homeworks'] as $item) {
+                if ($item['percentage'] !== null) {
                     $categoryCounts['Homeworks']++;
+                    $chartPoints[] = [
+                        'x' => $activityIndex,
+                        'y' => round($item['percentage'], 1),
+                        'type' => 'Homework',
+                        'title' => $item['title'],
+                        'module' => $moduleName,
+                        'sheet' => $item['information_sheet'],
+                        'score' => ($item['score'] ?? 0) . '/' . ($item['max_score'] ?? 0),
+                        'grade' => $item['grade'] ?? 'N/A',
+                        'url' => '/homeworks/' . $item['id'],
+                    ];
+                    $activityIndex++;
                 }
             }
-            foreach($moduleData['task_sheets'] as $item) {
-                if($item['score']) {
-                    $categoryData['Task Sheets'] += $item['score'];
+            foreach ($moduleData['task_sheets'] as $item) {
+                if ($item['score'] !== null) {
                     $categoryCounts['Task Sheets']++;
+                    $chartPoints[] = [
+                        'x' => $activityIndex,
+                        'y' => round($item['score'], 1),
+                        'type' => 'Task Sheet',
+                        'title' => $item['title'],
+                        'module' => $moduleName,
+                        'sheet' => $item['information_sheet'],
+                        'score' => round($item['score'], 1) . '/100',
+                        'grade' => $item['grade'] ?? 'N/A',
+                        'url' => '/task-sheets/' . $item['id'],
+                    ];
+                    $activityIndex++;
                 }
             }
-            foreach($moduleData['job_sheets'] as $item) {
-                if($item['score']) {
-                    $categoryData['Job Sheets'] += $item['score'];
+            foreach ($moduleData['job_sheets'] as $item) {
+                if ($item['score'] !== null) {
                     $categoryCounts['Job Sheets']++;
+                    $chartPoints[] = [
+                        'x' => $activityIndex,
+                        'y' => round($item['score'], 1),
+                        'type' => 'Job Sheet',
+                        'title' => $item['title'],
+                        'module' => $moduleName,
+                        'sheet' => $item['information_sheet'],
+                        'score' => round($item['score'], 1) . '/100',
+                        'grade' => $item['grade'] ?? 'N/A',
+                        'url' => '/job-sheets/' . $item['id'],
+                    ];
+                    $activityIndex++;
                 }
             }
-        }
-
-        foreach($categoryData as $key => $value) {
-            $categoryData[$key] = $categoryCounts[$key] > 0 ? round($value / $categoryCounts[$key], 1) : 0;
         }
     @endphp
 
+    // Category Performance Chart — line chart with individual activity dots
+    const allPoints = @json($chartPoints);
+
+    const typeConfig = {
+        'Self-Check':  { color: 'rgba(54, 162, 235, 1)',  bg: 'rgba(54, 162, 235, 0.2)',  order: 0 },
+        'Homework':    { color: 'rgba(75, 192, 192, 1)',  bg: 'rgba(75, 192, 192, 0.2)',  order: 1 },
+        'Task Sheet':  { color: 'rgba(255, 206, 86, 1)',  bg: 'rgba(255, 206, 86, 0.2)',  order: 2 },
+        'Job Sheet':   { color: 'rgba(153, 102, 255, 1)', bg: 'rgba(153, 102, 255, 0.2)', order: 3 },
+    };
+
+    // Group points by type for separate datasets
+    const grouped = {};
+    for (const t of Object.keys(typeConfig)) grouped[t] = [];
+    allPoints.forEach(p => grouped[p.type].push(p));
+
+    const datasets = Object.entries(typeConfig).map(([type, cfg]) => ({
+        label: type === 'Self-Check' ? 'Self-Checks' : type + 's',
+        data: grouped[type].map(p => ({ x: p.x, y: p.y })),
+        meta: grouped[type],
+        borderColor: cfg.color,
+        backgroundColor: cfg.color,
+        pointBackgroundColor: cfg.color,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 9,
+        pointHoverBorderWidth: 3,
+        borderWidth: 2,
+        tension: 0.3,
+        fill: false,
+        showLine: grouped[type].length > 1,
+        order: cfg.order,
+    }));
+
     const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-    new Chart(categoryCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Self-Checks', 'Homeworks', 'Task Sheets', 'Job Sheets'],
-            datasets: [{
-                label: 'Average Score (%)',
-                data: [{{ $categoryData['Self-Checks'] }}, {{ $categoryData['Homeworks'] }}, {{ $categoryData['Task Sheets'] }}, {{ $categoryData['Job Sheets'] }}],
-                backgroundColor: [
-                    'rgba(54, 162, 235, 0.8)',
-                    'rgba(75, 192, 192, 0.8)',
-                    'rgba(255, 206, 86, 0.8)',
-                    'rgba(153, 102, 255, 0.8)'
-                ],
-                borderColor: [
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(153, 102, 255, 1)'
-                ],
-                borderWidth: 1,
-                borderRadius: 4
-            }]
-        },
+    const categoryChart = new Chart(categoryCtx, {
+        type: 'line',
+        data: { datasets },
         options: {
             responsive: true,
             maintainAspectRatio: true,
+            interaction: {
+                mode: 'nearest',
+                intersect: true,
+            },
             scales: {
+                x: {
+                    type: 'linear',
+                    display: true,
+                    title: { display: true, text: 'Activities', font: { size: 11 } },
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            const pt = allPoints.find(p => p.x === value);
+                            return pt ? (value + 1) : '';
+                        },
+                        font: { size: 10 },
+                    },
+                    grid: { display: false },
+                },
                 y: {
                     beginAtZero: true,
                     max: 100,
+                    title: { display: true, text: 'Score (%)', font: { size: 11 } },
                     ticks: {
-                        callback: function(value) {
-                            return value + '%';
-                        }
-                    }
-                }
+                        callback: v => v + '%',
+                    },
+                },
             },
             plugins: {
-                legend: { display: false },
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        padding: 15,
+                    },
+                },
                 tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.parsed.y + '%';
+                    enabled: false,
+                    external: function(context) {
+                        let tooltipEl = document.getElementById('chartTooltip');
+                        if (!tooltipEl) {
+                            tooltipEl = document.createElement('div');
+                            tooltipEl.id = 'chartTooltip';
+                            tooltipEl.style.cssText = 'position:fixed;pointer-events:none;z-index:1080;background:#fff;border:1px solid #dee2e6;border-radius:8px;padding:0.625rem 0.75rem;box-shadow:0 4px 12px rgba(0,0,0,0.15);font-size:0.8rem;max-width:260px;transition:opacity 0.15s;';
+                            document.body.appendChild(tooltipEl);
                         }
-                    }
-                }
-            }
-        }
+
+                        const tooltip = context.tooltip;
+                        if (tooltip.opacity === 0) {
+                            tooltipEl.style.opacity = '0';
+                            return;
+                        }
+
+                        const datasetIndex = tooltip.dataPoints[0].datasetIndex;
+                        const pointIndex = tooltip.dataPoints[0].dataIndex;
+                        const meta = datasets[datasetIndex].meta[pointIndex];
+                        if (!meta) return;
+
+                        const cfg = typeConfig[meta.type];
+                        tooltipEl.innerHTML = `
+                            <div style="font-weight:600;color:${cfg.color};margin-bottom:4px;">
+                                ${meta.type}
+                            </div>
+                            <div style="font-weight:600;margin-bottom:2px;">${meta.title}</div>
+                            <div style="color:#6c757d;font-size:0.75rem;margin-bottom:4px;">
+                                ${meta.module} &bull; ${meta.sheet}
+                            </div>
+                            <div style="display:flex;gap:0.75rem;">
+                                <span><strong>Score:</strong> ${meta.score}</span>
+                                <span><strong>Grade:</strong> ${meta.grade}</span>
+                            </div>
+                            <div style="color:#6c757d;font-size:0.7rem;margin-top:4px;">
+                                <i class="fas fa-mouse-pointer" style="font-size:0.6rem;"></i> Click to view
+                            </div>
+                        `;
+
+                        tooltipEl.style.opacity = '1';
+                        tooltipEl.style.left = tooltip.caretX + context.chart.canvas.getBoundingClientRect().left + 12 + 'px';
+                        tooltipEl.style.top = tooltip.caretY + context.chart.canvas.getBoundingClientRect().top - 20 + 'px';
+                    },
+                },
+            },
+            onHover: function(event, elements) {
+                event.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+            },
+            onClick: function(event, elements) {
+                if (!elements.length) return;
+                const el = elements[0];
+                const meta = datasets[el.datasetIndex].meta[el.index];
+                if (meta && meta.url) window.location.href = meta.url;
+            },
+        },
+    });
+
+    // Hide tooltip when mouse leaves chart
+    categoryCtx.canvas.addEventListener('mouseleave', () => {
+        const el = document.getElementById('chartTooltip');
+        if (el) el.style.opacity = '0';
     });
 
     // Distribution Pie Chart

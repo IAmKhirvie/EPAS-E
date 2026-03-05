@@ -1005,3 +1005,21 @@
         padding: 1rem;
     }
 }
+
+/* ── Document preview containment ────────────────────────────────────────
+   Prevents converted document HTML (images, tables, etc.) from breaking
+   out of their container and overlapping other page content.
+   Applied globally so all doc-viewer and preview containers are safe. */
+#docPreviewContent img,
+.doc-viewer__page img { max-width: 100% !important; height: auto !important; }
+
+#docPreviewContent *,
+.doc-viewer__page * { max-width: 100% !important; box-sizing: border-box; }
+
+#docPreviewContent table,
+.doc-viewer__page table { table-layout: fixed; word-wrap: break-word; }
+
+#docPreviewContent div,
+#docPreviewContent p,
+.doc-viewer__page div,
+.doc-viewer__page p { overflow-wrap: break-word; }

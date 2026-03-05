@@ -335,7 +335,7 @@
         </ol>
     </nav>
 
-    <form action="{{ route('self-checks.store', $informationSheet) }}" method="POST" id="quiz-form">
+    <form action="{{ route('self-checks.store', $informationSheet) }}" method="POST" id="quiz-form" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="check_number" value="SC-{{ now()->timestamp }}">
         <input type="hidden" name="instructions" value="Answer all questions carefully. Review your answers before submitting.">
@@ -535,11 +535,37 @@
             {{-- MAIN CONTENT: Quiz Settings & Questions --}}
             <div class="cb-main">
                 <div class="cb-header cb-header--self-check">
-                    <h4><i class="fas fa-clipboard-list me-2"></i>Create Self Check</h4>
-                    <p>For: {{ $informationSheet->title }}</p>
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                        <div>
+                            <h4 class="mb-1"><i class="fas fa-clipboard-list me-2"></i>Create Self Check</h4>
+                            <p class="mb-0">For: {{ $informationSheet->title }}</p>
+                        </div>
+                        <label class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2 mb-0" style="cursor: pointer;">
+                            <i class="fas fa-paperclip"></i>
+                            <span id="file-label">Attach Document</span>
+                            <input type="file" class="d-none" name="file" accept=".pdf,.xlsx,.xls,.doc,.docx,.ppt,.pptx"
+                                   onchange="handleFilePreview(this)">
+                        </label>
+                    </div>
                 </div>
 
                 <div class="cb-body">
+                    {{-- Document Preview (appears after upload) --}}
+                    <div class="d-none" id="docPreviewSection" style="background: #f0f0f0; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <div style="background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.1); border-radius: 4px; padding: 1.5rem; max-height: 350px; overflow: hidden; overflow-y: auto; line-height: 1.7; font-size: 0.9rem;" id="docPreviewContent"></div>
+                        <div class="text-center py-2">
+                            <small class="text-muted"><i class="fas fa-eye me-1"></i>Document preview — students will see this when taking the quiz</small>
+                        </div>
+                    </div>
+                    <div class="d-none text-center py-3" id="docConvertingSpinner">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        <span class="text-muted ms-2">Converting document for preview...</span>
+                    </div>
+                    <div class="d-none" id="docPdfNotice" style="background: #fff3cd; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #ffc107;">
+                        <i class="fas fa-file-pdf text-warning me-1"></i>
+                        <span class="small">PDF/Excel files will be available for download only (no inline preview).</span>
+                    </div>
+
                     {{-- Quiz Settings --}}
                     <div class="cb-settings">
                         <div class="row">
@@ -562,6 +588,32 @@
                                     <label class="cb-field-label">Time Limit (min)</label>
                                     <input type="number" class="form-control" name="time_limit"
                                            placeholder="No limit" min="1">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="cb-field-label">Deadline <span class="optional">(optional)</span></label>
+                                    <input type="datetime-local" class="form-control" name="due_date"
+                                           value="{{ old('due_date') }}">
+                                    <small class="text-muted">Submissions blocked after this date</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="cb-field-label">Max Attempts <span class="optional">(optional)</span></label>
+                                    <input type="number" class="form-control" name="max_attempts"
+                                           placeholder="Unlimited" min="1">
+                                    <small class="text-muted">Leave blank for unlimited</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="cb-field-label d-block">Reveal Answers</label>
+                                    <div class="form-check mt-2">
+                                        <input type="checkbox" class="form-check-input" name="reveal_answers" id="reveal_answers" value="1" checked>
+                                        <label class="form-check-label" for="reveal_answers">Show per-question feedback</label>
+                                    </div>
+                                    <small class="text-muted">When unchecked, students only see their overall score</small>
                                 </div>
                             </div>
                             <div class="col-12">
@@ -618,6 +670,53 @@
 
 @push('scripts')
 <script>
+// Document preview on file upload
+function handleFilePreview(input) {
+    var file = input.files[0];
+    if (!file) return;
+
+    var label = document.getElementById('file-label');
+    label.textContent = file.name;
+    input.closest('label').classList.remove('btn-outline-secondary');
+    input.closest('label').classList.add('btn-primary');
+
+    var ext = file.name.split('.').pop().toLowerCase();
+    var preview = document.getElementById('docPreviewSection');
+    var spinner = document.getElementById('docConvertingSpinner');
+    var pdfNotice = document.getElementById('docPdfNotice');
+    var content = document.getElementById('docPreviewContent');
+
+    preview.classList.add('d-none');
+    spinner.classList.add('d-none');
+    pdfNotice.classList.add('d-none');
+
+    if (['pdf', 'xlsx', 'xls'].includes(ext)) {
+        pdfNotice.classList.remove('d-none');
+        return;
+    }
+
+    if (['docx', 'pptx', 'doc', 'ppt'].includes(ext)) {
+        spinner.classList.remove('d-none');
+        var formData = new FormData();
+        formData.append('document', file);
+
+        fetch("{{ route('document-assessments.convert') }}", {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+            body: formData,
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            spinner.classList.add('d-none');
+            if (data.success && data.html) {
+                content.innerHTML = data.html;
+                preview.classList.remove('d-none');
+            }
+        })
+        .catch(function() { spinner.classList.add('d-none'); });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     /*=========================================================================
       QUIZ BUILDER JAVASCRIPT
@@ -1763,8 +1862,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     uploadArea.classList.add('has-file');
                     uploadArea.innerHTML = `
                         <i class="fas fa-check-circle d-block text-success"></i>
-                        <span class="text-success">Image uploaded</span>
-                        <img src="${data.url}" class="image-preview mt-2">
+                        <span class="text-success d-block">Image uploaded</span>
+                        <img src="${data.url}" class="image-preview mt-2 d-block mx-auto">
                     `;
                 }
 

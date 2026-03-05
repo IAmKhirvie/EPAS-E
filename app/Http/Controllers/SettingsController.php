@@ -158,12 +158,12 @@ class SettingsController extends Controller
 
         // Delete old image if exists
         if ($user->profile_image) {
-            Storage::delete('public/profile-images/' . $user->profile_image);
+            Storage::disk('public')->delete('profile-images/' . $user->profile_image);
         }
 
         // Store new image
         $imageName = Str::uuid() . '.' . $request->profile_image->extension();
-        $request->profile_image->storeAs('public/profile-images', $imageName);
+        $request->profile_image->storeAs('profile-images', $imageName, 'public');
 
         $user->update(['profile_image' => $imageName]);
 

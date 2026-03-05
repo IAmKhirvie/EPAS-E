@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Constants\Roles;
 use App\Models\EnrollmentRequest;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -54,9 +55,13 @@ class EnrollmentTable extends Component
         }
 
         $count = 0;
+        $notificationService = app(NotificationService::class);
         $requests = EnrollmentRequest::whereIn('id', $this->selectedRequests)->where('status', 'pending')->get();
         foreach ($requests as $request) {
             $request->approve(Auth::user());
+            if ($request->student) {
+                $notificationService->notifyEnrollmentApproved($request->student, $request->section);
+            }
             $count++;
         }
 
@@ -73,9 +78,13 @@ class EnrollmentTable extends Component
         }
 
         $count = 0;
+        $notificationService = app(NotificationService::class);
         $requests = EnrollmentRequest::whereIn('id', $this->selectedRequests)->where('status', 'pending')->get();
         foreach ($requests as $request) {
             $request->reject(Auth::user(), 'Bulk rejected by admin.');
+            if ($request->student) {
+                $notificationService->notifyEnrollmentRejected($request->student, $request->section, 'Bulk rejected by admin.');
+            }
             $count++;
         }
 
@@ -109,6 +118,12 @@ class EnrollmentTable extends Component
             }
 
             $request->approve(Auth::user());
+
+            // Notify student of enrollment approval
+            if ($request->student) {
+                app(NotificationService::class)->notifyEnrollmentApproved($request->student, $request->section);
+            }
+
             session()->flash('success', "Student {$request->student_display_name} has been enrolled in {$request->section}.");
         } catch (\Exception $e) {
             Log::error('Enrollment approval failed', ['error' => $e->getMessage(), 'enrollment_request_id' => $id]);
@@ -131,6 +146,12 @@ class EnrollmentTable extends Component
             }
 
             $request->reject(Auth::user(), $notes ?? 'Rejected by admin.');
+
+            // Notify student of enrollment rejection
+            if ($request->student) {
+                app(NotificationService::class)->notifyEnrollmentRejected($request->student, $request->section, $notes);
+            }
+
             session()->flash('success', 'Enrollment request rejected.');
         } catch (\Exception $e) {
             Log::error('Enrollment rejection failed', ['error' => $e->getMessage(), 'enrollment_request_id' => $id]);

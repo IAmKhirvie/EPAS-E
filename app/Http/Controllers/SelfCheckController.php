@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
 use App\Models\Module;
 use App\Models\InformationSheet;
 use App\Models\SelfCheck;
 use App\Models\SelfCheckQuestion;
+use App\Services\NotificationService;
 use App\Services\SelfCheckGradingService;
+use App\Services\DocumentConversionService;
 use App\Http\Requests\StoreSelfCheckRequest;
 use App\Http\Requests\UpdateSelfCheckRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * SelfCheckController
@@ -73,16 +77,39 @@ class SelfCheckController extends Controller
                     $totalPoints += (int) ($q['points'] ?? 1);
                 }
 
-                $selfCheck = SelfCheck::create([
+                $createData = [
                     'information_sheet_id' => $informationSheet->id,
                     'check_number' => $request->check_number,
                     'title' => $request->title,
                     'description' => $request->description,
                     'instructions' => $request->instructions,
                     'time_limit' => $request->time_limit,
+                    'due_date' => $request->due_date,
                     'passing_score' => $request->passing_score ?? config('joms.grading.default_passing_score', 70),
                     'total_points' => $totalPoints,
-                ]);
+                    'max_attempts' => $request->max_attempts,
+                    'reveal_answers' => $request->has('reveal_answers') ? true : false,
+                ];
+
+                if ($request->hasFile('file')) {
+                    $file = $request->file('file');
+                    $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                    $createData['file_path'] = $file->storeAs('self-checks', $filename, 'public');
+                    $createData['original_filename'] = $file->getClientOriginalName();
+
+                    // Convert DOCX/PPTX to HTML for inline viewing
+                    $ext = strtolower($file->getClientOriginalExtension());
+                    if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt'])) {
+                        $conversionService = app(DocumentConversionService::class);
+                        $fullPath = Storage::disk('public')->path($createData['file_path']);
+                        $html = $conversionService->convertToHtml($fullPath, $ext);
+                        if ($html) {
+                            $createData['document_content'] = $html;
+                        }
+                    }
+                }
+
+                $selfCheck = SelfCheck::create($createData);
 
                 $order = 0;
                 foreach ($request->questions as $questionData) {
@@ -119,7 +146,7 @@ class SelfCheckController extends Controller
                     ->with('success', 'Self-check created! You can add another.');
             }
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', 'Self-check created successfully!');
         } catch (\Exception $e) {
             Log::error('Self-check store failed', [
@@ -139,25 +166,32 @@ class SelfCheckController extends Controller
             return null;
         }
 
+        // Extract question_image (sent for most types via the image upload field)
+        $questionImage = $options['question_image'] ?? null;
+        unset($options['question_image']);
+
+        $processed = null;
+
         switch ($type) {
             case 'multiple_choice':
-                // Filter out empty options
-                return array_values(array_filter($options, fn($opt) => is_string($opt) && !empty(trim($opt))));
+                // Filter out empty options (only numeric-keyed string values)
+                $processed = array_values(array_filter($options, fn($opt) => is_string($opt) && !empty(trim($opt))));
+                break;
 
             case 'multiple_select':
                 // Same as multiple_choice but allows multiple correct answers
-                return array_values(array_filter($options, fn($opt) => is_string($opt) && !empty(trim($opt))));
+                $processed = array_values(array_filter($options, fn($opt) => is_string($opt) && !empty(trim($opt))));
+                break;
 
             case 'numeric':
-                // Store tolerance, unit, and decimal places
-                return [
+                $processed = [
                     'tolerance' => floatval($options['tolerance'] ?? 0),
                     'unit' => $options['unit'] ?? null,
                     'decimal_places' => intval($options['decimal_places'] ?? 2),
                 ];
+                break;
 
             case 'classification':
-                // Store categories, items, and their mappings
                 $categories = array_values(array_filter(
                     $options['categories'] ?? [],
                     fn($c) => is_string($c) && !empty(trim($c))
@@ -166,43 +200,43 @@ class SelfCheckController extends Controller
                     $options['items'] ?? [],
                     fn($i) => is_string($i) && !empty(trim($i))
                 ));
-                return [
+                $processed = [
                     'categories' => $categories,
                     'items' => $items,
                     'item_categories' => $options['item_categories'] ?? [],
                 ];
+                break;
 
             case 'image_identification':
-                // Store main image and acceptable answers
-                return [
+                $processed = [
                     'main_image' => $options['main_image'] ?? null,
                     'acceptable_answers' => array_map('trim', explode(',', $options['acceptable_answers'] ?? '')),
                 ];
+                break;
 
             case 'hotspot':
-                // Store hotspot image and target coordinates
-                return [
+                $processed = [
                     'hotspot_image' => $options['hotspot_image'] ?? null,
                     'hotspot_x' => floatval($options['hotspot_x'] ?? 50),
                     'hotspot_y' => floatval($options['hotspot_y'] ?? 50),
                     'hotspot_radius' => floatval($options['hotspot_radius'] ?? 10),
                 ];
+                break;
 
             case 'image_labeling':
-                // Store label image and label positions
                 $labels = array_values(array_filter(
                     $options['labels'] ?? [],
                     fn($l) => is_string($l) && !empty(trim($l))
                 ));
-                return [
+                $processed = [
                     'label_image' => $options['label_image'] ?? null,
                     'labels' => $labels,
                     'label_positions' => $options['label_positions'] ?? [],
                 ];
+                break;
 
             case 'audio_question':
-                // Store audio URL and response settings
-                return [
+                $processed = [
                     'audio_url' => $options['audio_url'] ?? null,
                     'play_limit' => intval($options['play_limit'] ?? 0),
                     'response_type' => $options['response_type'] ?? 'text',
@@ -210,10 +244,10 @@ class SelfCheckController extends Controller
                         ? array_values(array_filter($options['mc_options'], fn($o) => !empty(trim($o ?? ''))))
                         : null,
                 ];
+                break;
 
             case 'video_question':
-                // Store video URL and response settings
-                return [
+                $processed = [
                     'video_url' => $options['video_url'] ?? null,
                     'start_time' => intval($options['start_time'] ?? 0),
                     'end_time' => !empty($options['end_time']) ? intval($options['end_time']) : null,
@@ -222,9 +256,9 @@ class SelfCheckController extends Controller
                         ? array_values(array_filter($options['mc_options'], fn($o) => !empty(trim($o ?? ''))))
                         : null,
                 ];
+                break;
 
             case 'drag_drop':
-                // Store draggables, dropzones, and correct mapping
                 $draggables = array_values(array_filter(
                     $options['draggables'] ?? [],
                     fn($d) => is_string($d) && !empty(trim($d))
@@ -233,28 +267,27 @@ class SelfCheckController extends Controller
                     $options['dropzones'] ?? [],
                     fn($d) => is_string($d) && !empty(trim($d))
                 ));
-                return [
+                $processed = [
                     'draggables' => $draggables,
                     'dropzones' => $dropzones,
                     'correct_mapping' => $options['correct_mapping'] ?? [],
                 ];
+                break;
 
             case 'slider':
-                // Store slider range and settings
-                return [
+                $processed = [
                     'min' => floatval($options['min'] ?? 0),
                     'max' => floatval($options['max'] ?? 100),
                     'step' => floatval($options['step'] ?? 1),
                     'tolerance' => floatval($options['tolerance'] ?? 0),
                     'unit' => $options['unit'] ?? null,
                 ];
+                break;
 
             case 'matching':
-                // Build pairs from left/right arrays
                 $pairs = [];
                 $left = $options['left'] ?? [];
                 $right = $options['right'] ?? [];
-
                 for ($i = 0; $i < max(count($left), count($right)); $i++) {
                     if (!empty(trim($left[$i] ?? '')) && !empty(trim($right[$i] ?? ''))) {
                         $pairs[] = [
@@ -263,19 +296,18 @@ class SelfCheckController extends Controller
                         ];
                     }
                 }
-                return ['pairs' => $pairs];
+                $processed = ['pairs' => $pairs];
+                break;
 
             case 'ordering':
-                // Filter out empty items
                 $items = array_filter($options, fn($opt) => is_string($opt) && !empty(trim($opt)));
-                return ['items' => array_values($items)];
+                $processed = ['items' => array_values($items)];
+                break;
 
             case 'image_choice':
-                // Build options with labels and images
                 $imageOptions = [];
                 $labels = $options['labels'] ?? [];
                 $images = $options['images'] ?? [];
-
                 for ($i = 0; $i < count($labels); $i++) {
                     if (!empty(trim($labels[$i] ?? ''))) {
                         $imageOptions[] = [
@@ -284,21 +316,31 @@ class SelfCheckController extends Controller
                         ];
                     }
                 }
-                return $imageOptions;
+                $processed = $imageOptions;
+                break;
 
             case 'short_answer':
-                // Store model answer if provided
-                if (isset($options['model_answer'])) {
-                    return ['model_answer' => $options['model_answer']];
-                }
-                return null;
+                $processed = isset($options['model_answer']) ? ['model_answer' => $options['model_answer']] : null;
+                break;
 
             case 'true_false':
-                return null;
+                $processed = null;
+                break;
 
             default:
-                return $options;
+                $processed = $options;
+                break;
         }
+
+        // Attach question_image to the result if present
+        if ($questionImage && !empty(trim($questionImage))) {
+            if ($processed === null) {
+                $processed = [];
+            }
+            $processed['question_image'] = $questionImage;
+        }
+
+        return $processed;
     }
 
     /**
@@ -395,7 +437,7 @@ class SelfCheckController extends Controller
 
             return response()->json([
                 'success' => true,
-                'url' => Storage::url($path),
+                'url' => '/storage/' . $path,
                 'path' => $path,
             ]);
         } catch (\Exception $e) {
@@ -409,21 +451,40 @@ class SelfCheckController extends Controller
 
     public function edit(InformationSheet $informationSheet, SelfCheck $selfCheck)
     {
-        $selfCheck->load('questions.options');
+        $selfCheck->load('questions');
 
         // Build structured question data for the JS quiz builder
         $existingQuestions = $selfCheck->questions->sortBy('order')->values()->map(function ($q) {
-            $data = [
+            $opts = $q->options ?? [];
+
+            // Map stored options to the format the JS quiz builder expects
+            $optionTexts = [];
+            $metadata = [];
+
+            // Extract question_image if present
+            $questionImage = $opts['question_image'] ?? null;
+
+            if (in_array($q->question_type, ['multiple_choice', 'multiple_select'])) {
+                // MC options: only numeric-keyed values are choices
+                $optionTexts = is_array($opts)
+                    ? array_values(array_filter($opts, fn($v, $k) => is_int($k), ARRAY_FILTER_USE_BOTH))
+                    : [];
+            } else {
+                // All other types store structured data that JS reads as "metadata"
+                $metadata = is_array($opts) ? $opts : [];
+            }
+
+            return [
                 'id' => $q->id,
                 'question_type' => $q->question_type,
                 'question_text' => $q->question_text,
                 'points' => $q->points,
                 'correct_answer' => $q->correct_answer,
                 'explanation' => $q->explanation,
-                'metadata' => $q->metadata ? json_decode($q->metadata, true) : null,
-                'option_texts' => $q->options->sortBy('order')->pluck('option_text')->values()->toArray(),
+                'option_texts' => $optionTexts,
+                'metadata' => $metadata,
+                'question_image' => $questionImage,
             ];
-            return $data;
         });
 
         return view('modules.self-checks.edit', compact('informationSheet', 'selfCheck', 'existingQuestions'));
@@ -436,16 +497,42 @@ class SelfCheckController extends Controller
                 // Calculate total points
                 $totalPoints = collect($request->questions)->sum('points');
 
-                // Update self-check metadata
-                $selfCheck->update([
+                $updateData = [
                     'check_number' => $request->check_number,
                     'title' => $request->title,
                     'description' => $request->description,
                     'instructions' => $request->instructions,
                     'time_limit' => $request->time_limit,
+                    'due_date' => $request->due_date,
                     'passing_score' => $request->passing_score,
                     'total_points' => $totalPoints,
-                ]);
+                    'max_attempts' => $request->max_attempts,
+                    'reveal_answers' => $request->has('reveal_answers') ? true : false,
+                ];
+
+                if ($request->hasFile('file')) {
+                    if ($selfCheck->file_path) {
+                        Storage::disk('public')->delete($selfCheck->file_path);
+                    }
+                    $file = $request->file('file');
+                    $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                    $updateData['file_path'] = $file->storeAs('self-checks', $filename, 'public');
+                    $updateData['original_filename'] = $file->getClientOriginalName();
+
+                    // Convert DOCX/PPTX to HTML for inline viewing
+                    $ext = strtolower($file->getClientOriginalExtension());
+                    if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt'])) {
+                        $conversionService = app(DocumentConversionService::class);
+                        $fullPath = Storage::disk('public')->path($updateData['file_path']);
+                        $html = $conversionService->convertToHtml($fullPath, $ext);
+                        $updateData['document_content'] = $html;
+                    } else {
+                        $updateData['document_content'] = null;
+                    }
+                }
+
+                // Update self-check metadata
+                $selfCheck->update($updateData);
 
                 // Delete all existing questions (cascade deletes options)
                 $selfCheck->questions()->delete();
@@ -471,6 +558,7 @@ class SelfCheckController extends Controller
                         'question_text' => $questionData['question_text'],
                         'question_type' => $questionData['question_type'],
                         'points' => $questionData['points'],
+                        'options' => $options,
                         'correct_answer' => $correctAnswer,
                         'explanation' => $questionData['explanation'] ?? null,
                         'order' => $order,
@@ -478,7 +566,7 @@ class SelfCheckController extends Controller
                 }
             });
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', 'Self-check updated successfully!');
         } catch (\Exception $e) {
             Log::error('Self-check update failed', [
@@ -492,6 +580,9 @@ class SelfCheckController extends Controller
     public function destroy(InformationSheet $informationSheet, SelfCheck $selfCheck)
     {
         try {
+            if ($selfCheck->file_path) {
+                Storage::disk('public')->delete($selfCheck->file_path);
+            }
             $selfCheck->questions()->delete();
             $selfCheck->delete();
 
@@ -505,6 +596,18 @@ class SelfCheckController extends Controller
         }
     }
 
+    public function download(SelfCheck $selfCheck)
+    {
+        if (!$selfCheck->file_path || !Storage::disk('public')->exists($selfCheck->file_path)) {
+            abort(404, 'File not found.');
+        }
+
+        return Storage::disk('public')->download(
+            $selfCheck->file_path,
+            $selfCheck->original_filename
+        );
+    }
+
     public function show(SelfCheck $selfCheck)
     {
         $selfCheck->load(['questions', 'informationSheet.module.course']);
@@ -514,7 +617,7 @@ class SelfCheckController extends Controller
     /**
      * Show self-check by module and information sheet
      */
-    public function showBySheet(Module $module, InformationSheet $informationSheet)
+    public function showBySheet(Course $course, Module $module, InformationSheet $informationSheet)
     {
         // Verify the information sheet belongs to this module
         if ($informationSheet->module_id !== $module->id) {
@@ -547,6 +650,14 @@ class SelfCheckController extends Controller
         $request->validate([
             'answers' => 'required|array',
         ]);
+
+        // Check max attempts
+        if ($selfCheck->max_attempts !== null) {
+            $attemptCount = $selfCheck->submissions()->where('user_id', auth()->id())->count();
+            if ($attemptCount >= $selfCheck->max_attempts) {
+                return back()->with('error', 'You have reached the maximum number of attempts (' . $selfCheck->max_attempts . ') for this self-check.');
+            }
+        }
 
         try {
             $score = 0;
@@ -590,6 +701,10 @@ class SelfCheckController extends Controller
                 'completed_at' => now(),
             ]);
 
+            // Notify instructor of submission
+            $selfCheck->loadMissing('informationSheet.module.course.instructor');
+            app(NotificationService::class)->notifySubmissionReceived(auth()->user(), 'self-check', $selfCheck);
+
             return view('modules.self-checks.results', compact(
                 'selfCheck', 'submission', 'results', 'score', 'totalPoints', 'percentage', 'passed'
             ));
@@ -624,7 +739,7 @@ class SelfCheckController extends Controller
 
             return response()->json([
                 'success' => true,
-                'url' => Storage::url($path),
+                'url' => '/storage/' . $path,
                 'path' => $path,
             ]);
         } catch (\Exception $e) {
@@ -652,7 +767,7 @@ class SelfCheckController extends Controller
 
             return response()->json([
                 'success' => true,
-                'url' => Storage::url($path),
+                'url' => '/storage/' . $path,
                 'path' => $path,
             ]);
         } catch (\Exception $e) {

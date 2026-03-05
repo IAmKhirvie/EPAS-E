@@ -68,7 +68,7 @@
                 <i class="fas fa-ban me-1"></i> Deactivate
             </button>
             <button wire:click="$toggle('showBulkAssign')" class="btn btn-info btn-sm">
-                <i class="fas fa-users-cog me-1"></i> Assign Section
+                <i class="fas fa-users-cog me-1"></i> {{ $this->routeRoleFilter === 'instructor' ? 'Assign Advisory Class' : 'Assign Section' }}
             </button>
             <button wire:click="bulkDelete" wire:confirm="Delete selected users? This cannot be undone." class="btn btn-danger btn-sm">
                 <i class="fas fa-trash me-1"></i> Delete
@@ -78,17 +78,40 @@
         @if($showBulkAssign)
             <div class="mb-3 p-3 bg-light rounded border">
                 <div class="d-flex flex-wrap align-items-end gap-2">
-                    <div style="min-width: 160px;">
-                        <label class="form-label small mb-1">Section / Batch</label>
-                        <input type="text" wire:model="bulkSection" class="form-control form-control-sm"
-                            placeholder="e.g., A1, Batch 1">
-                    </div>
-                    <div style="min-width: 160px;">
-                        <label class="form-label small mb-1">School Year</label>
-                        <input type="text" wire:model="bulkSchoolYear" class="form-control form-control-sm"
-                            placeholder="e.g., 2025-2026">
-                    </div>
-                    <button wire:click="bulkAssignSection" wire:confirm="Assign section/school year to {{ count($selectedUsers) }} selected user(s)?"
+                    @if($this->routeRoleFilter === 'instructor')
+                        {{-- Instructor: Advisory Class dropdown + Department dropdown --}}
+                        <div style="min-width: 180px;">
+                            <label class="form-label small mb-1">Advisory Class</label>
+                            <select wire:model="bulkSection" class="form-select form-select-sm">
+                                <option value="">-- Select Section --</option>
+                                @foreach($availableSections as $section)
+                                    <option value="{{ $section }}">{{ $section }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div style="min-width: 180px;">
+                            <label class="form-label small mb-1">Department</label>
+                            <select wire:model="bulkDepartment" class="form-select form-select-sm">
+                                <option value="">-- Select Department --</option>
+                                @foreach($departments as $dept)
+                                    <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @else
+                        {{-- Student: Section text + School Year --}}
+                        <div style="min-width: 160px;">
+                            <label class="form-label small mb-1">Section / Batch</label>
+                            <input type="text" wire:model="bulkSection" class="form-control form-control-sm"
+                                placeholder="e.g., A1, Batch 1">
+                        </div>
+                        <div style="min-width: 160px;">
+                            <label class="form-label small mb-1">School Year</label>
+                            <input type="text" wire:model="bulkSchoolYear" class="form-control form-control-sm"
+                                placeholder="e.g., 2025-2026">
+                        </div>
+                    @endif
+                    <button wire:click="bulkAssignSection" wire:confirm="Assign to {{ count($selectedUsers) }} selected user(s)?"
                         class="btn btn-primary btn-sm">
                         <i class="fas fa-check me-1"></i> Apply
                     </button>
@@ -143,6 +166,12 @@
                             @endif
                         </th>
                     @endif
+                    <th style="cursor:pointer;" wire:click="sortBy('department')">
+                        Department
+                        @if($sortField === 'department')
+                            <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                        @endif
+                    </th>
                     <th style="cursor:pointer;" wire:click="sortBy('section')">
                         Section
                         @if($sortField === 'section')
@@ -155,6 +184,7 @@
                             <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
                         @endif
                     </th>
+                    <th>Pending</th>
                     <th style="cursor:pointer;" wire:click="sortBy('created_at')">
                         Joined
                         @if($sortField === 'created_at')
@@ -192,6 +222,7 @@
                                 </span>
                             </td>
                         @endif
+                        <td>{{ $user->department->name ?? '-' }}</td>
                         <td>
                             {{ $user->section ?? '-' }}
                             @if($user->school_year)
@@ -203,6 +234,26 @@
                                 <span class="badge bg-success">Active</span>
                             @else
                                 <span class="badge bg-warning text-dark">Pending</span>
+                            @endif
+                        </td>
+                        <td>
+                            @php
+                                $pc = $pendingCounts[$user->id] ?? ['registrations' => 0, 'enrollments' => 0, 'unread_notifications' => 0];
+                                $totalPending = ($pc['registrations'] ?? 0) + ($pc['enrollments'] ?? 0) + ($pc['unread_notifications'] ?? 0);
+                                $tooltipParts = [];
+                                if ($pc['registrations'] > 0) $tooltipParts[] = $pc['registrations'] . ' pending registration(s)';
+                                if ($pc['enrollments'] > 0) $tooltipParts[] = $pc['enrollments'] . ' pending enrollment(s)';
+                                if ($pc['unread_notifications'] > 0) $tooltipParts[] = $pc['unread_notifications'] . ' unread notification(s)';
+                            @endphp
+                            @if($totalPending > 0)
+                                <span class="badge bg-warning text-dark"
+                                      data-bs-toggle="tooltip"
+                                      data-bs-placement="top"
+                                      title="{{ implode(', ', $tooltipParts) }}">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>{{ $totalPending }}
+                                </span>
+                            @else
+                                <span class="text-muted">-</span>
                             @endif
                         </td>
                         <td>
@@ -245,4 +296,20 @@
         </small>
         {{ $users->links() }}
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function initTooltips() {
+                document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+                    if (!bootstrap.Tooltip.getInstance(el)) {
+                        new bootstrap.Tooltip(el);
+                    }
+                });
+            }
+            initTooltips();
+            Livewire.hook('morph.updated', function () {
+                initTooltips();
+            });
+        });
+    </script>
 </div>

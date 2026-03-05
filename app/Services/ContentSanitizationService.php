@@ -130,13 +130,13 @@ class ContentSanitizationService
             if ($request->hasFile("part_images.{$index}")) {
                 $image = $request->file("part_images.{$index}");
                 $imageName = 'topic_part_' . time() . '_' . $index . '.' . $image->extension();
-                $image->storeAs('public/topic-images', $imageName);
+                $image->storeAs('topic-images', $imageName, 'public');
                 $processedPart['image'] = asset('storage/topic-images/' . $imageName);
 
                 // Delete old image if exists
                 if (!empty($part['existing_image'])) {
                     $oldFilename = basename($part['existing_image']);
-                    Storage::delete('public/topic-images/' . $oldFilename);
+                    Storage::disk('public')->delete('topic-images/' . $oldFilename);
                 }
             } elseif (!empty($part['existing_image'])) {
                 // Keep existing image if no new one uploaded
