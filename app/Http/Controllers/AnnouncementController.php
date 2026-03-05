@@ -165,7 +165,9 @@ class AnnouncementController extends Controller
             'target_sections' => $targetSections,
         ]);
 
-        app(NotificationService::class)->notifyNewAnnouncement($announcement);
+        // Skip emails for automatic announcements to avoid blocking the request
+        // (with sync queue driver, 100+ SMTP connections would hang the response)
+        app(NotificationService::class)->notifyNewAnnouncement($announcement, sendEmail: false);
 
         return $announcement;
     }

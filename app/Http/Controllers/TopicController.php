@@ -31,18 +31,11 @@ class TopicController extends Controller
 
     public function store(StoreTopicRequest $request, $informationSheetId)
     {
-        Log::info('Topic store method called', [
-            'information_sheet_id' => $informationSheetId,
-            'user_id' => auth()->id(),
-        ]);
-
         $informationSheet = InformationSheet::findOrFail($informationSheetId);
 
         $validated = $request->validated();
 
         try {
-            Log::info('Validation passed', ['validated_data' => $validated]);
-
             // Use HTML Purifier for maximum security (without nl2br)
             if (!empty($validated['content'])) {
                 $validated['content'] = $this->sanitizer->sanitizeWithHtmlPurifier($validated['content']);
@@ -51,8 +44,6 @@ class TopicController extends Controller
             // Process parts with images
             $parts = $this->sanitizer->processPartsWithImages($request, $validated['parts'] ?? []);
             $validated['parts'] = $parts;
-
-            Log::info('Content sanitized successfully');
 
             // Handle document upload
             if ($request->hasFile('file')) {
@@ -85,8 +76,6 @@ class TopicController extends Controller
                 'all' 
             );
             
-            Log::info('Topic created and announcement sent');
-
             return redirect()->route('content.management')
                 ->with('success', "Topic '{$topic->title}' created successfully!");
 
