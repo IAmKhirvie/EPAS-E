@@ -26,7 +26,7 @@ class ProfileController extends Controller
             if ($request->hasFile('avatar')) {
                 // Delete old avatar if exists
                 if ($user->profile_image) {
-                    Storage::delete('public/profile-images/' . $user->profile_image);
+                    Storage::disk('public')->delete('profile-images/' . $user->profile_image);
                 }
 
                 // Store new avatar
@@ -42,7 +42,7 @@ class ProfileController extends Controller
             return back()->with('error', 'Failed to update profile. Please try again.');
         }
     }
-    
+
     public function updateAvatar(Request $request)
     {
         $request->validate([
@@ -55,7 +55,7 @@ class ProfileController extends Controller
             if ($request->hasFile('avatar')) {
                 // Delete old avatar if exists
                 if ($user->profile_image) {
-                    Storage::delete('public/profile-images/' . $user->profile_image);
+                    Storage::disk('public')->delete('profile-images/' . $user->profile_image);
                 }
 
                 // Store new avatar

@@ -171,6 +171,9 @@
                                                                     @if($infoSheet->homeworks && $infoSheet->homeworks->count() > 0)
                                                                     <span class="badge bg-dark">{{ $infoSheet->homeworks->count() }} Homework</span>
                                                                     @endif
+                                                                    @if($infoSheet->documentAssessments && $infoSheet->documentAssessments->count() > 0)
+                                                                    <span class="badge" style="background: #7c3aed; color: #fff;">{{ $infoSheet->documentAssessments->count() }} Doc Assessment</span>
+                                                                    @endif
                                                                     @if($infoSheet->checklists && $infoSheet->checklists->count() > 0)
                                                                     <span class="badge bg-danger">{{ $infoSheet->checklists->count() }} Checklists</span>
                                                                     @endif
@@ -375,6 +378,38 @@
                                                                 </div>
                                                                 @endif
 
+                                                                <!-- Document Assessments -->
+                                                                @if($infoSheet->documentAssessments && $infoSheet->documentAssessments->count() > 0)
+                                                                <div class="mb-4">
+                                                                    <h6 class="mb-3" style="color: #7c3aed;">
+                                                                        <i class="fas fa-file-word me-2"></i>Document Assessments
+                                                                    </h6>
+                                                                    <div class="list-group">
+                                                                        @foreach($infoSheet->documentAssessments as $docAssessment)
+                                                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            <div>
+                                                                                <strong>{{ $docAssessment->title }}</strong>
+                                                                                <span class="badge bg-light text-dark ms-1">{{ $docAssessment->max_points }} pts</span>
+                                                                                @if($docAssessment->file_type)
+                                                                                <span class="badge bg-light text-muted ms-1">{{ strtoupper($docAssessment->file_type) }}</span>
+                                                                                @endif
+                                                                            </div>
+                                                                            <div class="btn-group btn-group-sm">
+                                                                                <a href="{{ route('document-assessments.show', $docAssessment) }}" class="btn btn-outline-secondary">View</a>
+                                                                                <a href="{{ route('document-assessments.edit', [$infoSheet->id, $docAssessment->id]) }}" class="btn btn-outline-primary">Edit</a>
+                                                                                <button class="btn btn-outline-danger delete-doc-assessment-btn"
+                                                                                    data-info-sheet-id="{{ $infoSheet->id }}"
+                                                                                    data-doc-assessment-id="{{ $docAssessment->id }}"
+                                                                                    data-doc-assessment-name="{{ $docAssessment->title }}">
+                                                                                    Delete
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                        @endforeach
+                                                                    </div>
+                                                                </div>
+                                                                @endif
+
                                                                 <!-- Add Content Section -->
                                                                 <div class="add-content-section text-center p-4 bg-light rounded border position-relative">
                                                                     <div class="popup d-inline-block">
@@ -403,6 +438,9 @@
                                                                                 </div>
                                                                                 <div class="popup-item" data-action="checklist" data-info-sheet="{{ $infoSheet->id }}">
                                                                                     <i class="fas fa-list-check"></i> Check List
+                                                                                </div>
+                                                                                <div class="popup-item" data-action="document-assessment" data-info-sheet="{{ $infoSheet->id }}">
+                                                                                    <i class="fas fa-file-word"></i> Doc Assessment
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -663,7 +701,8 @@
             'job-sheet': function(infoSheetId) { return '/information-sheets/' + infoSheetId + '/job-sheets/create'; },
             'homework': function(infoSheetId) { return '/information-sheets/' + infoSheetId + '/homeworks/create'; },
             'performance-criteria': function(infoSheetId) { return '/information-sheets/' + infoSheetId + '/performance-criteria/create'; },
-            'checklist': function(infoSheetId) { return '/information-sheets/' + infoSheetId + '/checklists/create'; }
+            'checklist': function(infoSheetId) { return '/information-sheets/' + infoSheetId + '/checklists/create'; },
+            'document-assessment': function(infoSheetId) { return '/information-sheets/' + infoSheetId + '/document-assessments/create'; }
         };
 
         // Popup toggle functionality
@@ -882,6 +921,28 @@
                 $(this).closest('.list-group-item').fadeOut(300, function() {
                     $(this).remove();
                     showAlert('Checklist deleted successfully!', 'success');
+                });
+            }.bind(this);
+
+            deleteModal.show();
+        });
+
+        // Delete Document Assessment
+        $(document).on('click', '.delete-doc-assessment-btn', function(e) {
+            e.preventDefault();
+
+            const infoSheetId = $(this).data('info-sheet-id');
+            const docAssessmentId = $(this).data('doc-assessment-id');
+            const docAssessmentName = $(this).data('doc-assessment-name');
+
+            $('#deleteConfirmMessage').text(`Are you sure you want to delete the document assessment "${docAssessmentName}"?`);
+
+            currentDeleteUrl = `/information-sheets/${infoSheetId}/document-assessments/${docAssessmentId}`;
+
+            currentDeleteCallback = function(response) {
+                $(this).closest('.list-group-item').fadeOut(300, function() {
+                    $(this).remove();
+                    showAlert('Document assessment deleted successfully!', 'success');
                 });
             }.bind(this);
 

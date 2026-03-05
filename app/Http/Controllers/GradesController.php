@@ -386,6 +386,7 @@ class GradesController extends Controller
                     ->first();
 
             $moduleGrades['self_checks'][] = [
+                'id' => $selfCheck->id,
                 'title' => $selfCheck->title,
                 'information_sheet' => $sheet->title,
                 'submission' => $submission,
@@ -439,6 +440,7 @@ class GradesController extends Controller
             }
 
             $moduleGrades['homeworks'][] = [
+                'id' => $homework->id,
                 'title' => $homework->title,
                 'information_sheet' => $sheet->title,
                 'submission' => $submission,
@@ -498,6 +500,7 @@ class GradesController extends Controller
             }
 
             $moduleGrades['task_sheets'][] = [
+                'id' => $taskSheet->id,
                 'title' => $taskSheet->title,
                 'information_sheet' => $sheet->title,
                 'submission' => $submission,
@@ -554,6 +557,7 @@ class GradesController extends Controller
             }
 
             $moduleGrades['job_sheets'][] = [
+                'id' => $jobSheet->id,
                 'title' => $jobSheet->title,
                 'information_sheet' => $sheet->title,
                 'submission' => $submission,

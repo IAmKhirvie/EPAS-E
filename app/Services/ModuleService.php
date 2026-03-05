@@ -112,7 +112,7 @@ class ModuleService
     public function uploadImage(Module $module, $imageFile, ?string $caption = null, ?string $section = null): array
     {
         $imageName = 'module_' . $module->id . '_' . time() . '.' . $imageFile->extension();
-        $imageFile->storeAs('public/module-images', $imageName);
+        $imageFile->storeAs('module-images', $imageName, 'public');
 
         $images = $module->images ?? [];
         $images[] = [
@@ -138,7 +138,7 @@ class ModuleService
         if (isset($images[$imageIndex])) {
             $filename = $images[$imageIndex]['filename'] ?? null;
             if ($filename) {
-                Storage::delete('public/module-images/' . $filename);
+                Storage::disk('public')->delete('module-images/' . $filename);
             }
             array_splice($images, $imageIndex, 1);
             $module->update(['images' => $images]);

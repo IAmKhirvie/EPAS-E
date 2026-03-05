@@ -8,7 +8,7 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="h3 mb-0">Create Task Sheet</h1>
-                <a href="{{ route('courses.index') }}" class="btn btn-outline-secondary">
+                <a href="{{ route('content.management') }}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Back to Content Management
                 </a>
             </div>
@@ -38,7 +38,7 @@
                         <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
                         <h4>Task Sheets Coming Soon</h4>
                         <p class="text-muted">This feature is currently under development.</p>
-                        <a href="{{ route('courses.index') }}" class="btn btn-primary mt-3">
+                        <a href="{{ route('content.management') }}" class="btn btn-primary mt-3">
                             <i class="fas fa-arrow-left me-2"></i>Back to Content Management
                         </a>
                     </div>

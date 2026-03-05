@@ -24,6 +24,7 @@ class StoreTaskSheetRequest extends FormRequest
             'materials' => 'required|array|min:1',
             'safety_precautions' => 'nullable|array',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|mimetypes:image/jpeg,image/png,image/gif|max:' . config('joms.uploads.max_image_size', 5120),
+            'file' => 'nullable|file|mimes:pdf,xlsx,xls,doc,docx,ppt,pptx|max:' . config('joms.uploads.max_document_size', 10240),
             'items' => 'required|array|min:1',
             'items.*.part_name' => 'required|string',
             'items.*.description' => 'required|string',

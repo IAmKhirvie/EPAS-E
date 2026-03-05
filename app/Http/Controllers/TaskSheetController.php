@@ -7,10 +7,12 @@ use App\Models\TaskSheet;
 use App\Models\TaskSheetItem;
 use App\Http\Requests\StoreTaskSheetRequest;
 use App\Http\Requests\UpdateTaskSheetRequest;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TaskSheetController extends Controller
 {
@@ -29,7 +31,16 @@ class TaskSheetController extends Controller
                 $imagePath = $request->file('image')->store('task-sheets', 'public');
             }
 
-            DB::transaction(function () use ($request, $informationSheet, $imagePath) {
+            $filePath = null;
+            $originalFilename = null;
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $filePath = $file->storeAs('task-sheets', $filename, 'public');
+                $originalFilename = $file->getClientOriginalName();
+            }
+
+            DB::transaction(function () use ($request, $informationSheet, $imagePath, $filePath, $originalFilename) {
                 $taskSheet = TaskSheet::create([
                     'information_sheet_id' => $informationSheet->id,
                     'task_number' => $request->task_number,
@@ -40,6 +51,8 @@ class TaskSheetController extends Controller
                     'materials' => $request->materials,
                     'safety_precautions' => $request->safety_precautions ?? [],
                     'image_path' => $imagePath,
+                    'file_path' => $filePath,
+                    'original_filename' => $originalFilename,
                 ]);
 
                 foreach ($request->items as $itemData) {
@@ -54,7 +67,7 @@ class TaskSheetController extends Controller
                 }
             });
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', 'Task sheet created successfully!');
         } catch (\Exception $e) {
             Log::error('Task sheet creation failed', [
@@ -78,11 +91,22 @@ class TaskSheetController extends Controller
         try {
             $imagePath = $taskSheet->image_path;
             if ($request->hasFile('image')) {
-                // Delete old image
                 if ($imagePath) {
                     Storage::disk('public')->delete($imagePath);
                 }
                 $imagePath = $request->file('image')->store('task-sheets', 'public');
+            }
+
+            $filePath = $taskSheet->file_path;
+            $originalFilename = $taskSheet->original_filename;
+            if ($request->hasFile('file')) {
+                if ($filePath) {
+                    Storage::disk('public')->delete($filePath);
+                }
+                $file = $request->file('file');
+                $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $filePath = $file->storeAs('task-sheets', $filename, 'public');
+                $originalFilename = $file->getClientOriginalName();
             }
 
             $taskSheet->update([
@@ -94,9 +118,11 @@ class TaskSheetController extends Controller
                 'materials' => $request->materials,
                 'safety_precautions' => $request->safety_precautions ?? [],
                 'image_path' => $imagePath,
+                'file_path' => $filePath,
+                'original_filename' => $originalFilename,
             ]);
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', 'Task sheet updated successfully!');
         } catch (\Exception $e) {
             Log::error('Task sheet update failed', [
@@ -113,6 +139,9 @@ class TaskSheetController extends Controller
             if ($taskSheet->image_path) {
                 Storage::disk('public')->delete($taskSheet->image_path);
             }
+            if ($taskSheet->file_path) {
+                Storage::disk('public')->delete($taskSheet->file_path);
+            }
             $taskSheet->items()->delete();
             $taskSheet->delete();
 
@@ -124,6 +153,20 @@ class TaskSheetController extends Controller
             ]);
             return response()->json(['error' => 'Failed to delete task sheet. Please try again.'], 500);
         }
+    }
+
+    public function download(TaskSheet $taskSheet)
+    {
+        if (!$taskSheet->file_path) {
+            return redirect()->back()->with('error', 'No file attached to this task sheet.');
+        }
+
+        $filePath = Storage::disk('public')->path($taskSheet->file_path);
+        if (!file_exists($filePath)) {
+            return redirect()->back()->with('error', 'File not found.');
+        }
+
+        return response()->download($filePath, $taskSheet->original_filename);
     }
 
     public function show(TaskSheet $taskSheet)
@@ -145,6 +188,10 @@ class TaskSheetController extends Controller
                 'findings' => json_encode($request->findings),
                 'submitted_at' => now(),
             ]);
+
+            // Notify instructor of submission
+            $taskSheet->loadMissing('informationSheet.module.course.instructor');
+            app(NotificationService::class)->notifySubmissionReceived(auth()->user(), 'task sheet', $taskSheet);
 
             return redirect()->route('performance-criteria.create', ['taskSheet' => $taskSheet->id])
                 ->with('success', 'Task sheet submitted successfully! Please complete the performance criteria.');

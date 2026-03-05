@@ -21,6 +21,11 @@
             </div>
             <div class="cb-show__header-right">
                 <span class="badge bg-light text-dark"><i class="fas fa-list-check me-1"></i>{{ $taskSheet->items->count() }} Items</span>
+                @if($taskSheet->file_path)
+                <a href="{{ route('task-sheets.download', $taskSheet) }}" class="badge bg-light text-dark text-decoration-none">
+                    <i class="fas fa-paperclip me-1"></i>{{ $taskSheet->original_filename }}
+                </a>
+                @endif
                 @if(in_array(auth()->user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]))
                 <div class="dropdown">
                     <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="fas fa-cog"></i></button>

@@ -17,6 +17,8 @@ class JobSheet extends Model
         'job_number',
         'title',
         'description',
+        'file_path',
+        'original_filename',
         'procedures',
         'performance_criteria',
         'estimated_duration',

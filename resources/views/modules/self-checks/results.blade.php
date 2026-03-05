@@ -41,7 +41,8 @@
                 </div>
             </div>
 
-            {{-- Breakdown --}}
+            {{-- Breakdown (only when answers are revealed) --}}
+            @if($selfCheck->reveal_answers)
             <div class="cb-sidebar__group">
                 <div class="cb-sidebar__group-label"><i class="fas fa-list-ol"></i> Breakdown</div>
                 <div class="cb-sidebar__info">
@@ -66,6 +67,7 @@
                     </div>
                 </div>
             </div>
+            @endif
 
             {{-- Test Details --}}
             <div class="cb-sidebar__group">
@@ -106,6 +108,24 @@
             </div>
 
             <div class="cb-body">
+                @if(!$selfCheck->reveal_answers)
+                {{-- Hidden feedback mode: only show summary --}}
+                <div class="cb-section">
+                    <div class="cb-items-header">
+                        <h5><i class="fas fa-chart-pie"></i> Results Summary</h5>
+                    </div>
+                    <div class="p-4 text-center">
+                        <div style="font-size: 3rem; font-weight: 700; color: {{ $passed ? '#198754' : '#dc3545' }};">
+                            {{ number_format($percentage, 1) }}%
+                        </div>
+                        <p class="text-muted mt-2 mb-3">{{ $score }} / {{ $totalPoints }} points</p>
+                        <div class="alert alert-info d-inline-block">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Detailed answer feedback is not available for this quiz.
+                        </div>
+                    </div>
+                </div>
+                @else
                 {{-- Detailed Results --}}
                 <div class="cb-section">
                     <div class="cb-items-header">
@@ -477,6 +497,7 @@
                     </div>
                     @endforeach
                 </div>
+                @endif
             </div>
         </div>
     </div>

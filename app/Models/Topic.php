@@ -15,6 +15,8 @@ class Topic extends Model
         'title',
         'topic_number',
         'content',
+        'file_path',
+        'original_filename',
         'parts',
         'order'
     ];

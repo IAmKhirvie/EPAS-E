@@ -46,6 +46,32 @@
                         </div>
                     </div>
 
+                    {{-- Document Attachment --}}
+                    <div class="cb-section">
+                        <div class="cb-section__title"><i class="fas fa-upload"></i> Document Attachment <span class="optional">(optional)</span></div>
+                        @if($jobSheet->file_path)
+                        <div class="cb-context-badge mb-3">
+                            <i class="fas fa-file-alt"></i>
+                            <span class="flex-grow-1">Current file: <strong>{{ $jobSheet->original_filename }}</strong></span>
+                            <a href="{{ route('job-sheets.download', $jobSheet) }}" class="btn btn-sm btn-outline-primary ms-2">
+                                <i class="fas fa-download me-1"></i>Download
+                            </a>
+                        </div>
+                        @endif
+                        <label class="cb-upload-area">
+                            <input type="file" class="d-none" name="file"
+                                   accept=".pdf,.xlsx,.xls,.doc,.docx,.ppt,.pptx"
+                                   onchange="this.closest('.cb-upload-area').classList.add('has-file'); this.closest('.cb-upload-area').querySelector('.upload-name').textContent = this.files[0].name;">
+                            <i class="fas fa-cloud-upload-alt d-block"></i>
+                            <div class="cb-upload-area__text">
+                                <strong>{{ $jobSheet->file_path ? 'Upload new file to replace' : 'Click to upload' }}</strong> or drag and drop<br>
+                                <small>PDF, Word, Excel, PowerPoint (max 10MB)</small>
+                            </div>
+                            <span class="upload-name"></span>
+                        </label>
+                        @error('file')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                    </div>
+
                     {{-- Objectives, Tools, Safety, References in compact row --}}
                     <div class="cb-detail-row">
                         <div class="cb-detail-col">

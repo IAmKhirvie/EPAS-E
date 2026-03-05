@@ -108,7 +108,7 @@
                 </div>
 
                 <div class="cb-footer">
-                    <a href="{{ route('courses.index') }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('content.management') }}" class="btn btn-outline-secondary">
                         <i class="fas fa-times me-1"></i>Cancel
                     </a>
                     <div class="btn-group-footer">

@@ -18,17 +18,26 @@ class SelfCheck extends Model
         'title',
         'description',
         'instructions',
+        'file_path',
+        'original_filename',
+        'document_content',
         'time_limit',
+        'due_date',
         'passing_score',
         'total_points',
         'is_active',
+        'max_attempts',
+        'reveal_answers',
     ];
 
     protected $casts = [
         'time_limit' => 'integer',
+        'due_date' => 'datetime',
         'passing_score' => 'integer',
         'total_points' => 'integer',
         'is_active' => 'boolean',
+        'max_attempts' => 'integer',
+        'reveal_answers' => 'boolean',
     ];
 
     public function informationSheet(): BelongsTo

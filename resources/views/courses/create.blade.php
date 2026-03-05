@@ -6,7 +6,7 @@
 <div class="content-area">
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('courses.index') }}">Courses</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Courses</a></li>
             <li class="breadcrumb-item active">Create New Course</li>
         </ol>
     </nav>
@@ -75,7 +75,7 @@
                 </div>
 
                 <div class="cb-footer">
-                    <a href="{{ route('courses.index') }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('content.management') }}" class="btn btn-outline-secondary">
                         <i class="fas fa-times me-1"></i>Cancel
                     </a>
                     <div class="btn-group-footer">

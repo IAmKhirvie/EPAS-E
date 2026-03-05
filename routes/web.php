@@ -51,6 +51,7 @@ use App\Http\Controllers\JobSheetController;
 use App\Http\Controllers\HomeworkController;
 use App\Http\Controllers\PerformanceCriteriaController;
 use App\Http\Controllers\ChecklistController;
+use App\Http\Controllers\DocumentAssessmentController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\RegistrationController;
@@ -428,6 +429,7 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
             Route::put('/topics/{topic}', [TopicController::class, 'update'])->name('topics.update');
         });
         Route::delete('/topics/{topic}', [TopicController::class, 'destroy'])->name('topics.destroy');
+        Route::get('/topics/{topic}/download', [TopicController::class, 'download'])->name('topics.download');
     });
 
     // Content View Routes (All authenticated users)
@@ -532,7 +534,7 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
     })->name('information-sheets.download');
 
     Route::get('/modules/{module}/information-sheets/{informationSheet}', function (\App\Models\Module $module, \App\Models\InformationSheet $informationSheet) {
-        return redirect()->route('courses.modules.information-sheet', [$module->course_id, $module, $informationSheet]);
+        return redirect()->route('courses.modules.show', [$module->course_id, $module, $module->slug]);
     })->name('information-sheets.show');
 
     // Backward compatibility: legacy AJAX content routes
@@ -629,22 +631,41 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
             Route::put('/checklists/{checklist}', [ChecklistController::class, 'update'])->name('checklists.update');
             Route::delete('/checklists/{checklist}', [ChecklistController::class, 'destroy'])->name('checklists.destroy');
         });
+
+        // Document Assessment Management
+        Route::prefix('information-sheets/{informationSheet}')->group(function () {
+            Route::get('/document-assessments/create', [DocumentAssessmentController::class, 'create'])->name('document-assessments.create');
+            Route::post('/document-assessments', [DocumentAssessmentController::class, 'store'])->name('document-assessments.store');
+            Route::get('/document-assessments/{documentAssessment}/edit', [DocumentAssessmentController::class, 'edit'])->name('document-assessments.edit');
+            Route::put('/document-assessments/{documentAssessment}', [DocumentAssessmentController::class, 'update'])->name('document-assessments.update');
+            Route::delete('/document-assessments/{documentAssessment}', [DocumentAssessmentController::class, 'destroy'])->name('document-assessments.destroy');
+        });
+        Route::post('/document-assessments/convert', [DocumentAssessmentController::class, 'convert'])->name('document-assessments.convert');
+        Route::post('/document-assessment-submissions/{submission}/grade', [DocumentAssessmentController::class, 'grade'])->name('document-assessment-submissions.grade');
     });
 
     // Assessment View & Submit Routes (All authenticated users)
 
+    // Document Assessments
+    Route::get('/document-assessments/{documentAssessment}', [DocumentAssessmentController::class, 'show'])->name('document-assessments.show');
+    Route::post('/document-assessments/{documentAssessment}/submit', [DocumentAssessmentController::class, 'submit'])->name('document-assessments.submit');
+    Route::get('/document-assessments/{documentAssessment}/download', [DocumentAssessmentController::class, 'download'])->name('document-assessments.download');
+
     // Self Checks
     Route::get('/self-checks/{selfCheck}', [SelfCheckController::class, 'show'])->name('self-checks.show');
+    Route::get('/self-checks/{selfCheck}/download', [SelfCheckController::class, 'download'])->name('self-checks.download');
     Route::post('/self-checks/{selfCheck}/submit', [SelfCheckController::class, 'submit'])->name('self-checks.submit');
     Route::get('/courses/{course}/module-{module}/information-sheets/{informationSheet}/self-check', [SelfCheckController::class, 'showBySheet'])->name('courses.modules.information-sheets.self-check');
 
     // Task Sheets
     Route::get('/task-sheets/{taskSheet}', [TaskSheetController::class, 'show'])->name('task-sheets.show');
     Route::post('/task-sheets/{taskSheet}/submit', [TaskSheetController::class, 'submit'])->name('task-sheets.submit');
+    Route::get('/task-sheets/{taskSheet}/download', [TaskSheetController::class, 'download'])->name('task-sheets.download');
 
     // Job Sheets
     Route::get('/job-sheets/{jobSheet}', [JobSheetController::class, 'show'])->name('job-sheets.show');
     Route::post('/job-sheets/{jobSheet}/submit', [JobSheetController::class, 'submit'])->name('job-sheets.submit');
+    Route::get('/job-sheets/{jobSheet}/download', [JobSheetController::class, 'download'])->name('job-sheets.download');
 
     // Homework
     Route::get('/homeworks/{homework}', [HomeworkController::class, 'show'])->name('homeworks.show');
@@ -699,6 +720,8 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
     Route::middleware(['check.role:admin,instructor'])->group(function () {
         Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('private.announcements.create');
         Route::post('/announcements', [AnnouncementController::class, 'store'])->name('private.announcements.store');
+        Route::get('/announcements/{announcement}/edit', [AnnouncementController::class, 'edit'])->name('private.announcements.edit');
+        Route::put('/announcements/{announcement}', [AnnouncementController::class, 'update'])->name('private.announcements.update');
     });
 
     // Announcement View & Interaction (All authenticated users)

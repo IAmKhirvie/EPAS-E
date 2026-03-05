@@ -20,6 +20,8 @@ class StoreAnnouncementRequest extends FormRequest
             'is_urgent' => 'boolean',
             'publish_at' => 'nullable|date',
             'deadline' => 'nullable|date',
+            'target_roles' => 'nullable|string|max:255',
+            'target_sections' => 'nullable|string|max:500',
         ];
     }
 }

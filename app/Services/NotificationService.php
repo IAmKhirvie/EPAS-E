@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Constants\Roles;
+use App\Models\Announcement;
 use App\Models\User;
 use App\Models\Notification;
 use App\Models\Homework;
@@ -228,6 +229,145 @@ class NotificationService
             $emailBody .= "\n\nIf you believe this was a mistake, please contact the administrator.";
 
             $this->sendEmail($student, 'Registration Update', $emailBody);
+        }
+    }
+
+    /**
+     * Send notification for document assessment submission.
+     * Notifies ONLY the specific instructor who created the assessment.
+     */
+    public function notifyDocumentAssessmentSubmitted(User $instructor, User $student, $assessment): void
+    {
+        $this->createNotification($instructor, 'document_assessment_submitted', [
+            'title' => 'New Document Assessment Submission',
+            'message' => "{$student->full_name} has submitted an answer for: {$assessment->title}",
+            'assessment_id' => $assessment->id,
+            'student_id' => $student->id,
+        ]);
+
+        if ($instructor->getNotificationPreference('email_document_assessment_submitted', true)) {
+            $this->sendEmail($instructor, 'New Document Assessment Submission',
+                "{$student->full_name} has submitted their answer for document assessment: \"{$assessment->title}\". Please review and grade it at your earliest convenience.");
+        }
+    }
+
+    /**
+     * Send notification for a new announcement to targeted users.
+     * Respects target_roles and target_sections.
+     */
+    public function notifyNewAnnouncement(Announcement $announcement): void
+    {
+        $query = User::where('stat', 1);
+
+        // Filter by target_roles
+        $targetRoles = $announcement->target_roles;
+        if ($targetRoles && $targetRoles !== 'all') {
+            $roles = array_map('trim', explode(',', $targetRoles));
+            $query->whereIn('role', $roles);
+        }
+
+        // Filter by target_sections
+        $targetSections = $announcement->target_sections;
+        if ($targetSections) {
+            $sections = array_map('trim', explode(',', $targetSections));
+            $query->where(function ($q) use ($sections) {
+                // Include users in targeted sections + admins/instructors (who manage all sections)
+                $q->whereIn('section', $sections)
+                  ->orWhereIn('role', [Roles::ADMIN, Roles::INSTRUCTOR]);
+            });
+        }
+
+        // Exclude the creator
+        $query->where('id', '!=', $announcement->user_id);
+
+        $users = $query->get();
+
+        foreach ($users as $user) {
+            $this->notifyAnnouncement($user, $announcement->title, $announcement->is_urgent);
+        }
+    }
+
+    /**
+     * Notify the instructor when a student submits an assessment.
+     */
+    public function notifySubmissionReceived(User $student, string $type, $assessment): void
+    {
+        // Traverse: assessment → informationSheet → module → course → instructor
+        $informationSheet = $assessment->informationSheet;
+        if (!$informationSheet) {
+            return;
+        }
+
+        $module = $informationSheet->module;
+        if (!$module) {
+            return;
+        }
+
+        $course = $module->course;
+        if (!$course || !$course->instructor_id) {
+            return;
+        }
+
+        $instructor = $course->instructor;
+        if (!$instructor) {
+            return;
+        }
+
+        $this->createNotification($instructor, 'submission_received', [
+            'title' => 'New ' . ucfirst($type) . ' Submission',
+            'message' => "{$student->full_name} has submitted a {$type}: {$assessment->title}",
+            'assessment_type' => $type,
+            'assessment_id' => $assessment->id,
+            'student_id' => $student->id,
+        ]);
+
+        if ($instructor->getNotificationPreference('email_submission_received', true)) {
+            $this->sendEmail($instructor, "New {$type} Submission",
+                "{$student->full_name} has submitted their {$type}: \"{$assessment->title}\". Please review it at your earliest convenience.");
+        }
+    }
+
+    /**
+     * Notify student that their enrollment request was approved.
+     */
+    public function notifyEnrollmentApproved(User $student, string $section): void
+    {
+        $this->createNotification($student, 'enrollment_approved', [
+            'title' => 'Enrollment Approved!',
+            'message' => "Your enrollment request for section {$section} has been approved.",
+            'section' => $section,
+        ]);
+
+        if ($student->getNotificationPreference('email_enrollment_status', true)) {
+            $this->sendEmail($student, 'Enrollment Request Approved',
+                "Your enrollment request for section {$section} has been approved. You can now access your section's content.");
+        }
+    }
+
+    /**
+     * Notify student that their enrollment request was rejected.
+     */
+    public function notifyEnrollmentRejected(User $student, string $section, ?string $reason = null): void
+    {
+        $message = "Your enrollment request for section {$section} has been rejected.";
+        if ($reason) {
+            $message .= " Reason: {$reason}";
+        }
+
+        $this->createNotification($student, 'enrollment_rejected', [
+            'title' => 'Enrollment Rejected',
+            'message' => $message,
+            'section' => $section,
+            'reason' => $reason,
+        ]);
+
+        if ($student->getNotificationPreference('email_enrollment_status', true)) {
+            $emailBody = "Your enrollment request for section {$section} has been rejected.";
+            if ($reason) {
+                $emailBody .= "\n\nReason: {$reason}";
+            }
+            $emailBody .= "\n\nIf you believe this was a mistake, please contact the administrator.";
+            $this->sendEmail($student, 'Enrollment Request Rejected', $emailBody);
         }
     }
 

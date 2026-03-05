@@ -182,66 +182,111 @@
             </div>
         </div>
 
-        {{-- Right Sidebar TOC --}}
+        {{-- Right Sidebar --}}
         <div class="sidebar-section">
-            <div class="card border-0 shadow-sm toc-sidebar">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0"><i class="fas fa-list me-2"></i>Table of Contents</h6>
-                    <span class="badge bg-primary" id="progressBadge">0%</span>
+            <div class="toc-sidebar">
+                {{-- Navigation Buttons --}}
+                <div class="sidebar-nav-buttons">
+                    <button class="btn btn-outline-secondary btn-sm" id="sidebarPrev" disabled>
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </button>
+                    <button class="btn btn-primary btn-sm" id="sidebarNext">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </button>
                 </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        {{-- Overview --}}
-                        <a href="#" class="list-group-item list-group-item-action active toc-link" data-section="overview">
-                            <i class="fas fa-home me-2"></i> Module Overview
-                        </a>
 
-                        {{-- Information Sheets --}}
-                        @foreach($module->informationSheets as $sheet)
-                        <div class="toc-group">
-                            <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center toc-link sheet-link"
-                               data-sheet-id="{{ $sheet->id }}">
-                                <span>
-                                    <i class="fas fa-file-alt me-2"></i>
-                                    Info Sheet {{ $sheet->sheet_number }}
-                                </span>
-                                <i class="fas fa-chevron-down small toggle-icon"></i>
-                            </a>
-                            <div class="toc-subitems" style="display: none;">
-                                <a href="#" class="list-group-item list-group-item-action small ps-5 toc-sublink"
-                                   data-sheet-id="{{ $sheet->id }}" data-action="content">
-                                    <i class="fas fa-align-left me-2"></i> {{ Str::limit($sheet->title, 25) }}
-                                </a>
-                                @if($sheet->topics && $sheet->topics->count() > 0)
-                                    @foreach($sheet->topics as $topic)
-                                    <a href="#" class="list-group-item list-group-item-action small ps-5 toc-sublink"
-                                       data-topic-id="{{ $topic->id }}" data-sheet-id="{{ $sheet->id }}">
-                                        <i class="fas fa-circle fa-xs me-2"></i> {{ Str::limit($topic->title, 25) }}
-                                    </a>
-                                    @endforeach
-                                @endif
-                                @if($sheet->selfChecks && $sheet->selfChecks->count() > 0)
-                                <a href="#" class="list-group-item list-group-item-action small ps-5 toc-sublink toc-assessment-link"
-                                   data-sheet-id="{{ $sheet->id }}" data-assessment="self-check">
-                                    <i class="fas fa-question-circle me-2 text-warning"></i> Self-Check
-                                </a>
-                                @endif
-                                @if($sheet->taskSheets && $sheet->taskSheets->count() > 0)
-                                <a href="#" class="list-group-item list-group-item-action small ps-5 toc-sublink toc-assessment-link"
-                                   data-sheet-id="{{ $sheet->id }}" data-assessment="task-sheet">
-                                    <i class="fas fa-clipboard-list me-2 text-info"></i> Task Sheet
-                                </a>
-                                @endif
-                                @if($sheet->jobSheets && $sheet->jobSheets->count() > 0)
-                                <a href="#" class="list-group-item list-group-item-action small ps-5 toc-sublink toc-assessment-link"
-                                   data-sheet-id="{{ $sheet->id }}" data-assessment="job-sheet">
-                                    <i class="fas fa-hard-hat me-2 text-success"></i> Job Sheet
-                                </a>
-                                @endif
+                {{-- Module Actions --}}
+                <div class="sidebar-actions">
+                    <a href="{{ route('courses.modules.download', [$course, $module]) }}" class="sidebar-action-btn">
+                        <i class="fas fa-download"></i> Download Module PDF
+                    </a>
+                </div>
+
+                {{-- Table of Contents --}}
+                <div class="sidebar-toc">
+                    <div class="sidebar-toc-title">
+                        <i class="fas fa-list"></i> Table of Contents
+                        <span class="badge bg-primary ms-auto" id="progressBadge">0%</span>
+                    </div>
+
+                    {{-- Overview --}}
+                    <div class="sidebar-toc-item">
+                        <div class="sidebar-toc-link active" data-section="overview">
+                            <i class="fas fa-home sidebar-toc-icon"></i>
+                            Module Overview
+                        </div>
+                    </div>
+
+                    {{-- Information Sheets --}}
+                    @foreach($module->informationSheets as $sheet)
+                    <div class="sidebar-toc-item sidebar-sheet-item">
+                        <div class="sidebar-toc-link sidebar-sheet-header" data-sheet-id="{{ $sheet->id }}">
+                            <i class="fas fa-chevron-down sidebar-toc-icon sidebar-toggle-icon"></i>
+                            <div class="sidebar-sheet-title">
+                                <div class="sidebar-sheet-main">Information Sheet {{ $sheet->sheet_number }}</div>
+                                <div class="sidebar-sheet-sub">{{ $sheet->title }}</div>
                             </div>
                         </div>
-                        @endforeach
+
+                        <div class="sidebar-topics-dropdown">
+                            {{-- Sheet content --}}
+                            <div class="sidebar-topic-item" data-sheet-id="{{ $sheet->id }}" data-action="content">
+                                <i class="fas fa-align-left sidebar-topic-icon"></i>
+                                <span>{{ Str::limit($sheet->title, 30) }}</span>
+                            </div>
+
+                            {{-- Topics --}}
+                            @if($sheet->topics && $sheet->topics->count() > 0)
+                                @foreach($sheet->topics as $topic)
+                                <div class="sidebar-topic-item" data-topic-id="{{ $topic->id }}" data-sheet-id="{{ $sheet->id }}">
+                                    <i class="fas fa-file-alt sidebar-topic-icon"></i>
+                                    <span>{{ $topic->title }}</span>
+                                </div>
+                                @endforeach
+                            @endif
+
+                            {{-- Self-Checks --}}
+                            @if($sheet->selfChecks && $sheet->selfChecks->count() > 0)
+                                @foreach($sheet->selfChecks as $sc)
+                                <a href="{{ route('self-checks.show', $sc) }}" class="sidebar-topic-item sidebar-topic-link">
+                                    <i class="fas fa-clipboard-check sidebar-topic-icon" style="color: #ffc107;"></i>
+                                    <span>{{ $sc->title }}</span>
+                                </a>
+                                @endforeach
+                            @endif
+
+                            {{-- Task Sheets --}}
+                            @if($sheet->taskSheets && $sheet->taskSheets->count() > 0)
+                                @foreach($sheet->taskSheets as $ts)
+                                <div class="sidebar-topic-item" data-sheet-id="{{ $sheet->id }}" data-assessment="task-sheet">
+                                    <i class="fas fa-clipboard-list sidebar-topic-icon" style="color: #0dcaf0;"></i>
+                                    <span>{{ $ts->title ?? 'Task Sheet' }}</span>
+                                </div>
+                                @endforeach
+                            @endif
+
+                            {{-- Job Sheets --}}
+                            @if($sheet->jobSheets && $sheet->jobSheets->count() > 0)
+                                @foreach($sheet->jobSheets as $js)
+                                <div class="sidebar-topic-item" data-sheet-id="{{ $sheet->id }}" data-assessment="job-sheet">
+                                    <i class="fas fa-hard-hat sidebar-topic-icon" style="color: #198754;"></i>
+                                    <span>{{ $js->title ?? 'Job Sheet' }}</span>
+                                </div>
+                                @endforeach
+                            @endif
+
+                            {{-- Document Assessments --}}
+                            @if($sheet->documentAssessments && $sheet->documentAssessments->count() > 0)
+                                @foreach($sheet->documentAssessments as $da)
+                                <a href="{{ route('document-assessments.show', $da) }}" class="sidebar-topic-item sidebar-topic-link">
+                                    <i class="fas fa-file-word sidebar-topic-icon" style="color: #6f42c1;"></i>
+                                    <span>{{ $da->title }}</span>
+                                </a>
+                                @endforeach
+                            @endif
+                        </div>
                     </div>
+                    @endforeach
                 </div>
             </div>
         </div>

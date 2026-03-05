@@ -66,20 +66,17 @@
                             <form action="{{ route('settings.profile-picture') }}" method="POST" enctype="multipart/form-data" class="mb-4" id="profilePictureForm">
                                 @csrf
                                 <div class="d-flex align-items-center gap-4">
-                                    <div class="position-relative">
+                                    <div>
                                         <img src="{{ $user->profile_image_url }}" alt="Profile" class="rounded-circle" width="100" height="100" id="profilePreview" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($user->initials) }}&background=007fc9&color=fff&size=120'">
-                                        <label class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2" style="cursor: pointer;" title="Change profile picture">
-                                            <i class="fas fa-camera"></i>
-                                            <input type="file" name="profile_image" class="d-none" accept="image/jpeg,image/png,image/gif" id="profileImageInput">
-                                        </label>
                                     </div>
                                     <div>
                                         <h6 class="mb-1">Profile Picture</h6>
                                         <p class="text-muted small mb-2">JPG, PNG or GIF. Max 2MB.</p>
-                                        <button type="submit" class="btn btn-sm btn-outline-primary" id="uploadPhotoBtn">
-                                            <span class="btn-text">Upload Photo</span>
+                                        <input type="file" name="profile_image" class="d-none" accept="image/jpeg,image/png,image/gif" id="profileImageInput">
+                                        <label for="profileImageInput" class="btn btn-sm btn-outline-primary mb-0" style="cursor: pointer;" id="uploadPhotoBtn">
+                                            <span class="btn-text"><i class="fas fa-upload me-1"></i>Upload Photo</span>
                                             <span class="btn-loading d-none"><i class="fas fa-spinner fa-spin me-1"></i>Uploading...</span>
-                                        </button>
+                                        </label>
                                     </div>
                                 </div>
                             </form>

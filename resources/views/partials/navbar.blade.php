@@ -109,7 +109,7 @@
                                         {{ $announcement->created_at->diffForHumans() }}
                                     </span>
                                 </div>
-                            </div>
+                            </div>x
                         </a>
                     </div>
                     @endforeach

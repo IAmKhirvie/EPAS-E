@@ -7,10 +7,12 @@ use App\Models\JobSheet;
 use App\Models\JobSheetStep;
 use App\Http\Requests\StoreJobSheetRequest;
 use App\Http\Requests\UpdateJobSheetRequest;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class JobSheetController extends Controller
 {
@@ -24,12 +26,23 @@ class JobSheetController extends Controller
         $validated = $request->validated();
 
         try {
-            DB::transaction(function () use ($request, $informationSheet) {
+            $filePath = null;
+            $originalFilename = null;
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $filePath = $file->storeAs('job-sheets', $filename, 'public');
+                $originalFilename = $file->getClientOriginalName();
+            }
+
+            DB::transaction(function () use ($request, $informationSheet, $filePath, $originalFilename) {
                 $jobSheet = JobSheet::create([
                     'information_sheet_id' => $informationSheet->id,
                     'job_number' => $request->job_number,
                     'title' => $request->title,
                     'description' => $request->description,
+                    'file_path' => $filePath,
+                    'original_filename' => $originalFilename,
                     'objectives' => $request->objectives,
                     'tools_required' => $request->tools_required,
                     'safety_requirements' => $request->safety_requirements,
@@ -52,7 +65,7 @@ class JobSheetController extends Controller
                 }
             });
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', 'Job sheet created successfully!');
         } catch (\Exception $e) {
             Log::error('Job sheet creation failed', [
@@ -74,17 +87,31 @@ class JobSheetController extends Controller
         $validated = $request->validated();
 
         try {
+            $filePath = $jobSheet->file_path;
+            $originalFilename = $jobSheet->original_filename;
+            if ($request->hasFile('file')) {
+                if ($filePath) {
+                    Storage::disk('public')->delete($filePath);
+                }
+                $file = $request->file('file');
+                $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $filePath = $file->storeAs('job-sheets', $filename, 'public');
+                $originalFilename = $file->getClientOriginalName();
+            }
+
             $jobSheet->update([
                 'job_number' => $request->job_number,
                 'title' => $request->title,
                 'description' => $request->description,
+                'file_path' => $filePath,
+                'original_filename' => $originalFilename,
                 'objectives' => $request->objectives,
                 'tools_required' => $request->tools_required,
                 'safety_requirements' => $request->safety_requirements,
                 'reference_materials' => $request->reference_materials ?? [],
             ]);
 
-            return redirect()->route('courses.index')
+            return redirect()->route('content.management')
                 ->with('success', 'Job sheet updated successfully!');
         } catch (\Exception $e) {
             Log::error('Job sheet update failed', [
@@ -98,6 +125,11 @@ class JobSheetController extends Controller
     public function destroy(InformationSheet $informationSheet, JobSheet $jobSheet)
     {
         try {
+            // Delete attached document
+            if ($jobSheet->file_path) {
+                Storage::disk('public')->delete($jobSheet->file_path);
+            }
+
             // Delete step images
             foreach ($jobSheet->steps as $step) {
                 if ($step->image_path) {
@@ -116,6 +148,20 @@ class JobSheetController extends Controller
             ]);
             return response()->json(['error' => 'Failed to delete job sheet. Please try again.'], 500);
         }
+    }
+
+    public function download(JobSheet $jobSheet)
+    {
+        if (!$jobSheet->file_path) {
+            return redirect()->back()->with('error', 'No file attached to this job sheet.');
+        }
+
+        $filePath = Storage::disk('public')->path($jobSheet->file_path);
+        if (!file_exists($filePath)) {
+            return redirect()->back()->with('error', 'File not found.');
+        }
+
+        return response()->download($filePath, $jobSheet->original_filename);
     }
 
     public function show(JobSheet $jobSheet)
@@ -142,6 +188,10 @@ class JobSheetController extends Controller
                 'solutions' => $request->solutions,
                 'submitted_at' => now(),
             ]);
+
+            // Notify instructor of submission
+            $jobSheet->loadMissing('informationSheet.module.course.instructor');
+            app(NotificationService::class)->notifySubmissionReceived(auth()->user(), 'job sheet', $jobSheet);
 
             return redirect()->route('performance-criteria.create', ['jobSheet' => $jobSheet->id])
                 ->with('success', 'Job sheet submitted successfully! Please complete the performance criteria.');

@@ -241,8 +241,9 @@ class RegistrationService
 
             Log::info("Registration {$registration->id} transferred to user {$user->id}");
 
-            // Send welcome email
+            // Send welcome email and account approved notification
             $this->sendWelcomeEmail($user);
+            $this->notificationService->notifyAccountApproved($user);
 
             return $user;
 
@@ -272,8 +273,20 @@ class RegistrationService
     protected function sendRejectionEmail(Registration $registration, ?string $reason): void
     {
         try {
-            // You can implement a rejection email here
-            Log::info("Rejection email should be sent to: {$registration->email}");
+            $subject = 'Registration Update';
+            $body = "Unfortunately, your EPAS-E LMS registration has been rejected.";
+            if ($reason) {
+                $body .= "\n\nReason: {$reason}";
+            }
+            $body .= "\n\nIf you believe this was a mistake, please contact the administrator.";
+
+            $this->mailerService->sendNotificationEmail(
+                $registration->email,
+                $registration->full_name ?? ($registration->first_name . ' ' . $registration->last_name),
+                $subject,
+                nl2br(htmlspecialchars($body)),
+                $body
+            );
         } catch (\Exception $e) {
             Log::error("Failed to send rejection email: " . $e->getMessage());
         }
@@ -367,7 +380,6 @@ class RegistrationService
                 'user_id' => 1, // System user
                 'title' => $title,
                 'content' => $content,
-                'type' => 'notification',
                 'is_pinned' => false,
                 'is_urgent' => true,
                 'target_roles' => $targetRoles,

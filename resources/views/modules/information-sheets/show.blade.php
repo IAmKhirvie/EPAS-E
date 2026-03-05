@@ -170,26 +170,25 @@
                             <span class="topic-title">{{ $topic->title }}</span>
                         </div>
                         @endforeach
-                    @else
-                        <!-- Default content types for information sheets -->
-                        @php
-                            $contentTypes = [
-                                'introduction' => 'Introduction to Electronics and Electricity',
-                                'electric-history' => 'Electric History',
-                                'static-electricity' => 'Static Electricity',
-                                'free-electrons' => 'Free Electrons, Introduction to Sources of Electricity',
-                                'alternative-energy' => 'Alternative Energy',
-                                'electric-energy' => 'Types of Electric Energy and Current',
-                                'materials' => 'Types of Materials',
-                                'self-check' => 'Self Check No. ' . $infoSheet->sheet_number . '.1'
-                            ];
-                        @endphp
-                        
-                        @foreach($contentTypes as $type => $title)
-                        <div class="topic-item" data-content-type="{{ $type }}">
-                            <i class="fas fa-file-alt topic-icon"></i>
-                            <span class="topic-title">{{ $title }}</span>
-                        </div>
+                    @endif
+
+                    {{-- Self-Checks (direct links) --}}
+                    @if($infoSheet->selfChecks && $infoSheet->selfChecks->count() > 0)
+                        @foreach($infoSheet->selfChecks as $sc)
+                        <a href="{{ route('self-checks.show', $sc) }}" class="topic-item" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-clipboard-check topic-icon" style="color: #ffc107;"></i>
+                            <span class="topic-title">{{ $sc->title }}</span>
+                        </a>
+                        @endforeach
+                    @endif
+
+                    {{-- Document Assessments (direct links) --}}
+                    @if($infoSheet->documentAssessments && $infoSheet->documentAssessments->count() > 0)
+                        @foreach($infoSheet->documentAssessments as $da)
+                        <a href="{{ route('document-assessments.show', $da) }}" class="topic-item" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-file-word topic-icon" style="color: #6f42c1;"></i>
+                            <span class="topic-title">{{ $da->title }}</span>
+                        </a>
                         @endforeach
                     @endif
                 </div>

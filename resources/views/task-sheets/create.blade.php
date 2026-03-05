@@ -55,6 +55,23 @@
                         </div>
                     </div>
 
+                    {{-- Document Upload --}}
+                    <div class="cb-section">
+                        <div class="cb-section__title"><i class="fas fa-upload"></i> Document Attachment <span class="optional">(optional)</span></div>
+                        <label class="cb-upload-area">
+                            <input type="file" class="d-none" name="file"
+                                   accept=".pdf,.xlsx,.xls,.doc,.docx,.ppt,.pptx"
+                                   onchange="this.closest('.cb-upload-area').classList.add('has-file'); this.closest('.cb-upload-area').querySelector('.upload-name').textContent = this.files[0].name;">
+                            <i class="fas fa-cloud-upload-alt d-block"></i>
+                            <div class="cb-upload-area__text">
+                                <strong>Click to upload</strong> or drag and drop<br>
+                                <small>PDF, Word, Excel, PowerPoint (max 10MB)</small>
+                            </div>
+                            <span class="upload-name"></span>
+                        </label>
+                        @error('file')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                    </div>
+
                     {{-- Objectives, Materials, Safety in compact row --}}
                     <div class="cb-detail-row">
                         <div class="cb-detail-col">

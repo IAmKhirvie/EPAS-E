@@ -95,6 +95,11 @@ class InformationSheet extends Model
         return $this->hasMany(Checklist::class);
     }
 
+    public function documentAssessments(): HasMany
+    {
+        return $this->hasMany(DocumentAssessment::class);
+    }
+
     public function performanceCriteria()
     {
         return $this->hasManyThrough(PerformanceCriteria::class, TaskSheet::class);
@@ -110,6 +115,7 @@ class InformationSheet extends Model
             'job_sheets' => $this->jobSheets->count(),
             'homeworks' => $this->homeworks->count(),
             'checklists' => $this->checklists->count(),
+            'document_assessments' => $this->documentAssessments->count(),
         ];
     }
 
@@ -121,7 +127,8 @@ class InformationSheet extends Model
             || $this->taskSheets->count() > 0
             || $this->jobSheets->count() > 0
             || $this->homeworks->count() > 0
-            || $this->checklists->count() > 0;
+            || $this->checklists->count() > 0
+            || $this->documentAssessments->count() > 0;
     }
 
     // Scope for active information sheets

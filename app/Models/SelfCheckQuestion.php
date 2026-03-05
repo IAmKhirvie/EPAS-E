@@ -16,6 +16,7 @@ class SelfCheckQuestion extends Model
         'question_text',
         'question_type',
         'points',
+        'options',
         'correct_answer',
         'explanation',
         'order',
@@ -24,6 +25,7 @@ class SelfCheckQuestion extends Model
     protected $casts = [
         'points' => 'integer',
         'order' => 'integer',
+        'options' => 'array',
     ];
 
     public function selfCheck(): BelongsTo
@@ -31,9 +33,9 @@ class SelfCheckQuestion extends Model
         return $this->belongsTo(SelfCheck::class);
     }
 
-    public function options(): HasMany
+    public function questionOptions(): HasMany
     {
-        return $this->hasMany(SelfCheckQuestionOption::class)->orderBy('order');
+        return $this->hasMany(SelfCheckQuestionOption::class, 'question_id')->orderBy('order');
     }
 
     public function submissionAnswers(): HasMany
@@ -43,9 +45,13 @@ class SelfCheckQuestion extends Model
 
     public function getFormattedOptionsAttribute(): array
     {
-        return $this->options->mapWithKeys(function ($option) {
-            return [$option->option_letter => $option->option_text];
-        })->toArray();
+        $options = $this->options ?? [];
+        $formatted = [];
+        foreach ($options as $index => $option) {
+            $letter = chr(65 + $index); // A, B, C, ...
+            $formatted[$letter] = is_string($option) ? $option : ($option['text'] ?? $option);
+        }
+        return $formatted;
     }
 
     public function getCorrectAnswerFormattedAttribute(): string

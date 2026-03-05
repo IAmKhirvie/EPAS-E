@@ -6,7 +6,7 @@
 <div class="content-area">
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('courses.index') }}">Courses</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Courses</a></li>
             <li class="breadcrumb-item active">Edit: {{ $module->module_number }}</li>
         </ol>
     </nav>

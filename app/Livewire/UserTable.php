@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Constants\Roles;
 use App\Models\Department;
 use App\Models\User;
+use App\Services\PendingItemsService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -31,6 +32,7 @@ class UserTable extends Component
     public bool $showBulkAssign = false;
     public string $bulkSection = '';
     public string $bulkSchoolYear = '';
+    public string $bulkDepartment = '';
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -151,26 +153,58 @@ class UserTable extends Component
             return;
         }
 
-        if (empty($this->bulkSection) && empty($this->bulkSchoolYear)) {
-            session()->flash('error', 'Please enter a section or school year.');
-            return;
-        }
+        $isInstructor = $this->routeRoleFilter === Roles::INSTRUCTOR;
 
-        $data = [];
-        if (!empty($this->bulkSection)) {
-            $data['section'] = $this->bulkSection;
-        }
-        if (!empty($this->bulkSchoolYear)) {
-            $data['school_year'] = $this->bulkSchoolYear;
-        }
+        if ($isInstructor) {
+            if (empty($this->bulkSection) && empty($this->bulkDepartment)) {
+                session()->flash('error', 'Please select an advisory class or department.');
+                return;
+            }
 
-        $updated = User::whereIn('id', $this->selectedUsers)->update($data);
+            $data = [];
+            if (!empty($this->bulkDepartment)) {
+                $data['department_id'] = $this->bulkDepartment;
+            }
+
+            $updated = 0;
+            $instructors = User::whereIn('id', $this->selectedUsers)->get();
+
+            foreach ($instructors as $instructor) {
+                if (!empty($data)) {
+                    $instructor->update($data);
+                }
+                if (!empty($this->bulkSection)) {
+                    // Assign advisory class via InstructorSection (avoid duplicates)
+                    \App\Models\InstructorSection::firstOrCreate([
+                        'user_id' => $instructor->id,
+                        'section' => $this->bulkSection,
+                    ]);
+                }
+                $updated++;
+            }
+        } else {
+            if (empty($this->bulkSection) && empty($this->bulkSchoolYear)) {
+                session()->flash('error', 'Please enter a section or school year.');
+                return;
+            }
+
+            $data = [];
+            if (!empty($this->bulkSection)) {
+                $data['section'] = $this->bulkSection;
+            }
+            if (!empty($this->bulkSchoolYear)) {
+                $data['school_year'] = $this->bulkSchoolYear;
+            }
+
+            $updated = User::whereIn('id', $this->selectedUsers)->update($data);
+        }
 
         $this->selectedUsers = [];
         $this->selectAll = false;
         $this->showBulkAssign = false;
         $this->bulkSection = '';
         $this->bulkSchoolYear = '';
+        $this->bulkDepartment = '';
         session()->flash('success', "{$updated} user(s) assigned successfully.");
     }
 
@@ -267,10 +301,25 @@ class UserTable extends Component
 
     public function render()
     {
+        $availableSections = User::where('role', Roles::STUDENT)
+            ->whereNotNull('section')
+            ->where('section', '!=', '')
+            ->distinct()
+            ->orderBy('section')
+            ->pluck('section');
+
+        $users = $this->getUserQuery()->paginate(config('joms.pagination.users', 20));
+
+        // Batch-load pending counts for current page users
+        $pendingService = app(PendingItemsService::class);
+        $pendingCounts = $pendingService->getPendingCountsForUsers($users->pluck('id'));
+
         return view('livewire.user-table', [
-            'users' => $this->getUserQuery()->paginate(config('joms.pagination.users', 20)),
+            'users' => $users,
+            'pendingCounts' => $pendingCounts,
             'filterCounts' => $this->getFilterCounts(),
             'departments' => Department::all(),
+            'availableSections' => $availableSections,
             'canDelete' => Auth::user()->role === Roles::ADMIN,
             'canCreate' => Auth::user()->role === Roles::ADMIN,
         ]);
