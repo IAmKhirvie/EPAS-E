@@ -83,6 +83,18 @@
             </div>
         </div>
 
+        {{-- Document Viewer --}}
+        @if($taskSheet->document_content || $taskSheet->file_path)
+        <div style="padding: 0.75rem 1.5rem;">
+            @include('components.document-viewer', [
+                'documentContent' => $taskSheet->document_content,
+                'filePath' => $taskSheet->file_path,
+                'originalFilename' => $taskSheet->original_filename,
+                'downloadRoute' => route('task-sheets.download', $taskSheet),
+            ])
+        </div>
+        @endif
+
         {{-- Image (if any) --}}
         @if($taskSheet->image_path)
         <div style="padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--cb-border); text-align: center;">
@@ -151,3 +163,12 @@
     </div>
 </div>
 @endsection
+
+@if(!empty($taskSheet->document_content))
+@push('styles')
+@include('components.document-viewer-css')
+@endpush
+@push('scripts')
+@include('components.document-viewer-js')
+@endpush
+@endif

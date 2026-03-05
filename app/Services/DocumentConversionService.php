@@ -6,6 +6,8 @@ use PhpOffice\PhpWord\IOFactory as WordIOFactory;
 use PhpOffice\PhpPresentation\IOFactory as PresentationIOFactory;
 use PhpOffice\PhpPresentation\Shape\RichText;
 use PhpOffice\PhpPresentation\Shape\RichText\Run;
+use PhpOffice\PhpSpreadsheet\IOFactory as SpreadsheetIOFactory;
+use Smalot\PdfParser\Parser as PdfParser;
 use Illuminate\Support\Facades\Log;
 
 class DocumentConversionService
@@ -13,7 +15,7 @@ class DocumentConversionService
     /**
      * Convert a document file to HTML.
      *
-     * @return string|null HTML content, or null if not convertible (e.g., PDF)
+     * @return string|null HTML content, or null if not convertible
      */
     public function convertToHtml(string $filePath, string $extension): ?string
     {
@@ -23,6 +25,8 @@ class DocumentConversionService
             return match ($extension) {
                 'docx', 'doc' => $this->convertWordToHtml($filePath),
                 'pptx', 'ppt' => $this->convertPresentationToHtml($filePath),
+                'xlsx', 'xls' => $this->convertSpreadsheetToHtml($filePath),
+                'pdf' => $this->convertPdfToHtml($filePath),
                 default => null,
             };
         } catch (\Exception $e) {
@@ -59,7 +63,7 @@ class DocumentConversionService
 
         foreach ($presentation->getAllSlides() as $slideIndex => $slide) {
             $slideNum = $slideIndex + 1;
-            $html .= "<div class=\"doc-slide\" style=\"margin-bottom: 1.5rem; padding: 1rem; border: 1px solid #e9ecef; border-radius: 8px;\">";
+            $html .= '<div class="doc-viewer__logical-page">';
             $html .= "<h4 style=\"color: #6c757d; border-bottom: 1px solid #e9ecef; padding-bottom: 0.5rem;\">Slide {$slideNum}</h4>";
 
             foreach ($slide->getShapeCollection() as $shape) {
@@ -98,6 +102,101 @@ class DocumentConversionService
         return $this->sanitizeHtml($html);
     }
 
+    protected function convertSpreadsheetToHtml(string $filePath): ?string
+    {
+        $spreadsheet = SpreadsheetIOFactory::load($filePath);
+        $html = '';
+
+        foreach ($spreadsheet->getAllSheets() as $sheetIndex => $sheet) {
+            $sheetTitle = e($sheet->getTitle());
+            $html .= '<div class="doc-viewer__logical-page">';
+            $html .= "<h4 style=\"color: #6c757d; border-bottom: 1px solid #e9ecef; padding-bottom: 0.5rem;\">Sheet: {$sheetTitle}</h4>";
+
+            $rows = $sheet->toArray(null, true, true, true);
+            if (empty($rows)) {
+                $html .= '<p style="color: #6c757d;">Empty sheet</p>';
+                $html .= '</div>';
+                continue;
+            }
+
+            $html .= '<table style="width: 100%; border-collapse: collapse; margin: 0.5rem 0;">';
+
+            $isFirstRow = true;
+            foreach ($rows as $row) {
+                // Skip completely empty rows
+                $hasData = false;
+                foreach ($row as $cell) {
+                    if ($cell !== null && $cell !== '') {
+                        $hasData = true;
+                        break;
+                    }
+                }
+                if (!$hasData) continue;
+
+                $tag = $isFirstRow ? 'th' : 'td';
+                $html .= '<tr>';
+                foreach ($row as $cell) {
+                    $cellValue = e($cell ?? '');
+                    $style = 'border: 1px solid #dee2e6; padding: 0.4rem 0.6rem; font-size: 0.85rem;';
+                    if ($isFirstRow) {
+                        $style .= ' background: #f8f9fa; font-weight: 600;';
+                    }
+                    $html .= "<{$tag} style=\"{$style}\">{$cellValue}</{$tag}>";
+                }
+                $html .= '</tr>';
+                $isFirstRow = false;
+            }
+
+            $html .= '</table>';
+            $html .= '</div>';
+        }
+
+        return $this->sanitizeHtml($html);
+    }
+
+    protected function convertPdfToHtml(string $filePath): ?string
+    {
+        $parser = new PdfParser();
+        $pdf = $parser->parseFile($filePath);
+        $pages = $pdf->getPages();
+        $html = '';
+
+        if (empty($pages)) {
+            return null;
+        }
+
+        foreach ($pages as $pageIndex => $page) {
+            $pageNum = $pageIndex + 1;
+            $text = $page->getText();
+
+            if (empty(trim($text))) {
+                $html .= '<div class="doc-viewer__logical-page">';
+                $html .= "<h4 style=\"color: #6c757d; border-bottom: 1px solid #e9ecef; padding-bottom: 0.5rem;\">Page {$pageNum}</h4>";
+                $html .= '<p style="color: #adb5bd; font-style: italic;">This page contains non-text content (images, diagrams, etc.) that cannot be rendered inline.</p>';
+                $html .= '</div>';
+                continue;
+            }
+
+            $html .= '<div class="doc-viewer__logical-page">';
+            $html .= "<h4 style=\"color: #6c757d; border-bottom: 1px solid #e9ecef; padding-bottom: 0.5rem;\">Page {$pageNum}</h4>";
+
+            // Convert text to HTML paragraphs
+            $lines = preg_split('/\n{2,}/', trim($text));
+            foreach ($lines as $paragraph) {
+                $paragraph = trim($paragraph);
+                if (empty($paragraph)) continue;
+                // Preserve single newlines as <br>
+                $paragraph = e($paragraph);
+                $paragraph = nl2br($paragraph);
+                $html .= '<p>' . $paragraph . '</p>';
+            }
+
+            $html .= '</div>';
+        }
+
+        return $this->sanitizeHtml($html);
+    }
+
     public function sanitizeHtml(string $html): string
     {
         $config = \HTMLPurifier_Config::createDefault();
@@ -106,7 +205,7 @@ class DocumentConversionService
         );
         $config->set('HTML.AllowedAttributes', 'class,style,src,alt,width,height,href');
         // Only use CSS properties that HTMLPurifier actually supports
-        $config->set('CSS.AllowedProperties', 'color,background-color,font-size,font-weight,text-align,margin,padding,border,text-decoration,font-style,font-family');
+        $config->set('CSS.AllowedProperties', 'color,background-color,font-size,font-weight,text-align,margin,padding,border,text-decoration,font-style,font-family,border-collapse,width');
         $config->set('Cache.DefinitionImpl', null);
         $config->set('URI.AllowedSchemes', ['http' => true, 'https' => true, 'data' => true]);
 

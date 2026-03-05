@@ -63,6 +63,21 @@
                                 </div>
                                 @endif
                             </div>
+                            @php $currentSections = $course->target_sections ? explode(',', $course->target_sections) : []; @endphp
+                            <div class="mb-3">
+                                <label class="cb-field-label">Target Sections <span class="optional">(optional — leave empty for all sections)</span></label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach($sections as $sec)
+                                    <div class="form-check">
+                                        <input class="form-check-input section-checkbox" type="checkbox" value="{{ $sec }}" id="sec_{{ $sec }}"
+                                            {{ in_array($sec, old('target_sections') ? explode(',', old('target_sections')) : $currentSections) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="sec_{{ $sec }}">{{ $sec }}</label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                                <input type="hidden" name="target_sections" id="target_sections_input" value="{{ old('target_sections', $course->target_sections) }}">
+                                <div class="cb-field-hint">Select which sections can see this course. Leave all unchecked for all sections.</div>
+                            </div>
                             <div class="mb-3">
                                 <label class="cb-field-label">Description <span class="optional">(optional)</span></label>
                                 <textarea class="form-control @error('description') is-invalid @enderror"
@@ -114,4 +129,17 @@
         </form>
     </div>
 </div>
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sectionCheckboxes = document.querySelectorAll('.section-checkbox');
+    const hiddenInput = document.getElementById('target_sections_input');
+    function syncSections() {
+        const checked = [...sectionCheckboxes].filter(cb => cb.checked).map(cb => cb.value);
+        hiddenInput.value = checked.join(',');
+    }
+    sectionCheckboxes.forEach(cb => cb.addEventListener('change', syncSections));
+});
+</script>
+@endpush
 @endsection

@@ -93,12 +93,12 @@
                             @endif
 
                             <label class="cb-upload-area">
-                                <input type="file" class="d-none" name="document" accept=".pdf,.doc,.docx,.ppt,.pptx"
+                                <input type="file" class="d-none" name="document" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
                                        onchange="handleDocumentUpload(this)">
                                 <i class="fas fa-cloud-upload-alt d-block"></i>
                                 <div class="cb-upload-area__text">
                                     <strong>{{ $assessment->file_path ? 'Upload new file to replace' : 'Click to upload' }}</strong> or drag and drop<br>
-                                    <small>DOCX, PPTX (editable) or PDF (view-only) &mdash; max 10MB</small>
+                                    <small>DOCX, PPTX, XLSX, PDF &mdash; max 10MB</small>
                                 </div>
                                 <span class="upload-name" id="uploadFileName"></span>
                             </label>
@@ -186,13 +186,7 @@ async function handleDocumentUpload(input) {
     document.getElementById('pdfWarning').classList.add('d-none');
     document.getElementById('convertingSpinner').classList.add('d-none');
 
-    if (ext === 'pdf') {
-        document.getElementById('pdfWarning').classList.remove('d-none');
-        document.getElementById('editorSection').classList.add('d-none');
-        return;
-    }
-
-    if (['docx', 'pptx', 'doc', 'ppt'].includes(ext)) {
+    if (['docx', 'pptx', 'doc', 'ppt', 'pdf', 'xlsx', 'xls'].includes(ext)) {
         document.getElementById('convertingSpinner').classList.remove('d-none');
 
         try {

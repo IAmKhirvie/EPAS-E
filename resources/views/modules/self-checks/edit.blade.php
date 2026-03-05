@@ -393,8 +393,7 @@ function handleFilePreview(input) {
     preview.classList.add('d-none');
     spinner.classList.add('d-none');
     pdfNotice.classList.add('d-none');
-    if (['pdf', 'xlsx', 'xls'].includes(ext)) { pdfNotice.classList.remove('d-none'); return; }
-    if (['docx', 'pptx', 'doc', 'ppt'].includes(ext)) {
+    if (['docx', 'pptx', 'doc', 'ppt', 'pdf', 'xlsx', 'xls'].includes(ext)) {
         spinner.classList.remove('d-none');
         var formData = new FormData();
         formData.append('document', file);

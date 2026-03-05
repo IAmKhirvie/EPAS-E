@@ -111,6 +111,23 @@
         pointer-events: none;
         border-radius: 0 0 4px 4px;
     }
+    .doc-viewer__logical-page {
+        padding: 0.5rem 0;
+    }
+    .doc-viewer__logical-page table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .doc-viewer__logical-page table th,
+    .doc-viewer__logical-page table td {
+        border: 1px solid #dee2e6;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+    }
+    .doc-viewer__logical-page table th {
+        background: #f8f9fa;
+        font-weight: 600;
+    }
 
     /* Side-by-side layout */
     .da-header {
@@ -302,12 +319,12 @@
                     </button>
                 </div>
             </div>
-            @elseif($assessment->is_pdf)
+            @elseif($assessment->is_pdf && !$assessment->document_content)
             <div class="doc-viewer" style="padding-bottom: 1.5rem;">
                 <div class="doc-viewer__page d-flex flex-column align-items-center justify-content-center text-center" style="min-height: 300px;">
                     <i class="fas fa-file-pdf" style="font-size: 3rem; color: #dc3545; margin-bottom: 1rem;"></i>
                     <h5>PDF Document</h5>
-                    <p class="text-muted mb-3">This document is a PDF and can only be viewed by downloading it.</p>
+                    <p class="text-muted mb-3">This document could not be previewed. Download to view.</p>
                     <a href="{{ route('document-assessments.download', $assessment) }}" class="btn btn-primary">
                         <i class="fas fa-download me-1"></i>Download PDF
                     </a>
@@ -522,47 +539,68 @@ document.addEventListener('DOMContentLoaded', function() {
     var prevBtn = document.getElementById('docPrev');
     var nextBtn = document.getElementById('docNext');
     var pageInfo = document.getElementById('docPageInfo');
+    var currentPage = 1;
 
-    var PAGE_HEIGHT, totalHeight, totalPages, currentPage = 1;
+    // Check for logical pages (PPTX slides, PDF pages, XLSX sheets)
+    var logicalPages = content.querySelectorAll('.doc-viewer__logical-page');
+    var useLogicalPages = logicalPages.length > 1;
 
-    function update() {
-        totalHeight = content.scrollHeight;
-        PAGE_HEIGHT = page.clientHeight;
-        totalPages = Math.max(1, Math.ceil(totalHeight / PAGE_HEIGHT));
+    if (useLogicalPages) {
+        var totalPages = logicalPages.length;
+        fade.style.display = 'none';
+        page.style.overflowY = 'auto';
+        page.style.overflowX = 'hidden';
+        page.style.scrollbarWidth = 'thin';
 
-        if (totalPages <= 1) {
-            nav.style.display = 'none';
-            fade.style.display = 'none';
-            return;
+        function showLogicalPage() {
+            logicalPages.forEach(function(lp, i) {
+                lp.style.display = (i === currentPage - 1) ? 'block' : 'none';
+            });
+            if (totalPages <= 1) { nav.style.display = 'none'; return; }
+            nav.style.display = 'flex';
+            pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+            page.scrollTop = 0;
         }
-
-        nav.style.display = 'flex';
-        pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
-
-        prevBtn.disabled = currentPage <= 1;
-        nextBtn.disabled = currentPage >= totalPages;
-
-        page.scrollTop = (currentPage - 1) * PAGE_HEIGHT;
-        fade.style.display = currentPage < totalPages ? 'block' : 'none';
+        showLogicalPage();
+        prevBtn.addEventListener('click', function() { if (currentPage > 1) { currentPage--; showLogicalPage(); } });
+        nextBtn.addEventListener('click', function() { if (currentPage < totalPages) { currentPage++; showLogicalPage(); } });
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (e.key === 'ArrowLeft' && currentPage > 1) { currentPage--; showLogicalPage(); }
+            if (e.key === 'ArrowRight' && currentPage < totalPages) { currentPage++; showLogicalPage(); }
+        });
+    } else {
+        // Fallback: scroll-based pagination for DOCX and other single-flow content
+        var PAGE_HEIGHT, totalHeight, totalPages;
+        function update() {
+            totalHeight = content.scrollHeight;
+            PAGE_HEIGHT = page.clientHeight;
+            totalPages = Math.max(1, Math.ceil(totalHeight / PAGE_HEIGHT));
+            if (totalPages <= 1) { nav.style.display = 'none'; fade.style.display = 'none'; return; }
+            nav.style.display = 'flex';
+            pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+            page.scrollTop = (currentPage - 1) * PAGE_HEIGHT;
+            fade.style.display = currentPage < totalPages ? 'block' : 'none';
+        }
+        page.classList.add('doc-viewer__page--scrollable');
+        page.style.scrollbarWidth = 'none';
+        var s = document.createElement('style');
+        s.textContent = '#docPage::-webkit-scrollbar{display:none}';
+        document.head.appendChild(s);
+        prevBtn.addEventListener('click', function() { if (currentPage > 1) { currentPage--; update(); } });
+        nextBtn.addEventListener('click', function() { if (currentPage < totalPages) { currentPage++; update(); } });
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (e.key === 'ArrowLeft' && currentPage > 1) { currentPage--; update(); }
+            if (e.key === 'ArrowRight' && currentPage < totalPages) { currentPage++; update(); }
+        });
+        update();
+        window.addEventListener('resize', update);
     }
-
-    page.classList.add('doc-viewer__page--scrollable');
-    page.style.scrollbarWidth = 'none';
-    var s = document.createElement('style');
-    s.textContent = '#docPage::-webkit-scrollbar{display:none}';
-    document.head.appendChild(s);
-
-    prevBtn.addEventListener('click', function() { if (currentPage > 1) { currentPage--; update(); } });
-    nextBtn.addEventListener('click', function() { if (currentPage < totalPages) { currentPage++; update(); } });
-
-    document.addEventListener('keydown', function(e) {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-        if (e.key === 'ArrowLeft' && currentPage > 1) { currentPage--; update(); }
-        if (e.key === 'ArrowRight' && currentPage < totalPages) { currentPage++; update(); }
-    });
-
-    update();
-    window.addEventListener('resize', update);
 });
 </script>
 

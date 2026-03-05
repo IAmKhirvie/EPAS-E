@@ -19,7 +19,8 @@ class Course extends Model
         'sector',
         'is_active',
         'order',
-        'instructor_id'
+        'instructor_id',
+        'target_sections',
     ];
 
     protected $casts = [
@@ -60,5 +61,25 @@ class Course extends Model
     public function scopeByInstructor($query, $instructorId)
     {
         return $query->where('instructor_id', $instructorId);
+    }
+
+    /**
+     * Scope: courses visible to a given section.
+     * Null/empty target_sections means visible to ALL sections.
+     */
+    public function scopeForSection($query, ?string $section)
+    {
+        if (!$section) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($section) {
+            $q->whereNull('target_sections')
+              ->orWhere('target_sections', '')
+              ->orWhere('target_sections', $section)
+              ->orWhere('target_sections', 'like', $section . ',%')
+              ->orWhere('target_sections', 'like', '%,' . $section . ',%')
+              ->orWhere('target_sections', 'like', '%,' . $section);
+        });
     }
 }

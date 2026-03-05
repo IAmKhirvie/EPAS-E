@@ -7,7 +7,23 @@
         </div>
     </div>
 
+    @if($topic->document_content)
+    @include('components.document-viewer-css')
+    @include('components.document-viewer', [
+        'documentContent' => $topic->document_content,
+        'filePath' => $topic->file_path,
+        'originalFilename' => $topic->original_filename,
+        'downloadRoute' => route('topics.download', $topic),
+    ])
     @if($topic->file_path)
+    <div class="mb-2 text-end">
+        <a href="{{ route('topics.download', $topic) }}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-download me-1"></i>Download Original
+        </a>
+    </div>
+    @endif
+    @include('components.document-viewer-js')
+    @elseif($topic->file_path)
     <div class="mb-4">
         <a href="{{ route('topics.download', $topic) }}" class="btn btn-outline-primary btn-sm">
             <i class="fas fa-download me-1"></i>{{ $topic->original_filename }}
