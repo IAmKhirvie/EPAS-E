@@ -541,11 +541,4 @@ class PHPMailerService
         }
     }
 
-    /**
-     * Get the last debug output from SMTP communication
-     */
-    public function getDebugOutput(): string
-    {
-        return $this->debugOutput;
-    }
 }

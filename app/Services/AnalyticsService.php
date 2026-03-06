@@ -387,46 +387,4 @@ class AnalyticsService
         return $data;
     }
 
-    /**
-     * Calculate statistics for a single module.
-     *
-     * @param Module $module
-     * @return array
-     */
-    private function calculateModuleStats(Module $module): array
-    {
-        $moduleClass = Module::class;
-
-        $totalAttempts = UserProgress::where('progressable_type', $moduleClass)
-            ->where('progressable_id', $module->id)
-            ->whereNotNull('score')
-            ->count();
-
-        $passedCount = UserProgress::where('progressable_type', $moduleClass)
-            ->where('progressable_id', $module->id)
-            ->whereIn('status', ['passed', 'completed'])
-            ->count();
-
-        $failedCount = UserProgress::where('progressable_type', $moduleClass)
-            ->where('progressable_id', $module->id)
-            ->where('status', 'failed')
-            ->count();
-
-        $avgScore = UserProgress::where('progressable_type', $moduleClass)
-            ->where('progressable_id', $module->id)
-            ->whereNotNull('score')
-            ->avg('score');
-
-        return [
-            'id' => $module->id,
-            'name' => $module->module_title ?? $module->module_name ?? "Module {$module->id}",
-            'module_number' => $module->module_number ?? '',
-            'total_attempts' => $totalAttempts,
-            'passed' => $passedCount,
-            'failed' => $failedCount,
-            'pass_rate' => $totalAttempts > 0 ? round(($passedCount / $totalAttempts) * 100, 1) : 0,
-            'fail_rate' => $totalAttempts > 0 ? round(($failedCount / $totalAttempts) * 100, 1) : 0,
-            'average_score' => round($avgScore ?? 0, 1),
-        ];
-    }
 }

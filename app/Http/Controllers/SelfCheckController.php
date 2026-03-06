@@ -13,6 +13,7 @@ use App\Services\DocumentConversionService;
 use App\Http\Requests\StoreSelfCheckRequest;
 use App\Http\Requests\UpdateSelfCheckRequest;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -427,26 +428,7 @@ class SelfCheckController extends Controller
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|mimetypes:image/jpeg,image/png,image/gif,image/webp|max:' . config('joms.uploads.max_image_size', 5120),
         ]);
-
-        try {
-            $file = $request->file('image');
-            $filename = 'quiz_' . uniqid() . '.' . $file->getClientOriginalExtension();
-
-            // Store in public storage
-            $path = $file->storeAs('quiz-images', $filename, 'public');
-
-            return response()->json([
-                'success' => true,
-                'url' => '/storage/' . $path,
-                'path' => $path,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Self-check image upload failed', [
-                'error' => $e->getMessage(),
-                'user_id' => auth()->id(),
-            ]);
-            return response()->json(['error' => 'Failed to upload image. Please try again.'], 500);
-        }
+        return $this->uploadMedia($request->file('image'), 'quiz-images', 'quiz_', 'image');
     }
 
     public function edit(InformationSheet $informationSheet, SelfCheck $selfCheck)
@@ -610,7 +592,7 @@ class SelfCheckController extends Controller
 
     public function show(SelfCheck $selfCheck)
     {
-        $selfCheck->load(['questions', 'informationSheet.module.course']);
+        $selfCheck->load(['questions', 'informationSheet.module.course', 'submissions.user']);
         return view('modules.self-checks.show', compact('selfCheck'));
     }
 
@@ -632,7 +614,7 @@ class SelfCheckController extends Controller
                 ->with('info', 'No self-check available for this information sheet yet.');
         }
 
-        $selfCheck->load(['questions', 'informationSheet.module.course']);
+        $selfCheck->load(['questions', 'informationSheet.module.course', 'submissions.user']);
         return view('modules.self-checks.show', compact('selfCheck'));
     }
 
@@ -705,9 +687,17 @@ class SelfCheckController extends Controller
             $selfCheck->loadMissing('informationSheet.module.course.instructor');
             app(NotificationService::class)->notifySubmissionReceived(auth()->user(), 'self-check', $selfCheck);
 
-            return view('modules.self-checks.results', compact(
-                'selfCheck', 'submission', 'results', 'score', 'totalPoints', 'percentage', 'passed'
-            ));
+            // Store results in session and redirect (Post-Redirect-Get)
+            session()->flash('sc_results', [
+                'submission_id' => $submission->id,
+                'results' => $results,
+                'score' => $score,
+                'totalPoints' => $totalPoints,
+                'percentage' => $percentage,
+                'passed' => $passed,
+            ]);
+
+            return redirect()->route('self-checks.results', $selfCheck);
         } catch (\Exception $e) {
             Log::error('Self-check submit failed', [
                 'error' => $e->getMessage(),
@@ -715,6 +705,72 @@ class SelfCheckController extends Controller
             ]);
             return back()->withInput()->with('error', 'Failed to submit self-check. Please try again.');
         }
+    }
+
+    /**
+     * Show quiz results after submission.
+     */
+    public function results(SelfCheck $selfCheck)
+    {
+        $selfCheck->load(['questions', 'informationSheet.module.course']);
+
+        // Try session flash first (just submitted)
+        $sessionResults = session('sc_results');
+
+        if ($sessionResults && $sessionResults['submission_id']) {
+            $submission = $selfCheck->submissions()->find($sessionResults['submission_id']);
+            if ($submission) {
+                $results = $sessionResults['results'];
+                $score = $sessionResults['score'];
+                $totalPoints = $sessionResults['totalPoints'];
+                $percentage = $sessionResults['percentage'];
+                $passed = $sessionResults['passed'];
+                return view('modules.self-checks.results', compact(
+                    'selfCheck', 'submission', 'results', 'score', 'totalPoints', 'percentage', 'passed'
+                ));
+            }
+        }
+
+        // Fallback: show latest submission for this user
+        $submission = $selfCheck->submissions()
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->first();
+
+        if (!$submission) {
+            return redirect()->route('self-checks.show', $selfCheck)
+                ->with('error', 'No submission found.');
+        }
+
+        $score = $submission->score;
+        $totalPoints = $submission->total_points;
+        $percentage = $submission->percentage;
+        $passed = $submission->passed;
+        $results = [];
+
+        // Rebuild results from stored answers
+        $storedAnswers = json_decode($submission->answers, true) ?? [];
+        foreach ($selfCheck->questions as $question) {
+            $userAnswer = $storedAnswers[$question->id] ?? null;
+            $isCorrect = $this->gradingService->gradeQuestion($question, $userAnswer);
+            $pointsEarned = 0;
+            if ($isCorrect === true) {
+                $pointsEarned = $question->points;
+            } elseif (is_numeric($isCorrect)) {
+                $pointsEarned = round($question->points * $isCorrect, 2);
+            }
+            $results[] = [
+                'question' => $question,
+                'user_answer' => $userAnswer,
+                'is_correct' => $isCorrect === true,
+                'partial_credit' => is_numeric($isCorrect) ? $isCorrect : null,
+                'points_earned' => $pointsEarned,
+            ];
+        }
+
+        return view('modules.self-checks.results', compact(
+            'selfCheck', 'submission', 'results', 'score', 'totalPoints', 'percentage', 'passed'
+        ));
     }
 
     /*
@@ -731,24 +787,7 @@ class SelfCheckController extends Controller
         $request->validate([
             'audio' => 'required|mimes:mp3,wav,ogg,m4a,webm|mimetypes:audio/mpeg,audio/wav,audio/ogg,audio/mp4,audio/x-m4a,audio/webm|max:' . config('joms.uploads.max_audio_size', 20480),
         ]);
-
-        try {
-            $file = $request->file('audio');
-            $filename = 'quiz_audio_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('quiz-audio', $filename, 'public');
-
-            return response()->json([
-                'success' => true,
-                'url' => '/storage/' . $path,
-                'path' => $path,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Self-check audio upload failed', [
-                'error' => $e->getMessage(),
-                'user_id' => auth()->id(),
-            ]);
-            return response()->json(['error' => 'Failed to upload audio. Please try again.'], 500);
-        }
+        return $this->uploadMedia($request->file('audio'), 'quiz-audio', 'quiz_audio_', 'audio');
     }
 
     /**
@@ -759,11 +798,14 @@ class SelfCheckController extends Controller
         $request->validate([
             'video' => 'required|mimes:mp4,webm,ogg,mov|mimetypes:video/mp4,video/webm,video/ogg,video/quicktime|max:' . config('joms.uploads.max_video_size', 102400),
         ]);
+        return $this->uploadMedia($request->file('video'), 'quiz-video', 'quiz_video_', 'video');
+    }
 
+    private function uploadMedia(UploadedFile $file, string $folder, string $prefix, string $type): \Illuminate\Http\JsonResponse
+    {
         try {
-            $file = $request->file('video');
-            $filename = 'quiz_video_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('quiz-video', $filename, 'public');
+            $filename = $prefix . uniqid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs($folder, $filename, 'public');
 
             return response()->json([
                 'success' => true,
@@ -771,11 +813,11 @@ class SelfCheckController extends Controller
                 'path' => $path,
             ]);
         } catch (\Exception $e) {
-            Log::error('Self-check video upload failed', [
+            Log::error("Self-check {$type} upload failed", [
                 'error' => $e->getMessage(),
                 'user_id' => auth()->id(),
             ]);
-            return response()->json(['error' => 'Failed to upload video. Please try again.'], 500);
+            return response()->json(['error' => "Failed to upload {$type}. Please try again."], 500);
         }
     }
 }

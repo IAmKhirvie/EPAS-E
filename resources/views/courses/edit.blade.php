@@ -47,7 +47,7 @@
                                            name="sector" value="{{ old('sector', $course->sector) }}">
                                     @error('sector')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
-                                @if(auth()->user()->role === 'admin' && isset($instructors))
+                                @if(auth()->user()->role === \App\Constants\Roles::ADMIN && isset($instructors))
                                 <div class="col-md-6 mb-3">
                                     <label class="cb-field-label">Assigned Instructor <span class="optional">(optional)</span></label>
                                     <select class="form-select @error('instructor_id') is-invalid @enderror" name="instructor_id">
@@ -98,7 +98,7 @@
                         </div>
                     </div>
 
-                    @if(in_array(auth()->user()->role, ['admin', 'instructor']) && $course->modules->isEmpty())
+                    @if(in_array(auth()->user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]) && $course->modules->isEmpty())
                     <div class="cb-section">
                         <div class="cb-section__title" style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Danger Zone</div>
                         <div class="cb-settings" style="border: 1px solid #fecaca; background: #fef2f2;">

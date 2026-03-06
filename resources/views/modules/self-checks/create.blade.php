@@ -39,6 +39,16 @@
 /* Points input */
 .points-input { width: 70px; }
 
+/* Keyword tags input */
+.keyword-tags { display: flex; flex-wrap: wrap; gap: 0.375rem; padding: 0.5rem; border: 1px solid #dee2e6; border-radius: 6px; background: #fff; min-height: 42px; cursor: text; transition: border-color 0.15s; }
+.keyword-tags:focus-within { border-color: #86b7fe; box-shadow: 0 0 0 0.2rem rgba(13,110,253,.15); }
+.keyword-tag { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.5rem 0.2rem 0.65rem; background: #e3f2fd; color: #1565c0; border-radius: 4px; font-size: 0.82rem; font-weight: 500; animation: tagIn 0.15s ease; }
+@keyframes tagIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.keyword-tag .tag-remove { background: none; border: none; color: #1565c0; cursor: pointer; padding: 0 0.1rem; font-size: 0.9rem; line-height: 1; opacity: 0.7; transition: opacity 0.15s; }
+.keyword-tag .tag-remove:hover { opacity: 1; color: #c62828; }
+.keyword-tags input { border: none; outline: none; flex: 1; min-width: 100px; font-size: 0.85rem; padding: 0.15rem 0; background: transparent; }
+.keyword-tags input::placeholder { color: #adb5bd; }
+
 /* Question field spacing (used in JS templates) */
 .question-field { margin-bottom: 1rem; }
 .question-field:last-child { margin-bottom: 0; }
@@ -712,6 +722,40 @@ function handleFilePreview(input) {
     }
 }
 
+// Keyword Tags — global functions (called from inline handlers)
+function handleKeywordInput(e, index) {
+    if (e.key !== 'Enter' && e.key !== ',') return;
+    e.preventDefault();
+    var val = e.target.value.trim().replace(/,$/,'').trim();
+    if (!val) return;
+    addKeywordTag(index, val);
+    e.target.value = '';
+}
+function addKeywordTag(index, keyword) {
+    var container = document.querySelector('.keyword-tags[data-index="' + index + '"]');
+    var input = container.querySelector('input');
+    var existing = container.querySelectorAll('.keyword-tag');
+    for (var i = 0; i < existing.length; i++) {
+        if (existing[i].dataset.keyword.toLowerCase() === keyword.toLowerCase()) return;
+    }
+    var tag = document.createElement('span');
+    tag.className = 'keyword-tag';
+    tag.dataset.keyword = keyword;
+    tag.innerHTML = keyword + '<button type="button" class="tag-remove" onclick="removeKeywordTag(this, ' + index + ')">&times;</button>';
+    container.insertBefore(tag, input);
+    syncKeywordHidden(index);
+}
+function removeKeywordTag(btn, index) {
+    btn.parentElement.remove();
+    syncKeywordHidden(index);
+}
+function syncKeywordHidden(index) {
+    var container = document.querySelector('.keyword-tags[data-index="' + index + '"]');
+    var hidden = document.querySelector('.keyword-hidden[data-index="' + index + '"]');
+    var tags = container.querySelectorAll('.keyword-tag');
+    hidden.value = Array.from(tags).map(function(t) { return t.dataset.keyword; }).join(',');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     /*=========================================================================
       QUIZ BUILDER JAVASCRIPT
@@ -1092,21 +1136,29 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    // Short Answer Fields
-    function getShortAnswerFields(index) {
+    // Keyword Tags HTML helper
+    function getKeywordTagsHTML(index) {
         return `
             <div class="question-field">
                 <label class="cb-field-label">
                     <i class="fas fa-key me-1"></i>
                     Keywords for Auto-Grading <span class="optional">(optional)</span>
                 </label>
-                <input type="text" class="form-control" name="questions[${index}][correct_answer]"
-                       placeholder="keyword1, keyword2, keyword3">
+                <div class="keyword-tags" data-index="${index}" onclick="this.querySelector('input').focus()">
+                    <input type="text" placeholder="Type a keyword and press Enter..."
+                           onkeydown="handleKeywordInput(event, ${index})">
+                </div>
+                <input type="hidden" name="questions[${index}][correct_answer]" class="keyword-hidden" data-index="${index}" value="">
                 <div class="cb-field-hint">
                     <i class="fas fa-info-circle me-1"></i>
-                    Enter keywords that must appear in the answer. Leave empty for manual grading.
+                    Type a keyword and press Enter to add it. Each keyword found in the student's answer earns partial credit. Leave empty for manual grading only.
                 </div>
-            </div>
+            </div>`;
+    }
+
+    // Short Answer Fields
+    function getShortAnswerFields(index) {
+        return getKeywordTagsHTML(index) + `
             <div class="question-field">
                 <label class="cb-field-label">
                     <i class="fas fa-book me-1"></i>
@@ -1150,7 +1202,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Essay Fields
     function getEssayFields(index) {
-        return `
+        return getKeywordTagsHTML(index) + `
             <div class="question-field">
                 <label class="cb-field-label">
                     <i class="fas fa-ruler me-1"></i>
@@ -1158,10 +1210,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 </label>
                 <input type="number" class="form-control" name="questions[${index}][options][min_words]"
                        placeholder="50" min="0">
-                <div class="cb-field-hint">
-                    <i class="fas fa-info-circle me-1"></i>
-                    Essay questions require manual grading. Set a minimum word count to ensure detailed responses.
-                </div>
             </div>
             <div class="question-field">
                 <label class="cb-field-label">
@@ -1171,7 +1219,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <textarea class="form-control" name="questions[${index}][options][rubric]" rows="3"
                           placeholder="Enter grading criteria or rubric..."></textarea>
             </div>
-            <input type="hidden" name="questions[${index}][correct_answer]" value="essay">
         `;
     }
 

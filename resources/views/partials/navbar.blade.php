@@ -140,9 +140,8 @@
             @php $user = Auth::user(); @endphp
             {{-- Desktop: compact avatar button --}}
             <button class="user-button user-button--desktop" id="user-menu-btn">
-                <div class="avatar">
-                    <img id="navbar-avatar" src="{{ $user->profile_image_url }}" alt="User Avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                    <span class="avatar-fallback" id="navbar-fallback" style="display: {{ $user->profile_image ? 'none' : 'flex' }};">{{ $user->initials }}</span>
+                <div class="avatar avatar--icon">
+                    <i class="fas fa-user"></i>
                 </div>
             </button>
             {{-- Mobile: ID card strip button --}}
