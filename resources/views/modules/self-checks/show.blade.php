@@ -25,7 +25,7 @@
                 </h4>
                 <p class="text-muted mb-0">{{ $selfCheck->check_number }}</p>
             </div>
-            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'instructor')
+            @if(in_array(auth()->user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]))
             <div class="dropdown">
                 <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
                     <i class="fas fa-cog"></i>
@@ -78,38 +78,15 @@
             @endif
 
             {{-- Document Viewer --}}
-            @if($selfCheck->document_content)
-            <div class="doc-viewer" id="docViewer">
-                <div class="doc-viewer__page" id="docPage">
-                    <div id="docContent">
-                        {!! $selfCheck->document_content !!}
-                    </div>
-                    <div class="doc-viewer__fade-bottom" id="docFade"></div>
-                </div>
-                <div class="doc-viewer__nav" id="docNav">
-                    <button class="doc-viewer__nav-btn" id="docPrev" title="Previous page">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <span class="doc-viewer__page-info" id="docPageInfo">Page 1 of 1</span>
-                    <button class="doc-viewer__nav-btn" id="docNext" title="Next page">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
-            @elseif($selfCheck->file_path)
-            <div class="doc-viewer" style="padding-bottom: 1.5rem;">
-                <div class="doc-viewer__page d-flex flex-column align-items-center justify-content-center text-center" style="min-height: 200px;">
-                    <i class="fas fa-file-{{ str_contains($selfCheck->original_filename ?? '', '.pdf') ? 'pdf text-danger' : 'alt text-secondary' }}" style="font-size: 2.5rem; margin-bottom: 0.75rem;"></i>
-                    <p class="mb-2"><strong>{{ $selfCheck->original_filename }}</strong></p>
-                    <a href="{{ route('self-checks.download', $selfCheck) }}" class="btn btn-sm btn-primary">
-                        <i class="fas fa-download me-1"></i>Download to View
-                    </a>
-                </div>
-            </div>
-            @endif
+            @include('components.document-viewer', [
+                'documentContent' => $selfCheck->document_content,
+                'filePath' => $selfCheck->file_path,
+                'originalFilename' => $selfCheck->original_filename,
+                'downloadRoute' => route('self-checks.download', $selfCheck),
+            ])
 
             {{-- ═══════ Student: Quiz Questions ═══════ --}}
-            @if(auth()->user()->role === 'student')
+            @if(auth()->user()->role === \App\Constants\Roles::STUDENT)
 
                 @if($selfCheck->due_date && now()->gt($selfCheck->due_date))
                 <div class="alert alert-danger mt-3">
@@ -122,13 +99,6 @@
                     <strong>No attempts remaining.</strong> You have used all {{ $selfCheck->max_attempts }} attempt(s) for this self-check.
                 </div>
                 @else
-
-                @if($selfCheck->time_limit)
-                <div class="assessment-timer" id="assessmentTimer">
-                    <i class="fas fa-stopwatch me-1"></i>
-                    <span id="timerDisplay">{{ $selfCheck->time_limit }}:00</span>
-                </div>
-                @endif
 
                 <form action="{{ route('self-checks.submit', $selfCheck) }}" method="POST" id="selfCheckForm">
                     @csrf
@@ -288,9 +258,9 @@
                     <strong>{{ $selfCheck->total_points }}</strong>
                 </div>
                 @if($selfCheck->time_limit)
-                <div class="sc-sidebar__row">
-                    <span>Time Limit</span>
-                    <strong>{{ $selfCheck->time_limit }} min</strong>
+                <div class="sc-sidebar__row sc-timer-row" id="sidebarTimerRow">
+                    <span><i class="fas fa-stopwatch me-1"></i>Timer</span>
+                    <strong id="sidebarTimerDisplay" class="sc-timer-value">{{ $selfCheck->time_limit }}:00</strong>
                 </div>
                 @endif
                 @if($selfCheck->due_date)
@@ -310,8 +280,16 @@
                 @if(auth()->user()->role === \App\Constants\Roles::STUDENT)
                 <div class="sc-sidebar__row">
                     <span>Attempts</span>
-                    <strong>{{ $attemptCount }} / {{ $selfCheck->max_attempts ?? 'Unlimited' }}</strong>
+                    <strong>{{ $attemptCount }} / {{ $selfCheck->max_attempts ?? '∞' }}</strong>
                 </div>
+                @if($selfCheck->max_attempts !== null)
+                <div class="sc-sidebar__row">
+                    <span>Remaining</span>
+                    <strong class="{{ ($selfCheck->max_attempts - $attemptCount) <= 1 ? 'text-danger' : 'text-success' }}">
+                        {{ max(0, $selfCheck->max_attempts - $attemptCount) }}
+                    </strong>
+                </div>
+                @endif
                 @endif
             </div>
 
@@ -330,7 +308,7 @@
             @endif
 
             {{-- Submit Button (students only) --}}
-            @if(auth()->user()->role === 'student' && !($selfCheck->due_date && now()->gt($selfCheck->due_date)) && !($attemptsExhausted))
+            @if(auth()->user()->role === \App\Constants\Roles::STUDENT && !($selfCheck->due_date && now()->gt($selfCheck->due_date)) && !($attemptsExhausted))
             <div class="sc-sidebar__group">
                 <button type="submit" form="selfCheckForm" class="btn btn-success w-100">
                     <i class="fas fa-paper-plane me-1"></i>Submit Answers
@@ -340,19 +318,37 @@
             @endif
 
             {{-- Submissions (Instructors/Admins) --}}
-            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'instructor')
+            @if(in_array(auth()->user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]))
+            @php
+                // Group by student, show latest submission per student
+                $latestByStudent = $selfCheck->submissions
+                    ->sortByDesc('created_at')
+                    ->groupBy('user_id')
+                    ->map(function ($group) {
+                        return (object) [
+                            'latest' => $group->first(),
+                            'attempts' => $group->count(),
+                            'user' => $group->first()->user,
+                        ];
+                    });
+            @endphp
             <div class="sc-sidebar__group">
-                <div class="sc-sidebar__label"><i class="fas fa-users me-1"></i>Submissions</div>
-                @if($selfCheck->submissions->count() > 0)
-                    @foreach($selfCheck->submissions->take(5) as $submission)
+                <div class="sc-sidebar__label"><i class="fas fa-users me-1"></i>Submissions ({{ $latestByStudent->count() }} students)</div>
+                @if($latestByStudent->count() > 0)
+                    @foreach($latestByStudent->take(5) as $entry)
                     <div class="sc-sidebar__row">
-                        <span>{{ $submission->user->first_name }} {{ $submission->user->last_name }}</span>
-                        <span class="badge bg-{{ $submission->passed ? 'success' : 'danger' }}">{{ number_format($submission->percentage, 1) }}%</span>
+                        <span>
+                            {{ $entry->user->first_name }} {{ $entry->user->last_name }}
+                            @if($entry->attempts > 1)
+                            <small class="text-muted">({{ $entry->attempts }}x)</small>
+                            @endif
+                        </span>
+                        <span class="badge bg-{{ $entry->latest->passed ? 'success' : 'danger' }}">{{ number_format($entry->latest->percentage, 1) }}%</span>
                     </div>
                     @endforeach
-                    @if($selfCheck->submissions->count() > 5)
+                    @if($latestByStudent->count() > 5)
                     <div class="text-center text-muted" style="font-size: 0.8rem; padding: 0.25rem;">
-                        + {{ $selfCheck->submissions->count() - 5 }} more
+                        + {{ $latestByStudent->count() - 5 }} more students
                     </div>
                     @endif
                 @else
@@ -371,6 +367,7 @@
 </div>
 
 @push('styles')
+@include('components.document-viewer-css')
 <style>
 /* Strip the content-area visual container but keep flex/overflow structure */
 .sc-content-reset {
@@ -491,43 +488,29 @@
     border-bottom: none;
 }
 
-/* Document viewer */
-.doc-viewer { position: relative; background: #f0f0f0; border-radius: 8px; padding: 1.5rem 1.5rem 0; margin-bottom: 1rem; }
-.doc-viewer__page { background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 4px; padding: 2.5rem 2rem; height: 500px; max-height: 500px; overflow: hidden !important; position: relative; line-height: 1.8; font-size: 0.95rem; word-wrap: break-word; overflow-wrap: break-word; }
-.doc-viewer__page img { max-width: 100% !important; height: auto !important; }
-.doc-viewer__page * { max-width: 100% !important; box-sizing: border-box; }
-.doc-viewer__page table { table-layout: fixed; word-wrap: break-word; }
-.doc-viewer__page--scrollable { overflow-y: auto !important; overflow-x: hidden !important; scroll-behavior: smooth; }
-.doc-viewer__page h1, .doc-viewer__page h2, .doc-viewer__page h3 { margin-top: 0.8em; margin-bottom: 0.4em; color: #1a1a1a; }
-.doc-viewer__page table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-.doc-viewer__page table th, .doc-viewer__page table td { border: 1px solid #dee2e6; padding: 0.5rem 0.75rem; font-size: 0.9rem; }
-.doc-viewer__page table th { background: #f8f9fa; font-weight: 600; }
-.doc-viewer__page ul, .doc-viewer__page ol { padding-left: 1.5rem; }
-.doc-viewer__page p { margin-bottom: 0.75rem; }
-.doc-viewer__nav { display: flex; align-items: center; justify-content: center; gap: 1rem; padding: 0.75rem 0; user-select: none; }
-.doc-viewer__nav-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #dee2e6; background: #fff; color: #495057; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; font-size: 0.85rem; }
-.doc-viewer__nav-btn:hover:not(:disabled) { background: #e9ecef; border-color: #adb5bd; }
-.doc-viewer__nav-btn:disabled { opacity: 0.35; cursor: default; }
-.doc-viewer__page-info { font-size: 0.85rem; color: #6c757d; min-width: 90px; text-align: center; }
-.doc-viewer__fade-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 40px; background: linear-gradient(transparent, #fff); pointer-events: none; border-radius: 0 0 4px 4px; }
-.doc-viewer__logical-page { padding: 0.5rem 0; }
-.doc-viewer__logical-page table { width: 100%; border-collapse: collapse; }
-.doc-viewer__logical-page table th, .doc-viewer__logical-page table td { border: 1px solid #dee2e6; padding: 0.4rem 0.6rem; font-size: 0.85rem; }
-.doc-viewer__logical-page table th { background: #f8f9fa; font-weight: 600; }
-
-/* Timer */
-.assessment-timer {
-    position: fixed; top: 1rem; right: 1rem; z-index: 1050;
-    background: #1a1a2e; color: #fff;
-    padding: 0.6rem 1.2rem; border-radius: 50px;
-    font-weight: 700; font-size: 1.1rem; font-family: 'Courier New', monospace;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    display: flex; align-items: center; gap: 0.5rem;
-    transition: background 0.3s;
+/* Sidebar Timer */
+.sc-timer-row {
+    padding: 0.5rem 0 !important;
+    transition: background 0.4s, border-color 0.4s;
+    border-radius: 6px;
+    margin: 0 -0.5rem;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
 }
-.assessment-timer.warning { background: #f59e0b; color: #1a1a2e; }
-.assessment-timer.danger { background: #dc3545; animation: timer-pulse 1s infinite; }
-@keyframes timer-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+.sc-timer-value {
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    letter-spacing: 0.04em;
+    transition: color 0.4s;
+}
+.sc-timer-row.timer-green .sc-timer-value { color: #198754; }
+.sc-timer-row.timer-yellow { background: rgba(255, 193, 7, 0.1); }
+.sc-timer-row.timer-yellow .sc-timer-value { color: #b8860b; }
+.sc-timer-row.timer-orange { background: rgba(253, 126, 20, 0.12); }
+.sc-timer-row.timer-orange .sc-timer-value { color: #e65100; }
+.sc-timer-row.timer-red { background: rgba(220, 53, 69, 0.1); animation: timer-pulse 1s infinite; }
+.sc-timer-row.timer-red .sc-timer-value { color: #dc3545; font-weight: 800; }
+@keyframes timer-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
 /* Dark mode */
 .dark-mode .sc-header,
@@ -576,89 +559,16 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @if($selfCheck->document_content)
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var page = document.getElementById('docPage');
-    if (!page) return;
-    var content = document.getElementById('docContent');
-    var fade = document.getElementById('docFade');
-    var nav = document.getElementById('docNav');
-    var prevBtn = document.getElementById('docPrev');
-    var nextBtn = document.getElementById('docNext');
-    var pageInfo = document.getElementById('docPageInfo');
-    var currentPage = 1;
-
-    // Check for logical pages (PPTX slides, PDF pages, XLSX sheets)
-    var logicalPages = content.querySelectorAll('.doc-viewer__logical-page');
-    var useLogicalPages = logicalPages.length > 1;
-
-    if (useLogicalPages) {
-        var totalPages = logicalPages.length;
-        fade.style.display = 'none';
-        page.style.overflowY = 'auto';
-        page.style.overflowX = 'hidden';
-        page.style.scrollbarWidth = 'thin';
-
-        function showLogicalPage() {
-            logicalPages.forEach(function(lp, i) {
-                lp.style.display = (i === currentPage - 1) ? 'block' : 'none';
-            });
-            if (totalPages <= 1) { nav.style.display = 'none'; return; }
-            nav.style.display = 'flex';
-            pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
-            prevBtn.disabled = currentPage <= 1;
-            nextBtn.disabled = currentPage >= totalPages;
-            page.scrollTop = 0;
-        }
-        showLogicalPage();
-        prevBtn.addEventListener('click', function() { if (currentPage > 1) { currentPage--; showLogicalPage(); } });
-        nextBtn.addEventListener('click', function() { if (currentPage < totalPages) { currentPage++; showLogicalPage(); } });
-        document.addEventListener('keydown', function(e) {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
-            if (e.key === 'ArrowLeft' && currentPage > 1) { currentPage--; showLogicalPage(); }
-            if (e.key === 'ArrowRight' && currentPage < totalPages) { currentPage++; showLogicalPage(); }
-        });
-    } else {
-        // Fallback: scroll-based pagination for DOCX and other single-flow content
-        var PAGE_HEIGHT, totalHeight, totalPages;
-        function update() {
-            totalHeight = content.scrollHeight;
-            PAGE_HEIGHT = page.clientHeight;
-            totalPages = Math.max(1, Math.ceil(totalHeight / PAGE_HEIGHT));
-            if (totalPages <= 1) { nav.style.display = 'none'; fade.style.display = 'none'; return; }
-            nav.style.display = 'flex';
-            pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
-            prevBtn.disabled = currentPage <= 1;
-            nextBtn.disabled = currentPage >= totalPages;
-            page.scrollTop = (currentPage - 1) * PAGE_HEIGHT;
-            fade.style.display = currentPage < totalPages ? 'block' : 'none';
-        }
-        page.classList.add('doc-viewer__page--scrollable');
-        page.style.scrollbarWidth = 'none';
-        var s = document.createElement('style');
-        s.textContent = '#docPage::-webkit-scrollbar{display:none}';
-        document.head.appendChild(s);
-        prevBtn.addEventListener('click', function() { if (currentPage > 1) { currentPage--; update(); } });
-        nextBtn.addEventListener('click', function() { if (currentPage < totalPages) { currentPage++; update(); } });
-        document.addEventListener('keydown', function(e) {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
-            if (e.key === 'ArrowLeft' && currentPage > 1) { currentPage--; update(); }
-            if (e.key === 'ArrowRight' && currentPage < totalPages) { currentPage++; update(); }
-        });
-        update();
-        window.addEventListener('resize', update);
-    }
-});
-</script>
+@include('components.document-viewer-js')
 @endif
 
-@if($selfCheck->time_limit && auth()->user()->role === 'student' && !($selfCheck->due_date && now()->gt($selfCheck->due_date)))
+@if($selfCheck->time_limit && auth()->user()->role === \App\Constants\Roles::STUDENT && !($selfCheck->due_date && now()->gt($selfCheck->due_date)) && !$attemptsExhausted)
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    var timerEl = document.getElementById('assessmentTimer');
-    var displayEl = document.getElementById('timerDisplay');
+    var timerRow = document.getElementById('sidebarTimerRow');
+    var displayEl = document.getElementById('sidebarTimerDisplay');
     var form = document.getElementById('selfCheckForm');
-    if (!timerEl || !displayEl || !form) return;
+    if (!timerRow || !displayEl || !form) return;
 
     var totalSeconds = {{ $selfCheck->time_limit }} * 60;
     var storageKey = 'sc_timer_{{ $selfCheck->id }}_' + '{{ auth()->id() }}';
@@ -673,10 +583,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var submitted = false;
 
+    function getTimerClass(seconds) {
+        if (seconds <= 60) return 'timer-red';
+        if (seconds <= 180) return 'timer-orange';
+        if (seconds <= 300) return 'timer-yellow';
+        return 'timer-green';
+    }
+
     function tick() {
         if (totalSeconds <= 0) {
             displayEl.textContent = '0:00';
-            timerEl.className = 'assessment-timer danger';
+            timerRow.className = 'sc-sidebar__row sc-timer-row timer-red';
             if (!submitted) {
                 submitted = true;
                 localStorage.removeItem(storageKey);
@@ -688,9 +605,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var m = Math.floor(totalSeconds / 60);
         var s = totalSeconds % 60;
         displayEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
-        var pct = totalSeconds / ({{ $selfCheck->time_limit }} * 60);
-        if (pct <= 0.1) { timerEl.className = 'assessment-timer danger'; }
-        else if (pct <= 0.25) { timerEl.className = 'assessment-timer warning'; }
+        timerRow.className = 'sc-sidebar__row sc-timer-row ' + getTimerClass(totalSeconds);
         totalSeconds--;
         setTimeout(tick, 1000);
     }

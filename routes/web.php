@@ -313,11 +313,7 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
     // Admin Dashboard
     Route::prefix('admin')->name('admin.')->middleware('check.role:admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/dashboard-data', [DashboardController::class, 'getAdminDashboardData']);
     });
-
-    // Instructor Dashboard Data
-    Route::get('/instructor/dashboard-data', [DashboardController::class, 'getInstructorDashboardData'])->middleware('check.role:admin,instructor');
 
     // Shared Dashboard Progress Endpoints
     Route::get('/dashboard/progress-data', [DashboardController::class, 'getProgressData']);
@@ -655,6 +651,7 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
     Route::get('/self-checks/{selfCheck}', [SelfCheckController::class, 'show'])->name('self-checks.show');
     Route::get('/self-checks/{selfCheck}/download', [SelfCheckController::class, 'download'])->name('self-checks.download');
     Route::post('/self-checks/{selfCheck}/submit', [SelfCheckController::class, 'submit'])->name('self-checks.submit');
+    Route::get('/self-checks/{selfCheck}/results', [SelfCheckController::class, 'results'])->name('self-checks.results');
     Route::get('/courses/{course}/module-{module}/information-sheets/{informationSheet}/self-check', [SelfCheckController::class, 'showBySheet'])->name('courses.modules.information-sheets.self-check');
 
     // Task Sheets

@@ -22,7 +22,7 @@
                         <a href="#appearance" class="list-group-item list-group-item-action" data-bs-toggle="list">
                             <i class="fas fa-palette me-2"></i> Appearance
                         </a>
-                        @if(Auth::user()->role === 'admin')
+                        @if(Auth::user()->role === \App\Constants\Roles::ADMIN)
                         <a href="#system" class="list-group-item list-group-item-action" data-bs-toggle="list">
                             <i class="fas fa-cog me-2"></i> System Settings
                         </a>
@@ -308,7 +308,7 @@
                 </div>
 
                 <!-- System Settings (Admin Only) -->
-                @if(Auth::user()->role === 'admin')
+                @if(Auth::user()->role === \App\Constants\Roles::ADMIN)
                 <div class="tab-pane fade" id="system">
                     <div class="card border-0 shadow-sm">
                         <div class="card-header bg-white border-0 py-3">

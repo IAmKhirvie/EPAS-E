@@ -923,9 +923,24 @@ h3.user-card-subtitle {
     transition: all 0.3s ease;
 }
 
+.avatar--icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--light);
+    font-size: 0.9rem;
+}
+
 .user-button:hover .avatar {
     border-color: var(--primary-dark);
     transform: scale(1.05);
+}
+
+.user-button:hover .avatar--icon {
+    background: var(--primary);
+    color: white;
 }
 
 /* Empty State */

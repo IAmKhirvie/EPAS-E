@@ -78,40 +78,6 @@ class MediaService
     }
 
     /**
-     * Create responsive images for an uploaded image.
-     */
-    public function createResponsiveImages(Media $media, array $sizes = [320, 640, 1024, 1920]): Media
-    {
-        if (!$media->is_image) {
-            return $media;
-        }
-
-        $responsiveImages = [];
-        $manager = new ImageManager(new Driver());
-        $originalPath = Storage::disk($media->disk)->path($media->getPath());
-
-        foreach ($sizes as $width) {
-            $image = $manager->read($originalPath);
-            $image->scaleDown(width: $width);
-
-            $responsiveName = pathinfo($media->file_name, PATHINFO_FILENAME) . "-{$width}w." . pathinfo($media->file_name, PATHINFO_EXTENSION);
-            $responsivePath = $media->collection_name . '/responsive/' . $responsiveName;
-
-            Storage::disk($media->disk)->put($responsivePath, $image->toJpeg(85));
-
-            $responsiveImages[$width] = [
-                'file_name' => $responsiveName,
-                'width' => $width,
-                'url' => Storage::disk($media->disk)->url($responsivePath),
-            ];
-        }
-
-        $media->update(['responsive_images' => $responsiveImages]);
-
-        return $media;
-    }
-
-    /**
      * Delete a media file and its record.
      */
     public function delete(Media $media): bool
@@ -184,31 +150,6 @@ class MediaService
     }
 
     /**
-     * Clean up orphaned media files.
-     */
-    public function cleanupOrphans(): int
-    {
-        $deleted = 0;
-        $mediaFiles = Media::pluck('file_name', 'collection_name')->toArray();
-
-        $collections = array_unique(array_keys($mediaFiles));
-
-        foreach ($collections as $collection) {
-            $files = Storage::disk($this->disk)->files($collection);
-
-            foreach ($files as $file) {
-                $fileName = basename($file);
-                if (!in_array($fileName, $mediaFiles[$collection] ?? [])) {
-                    Storage::disk($this->disk)->delete($file);
-                    $deleted++;
-                }
-            }
-        }
-
-        return $deleted;
-    }
-
-    /**
      * Generate a unique file name.
      */
     protected function generateFileName(UploadedFile $file): string
@@ -226,12 +167,4 @@ class MediaService
         return Str::uuid() . '.' . $extension;
     }
 
-    /**
-     * Set the disk to use.
-     */
-    public function setDisk(string $disk): self
-    {
-        $this->disk = $disk;
-        return $this;
-    }
 }

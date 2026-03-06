@@ -20,7 +20,7 @@
     @endif
 
     {{-- Student ID Missing Banner --}}
-    @if(strtolower(Auth::user()->role) === 'student' && empty(Auth::user()->student_id))
+    @if(Auth::user()->role === \App\Constants\Roles::STUDENT && empty(Auth::user()->student_id))
     <div class="alert alert-info alert-dismissible fade show d-flex align-items-center mb-4" role="alert"
          id="studentIdBanner" data-user-id="{{ Auth::id() }}">
         <i class="fas fa-id-card me-3" style="font-size: 1.5rem;"></i>
@@ -58,9 +58,9 @@
     <div class="row">
         <div class="col-12">
             <h1 class="h3 mb-4">
-                @if(strtolower(Auth::user()->role) === 'admin')
+                @if(Auth::user()->role === \App\Constants\Roles::ADMIN)
                     Admin Dashboard
-                @elseif(strtolower(Auth::user()->role) === 'instructor')
+                @elseif(Auth::user()->role === \App\Constants\Roles::INSTRUCTOR)
                     Instructor Dashboard
                 @else
                     Student Dashboard
@@ -71,7 +71,7 @@
 
     <!-- Overview Cards -->
     <div class="row mb-4">
-        @if(strtolower(Auth::user()->role) === 'admin')
+        @if(Auth::user()->role === \App\Constants\Roles::ADMIN)
             <div class="col-6 col-md-3 mb-3">
                 <div class="card text-center h-100 border-0 shadow-sm">
                     <div class="card-body py-3">
@@ -104,7 +104,7 @@
                     </div>
                 </div>
             </div>
-        @elseif(strtolower(Auth::user()->role) === 'instructor')
+        @elseif(Auth::user()->role === \App\Constants\Roles::INSTRUCTOR)
             <div class="col-6 col-md-3 mb-3">
                 <div class="card text-center h-100 border-0 shadow-sm">
                     <div class="card-body py-3">
@@ -235,7 +235,7 @@
                             }
 
                             // Add recent submissions (for instructors/admins)
-                            if(isset($recentSubmissions) && !in_array(strtolower(Auth::user()->role), ['student'])) {
+                            if(isset($recentSubmissions) && Auth::user()->role !== \App\Constants\Roles::STUDENT) {
                                 foreach($recentSubmissions as $submission) {
                                     $feedItems->push([
                                         'type' => 'submission',
@@ -322,7 +322,7 @@
                         <p class="mb-0">No matching results</p>
                     </div>
                 </div>
-                @if(in_array(Auth::user()->role, ['admin', 'instructor']))
+                @if(in_array(Auth::user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]))
                 <div class="card-footer bg-white text-center py-2">
                     <a href="{{ route('private.announcements.create') }}" class="btn btn-primary btn-sm">
                         <i class="fas fa-plus me-1"></i>New Announcement
@@ -340,7 +340,7 @@
                         <h6 class="mb-0">
                             <i class="fas fa-clock text-warning me-2"></i>Pending Requests
                             @php
-                                $pendingCount = strtolower(Auth::user()->role) === 'student'
+                                $pendingCount = Auth::user()->role === \App\Constants\Roles::STUDENT
                                     ? (isset($pendingActivities) ? $pendingActivities->count() : 0)
                                     : (($pendingEvaluations ?? 0) + ($pendingRegistrationsCount ?? 0));
                             @endphp
@@ -360,7 +360,7 @@
                         </div>
                     </div>
                     <div class="card-body p-0" class="dashboard-pending-scroll">
-                        @if(strtolower(Auth::user()->role) === 'student')
+                        @if(Auth::user()->role === \App\Constants\Roles::STUDENT)
                             {{-- Student Pending Activities --}}
                             @if(isset($pendingActivities) && $pendingActivities->count() > 0)
                                 <div class="list-group list-group-flush" id="pending-list">
@@ -457,9 +457,9 @@
         </div>
     </div>
 
-    @if(strtolower(Auth::user()->role) === 'student')
+    @if(Auth::user()->role === \App\Constants\Roles::STUDENT)
     <!-- Student: Recent Completed Section -->
-    <div class="row">
+    <div class="row mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-success bg-opacity-10">

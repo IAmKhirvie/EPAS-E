@@ -3,132 +3,8 @@
 @section('title', $assessment->title)
 
 @push('styles')
+@include('components.document-viewer-css')
 <style>
-    /* Document viewer */
-    .doc-viewer {
-        position: relative;
-        background: #f0f0f0;
-        border-radius: 8px;
-        padding: 1.5rem 1.5rem 0;
-    }
-    .doc-viewer__page {
-        background: #fff;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border-radius: 4px;
-        padding: 2.5rem 2rem;
-        min-height: 500px;
-        max-height: 600px;
-        overflow: hidden;
-        position: relative;
-        line-height: 1.8;
-        font-size: 0.95rem;
-    }
-    .doc-viewer__page--scrollable {
-        overflow-y: auto;
-        scroll-behavior: smooth;
-    }
-    .doc-viewer__page h1, .doc-viewer__page h2, .doc-viewer__page h3 {
-        margin-top: 0.8em;
-        margin-bottom: 0.4em;
-        color: #1a1a1a;
-    }
-    .doc-viewer__page table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 1rem 0;
-    }
-    .doc-viewer__page table th,
-    .doc-viewer__page table td {
-        border: 1px solid #dee2e6;
-        padding: 0.5rem 0.75rem;
-        font-size: 0.9rem;
-    }
-    .doc-viewer__page table th {
-        background: #f8f9fa;
-        font-weight: 600;
-    }
-    .doc-viewer__page ul, .doc-viewer__page ol {
-        padding-left: 1.5rem;
-    }
-    .doc-viewer__page p {
-        margin-bottom: 0.75rem;
-    }
-    .doc-viewer__page img {
-        max-width: 100% !important;
-        height: auto !important;
-    }
-    .doc-viewer__page * {
-        max-width: 100% !important;
-        box-sizing: border-box;
-    }
-    .doc-viewer__page table {
-        table-layout: fixed;
-        word-wrap: break-word;
-    }
-    .doc-viewer__nav {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
-        padding: 0.75rem 0;
-        user-select: none;
-    }
-    .doc-viewer__nav-btn {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        border: 1px solid #dee2e6;
-        background: #fff;
-        color: #495057;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.15s;
-        font-size: 0.85rem;
-    }
-    .doc-viewer__nav-btn:hover:not(:disabled) {
-        background: #e9ecef;
-        border-color: #adb5bd;
-    }
-    .doc-viewer__nav-btn:disabled {
-        opacity: 0.35;
-        cursor: default;
-    }
-    .doc-viewer__page-info {
-        font-size: 0.85rem;
-        color: #6c757d;
-        min-width: 90px;
-        text-align: center;
-    }
-    .doc-viewer__fade-bottom {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 40px;
-        background: linear-gradient(transparent, #fff);
-        pointer-events: none;
-        border-radius: 0 0 4px 4px;
-    }
-    .doc-viewer__logical-page {
-        padding: 0.5rem 0;
-    }
-    .doc-viewer__logical-page table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    .doc-viewer__logical-page table th,
-    .doc-viewer__logical-page table td {
-        border: 1px solid #dee2e6;
-        padding: 0.4rem 0.6rem;
-        font-size: 0.85rem;
-    }
-    .doc-viewer__logical-page table th {
-        background: #f8f9fa;
-        font-weight: 600;
-    }
-
     /* Side-by-side layout */
     .da-header {
         background: var(--cb-surface, #fff);
@@ -302,23 +178,12 @@
         {{-- Left: Document Viewer --}}
         <div class="da-viewer">
             @if($assessment->document_content)
-            <div class="doc-viewer" id="docViewer">
-                <div class="doc-viewer__page" id="docPage">
-                    <div id="docContent">
-                        {!! $assessment->document_content !!}
-                    </div>
-                    <div class="doc-viewer__fade-bottom" id="docFade"></div>
-                </div>
-                <div class="doc-viewer__nav" id="docNav">
-                    <button class="doc-viewer__nav-btn" id="docPrev" title="Previous page">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <span class="doc-viewer__page-info" id="docPageInfo">Page 1 of 1</span>
-                    <button class="doc-viewer__nav-btn" id="docNext" title="Next page">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
+            @include('components.document-viewer', [
+                'documentContent' => $assessment->document_content,
+                'filePath' => $assessment->file_path,
+                'originalFilename' => $assessment->original_filename,
+                'downloadRoute' => route('document-assessments.download', $assessment),
+            ])
             @elseif($assessment->is_pdf && !$assessment->document_content)
             <div class="doc-viewer" style="padding-bottom: 1.5rem;">
                 <div class="doc-viewer__page d-flex flex-column align-items-center justify-content-center text-center" style="min-height: 300px;">
@@ -528,81 +393,7 @@
 @endsection
 
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var page = document.getElementById('docPage');
-    if (!page) return;
-
-    var content = document.getElementById('docContent');
-    var fade = document.getElementById('docFade');
-    var nav = document.getElementById('docNav');
-    var prevBtn = document.getElementById('docPrev');
-    var nextBtn = document.getElementById('docNext');
-    var pageInfo = document.getElementById('docPageInfo');
-    var currentPage = 1;
-
-    // Check for logical pages (PPTX slides, PDF pages, XLSX sheets)
-    var logicalPages = content.querySelectorAll('.doc-viewer__logical-page');
-    var useLogicalPages = logicalPages.length > 1;
-
-    if (useLogicalPages) {
-        var totalPages = logicalPages.length;
-        fade.style.display = 'none';
-        page.style.overflowY = 'auto';
-        page.style.overflowX = 'hidden';
-        page.style.scrollbarWidth = 'thin';
-
-        function showLogicalPage() {
-            logicalPages.forEach(function(lp, i) {
-                lp.style.display = (i === currentPage - 1) ? 'block' : 'none';
-            });
-            if (totalPages <= 1) { nav.style.display = 'none'; return; }
-            nav.style.display = 'flex';
-            pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
-            prevBtn.disabled = currentPage <= 1;
-            nextBtn.disabled = currentPage >= totalPages;
-            page.scrollTop = 0;
-        }
-        showLogicalPage();
-        prevBtn.addEventListener('click', function() { if (currentPage > 1) { currentPage--; showLogicalPage(); } });
-        nextBtn.addEventListener('click', function() { if (currentPage < totalPages) { currentPage++; showLogicalPage(); } });
-        document.addEventListener('keydown', function(e) {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-            if (e.key === 'ArrowLeft' && currentPage > 1) { currentPage--; showLogicalPage(); }
-            if (e.key === 'ArrowRight' && currentPage < totalPages) { currentPage++; showLogicalPage(); }
-        });
-    } else {
-        // Fallback: scroll-based pagination for DOCX and other single-flow content
-        var PAGE_HEIGHT, totalHeight, totalPages;
-        function update() {
-            totalHeight = content.scrollHeight;
-            PAGE_HEIGHT = page.clientHeight;
-            totalPages = Math.max(1, Math.ceil(totalHeight / PAGE_HEIGHT));
-            if (totalPages <= 1) { nav.style.display = 'none'; fade.style.display = 'none'; return; }
-            nav.style.display = 'flex';
-            pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
-            prevBtn.disabled = currentPage <= 1;
-            nextBtn.disabled = currentPage >= totalPages;
-            page.scrollTop = (currentPage - 1) * PAGE_HEIGHT;
-            fade.style.display = currentPage < totalPages ? 'block' : 'none';
-        }
-        page.classList.add('doc-viewer__page--scrollable');
-        page.style.scrollbarWidth = 'none';
-        var s = document.createElement('style');
-        s.textContent = '#docPage::-webkit-scrollbar{display:none}';
-        document.head.appendChild(s);
-        prevBtn.addEventListener('click', function() { if (currentPage > 1) { currentPage--; update(); } });
-        nextBtn.addEventListener('click', function() { if (currentPage < totalPages) { currentPage++; update(); } });
-        document.addEventListener('keydown', function(e) {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-            if (e.key === 'ArrowLeft' && currentPage > 1) { currentPage--; update(); }
-            if (e.key === 'ArrowRight' && currentPage < totalPages) { currentPage++; update(); }
-        });
-        update();
-        window.addEventListener('resize', update);
-    }
-});
-</script>
+@include('components.document-viewer-js')
 
 {{-- Countdown Timer --}}
 @if($assessment->time_limit && auth()->user()->role === \App\Constants\Roles::STUDENT && !($assessment->submissions->where('user_id', auth()->id())->first()) && !($assessment->due_date && now()->gt($assessment->due_date)))

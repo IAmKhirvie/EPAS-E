@@ -52,7 +52,7 @@ if (!function_exists('getQuestionTypeBadgeColor')) {
     @endif
 
     {{-- Student: Take Self-Check --}}
-    @if(auth()->user()->role === 'student')
+    @if(auth()->user()->role === \App\Constants\Roles::STUDENT)
     <form action="{{ route('self-checks.submit', $selfCheck) }}" method="POST" data-inline-submit>
         @csrf
         @foreach($selfCheck->questions->sortBy('order') as $index => $question)

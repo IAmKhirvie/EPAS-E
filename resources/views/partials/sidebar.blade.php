@@ -2,38 +2,40 @@
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-content">
         <!-- User Profile Card -->
-        <div class="sidebar-profile">
-            <div class="profile-inner">
-                @php
-                $user = Auth::user();
-                @endphp
+        @php $user = Auth::user(); @endphp
+        <form id="avatar-form" action="{{ dynamic_route('profile.avatar.update') }}" method="POST" enctype="multipart/form-data" style="display: none;">
+            @csrf
+            <input type="file" id="avatar-upload" name="avatar" accept="image/png, image/jpeg">
+        </form>
 
-                <form id="avatar-form" action="{{ dynamic_route('profile.avatar.update') }}" method="POST" enctype="multipart/form-data" style="display: none;">
-                    @csrf
-                    <input type="file" id="avatar-upload" name="avatar" accept="image/png, image/jpeg">
-                </form>
-
-                <div class="avatar" data-tooltip="User Profile" onclick="document.getElementById('avatar-upload').click()">
-                    <img src="{{ $user->profile_image_url }}" alt="User Avatar" id="sidebar-avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                    <span class="avatar-fallback" id="sidebar-fallback" style="display: {{ $user->profile_image ? 'none' : 'flex' }};">{{ $user->initials }}</span>
-                </div>
-
-                <div class="profile-info">
-                    <h3 id="sidebar-username">{{ $user->first_name }} {{ $user->last_name }}</h3>
-                    <p class="profile-role" id="sidebar-role">{{ ucfirst($user->role) }}</p>
+        <div class="sidebar-profile" onclick="document.getElementById('avatar-upload').click()" style="cursor: pointer;"
+             data-tooltip="Change Photo">
+            <div class="sidebar-profile__bg"
+                 style="{{ $user->profile_image ? 'background-image: url(' . $user->profile_image_url . ');' : '' }}">
+                <div class="sidebar-profile__overlay"></div>
+                @if(!$user->profile_image)
+                <span class="sidebar-profile__initials" id="sidebar-fallback">{{ $user->initials }}</span>
+                @endif
+                <div class="sidebar-profile__info">
+                    <h3 class="sidebar-profile__name" id="sidebar-username">{{ $user->first_name }} {{ $user->last_name }}</h3>
+                    <div class="sidebar-profile__meta">
+                        <span class="sidebar-profile__role role-{{ $user->role }}" id="sidebar-role">{{ ucfirst($user->role) }}</span>
+                        @if($user->student_id)
+                        <span class="sidebar-profile__id" id="sidebar-employee-id">ID: {{ $user->student_id }}</span>
+                        @endif
+                    </div>
                     @if(!$user->hasVerifiedEmail())
-                    <a href="{{ route('settings.index') }}#profile" class="email-verify-badge" title="Click to verify your email">
+                    <a href="{{ route('settings.index') }}#profile" class="email-verify-badge" title="Click to verify your email" onclick="event.stopPropagation();">
                         <i class="fas fa-exclamation-circle"></i> Email not verified
                     </a>
                     @endif
                 </div>
-
-                <div class="profile-id">
-                    @if($user->student_id)
-                    ID: <span id="sidebar-employee-id">{{ $user->student_id }}</span>
-                    @else
-                    ID: <span id="sidebar-employee-id">{{ $user->id }}</span>
-                    @endif
+            </div>
+            {{-- Collapsed state: rounded-square photo --}}
+            <div class="sidebar-profile__collapsed">
+                <div class="sidebar-profile__collapsed-photo">
+                    <img src="{{ $user->profile_image_url }}" alt="Avatar" id="sidebar-avatar" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                    <span class="avatar-fallback" style="display: {{ $user->profile_image ? 'none' : 'flex' }};">{{ $user->initials }}</span>
                 </div>
             </div>
         </div>
@@ -54,10 +56,10 @@
 
                 <a href="{{ route('grades.index') }}" class="nav-item {{ Request::is('grades*') ? 'active' : '' }}" data-tooltip="Grades">
                     <i class="fas fa-graduation-cap"></i>
-                    <span>{{ Auth::user()->role === 'student' ? 'My Grades' : 'Grades' }}</span>
+                    <span>{{ Auth::user()->role === \App\Constants\Roles::STUDENT ? 'My Grades' : 'Grades' }}</span>
                 </a>
 
-                @if(in_array(strtolower(Auth::user()->role), ['admin', 'instructor']))
+                @if(in_array(Auth::user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]))
                 <a href="{{ route('analytics.dashboard') }}" class="nav-item {{ Request::is('analytics*') ? 'active' : '' }}" data-tooltip="Analytics">
                     <i class="fas fa-chart-pie"></i>
                     <span>Analytics</span>
@@ -67,7 +69,7 @@
         </div>
 
         <!-- Content Management for Admin and Instructors -->
-        @if(in_array(strtolower(Auth::user()->role), ['admin', 'instructor']))
+        @if(in_array(Auth::user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]))
         <div class="sidebar-section">
             <div class="sidebar-label">Content</div>
             <nav class="sidebar-nav">
@@ -80,7 +82,7 @@
         @endif
 
         <!-- For Admin -->
-        @if(strtolower(Auth::user()->role) === 'admin')
+        @if(Auth::user()->role === \App\Constants\Roles::ADMIN)
         <div class="sidebar-section">
             <div class="sidebar-label">Administration</div>
             <nav class="sidebar-nav">
@@ -144,7 +146,7 @@
         @endif
 
         <!-- For Instructors -->
-        @if(in_array(strtolower(Auth::user()->role), ['instructor']))
+        @if(Auth::user()->role === \App\Constants\Roles::INSTRUCTOR)
         <div class="sidebar-section">
             <div class="sidebar-label">Teaching</div>
             <nav class="sidebar-nav">
@@ -200,10 +202,10 @@
                 });
             });
 
-            // Also handle avatar tooltip
-            const avatar = sidebar.querySelector('.avatar[data-tooltip]');
-            if (avatar) {
-                avatar.addEventListener('mouseenter', function() {
+            // Also handle collapsed avatar tooltip
+            const collapsedAvatar = sidebar.querySelector('.sidebar-profile__collapsed');
+            if (collapsedAvatar) {
+                collapsedAvatar.addEventListener('mouseenter', function() {
                     if (!sidebar.classList.contains('collapsed')) return;
                     if (window.innerWidth < 1032) return;
                     const rect = this.getBoundingClientRect();

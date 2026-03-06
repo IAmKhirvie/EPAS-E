@@ -1,3 +1,37 @@
+// Keyword Tags — global functions (called from inline handlers)
+function handleKeywordInput(e, index) {
+    if (e.key !== 'Enter' && e.key !== ',') return;
+    e.preventDefault();
+    var val = e.target.value.trim().replace(/,$/,'').trim();
+    if (!val) return;
+    addKeywordTag(index, val);
+    e.target.value = '';
+}
+function addKeywordTag(index, keyword) {
+    var container = document.querySelector('.keyword-tags[data-index="' + index + '"]');
+    var input = container.querySelector('input');
+    var existing = container.querySelectorAll('.keyword-tag');
+    for (var i = 0; i < existing.length; i++) {
+        if (existing[i].dataset.keyword.toLowerCase() === keyword.toLowerCase()) return;
+    }
+    var tag = document.createElement('span');
+    tag.className = 'keyword-tag';
+    tag.dataset.keyword = keyword;
+    tag.innerHTML = keyword + '<button type="button" class="tag-remove" onclick="removeKeywordTag(this, ' + index + ')">&times;</button>';
+    container.insertBefore(tag, input);
+    syncKeywordHidden(index);
+}
+function removeKeywordTag(btn, index) {
+    btn.parentElement.remove();
+    syncKeywordHidden(index);
+}
+function syncKeywordHidden(index) {
+    var container = document.querySelector('.keyword-tags[data-index="' + index + '"]');
+    var hidden = document.querySelector('.keyword-hidden[data-index="' + index + '"]');
+    var tags = container.querySelectorAll('.keyword-tag');
+    hidden.value = Array.from(tags).map(function(t) { return t.dataset.keyword; }).join(',');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     /*=========================================================================
       QUIZ BUILDER JAVASCRIPT
@@ -378,21 +412,29 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    // Short Answer Fields
-    function getShortAnswerFields(index) {
+    // Keyword Tags HTML helper
+    function getKeywordTagsHTML(index) {
         return `
             <div class="question-field">
                 <label class="cb-field-label">
                     <i class="fas fa-key me-1"></i>
                     Keywords for Auto-Grading <span class="optional">(optional)</span>
                 </label>
-                <input type="text" class="form-control" name="questions[${index}][correct_answer]"
-                       placeholder="keyword1, keyword2, keyword3">
+                <div class="keyword-tags" data-index="${index}" onclick="this.querySelector('input').focus()">
+                    <input type="text" placeholder="Type a keyword and press Enter..."
+                           onkeydown="handleKeywordInput(event, ${index})">
+                </div>
+                <input type="hidden" name="questions[${index}][correct_answer]" class="keyword-hidden" data-index="${index}" value="">
                 <div class="cb-field-hint">
                     <i class="fas fa-info-circle me-1"></i>
-                    Enter keywords that must appear in the answer. Leave empty for manual grading.
+                    Type a keyword and press Enter to add it. Each keyword found in the student's answer earns partial credit. Leave empty for manual grading only.
                 </div>
-            </div>
+            </div>`;
+    }
+
+    // Short Answer Fields
+    function getShortAnswerFields(index) {
+        return getKeywordTagsHTML(index) + `
             <div class="question-field">
                 <label class="cb-field-label">
                     <i class="fas fa-book me-1"></i>
@@ -436,7 +478,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Essay Fields
     function getEssayFields(index) {
-        return `
+        return getKeywordTagsHTML(index) + `
             <div class="question-field">
                 <label class="cb-field-label">
                     <i class="fas fa-ruler me-1"></i>
@@ -444,10 +486,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 </label>
                 <input type="number" class="form-control" name="questions[${index}][options][min_words]"
                        placeholder="50" min="0">
-                <div class="cb-field-hint">
-                    <i class="fas fa-info-circle me-1"></i>
-                    Essay questions require manual grading. Set a minimum word count to ensure detailed responses.
-                </div>
             </div>
             <div class="question-field">
                 <label class="cb-field-label">
@@ -457,7 +495,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <textarea class="form-control" name="questions[${index}][options][rubric]" rows="3"
                           placeholder="Enter grading criteria or rubric..."></textarea>
             </div>
-            <input type="hidden" name="questions[${index}][correct_answer]" value="essay">
         `;
     }
 
@@ -1884,10 +1921,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 case 'fill_blank':
-                case 'short_answer':
                 case 'image_identification': {
                     const answerInput = card.querySelector(`[name="questions[${idx}][correct_answer]"]`);
                     if (answerInput) answerInput.value = q.correct_answer || '';
+                    break;
+                }
+
+                case 'short_answer': {
+                    // Restore keyword tags
+                    const keywords = (q.correct_answer || '').split(',').map(k => k.trim()).filter(k => k);
+                    keywords.forEach(k => addKeywordTag(idx, k));
+                    // Restore model answer
+                    const modelAnswer = card.querySelector(`[name="questions[${idx}][options][model_answer]"]`);
+                    if (modelAnswer && (q.metadata || {}).model_answer) modelAnswer.value = q.metadata.model_answer;
                     break;
                 }
 
@@ -1901,6 +1947,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 case 'essay': {
+                    // Restore keyword tags
+                    const essayKeywords = (q.correct_answer || '').split(',').map(k => k.trim()).filter(k => k && k !== 'essay');
+                    essayKeywords.forEach(k => addKeywordTag(idx, k));
+                    // Restore essay metadata
                     const metadata = q.metadata || {};
                     const minWords = card.querySelector(`[name="questions[${idx}][options][min_words]"]`);
                     if (minWords && metadata.min_words) minWords.value = metadata.min_words;

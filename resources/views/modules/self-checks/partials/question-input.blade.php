@@ -30,23 +30,23 @@
     {{-- True/False --}}
     @case('true_false')
         <div class="true-false-options d-flex gap-3">
-            <div class="form-check p-3 border rounded flex-fill text-center option-item" onclick="selectOption(this, {{ $question->id }}, 'true')">
+            <div class="tf-option p-3 border rounded flex-fill option-item" onclick="selectOption(this, {{ $question->id }}, 'true')">
                 <input class="form-check-input" type="radio"
                        name="answers[{{ $question->id }}]"
                        value="true"
                        id="q{{ $question->id }}_true"
                        required>
-                <label class="form-check-label w-100 cursor-pointer fs-5" for="q{{ $question->id }}_true">
+                <label class="form-check-label cursor-pointer fs-5" for="q{{ $question->id }}_true">
                     <i class="fas fa-check text-success me-2"></i>True
                 </label>
             </div>
-            <div class="form-check p-3 border rounded flex-fill text-center option-item" onclick="selectOption(this, {{ $question->id }}, 'false')">
+            <div class="tf-option p-3 border rounded flex-fill option-item" onclick="selectOption(this, {{ $question->id }}, 'false')">
                 <input class="form-check-input" type="radio"
                        name="answers[{{ $question->id }}]"
                        value="false"
                        id="q{{ $question->id }}_false"
                        required>
-                <label class="form-check-label w-100 cursor-pointer fs-5" for="q{{ $question->id }}_false">
+                <label class="form-check-label cursor-pointer fs-5" for="q{{ $question->id }}_false">
                     <i class="fas fa-times text-danger me-2"></i>False
                 </label>
             </div>
@@ -850,6 +850,19 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
+/* True/False: radio on left side, vertically centered */
+.tf-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-left: 1rem !important;
+}
+.tf-option .form-check-input {
+    float: none;
+    margin: 0;
+    flex-shrink: 0;
+}
+
 .option-item {
     cursor: pointer;
     transition: all 0.2s ease;

@@ -144,8 +144,27 @@ class SelfCheckGradingService
             case 'drag_drop':
                 return $this->gradeDragDropQuestion($question, $userAnswer);
 
+            case 'essay':
+                // Essays require manual grading; keyword matching if correct_answer has keywords
+                if (empty($question->correct_answer) || $question->correct_answer === 'essay') {
+                    return null;
+                }
+                $keywords = array_map('trim', explode(',', $question->correct_answer));
+                $keywords = array_filter($keywords);
+                if (empty($keywords)) {
+                    return null;
+                }
+                $answerLower = strtolower($userAnswer);
+                $matchedKeywords = 0;
+                foreach ($keywords as $keyword) {
+                    if (stripos($answerLower, strtolower($keyword)) !== false) {
+                        $matchedKeywords++;
+                    }
+                }
+                return $matchedKeywords / count($keywords);
+
             default:
-                return false;
+                return null; // Unknown types require manual grading
         }
     }
 
