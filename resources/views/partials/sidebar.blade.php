@@ -65,6 +65,17 @@
                     <span>Analytics</span>
                 </a>
                 @endif
+
+                @if(Auth::user()->role === \App\Constants\Roles::STUDENT)
+                <a href="{{ route('student.analytics') }}" class="nav-item {{ Request::is('student/analytics*') ? 'active' : '' }}" data-tooltip="My Analytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>My Analytics</span>
+                </a>
+                <a href="{{ route('student.classes') }}" class="nav-item {{ Request::is('student/classes*') ? 'active' : '' }}" data-tooltip="My Class">
+                    <i class="fas fa-users"></i>
+                    <span>My Class</span>
+                </a>
+                @endif
             </nav>
         </div>
 

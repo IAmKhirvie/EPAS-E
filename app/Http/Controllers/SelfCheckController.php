@@ -89,7 +89,9 @@ class SelfCheckController extends Controller
                     'passing_score' => $request->passing_score ?? config('joms.grading.default_passing_score', 70),
                     'total_points' => $totalPoints,
                     'max_attempts' => $request->max_attempts,
-                    'reveal_answers' => $request->has('reveal_answers') ? true : false,
+                    'reveal_answers' => $request->has('reveal_answers'),
+                    'randomize_questions' => $request->has('randomize_questions'),
+                    'randomize_options' => $request->has('randomize_options'),
                 ];
 
                 if ($request->hasFile('file')) {
@@ -489,7 +491,9 @@ class SelfCheckController extends Controller
                     'passing_score' => $request->passing_score,
                     'total_points' => $totalPoints,
                     'max_attempts' => $request->max_attempts,
-                    'reveal_answers' => $request->has('reveal_answers') ? true : false,
+                    'reveal_answers' => $request->has('reveal_answers'),
+                    'randomize_questions' => $request->has('randomize_questions'),
+                    'randomize_options' => $request->has('randomize_options'),
                 ];
 
                 if ($request->hasFile('file')) {

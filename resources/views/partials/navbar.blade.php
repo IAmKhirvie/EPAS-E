@@ -44,9 +44,9 @@
             </button>
         </div>
 
-        <!-- Notifications / Activity Feed -->
+        <!-- Notifications / Announcements -->
         <div class="navbar-item">
-            <button class="icon-button" id="notifications-btn" title="Activity Feed" aria-label="Activity Feed">
+            <button class="icon-button" id="notifications-btn" title="Announcements" aria-label="Announcements">
                 <i class="fas fa-bell" aria-hidden="true"></i>
                 @if(isset($recentAnnouncementsCount) && $recentAnnouncementsCount > 0)
                 <span class="notification-badge" id="notification-badge">
@@ -58,7 +58,7 @@
                 <div class="popover-header">
                     <div class="header-left">
                         <i class="fas fa-bullhorn me-2" aria-hidden="true"></i>
-                        <span>Activity Feed</span>
+                        <span>Announcements</span>
                     </div>
                     <a href="{{ route('private.announcements.index') }}" class="view-all-btn">
                         <i class="fas fa-list me-1" aria-hidden="true"></i>

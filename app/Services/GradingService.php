@@ -398,4 +398,156 @@ class GradingService
 
         return $summary;
     }
+
+    /**
+     * Get comprehensive analytics for a student.
+     */
+    public function getStudentAnalytics(User $user): array
+    {
+        $courses = Course::where('is_active', true)->with('modules')->get();
+
+        // Overall stats
+        $totalModules = 0;
+        $completedModules = 0;
+        $totalPercentage = 0;
+
+        // Component aggregates
+        $componentScores = [
+            'self_checks' => ['total' => 0, 'count' => 0],
+            'homeworks' => ['total' => 0, 'count' => 0],
+            'task_sheets' => ['total' => 0, 'count' => 0],
+            'job_sheets' => ['total' => 0, 'count' => 0],
+        ];
+
+        $moduleBreakdown = [];
+
+        foreach ($courses as $course) {
+            foreach ($course->modules as $module) {
+                $totalModules++;
+                $grade = $this->calculateModuleGrade($user, $module);
+
+                if ($grade['components']['total_submissions'] > 0) {
+                    $completedModules++;
+                    $totalPercentage += $grade['percentage'];
+                }
+
+                // Aggregate component scores
+                foreach (['self_checks', 'homeworks', 'task_sheets', 'job_sheets'] as $type) {
+                    if (isset($grade['components'][$type]) && $grade['components'][$type]['count'] > 0) {
+                        $componentScores[$type]['total'] += $grade['components'][$type]['percentage'];
+                        $componentScores[$type]['count']++;
+                    }
+                }
+
+                $moduleBreakdown[] = [
+                    'module' => $module,
+                    'course' => $course,
+                    'grade' => $grade,
+                ];
+            }
+        }
+
+        // Calculate averages for components
+        $componentAverages = [];
+        foreach ($componentScores as $type => $data) {
+            $componentAverages[$type] = $data['count'] > 0
+                ? round($data['total'] / $data['count'], 2)
+                : 0;
+        }
+
+        $overallAverage = $completedModules > 0 ? round($totalPercentage / $completedModules, 2) : 0;
+
+        return [
+            'overall_average' => $overallAverage,
+            'overall_grade' => $this->applyGradingScale($overallAverage),
+            'total_modules' => $totalModules,
+            'completed_modules' => $completedModules,
+            'progress_percentage' => $totalModules > 0 ? round(($completedModules / $totalModules) * 100, 2) : 0,
+            'component_averages' => $componentAverages,
+            'strengths' => $this->identifyStrengths($componentAverages),
+            'weaknesses' => $this->identifyWeaknesses($componentAverages),
+            'module_breakdown' => $moduleBreakdown,
+        ];
+    }
+
+    /**
+     * Identify top 3 strongest areas for a student.
+     */
+    public function identifyStrengths(array $componentAverages): array
+    {
+        $labels = [
+            'self_checks' => 'Quizzes (Self-Checks)',
+            'homeworks' => 'Homework Assignments',
+            'task_sheets' => 'Task Sheets',
+            'job_sheets' => 'Job Sheets',
+        ];
+
+        // Filter out components with zero score
+        $validScores = array_filter($componentAverages, fn($score) => $score > 0);
+
+        if (empty($validScores)) {
+            return [];
+        }
+
+        // Sort descending
+        arsort($validScores);
+
+        $strengths = [];
+        $count = 0;
+        foreach ($validScores as $type => $score) {
+            if ($count >= 3) break;
+            if ($score >= 75) { // Only consider passing scores as strengths
+                $strengths[] = [
+                    'type' => $type,
+                    'label' => $labels[$type] ?? $type,
+                    'score' => $score,
+                    'grade' => $this->applyGradingScale($score),
+                ];
+                $count++;
+            }
+        }
+
+        return $strengths;
+    }
+
+    /**
+     * Identify bottom 3 areas needing improvement.
+     */
+    public function identifyWeaknesses(array $componentAverages): array
+    {
+        $labels = [
+            'self_checks' => 'Quizzes (Self-Checks)',
+            'homeworks' => 'Homework Assignments',
+            'task_sheets' => 'Task Sheets',
+            'job_sheets' => 'Job Sheets',
+        ];
+
+        // Filter out components with zero score (no submissions)
+        $validScores = array_filter($componentAverages, fn($score) => $score > 0);
+
+        if (empty($validScores)) {
+            return [];
+        }
+
+        // Sort ascending
+        asort($validScores);
+
+        $weaknesses = [];
+        $count = 0;
+        foreach ($validScores as $type => $score) {
+            if ($count >= 3) break;
+            if ($score < 85) { // Consider below "Very Satisfactory" as areas for improvement
+                $weaknesses[] = [
+                    'type' => $type,
+                    'label' => $labels[$type] ?? $type,
+                    'score' => $score,
+                    'grade' => $this->applyGradingScale($score),
+                    'improvement_needed' => 85 - $score,
+                ];
+                $count++;
+            }
+        }
+
+        return $weaknesses;
+    }
 }

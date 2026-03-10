@@ -62,6 +62,7 @@ class TaskSheetController extends Controller
                     'file_path' => $filePath,
                     'original_filename' => $originalFilename,
                     'document_content' => $documentContent,
+                    'randomize_items' => $request->has('randomize_items'),
                 ]);
 
                 foreach ($request->items as $itemData) {
@@ -139,6 +140,7 @@ class TaskSheetController extends Controller
                 'file_path' => $filePath,
                 'original_filename' => $originalFilename,
                 'document_content' => $documentContent,
+                'randomize_items' => $request->has('randomize_items'),
             ]);
 
             return redirect()->route('content.management')

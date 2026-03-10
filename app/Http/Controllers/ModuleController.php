@@ -10,6 +10,7 @@ use App\Models\Topic;
 use App\Models\UserProgress;
 use App\Models\SelfCheck;
 use App\Services\ModuleService;
+use App\Services\PrerequisiteService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -21,10 +22,12 @@ use Illuminate\Support\Facades\Response;
 class ModuleController extends Controller
 {
     protected ModuleService $moduleService;
+    protected PrerequisiteService $prerequisiteService;
 
-    public function __construct(ModuleService $moduleService)
+    public function __construct(ModuleService $moduleService, PrerequisiteService $prerequisiteService)
     {
         $this->moduleService = $moduleService;
+        $this->prerequisiteService = $prerequisiteService;
     }
 
     public function store(Request $request, Course $course)
@@ -81,6 +84,21 @@ class ModuleController extends Controller
             return redirect()->route('courses.modules.show', [$course, $module, $module->slug]);
         }
 
+        $user = Auth::user();
+
+        // Check prerequisites for students
+        if ($user && $user->role === Roles::STUDENT) {
+            $unmetPrerequisites = $this->prerequisiteService->getUnmetPrerequisites($user, $module);
+
+            if ($unmetPrerequisites->isNotEmpty()) {
+                return view('modules.locked', [
+                    'module' => $module,
+                    'course' => $course,
+                    'unmetPrerequisites' => $unmetPrerequisites,
+                ]);
+            }
+        }
+
         $module->load([
             'informationSheets.selfChecks',
             'informationSheets.taskSheets',
@@ -88,6 +106,7 @@ class ModuleController extends Controller
             'informationSheets.documentAssessments',
             'informationSheets.topics',
             'course',
+            'prerequisites.prerequisiteModule',
         ]);
 
         return view('modules.show-unified', compact('module', 'course'));
@@ -208,7 +227,19 @@ class ModuleController extends Controller
             ->orderBy('course_name')
             ->get();
 
-        return view('modules.edit', compact('module', 'courses', 'course'));
+        // Get available modules for prerequisites (same course, excluding self)
+        $availablePrerequisites = Module::where('course_id', $course->id)
+            ->where('id', '!=', $module->id)
+            ->where('is_active', true)
+            ->orderBy('order')
+            ->get();
+
+        // Get current prerequisites
+        $currentPrerequisites = $module->prerequisites()
+            ->pluck('prerequisite_module_id')
+            ->toArray();
+
+        return view('modules.edit', compact('module', 'courses', 'course', 'availablePrerequisites', 'currentPrerequisites'));
     }
 
     public function update(Request $request, Course $course, Module $module)
@@ -228,13 +259,33 @@ class ModuleController extends Controller
             'introduction' => 'nullable|string',
             'learning_outcomes' => 'nullable|string',
             'is_active' => 'boolean',
+            'prerequisites' => 'nullable|array',
+            'prerequisites.*' => 'exists:modules,id',
         ]);
 
         try {
-            $module->update($validated);
+            DB::transaction(function () use ($validated, $module, $request) {
+                $module->update($validated);
+
+                // Update prerequisites if provided
+                if ($request->has('prerequisites')) {
+                    $this->prerequisiteService->syncPrerequisites(
+                        $module,
+                        $request->input('prerequisites', [])
+                    );
+                } else {
+                    // Clear prerequisites if none selected
+                    $this->prerequisiteService->syncPrerequisites($module, []);
+                }
+            });
 
             return redirect()->route('courses.show', $module->course_id)
                 ->with('success', 'Module updated successfully!');
+
+        } catch (\InvalidArgumentException $e) {
+            // Circular dependency error
+            return back()->withInput()
+                ->with('error', $e->getMessage());
 
         } catch (\Exception $e) {
             Log::error('Module update failed: ' . $e->getMessage());

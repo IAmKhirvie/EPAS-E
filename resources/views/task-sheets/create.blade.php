@@ -52,6 +52,15 @@
                                 <textarea class="form-control @error('instructions') is-invalid @enderror" name="instructions" rows="2" required>{{ old('instructions') }}</textarea>
                                 @error('instructions')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="cb-field-label d-block"><i class="fas fa-random text-primary me-1"></i> Randomization</label>
+                                <div class="form-check mt-2">
+                                    <input type="checkbox" class="form-check-input" name="randomize_items" id="randomize_items" value="1"
+                                           {{ old('randomize_items') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="randomize_items">Randomize task items order</label>
+                                </div>
+                                <small class="text-muted">Each student sees items in a different order</small>
+                            </div>
                         </div>
                     </div>
 

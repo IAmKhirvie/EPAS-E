@@ -56,6 +56,7 @@ class JobSheetController extends Controller
                     'tools_required' => $request->tools_required,
                     'safety_requirements' => $request->safety_requirements,
                     'reference_materials' => $request->reference_materials ?? [],
+                    'randomize_steps' => $request->has('randomize_steps'),
                 ]);
 
                 foreach ($request->steps as $stepData) {
@@ -128,6 +129,7 @@ class JobSheetController extends Controller
                 'tools_required' => $request->tools_required,
                 'safety_requirements' => $request->safety_requirements,
                 'reference_materials' => $request->reference_materials ?? [],
+                'randomize_steps' => $request->has('randomize_steps'),
             ]);
 
             return redirect()->route('content.management')

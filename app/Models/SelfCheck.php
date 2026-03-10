@@ -28,6 +28,8 @@ class SelfCheck extends Model
         'is_active',
         'max_attempts',
         'reveal_answers',
+        'randomize_questions',
+        'randomize_options',
     ];
 
     protected $casts = [
@@ -38,6 +40,8 @@ class SelfCheck extends Model
         'is_active' => 'boolean',
         'max_attempts' => 'integer',
         'reveal_answers' => 'boolean',
+        'randomize_questions' => 'boolean',
+        'randomize_options' => 'boolean',
     ];
 
     public function informationSheet(): BelongsTo
@@ -77,5 +81,41 @@ class SelfCheck extends Model
         $completedUsers = $this->submissions()->distinct('user_id')->count();
 
         return $totalStudents > 0 ? ($completedUsers / $totalStudents) * 100 : 0;
+    }
+
+    /**
+     * Get questions with optional randomization.
+     * Randomization is seeded per user to ensure consistency within a session.
+     */
+    public function getRandomizedQuestions(?int $userId = null): \Illuminate\Support\Collection
+    {
+        $questions = $this->questions()->with('options')->get();
+
+        if ($this->randomize_questions && $userId) {
+            // Seed the randomizer with user ID + self check ID for consistent randomization per user
+            $seed = $userId + $this->id;
+            $questions = $questions->shuffle($seed);
+        }
+
+        // Randomize options if enabled
+        if ($this->randomize_options && $userId) {
+            $questions = $questions->map(function ($question) use ($userId) {
+                if ($question->options && $question->options->count() > 0) {
+                    $seed = $userId + $question->id;
+                    $question->setRelation('options', $question->options->shuffle($seed));
+                }
+                return $question;
+            });
+        }
+
+        return $questions;
+    }
+
+    /**
+     * Check if any randomization is enabled.
+     */
+    public function hasRandomization(): bool
+    {
+        return $this->randomize_questions || $this->randomize_options;
     }
 }

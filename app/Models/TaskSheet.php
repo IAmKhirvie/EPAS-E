@@ -24,10 +24,12 @@ class TaskSheet extends Model
         'document_content',
         'estimated_duration',
         'difficulty_level',
+        'randomize_items',
     ];
 
     protected $casts = [
         'estimated_duration' => 'integer',
+        'randomize_items' => 'boolean',
     ];
 
     public function informationSheet(): BelongsTo
@@ -92,5 +94,20 @@ class TaskSheet extends Model
             return null;
         }
         return $submissions->avg('time_taken');
+    }
+
+    /**
+     * Get items with optional randomization.
+     */
+    public function getRandomizedItems(?int $userId = null): \Illuminate\Support\Collection
+    {
+        $items = $this->items;
+
+        if ($this->randomize_items && $userId) {
+            $seed = $userId + $this->id;
+            $items = $items->shuffle($seed);
+        }
+
+        return $items;
     }
 }

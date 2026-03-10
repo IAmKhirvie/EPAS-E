@@ -84,7 +84,7 @@ function initializeProgressCircles() {
     });
 }
 
-// Activity feed filtering and sorting
+// Announcements filtering and sorting
 function initializeActivityFeed() {
     var searchInput = document.getElementById('feed-search');
     var filterType = document.getElementById('feed-filter-type');

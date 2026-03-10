@@ -55,6 +55,14 @@
             <option value="pending">Pending</option>
             <option value="unverified">Unverified</option>
         </select>
+        @if(isset($isInstructorViewingStudents) && $isInstructorViewingStudents && count($instructorSections ?? []) > 1)
+            <select wire:model.live="sectionFilter" class="form-select form-select-sm" style="max-width: 160px;">
+                <option value="">All My Sections</option>
+                @foreach($instructorSections as $section)
+                    <option value="{{ $section }}">{{ $section }}</option>
+                @endforeach
+            </select>
+        @endif
     </div>
 
     {{-- Bulk Actions --}}
@@ -185,6 +193,9 @@
                         @endif
                     </th>
                     <th>Pending</th>
+                    @if(isset($isInstructorViewingStudents) && $isInstructorViewingStudents)
+                        <th>Avg Grade</th>
+                    @endif
                     <th style="cursor:pointer;" wire:click="sortBy('created_at')">
                         Joined
                         @if($sortField === 'created_at')
@@ -256,6 +267,22 @@
                                 <span class="text-muted">-</span>
                             @endif
                         </td>
+                        @if(isset($isInstructorViewingStudents) && $isInstructorViewingStudents)
+                            <td>
+                                @php
+                                    $progress = $studentProgress[$user->id] ?? ['average_grade' => 0, 'courses_count' => 0];
+                                    $gradeColor = $progress['average_grade'] >= 90 ? 'success' :
+                                                  ($progress['average_grade'] >= 85 ? 'info' :
+                                                  ($progress['average_grade'] >= 80 ? 'primary' :
+                                                  ($progress['average_grade'] >= 75 ? 'warning' : 'danger')));
+                                @endphp
+                                @if($progress['courses_count'] > 0)
+                                    <span class="badge bg-{{ $gradeColor }}">{{ $progress['average_grade'] }}%</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
+                        @endif
                         <td>
                             <small>{{ $user->created_at->format('M d, Y') }}</small>
                         </td>
@@ -264,6 +291,11 @@
                                 <a href="{{ route('private.users.edit', $user) }}" class="btn btn-outline-primary btn-sm" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
+                                @if(isset($isInstructorViewingStudents) && $isInstructorViewingStudents)
+                                    <a href="{{ route('grades.show', $user) }}" class="btn btn-outline-info btn-sm" title="View Grades">
+                                        <i class="fas fa-chart-bar"></i>
+                                    </a>
+                                @endif
                                 @if((int) $user->stat === 0)
                                     <button wire:click="approveUser({{ $user->id }})" class="btn btn-outline-success btn-sm" title="Approve">
                                         <i class="fas fa-check"></i>

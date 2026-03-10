@@ -152,4 +152,39 @@ class Module extends Model
 
         return $count > 0 ? round($totalScore / $count, 2) : null;
     }
+
+    /**
+     * Check if a user can access this module based on prerequisites.
+     */
+    public function canBeAccessedBy(User $user): bool
+    {
+        return $this->getUnmetPrerequisitesFor($user)->isEmpty();
+    }
+
+    /**
+     * Get unmet prerequisites for a user.
+     */
+    public function getUnmetPrerequisitesFor(User $user): \Illuminate\Support\Collection
+    {
+        $prerequisites = $this->prerequisites()->with('prerequisiteModule')->get();
+
+        return $prerequisites->filter(function ($prerequisite) use ($user) {
+            $prereqModule = $prerequisite->prerequisiteModule;
+            return $prereqModule && !$prereqModule->isCompletedBy($user);
+        })->map(function ($prerequisite) {
+            return $prerequisite->prerequisiteModule;
+        });
+    }
+
+    /**
+     * Get the prerequisite modules (the actual Module models).
+     */
+    public function getPrerequisiteModules(): \Illuminate\Support\Collection
+    {
+        return $this->prerequisites()
+            ->with('prerequisiteModule')
+            ->get()
+            ->map(fn($prereq) => $prereq->prerequisiteModule)
+            ->filter();
+    }
 }

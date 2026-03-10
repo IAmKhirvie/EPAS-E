@@ -104,6 +104,41 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- Prerequisites --}}
+                    @if(isset($availablePrerequisites) && $availablePrerequisites->count() > 0)
+                    <div class="cb-section">
+                        <div class="cb-section__title"><i class="fas fa-lock"></i> Prerequisites</div>
+                        <div class="cb-settings">
+                            <p class="text-muted small mb-3">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Select modules that students must complete before accessing this module.
+                                Students will see a locked message until they complete all prerequisites.
+                            </p>
+                            <div class="prerequisites-list">
+                                @foreach($availablePrerequisites as $prereqModule)
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox"
+                                               class="form-check-input"
+                                               id="prereq_{{ $prereqModule->id }}"
+                                               name="prerequisites[]"
+                                               value="{{ $prereqModule->id }}"
+                                               {{ in_array($prereqModule->id, old('prerequisites', $currentPrerequisites ?? [])) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="prereq_{{ $prereqModule->id }}">
+                                            <strong>{{ $prereqModule->module_number }}:</strong> {{ $prereqModule->module_title }}
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                            @error('prerequisites')
+                                <div class="text-danger small mt-2">{{ $message }}</div>
+                            @enderror
+                            @error('prerequisites.*')
+                                <div class="text-danger small mt-2">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    @endif
                 </div>
 
                 <div class="cb-footer">

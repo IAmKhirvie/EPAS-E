@@ -321,6 +321,22 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="cb-field-label d-block"><i class="fas fa-random text-primary me-1"></i> Randomization</label>
+                                    <div class="form-check mt-2">
+                                        <input type="checkbox" class="form-check-input" name="randomize_questions" id="randomize_questions" value="1"
+                                               {{ old('randomize_questions', $selfCheck->randomize_questions) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="randomize_questions">Randomize question order</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" name="randomize_options" id="randomize_options" value="1"
+                                               {{ old('randomize_options', $selfCheck->randomize_options) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="randomize_options">Randomize answer options</label>
+                                    </div>
+                                    <small class="text-muted">Each student sees questions/options in different order</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
                                 <div class="mb-0">
                                     <label class="cb-field-label">Description <span class="optional">(optional)</span></label>
                                     <textarea class="form-control @error('description') is-invalid @enderror" name="description" rows="2">{{ old('description', $selfCheck->description) }}</textarea>

@@ -59,6 +59,8 @@ use App\Http\Controllers\EnrollmentRequestController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\GradesController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\StudentAnalyticsController;
+use App\Http\Controllers\StudentClassController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\SettingsController;
@@ -786,6 +788,22 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
 
         // Cache Management
         Route::post('/refresh-cache', [AnalyticsController::class, 'refreshCache'])->name('refresh-cache');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Student Analytics Routes
+    |--------------------------------------------------------------------------
+    |
+    | Personal analytics dashboard for students to view their performance.
+    | Access restricted to student role.
+    |
+    */
+
+    Route::prefix('student')->name('student.')->middleware('check.role:student')->group(function () {
+        Route::get('/analytics', [StudentAnalyticsController::class, 'index'])->name('analytics');
+        Route::get('/analytics/module/{module}', [StudentAnalyticsController::class, 'moduleDetail'])->name('analytics.module');
+        Route::get('/classes', [StudentClassController::class, 'index'])->name('classes');
     });
 
     /*

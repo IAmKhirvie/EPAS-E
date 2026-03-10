@@ -24,10 +24,12 @@ class JobSheet extends Model
         'performance_criteria',
         'estimated_duration',
         'difficulty_level',
+        'randomize_steps',
     ];
 
     protected $casts = [
         'estimated_duration' => 'integer',
+        'randomize_steps' => 'boolean',
     ];
 
     public function informationSheet(): BelongsTo
@@ -112,5 +114,20 @@ class JobSheet extends Model
             return null;
         }
         return $submissions->avg('time_taken');
+    }
+
+    /**
+     * Get steps with optional randomization.
+     */
+    public function getRandomizedSteps(?int $userId = null): \Illuminate\Support\Collection
+    {
+        $steps = $this->steps;
+
+        if ($this->randomize_steps && $userId) {
+            $seed = $userId + $this->id;
+            $steps = $steps->shuffle($seed);
+        }
+
+        return $steps;
     }
 }

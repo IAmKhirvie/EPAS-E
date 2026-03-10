@@ -4,7 +4,9 @@ namespace App\Livewire;
 
 use App\Constants\Roles;
 use App\Models\Department;
+use App\Models\InstructorSection;
 use App\Models\User;
+use App\Services\GradingService;
 use App\Services\PendingItemsService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -33,11 +35,13 @@ class UserTable extends Component
     public string $bulkSection = '';
     public string $bulkSchoolYear = '';
     public string $bulkDepartment = '';
+    public string $sectionFilter = '';
 
     protected $queryString = [
         'search' => ['except' => ''],
         'roleFilter' => ['except' => '', 'as' => 'role'],
         'statusFilter' => ['except' => '', 'as' => 'status'],
+        'sectionFilter' => ['except' => '', 'as' => 'section'],
         'sortField' => ['except' => 'created_at', 'as' => 'sort'],
         'sortDirection' => ['except' => 'desc', 'as' => 'dir'],
     ];
@@ -219,9 +223,26 @@ class UserTable extends Component
         }
 
         if ($viewer->role === Roles::INSTRUCTOR && $effectiveRole === Roles::STUDENT) {
-            $viewer->advisory_section
-                ? $query->where('section', $viewer->advisory_section)
-                : $query->whereRaw('1 = 0');
+            // Get all sections assigned to this instructor
+            $instructorSections = InstructorSection::where('user_id', $viewer->id)
+                ->pluck('section')
+                ->toArray();
+
+            // Include advisory_section if set
+            if ($viewer->advisory_section && !in_array($viewer->advisory_section, $instructorSections)) {
+                $instructorSections[] = $viewer->advisory_section;
+            }
+
+            if (!empty($instructorSections)) {
+                // If a specific section filter is set, use it (if instructor has access)
+                if ($this->sectionFilter && in_array($this->sectionFilter, $instructorSections)) {
+                    $query->where('section', $this->sectionFilter);
+                } else {
+                    $query->whereIn('section', $instructorSections);
+                }
+            } else {
+                $query->whereRaw('1 = 0');
+            }
         }
 
         if ($this->search) {
@@ -279,8 +300,14 @@ class UserTable extends Component
         }
 
         if ($viewer->role === Roles::INSTRUCTOR && $this->routeRoleFilter === Roles::STUDENT) {
-            $viewer->advisory_section
-                ? $query->where('section', $viewer->advisory_section)
+            $instructorSections = InstructorSection::where('user_id', $viewer->id)
+                ->pluck('section')
+                ->toArray();
+            if ($viewer->advisory_section && !in_array($viewer->advisory_section, $instructorSections)) {
+                $instructorSections[] = $viewer->advisory_section;
+            }
+            !empty($instructorSections)
+                ? $query->whereIn('section', $instructorSections)
                 : $query->whereRaw('1 = 0');
         }
 
@@ -301,6 +328,8 @@ class UserTable extends Component
 
     public function render()
     {
+        $viewer = Auth::user();
+
         $availableSections = User::where('role', Roles::STUDENT)
             ->whereNotNull('section')
             ->where('section', '!=', '')
@@ -308,11 +337,41 @@ class UserTable extends Component
             ->orderBy('section')
             ->pluck('section');
 
+        // For instructors, get their assigned sections
+        $instructorSections = [];
+        if ($viewer->role === Roles::INSTRUCTOR) {
+            $instructorSections = InstructorSection::where('user_id', $viewer->id)
+                ->pluck('section')
+                ->toArray();
+            if ($viewer->advisory_section && !in_array($viewer->advisory_section, $instructorSections)) {
+                $instructorSections[] = $viewer->advisory_section;
+            }
+            sort($instructorSections);
+        }
+
         $users = $this->getUserQuery()->paginate(config('joms.pagination.users', 20));
 
         // Batch-load pending counts for current page users
         $pendingService = app(PendingItemsService::class);
         $pendingCounts = $pendingService->getPendingCountsForUsers($users->pluck('id'));
+
+        // For instructor viewing students, calculate progress
+        $studentProgress = [];
+        if ($viewer->role === Roles::INSTRUCTOR && $this->routeRoleFilter === Roles::STUDENT) {
+            $gradingService = app(GradingService::class);
+            foreach ($users as $student) {
+                $progressSummary = $gradingService->getProgressSummary($student);
+                $totalProgress = 0;
+                $totalCourses = count($progressSummary);
+                foreach ($progressSummary as $course) {
+                    $totalProgress += $course['grade']['percentage'] ?? 0;
+                }
+                $studentProgress[$student->id] = [
+                    'average_grade' => $totalCourses > 0 ? round($totalProgress / $totalCourses, 1) : 0,
+                    'courses_count' => $totalCourses,
+                ];
+            }
+        }
 
         return view('livewire.user-table', [
             'users' => $users,
@@ -320,8 +379,11 @@ class UserTable extends Component
             'filterCounts' => $this->getFilterCounts(),
             'departments' => Department::all(),
             'availableSections' => $availableSections,
+            'instructorSections' => $instructorSections,
+            'studentProgress' => $studentProgress,
             'canDelete' => Auth::user()->role === Roles::ADMIN,
             'canCreate' => Auth::user()->role === Roles::ADMIN,
+            'isInstructorViewingStudents' => $viewer->role === Roles::INSTRUCTOR && $this->routeRoleFilter === Roles::STUDENT,
         ]);
     }
 }

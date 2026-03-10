@@ -173,16 +173,16 @@
         @endif
     </div>
 
-    <!-- Main Content: Activity Feed (80%) | Pending (20%) -->
+    <!-- Main Content: Announcements (80%) | Pending (20%) -->
     <div class="row">
-        <!-- Activity Feed - Left Side (80%) -->
+        <!-- Announcements - Left Side (80%) -->
         <div class="col-lg-9 col-md-8 mb-4">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white py-2">
                     <div class="row align-items-center g-2">
                         <div class="col-md-4">
                             <h6 class="mb-0">
-                                <i class="fas fa-stream text-primary me-2"></i>Activity Feed
+                                <i class="fas fa-bullhorn text-primary me-2"></i>Announcements
                             </h6>
                         </div>
                         <div class="col-md-8">
@@ -213,7 +213,7 @@
                 <div class="card-body p-0" class="dashboard-feed-scroll">
                     <div id="activity-feed">
                         @php
-                            // Combine announcements and submissions into activity feed
+                            // Combine announcements and submissions into announcements feed
                             $feedItems = collect();
 
                             // Add announcements
