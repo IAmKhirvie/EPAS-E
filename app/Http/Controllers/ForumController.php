@@ -182,7 +182,7 @@ class ForumController extends Controller
      */
     public function updatePost(Request $request, ForumPost $post)
     {
-        if ($post->user_id !== Auth::id() && !Auth::user()->isAdmin()) {
+        if ($post->user_id !== Auth::id() && !Auth::user()->isAdmin() && !Auth::user()->isInstructor()) {
             abort(403, 'Unauthorized');
         }
 
@@ -210,7 +210,7 @@ class ForumController extends Controller
      */
     public function deletePost(ForumPost $post)
     {
-        if ($post->user_id !== Auth::id() && !Auth::user()->isAdmin()) {
+        if ($post->user_id !== Auth::id() && !Auth::user()->isAdmin() && !Auth::user()->isInstructor()) {
             abort(403, 'Unauthorized');
         }
 
@@ -257,8 +257,8 @@ class ForumController extends Controller
     {
         $thread = $post->thread;
 
-        // Only thread author or admin can mark best answer
-        if ($thread->user_id !== Auth::id() && !Auth::user()->isAdmin()) {
+        // Only thread author, admin, or instructor can mark best answer
+        if ($thread->user_id !== Auth::id() && !Auth::user()->isAdmin() && !Auth::user()->isInstructor()) {
             abort(403, 'Unauthorized');
         }
 

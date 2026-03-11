@@ -161,7 +161,7 @@
                                                 </form>
                                             </li>
                                         @endif
-                                        @if($post->user_id === auth()->id() || auth()->user()->isAdmin())
+                                        @if($post->user_id === auth()->id() || auth()->user()->isAdmin() || auth()->user()->isInstructor())
                                             <li>
                                                 <form action="{{ route('forums.delete-post', $post) }}" method="POST" onsubmit="return confirm('Delete this post?')">
                                                     @csrf

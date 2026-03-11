@@ -312,8 +312,8 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::get('/progress-data', [StudentDashboard::class, 'getProgressData'])->name('progress-data');
     });
 
-    // Admin Dashboard
-    Route::prefix('admin')->name('admin.')->middleware('check.role:admin')->group(function () {
+    // Admin/Instructor Dashboard
+    Route::prefix('admin')->name('admin.')->middleware('check.role:admin,instructor')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     });
 

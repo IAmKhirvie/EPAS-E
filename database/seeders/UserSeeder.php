@@ -74,6 +74,7 @@ class UserSeeder extends Seeder
                 'role' => 'admin',
                 'department_id' => 1,
                 'stat' => 1,
+                'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]
@@ -88,12 +89,13 @@ class UserSeeder extends Seeder
                 'middle_name' => 'B.',
                 'last_name' => 'Rapada',
                 'ext_name' => '',
-                'role' => 'instructor', 
+                'role' => 'instructor',
                 'department_id' => 1,
                 'stat' => 1,
+                'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
-            ] 
+            ]
         );
 
         DB::table('users')->updateOrInsert(
@@ -237,6 +239,7 @@ class UserSeeder extends Seeder
                 'role' => 'instructor',
                 'department_id' => 1,
                 'stat' => 1,
+                'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]
