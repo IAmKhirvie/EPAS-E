@@ -469,23 +469,22 @@
     @endif
 @endauth
 
-  <!-- Scripts (local) -->
+  <!-- Scripts (local) - Critical -->
     <script src="{{ dynamic_asset('vendor/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ dynamic_asset('vendor/js/gsap.min.js') }}"></script>
 
     <!-- App Script -->
     <script src="{{ dynamic_asset('js/app.js') }}"></script>
 
     <!-- Utility Scripts -->
     <script src="{{ dynamic_asset('js/utils/dark-mode.js') }}"></script>
-    <script src="{{ dynamic_asset('js/utils/dynamic-form.js') }}"></script>
 
     <!-- Component Script -->
     <script src="{{ dynamic_asset('js/components/navbar.js') }}"></script>
 
-    <!-- Enhanced FAB Script -->
-    <script src="{{ dynamic_asset('js/functions/FAB.js') }}"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Deferred Scripts (non-critical) -->
+    <script src="{{ dynamic_asset('vendor/js/gsap.min.js') }}" defer></script>
+    <script src="{{ dynamic_asset('js/utils/dynamic-form.js') }}" defer></script>
+    <script src="{{ dynamic_asset('js/functions/FAB.js') }}" defer></script>
   @yield('scripts')
   @stack('scripts')
 
