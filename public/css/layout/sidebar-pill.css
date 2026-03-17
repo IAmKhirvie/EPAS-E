@@ -1,0 +1,190 @@
+/* ============================================
+   PILL SIDEBAR STYLING
+   Floating pill with frosted glass effect
+   Original dark blue color scheme
+   ============================================ */
+
+:root {
+    --pill-margin: 16px;
+    --pill-radius: 24px;
+    --glass-blur: blur(20px);
+    --glass-bg: rgba(13, 110, 253, 0.15);
+    --glass-border: rgba(255, 255, 255, 0.18);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+/* Floating pill container with frosted glass */
+.sidebar {
+    left: var(--pill-margin) !important;
+    top: var(--pill-margin) !important;
+    height: calc(100vh - (var(--pill-margin) * 2)) !important;
+    border-radius: var(--pill-radius) !important;
+    border-right: none !important;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: var(--glass-shadow) !important;
+    background: var(--glass-bg) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    overflow: visible !important;
+}
+
+.sidebar-content {
+    overflow-x: visible !important;
+    overflow-y: auto !important;
+}
+
+/* Prevent horizontal scroll on body */
+html, body {
+    overflow-x: hidden !important;
+}
+
+/* Round the profile section top corners */
+.sidebar-profile__bg {
+    border-radius: var(--pill-radius) var(--pill-radius) 0 0 !important;
+    background: linear-gradient(160deg, rgba(13, 110, 253, 0.9) 0%, rgba(0, 61, 128, 0.85) 100%) !important;
+}
+
+/* Glass effect on nav items hover */
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.nav-item.active {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.9) 0%, rgba(0, 86, 179, 0.9) 100%) !important;
+    box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3) !important;
+}
+
+/* Flyout menu glass effect - must be position:fixed to escape sidebar */
+.flyout-menu {
+    position: fixed !important;
+    background: rgba(30, 41, 59, 0.95) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    z-index: 9999 !important;
+}
+
+/* Prevent any horizontal overflow */
+.layout-wrapper,
+.modern-layout {
+    overflow-x: hidden !important;
+}
+
+/* Adjust main content to account for pill margin */
+.main-content {
+    margin-left: calc(var(--sidebar-width) + (var(--pill-margin) * 2)) !important;
+    overflow-x: hidden !important;
+}
+
+.sidebar.collapsed ~ .main-content,
+.sidebar.collapsed + .layout-wrapper .main-content {
+    margin-left: calc(var(--sidebar-width-collapsed) + (var(--pill-margin) * 2)) !important;
+}
+
+/* Adjust top navbar */
+.top-navbar {
+    left: calc(var(--sidebar-width) + (var(--pill-margin) * 2)) !important;
+    width: calc(100% - var(--sidebar-width) - (var(--pill-margin) * 2)) !important;
+}
+
+.sidebar.collapsed ~ .top-navbar,
+.sidebar.collapsed + .layout-wrapper .top-navbar {
+    left: calc(var(--sidebar-width-collapsed) + (var(--pill-margin) * 2)) !important;
+    width: calc(100% - var(--sidebar-width-collapsed) - (var(--pill-margin) * 2)) !important;
+}
+
+/* Update tooltip position for pill sidebar */
+.sidebar.collapsed .nav-item::after {
+    left: calc(var(--sidebar-width-collapsed) + var(--pill-margin)) !important;
+    background: rgba(13, 110, 253, 0.95) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--glass-border) !important;
+}
+
+.sidebar.collapsed .sidebar-profile__collapsed::after {
+    left: calc(var(--sidebar-width-collapsed) + var(--pill-margin)) !important;
+    background: rgba(13, 110, 253, 0.95) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+}
+
+/* Flyout menu position adjustment */
+.sidebar:not(.collapsed) .flyout-menu {
+    left: calc(var(--sidebar-width) + var(--pill-margin) + 8px) !important;
+}
+
+.sidebar.collapsed .flyout-menu {
+    left: calc(var(--sidebar-width-collapsed) + var(--pill-margin) + 8px) !important;
+}
+
+/* Nav item flyout container */
+.nav-item-flyout {
+    position: static !important;
+    overflow: visible !important;
+}
+
+/* ============================================
+   DARK MODE - Darker frosted glass
+   ============================================ */
+.dark-mode .sidebar {
+    --glass-bg: rgba(15, 23, 42, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dark-mode .sidebar-profile__bg {
+    background: linear-gradient(160deg, rgba(26, 54, 93, 0.95) 0%, rgba(15, 23, 42, 0.9) 100%) !important;
+}
+
+.dark-mode .nav-item:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.dark-mode .nav-item.active {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.8) 0%, rgba(0, 86, 179, 0.8) 100%) !important;
+}
+
+.dark-mode .flyout-menu {
+    background: rgba(15, 23, 42, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-mode .sidebar.collapsed .nav-item::after,
+.dark-mode .sidebar.collapsed .sidebar-profile__collapsed::after {
+    background: rgba(15, 23, 42, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ============================================
+   MOBILE RESPONSIVE - Reset pill on mobile
+   ============================================ */
+@media (max-width: 1032px) {
+    .sidebar {
+        left: 0 !important;
+        top: 0 !important;
+        height: 100vh !important;
+        border-radius: 0 var(--pill-radius) var(--pill-radius) 0 !important;
+        border: none !important;
+        border-right: 1px solid var(--border) !important;
+    }
+
+    .sidebar-profile__bg {
+        border-radius: 0 !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+    }
+
+    .top-navbar {
+        left: 0 !important;
+        width: 100% !important;
+    }
+
+    /* Mobile flyout - inline style */
+    .flyout-menu {
+        left: auto !important;
+    }
+}
