@@ -6,10 +6,13 @@
   
   <title>@yield('title', 'EPAS-E LMS')</title>
 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="{{ dynamic_asset('favicon.ico') }}">
+
+  <!-- Bootstrap CSS (local) -->
+  <link href="{{ dynamic_asset('vendor/css/bootstrap.min.css') }}" rel="stylesheet">
+  <!-- Font Awesome (local) -->
+  <link rel="stylesheet" href="{{ dynamic_asset('vendor/css/fontawesome.min.css') }}">
 
   <!-- App CSS -->
   <link rel="stylesheet" href="{{ dynamic_asset('css/app.css') }}">
@@ -97,11 +100,15 @@
   </div>
 
   <footer class="mobile-auth-footer">
-    @yield('footer', '&copy; ' . date('Y') . ' IETI. All rights reserved.')
+    @hasSection('footer')
+      {!! $__env->yieldContent('footer') !!}
+    @else
+      © {{ date('Y') }} IETI. All rights reserved.
+    @endif
   </footer>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap JS (local) -->
+  <script src="{{ dynamic_asset('vendor/js/bootstrap.bundle.min.js') }}"></script>
   
   <!-- Utility Scripts -->
   <script src="{{ dynamic_asset('js/utils/slideshow.js')}}"></script>

@@ -584,6 +584,102 @@ body {
     color: white;
 }
 
+/* ===== BREADCRUMB DARK MODE ===== */
+.breadcrumb {
+    background-color: transparent;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-item a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--primary-light);
+    text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+    color: var(--muted-foreground);
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: var(--muted-foreground);
+}
+
+.dark-mode .breadcrumb-item a {
+    color: var(--primary);
+}
+
+.dark-mode .breadcrumb-item a:hover {
+    color: #60a5fa;
+}
+
+.dark-mode .breadcrumb-item.active {
+    color: var(--muted-foreground);
+}
+
+.dark-mode .breadcrumb-item + .breadcrumb-item::before {
+    color: var(--muted-foreground);
+}
+
+/* ===== NAV TABS DARK MODE ===== */
+.dark-mode .nav-tabs {
+    border-bottom-color: var(--border);
+}
+
+.dark-mode .nav-tabs .nav-link {
+    color: var(--muted-foreground);
+    border-color: transparent;
+}
+
+.dark-mode .nav-tabs .nav-link:hover {
+    border-color: var(--border) var(--border) transparent;
+    color: var(--text-primary);
+}
+
+.dark-mode .nav-tabs .nav-link.active {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    border-color: var(--border) var(--border) var(--card-bg);
+}
+
+/* ===== TABLE HEADER DARK MODE ===== */
+.dark-mode .table-light,
+.dark-mode thead.table-light th {
+    background-color: var(--card-header-bg) !important;
+    color: var(--card-header-text) !important;
+    border-color: var(--border) !important;
+}
+
+/* ===== PAGINATION DARK MODE ===== */
+.dark-mode .page-link {
+    background-color: var(--card-bg);
+    border-color: var(--border);
+    color: var(--text-primary);
+}
+
+.dark-mode .page-link:hover {
+    background-color: var(--light-gray);
+    border-color: var(--border);
+    color: var(--text-primary);
+}
+
+.dark-mode .page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.dark-mode .page-item.disabled .page-link {
+    background-color: var(--card-bg);
+    border-color: var(--border);
+    color: var(--muted-foreground);
+}
+
 /* ===== MOBILE RESPONSIVENESS FIXES ===== */
 
 /* Tablet and Mobile devices (< 1032px) */

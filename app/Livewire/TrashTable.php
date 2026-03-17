@@ -1,0 +1,387 @@
+<?php
+
+namespace App\Livewire;
+
+use App\Constants\Roles;
+use App\Models\Module;
+use App\Models\Topic;
+use App\Models\InformationSheet;
+use App\Models\Homework;
+use App\Models\SelfCheck;
+use App\Models\TaskSheet;
+use App\Models\JobSheet;
+use App\Models\Checklist;
+use App\Models\Course;
+use App\Models\Announcement;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Collection;
+use Livewire\Component;
+use Livewire\WithPagination;
+
+class TrashTable extends Component
+{
+    use WithPagination;
+
+    protected $paginationTheme = 'bootstrap';
+
+    public string $search = '';
+    public string $typeFilter = 'all';
+    public string $sortDirection = 'desc';
+
+    public array $selectedItems = [];
+    public bool $selectAll = false;
+
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'typeFilter' => ['except' => 'all', 'as' => 'type'],
+    ];
+
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingTypeFilter(): void
+    {
+        $this->resetPage();
+        $this->selectedItems = [];
+        $this->selectAll = false;
+    }
+
+    public function updatedSelectAll(bool $value): void
+    {
+        $this->selectedItems = $value
+            ? $this->getTrashedItems()->pluck('unique_key')->toArray()
+            : [];
+    }
+
+    public function toggleSort(): void
+    {
+        $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+    }
+
+    public function restoreItem(string $type, int $id): void
+    {
+        try {
+            $model = $this->getModelInstance($type, $id);
+
+            if (!$model) {
+                session()->flash('error', 'Item not found.');
+                return;
+            }
+
+            if (!$this->canManageItem($model, $type)) {
+                session()->flash('error', 'You do not have permission to restore this item.');
+                return;
+            }
+
+            $model->restore();
+
+            // Remove from selection
+            $uniqueKey = "{$type}_{$id}";
+            $this->selectedItems = array_diff($this->selectedItems, [$uniqueKey]);
+
+            session()->flash('success', ucfirst($type) . ' restored successfully.');
+        } catch (\Exception $e) {
+            Log::error('Restore failed', ['type' => $type, 'id' => $id, 'error' => $e->getMessage()]);
+            session()->flash('error', 'Failed to restore item.');
+        }
+    }
+
+    public function forceDeleteItem(string $type, int $id): void
+    {
+        try {
+            $model = $this->getModelInstance($type, $id);
+
+            if (!$model) {
+                session()->flash('error', 'Item not found.');
+                return;
+            }
+
+            if (!$this->canManageItem($model, $type)) {
+                session()->flash('error', 'You do not have permission to delete this item.');
+                return;
+            }
+
+            $model->forceDelete();
+
+            // Remove from selection
+            $uniqueKey = "{$type}_{$id}";
+            $this->selectedItems = array_diff($this->selectedItems, [$uniqueKey]);
+
+            session()->flash('success', ucfirst($type) . ' permanently deleted.');
+        } catch (\Exception $e) {
+            Log::error('Force delete failed', ['type' => $type, 'id' => $id, 'error' => $e->getMessage()]);
+            session()->flash('error', 'Failed to delete item.');
+        }
+    }
+
+    public function bulkRestore(): void
+    {
+        try {
+            $restored = 0;
+
+            foreach ($this->selectedItems as $uniqueKey) {
+                [$type, $id] = explode('_', $uniqueKey, 2);
+                $model = $this->getModelInstance($type, (int)$id);
+
+                if ($model && $this->canManageItem($model, $type)) {
+                    $model->restore();
+                    $restored++;
+                }
+            }
+
+            $this->selectedItems = [];
+            $this->selectAll = false;
+            session()->flash('success', "{$restored} item(s) restored successfully.");
+        } catch (\Exception $e) {
+            Log::error('Bulk restore failed', ['error' => $e->getMessage()]);
+            session()->flash('error', 'Failed to restore items.');
+        }
+    }
+
+    public function bulkForceDelete(): void
+    {
+        try {
+            $deleted = 0;
+
+            foreach ($this->selectedItems as $uniqueKey) {
+                [$type, $id] = explode('_', $uniqueKey, 2);
+                $model = $this->getModelInstance($type, (int)$id);
+
+                if ($model && $this->canManageItem($model, $type)) {
+                    $model->forceDelete();
+                    $deleted++;
+                }
+            }
+
+            $this->selectedItems = [];
+            $this->selectAll = false;
+            session()->flash('success', "{$deleted} item(s) permanently deleted.");
+        } catch (\Exception $e) {
+            Log::error('Bulk force delete failed', ['error' => $e->getMessage()]);
+            session()->flash('error', 'Failed to delete items.');
+        }
+    }
+
+    private function getModelInstance(string $type, int $id)
+    {
+        return match($type) {
+            'module' => Module::onlyTrashed()->find($id),
+            'topic' => Topic::onlyTrashed()->find($id),
+            'information_sheet' => InformationSheet::onlyTrashed()->find($id),
+            'homework' => Homework::onlyTrashed()->find($id),
+            'self_check' => SelfCheck::onlyTrashed()->find($id),
+            'task_sheet' => TaskSheet::onlyTrashed()->find($id),
+            'job_sheet' => JobSheet::onlyTrashed()->find($id),
+            'checklist' => Checklist::onlyTrashed()->find($id),
+            'course' => Course::onlyTrashed()->find($id),
+            'announcement' => Announcement::onlyTrashed()->find($id),
+            default => null,
+        };
+    }
+
+    private function canManageItem($model, string $type): bool
+    {
+        $user = Auth::user();
+
+        // Admins can manage everything
+        if ($user->role === Roles::ADMIN) {
+            return true;
+        }
+
+        // Instructors can only manage their own content
+        if ($user->role === Roles::INSTRUCTOR) {
+            return match($type) {
+                'module' => $model->course && $model->course->instructor_id === $user->id,
+                'topic' => $model->module && $model->module->course && $model->module->course->instructor_id === $user->id,
+                'information_sheet' => $model->module && $model->module->course && $model->module->course->instructor_id === $user->id,
+                'homework', 'self_check', 'task_sheet', 'job_sheet', 'checklist' =>
+                    $model->informationSheet && $model->informationSheet->module &&
+                    $model->informationSheet->module->course &&
+                    $model->informationSheet->module->course->instructor_id === $user->id,
+                'course' => $model->instructor_id === $user->id,
+                'announcement' => $model->user_id === $user->id,
+                default => false,
+            };
+        }
+
+        return false;
+    }
+
+    private function getTrashedItems(): Collection
+    {
+        $user = Auth::user();
+        $isAdmin = $user->role === Roles::ADMIN;
+        $items = collect();
+
+        // Get instructor's course IDs for filtering
+        $instructorCourseIds = [];
+        if (!$isAdmin) {
+            $instructorCourseIds = Course::where('instructor_id', $user->id)->pluck('id')->toArray();
+        }
+
+        // Helper to add items with common structure
+        $addItems = function ($query, $type, $nameField, $getParentName = null) use (&$items, $isAdmin, $instructorCourseIds, $user) {
+            $trashedItems = $query->onlyTrashed();
+
+            // Apply instructor filter if not admin
+            if (!$isAdmin) {
+                $trashedItems = match($type) {
+                    'module' => $trashedItems->whereIn('course_id', $instructorCourseIds),
+                    'topic' => $trashedItems->whereHas('module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
+                    'information_sheet' => $trashedItems->whereHas('module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
+                    'homework', 'self_check', 'task_sheet', 'job_sheet', 'checklist' =>
+                        $trashedItems->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
+                    'course' => $trashedItems->where('instructor_id', $user->id),
+                    'announcement' => $trashedItems->where('user_id', $user->id),
+                    default => $trashedItems,
+                };
+            }
+
+            foreach ($trashedItems->get() as $item) {
+                $name = $item->$nameField ?? $item->name ?? $item->title ?? 'Unnamed';
+                $parentName = $getParentName ? $getParentName($item) : null;
+
+                $items->push([
+                    'id' => $item->id,
+                    'type' => $type,
+                    'type_label' => $this->getTypeLabel($type),
+                    'name' => $name,
+                    'parent_name' => $parentName,
+                    'deleted_at' => $item->deleted_at,
+                    'unique_key' => "{$type}_{$item->id}",
+                ]);
+            }
+        };
+
+        // Only fetch items based on type filter
+        $types = $this->typeFilter === 'all'
+            ? ['module', 'topic', 'information_sheet', 'homework', 'self_check', 'task_sheet', 'job_sheet', 'checklist', 'course', 'announcement']
+            : [$this->typeFilter];
+
+        foreach ($types as $type) {
+            match($type) {
+                'module' => $addItems(Module::query(), 'module', 'module_title', fn($m) => $m->course?->name),
+                'topic' => $addItems(Topic::query(), 'topic', 'title', fn($t) => $t->module?->module_title),
+                'information_sheet' => $addItems(InformationSheet::query(), 'information_sheet', 'title', fn($s) => $s->module?->module_title),
+                'homework' => $addItems(Homework::query(), 'homework', 'title', fn($h) => $h->informationSheet?->title),
+                'self_check' => $addItems(SelfCheck::query(), 'self_check', 'title', fn($s) => $s->informationSheet?->title),
+                'task_sheet' => $addItems(TaskSheet::query(), 'task_sheet', 'title', fn($t) => $t->informationSheet?->title),
+                'job_sheet' => $addItems(JobSheet::query(), 'job_sheet', 'title', fn($j) => $j->informationSheet?->title),
+                'checklist' => $addItems(Checklist::query(), 'checklist', 'title', fn($c) => $c->informationSheet?->title),
+                'course' => $isAdmin ? $addItems(Course::query(), 'course', 'name', null) : null,
+                'announcement' => $addItems(Announcement::query(), 'announcement', 'title', null),
+                default => null,
+            };
+        }
+
+        // Apply search filter
+        if ($this->search) {
+            $search = strtolower($this->search);
+            $items = $items->filter(function ($item) use ($search) {
+                return str_contains(strtolower($item['name']), $search) ||
+                       ($item['parent_name'] && str_contains(strtolower($item['parent_name']), $search));
+            });
+        }
+
+        // Sort by deleted_at
+        $items = $this->sortDirection === 'desc'
+            ? $items->sortByDesc('deleted_at')
+            : $items->sortBy('deleted_at');
+
+        return $items->values();
+    }
+
+    private function getTypeLabel(string $type): string
+    {
+        return match($type) {
+            'module' => 'Module',
+            'topic' => 'Topic',
+            'information_sheet' => 'Information Sheet',
+            'homework' => 'Homework',
+            'self_check' => 'Self Check',
+            'task_sheet' => 'Task Sheet',
+            'job_sheet' => 'Job Sheet',
+            'checklist' => 'Checklist',
+            'course' => 'Course',
+            'announcement' => 'Announcement',
+            default => ucfirst(str_replace('_', ' ', $type)),
+        };
+    }
+
+    private function getCounts(): array
+    {
+        $user = Auth::user();
+        $isAdmin = $user->role === Roles::ADMIN;
+
+        $instructorCourseIds = [];
+        if (!$isAdmin) {
+            $instructorCourseIds = Course::where('instructor_id', $user->id)->pluck('id')->toArray();
+        }
+
+        $counts = ['all' => 0];
+
+        $countQuery = function ($query, $type) use ($isAdmin, $instructorCourseIds, $user) {
+            $trashedQuery = $query->onlyTrashed();
+
+            if (!$isAdmin) {
+                $trashedQuery = match($type) {
+                    'module' => $trashedQuery->whereIn('course_id', $instructorCourseIds),
+                    'topic' => $trashedQuery->whereHas('module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
+                    'information_sheet' => $trashedQuery->whereHas('module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
+                    'homework', 'self_check', 'task_sheet', 'job_sheet', 'checklist' =>
+                        $trashedQuery->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
+                    'course' => $trashedQuery->where('instructor_id', $user->id),
+                    'announcement' => $trashedQuery->where('user_id', $user->id),
+                    default => $trashedQuery,
+                };
+            }
+
+            return $trashedQuery->count();
+        };
+
+        $counts['module'] = $countQuery(Module::query(), 'module');
+        $counts['topic'] = $countQuery(Topic::query(), 'topic');
+        $counts['information_sheet'] = $countQuery(InformationSheet::query(), 'information_sheet');
+        $counts['homework'] = $countQuery(Homework::query(), 'homework');
+        $counts['self_check'] = $countQuery(SelfCheck::query(), 'self_check');
+        $counts['task_sheet'] = $countQuery(TaskSheet::query(), 'task_sheet');
+        $counts['job_sheet'] = $countQuery(JobSheet::query(), 'job_sheet');
+        $counts['checklist'] = $countQuery(Checklist::query(), 'checklist');
+
+        if ($isAdmin) {
+            $counts['course'] = $countQuery(Course::query(), 'course');
+        }
+
+        $counts['announcement'] = $countQuery(Announcement::query(), 'announcement');
+
+        $counts['all'] = array_sum(array_filter($counts, fn($k) => $k !== 'all', ARRAY_FILTER_USE_KEY));
+
+        return $counts;
+    }
+
+    public function render()
+    {
+        $items = $this->getTrashedItems();
+        $perPage = 20;
+        $page = $this->getPage();
+        $total = $items->count();
+
+        // Manual pagination
+        $paginatedItems = $items->slice(($page - 1) * $perPage, $perPage)->values();
+
+        return view('livewire.trash-table', [
+            'items' => $paginatedItems,
+            'counts' => $this->getCounts(),
+            'total' => $total,
+            'perPage' => $perPage,
+            'currentPage' => $page,
+            'lastPage' => ceil($total / $perPage) ?: 1,
+            'from' => $total > 0 ? (($page - 1) * $perPage) + 1 : 0,
+            'to' => min($page * $perPage, $total),
+            'isAdmin' => Auth::user()->role === Roles::ADMIN,
+        ]);
+    }
+}

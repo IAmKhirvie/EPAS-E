@@ -52,8 +52,10 @@ class SecurityHeaders
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=()');
 
-        // Cross-Origin headers for additional protection
-        $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+        // Cross-Origin headers for additional protection (only on HTTPS or localhost)
+        if ($request->secure() || $request->getHost() === 'localhost' || $request->getHost() === '127.0.0.1') {
+            $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+        }
         $response->headers->set('Cross-Origin-Resource-Policy', 'cross-origin');
         // Note: COEP require-corp disabled as it blocks legitimate external resources (avatars, CDN)
         // $response->headers->set('Cross-Origin-Embedder-Policy', 'require-corp');

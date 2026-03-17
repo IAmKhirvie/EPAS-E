@@ -11,6 +11,7 @@ use App\Http\Requests\StoreDocumentAssessmentRequest;
 use App\Http\Requests\UpdateDocumentAssessmentRequest;
 use App\Services\DocumentConversionService;
 use App\Services\NotificationService;
+use App\Services\ProgressTrackingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -22,6 +23,7 @@ class DocumentAssessmentController extends Controller
     public function __construct(
         private DocumentConversionService $conversionService,
         private NotificationService $notificationService,
+        private ProgressTrackingService $progressService,
     ) {}
 
     public function create(InformationSheet $informationSheet)
@@ -216,6 +218,9 @@ class DocumentAssessmentController extends Controller
                     );
                 }
             });
+
+            // Track progress
+            $this->progressService->recordDocumentAssessmentProgress($documentAssessment, auth()->id());
 
             return redirect()->route('document-assessments.show', $documentAssessment)
                 ->with('success', 'Your answer has been submitted successfully!');

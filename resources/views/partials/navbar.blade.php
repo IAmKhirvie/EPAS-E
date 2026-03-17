@@ -109,8 +109,11 @@
                                         {{ $announcement->created_at->diffForHumans() }}
                                     </span>
                                 </div>
-                            </div>x
+                            </div>
                         </a>
+                        <button type="button" class="notification-dismiss" onclick="dismissNotification(this, {{ $announcement->id }})" aria-label="Dismiss">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                     @endforeach
                     @else

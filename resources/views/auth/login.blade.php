@@ -74,34 +74,48 @@
 <script>
 (function() {
     const STORAGE_KEY = 'rememberedEmail';
+    const rememberCheckbox = document.getElementById('rememberMe');
+    const emailInput = document.getElementById('login_email');
+    const passwordInput = document.getElementById('login_password');
 
-    // Load remembered email on page load
+    // Only load remembered email if remember me was previously checked
     const savedEmail = localStorage.getItem(STORAGE_KEY);
     if (savedEmail) {
-        document.getElementById('login_email').value = savedEmail;
-        document.getElementById('rememberMe').checked = true;
+        emailInput.value = savedEmail;
+        rememberCheckbox.checked = true;
+    } else {
+        // Clear any browser autofill after a short delay
+        setTimeout(function() {
+            if (!rememberCheckbox.checked) {
+                // Don't clear if user is actively typing
+                if (document.activeElement !== emailInput && document.activeElement !== passwordInput) {
+                    passwordInput.value = '';
+                }
+            }
+        }, 100);
     }
 
-    // Handle form submission
-    document.getElementById('loginForm').addEventListener('submit', function() {
-        const rememberMe = document.getElementById('rememberMe').checked;
-        const email = document.getElementById('login_email').value;
-
-        if (rememberMe && email) {
-            // Save email only
-            localStorage.setItem(STORAGE_KEY, email);
-        } else {
-            // Remove saved email
-            localStorage.removeItem(STORAGE_KEY);
-        }
-    });
+    // Save email to localStorage only if remember me is checked
+    // This will be saved on page load after successful login (server sets a flag)
+    @if(session('login_success'))
+    if (rememberCheckbox.checked && emailInput.value) {
+        localStorage.setItem(STORAGE_KEY, emailInput.value);
+    }
+    @endif
 
     // Clear saved email if user unchecks remember me
-    document.getElementById('rememberMe').addEventListener('change', function() {
+    rememberCheckbox.addEventListener('change', function() {
         if (!this.checked) {
             localStorage.removeItem(STORAGE_KEY);
         }
     });
+
+    // Remove the page loader immediately on login page (don't show on errors)
+    var loader = document.getElementById('page-loader');
+    if (loader) {
+        loader.classList.add('hidden');
+        setTimeout(function() { loader.remove(); }, 100);
+    }
 })();
 </script>
 @endsection

@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\Storage;
 
 class ModuleService
 {
+    public function __construct(private ?ProgressTrackingService $progressService = null)
+    {
+        $this->progressService = $progressService ?? app(ProgressTrackingService::class);
+    }
+
     /**
      * Track topic progress for the authenticated user.
      */
@@ -21,31 +26,19 @@ class ModuleService
             return;
         }
 
-        UserProgress::updateOrCreate(
-            [
-                'user_id' => auth()->id(),
-                'module_id' => $topic->informationSheet->module_id,
-                'progressable_type' => Topic::class,
-                'progressable_id' => $topic->id
-            ],
-            [
-                'status' => 'completed',
-                'completed_at' => now()
-            ]
+        $userId = auth()->id();
+        $sheet = $topic->informationSheet;
+
+        // Record topic as viewed/completed
+        $this->progressService->recordTopicViewed(
+            $topic->id,
+            $sheet->id,
+            $sheet->module_id,
+            $userId
         );
 
-        UserProgress::updateOrCreate(
-            [
-                'user_id' => auth()->id(),
-                'module_id' => $topic->informationSheet->module_id,
-                'progressable_type' => InformationSheet::class,
-                'progressable_id' => $topic->informationSheet->id
-            ],
-            [
-                'status' => 'in_progress',
-                'started_at' => now()
-            ]
-        );
+        // Check if all topics in sheet are viewed and sheet should be completed
+        $this->progressService->checkAndUpdateSheetCompletion($sheet, $userId);
     }
 
     /**
@@ -89,20 +82,12 @@ class ModuleService
      */
     public function getProgress(Module $module, int $userId): array
     {
-        $progress = UserProgress::where('user_id', $userId)
-            ->where('module_id', $module->id)
-            ->get();
-
-        $completedSheets = $progress->where('progressable_type', InformationSheet::class)
-            ->where('status', 'completed')->count();
-
-        $totalSheets = $module->informationSheets()->count();
-        $progressPercentage = $totalSheets > 0 ? ($completedSheets / $totalSheets) * 100 : 0;
+        $progress = $this->progressService->getModuleProgress($module->id, $userId);
 
         return [
-            'overall_progress' => $progressPercentage,
-            'completed_sheets' => $completedSheets,
-            'total_sheets' => $totalSheets,
+            'overall_progress' => $progress['percentage'],
+            'completed_sheets' => $progress['completed_sheets'],
+            'total_sheets' => $progress['total_sheets'],
         ];
     }
 

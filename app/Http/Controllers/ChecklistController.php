@@ -7,11 +7,16 @@ use App\Models\InformationSheet;
 use App\Models\TaskSheet;
 use App\Models\JobSheet;
 use App\Http\Requests\StoreChecklistRequest;
+use App\Services\ProgressTrackingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class ChecklistController extends Controller
 {
+    public function __construct(private ProgressTrackingService $progressService)
+    {
+    }
+
     public function create(InformationSheet $informationSheet)
     {
         return view('checklists.create', compact('informationSheet'));

@@ -179,7 +179,24 @@
         </div>
         @endif
 
-        <!-- Help & Support -->
+        @if(in_array(Auth::user()->role, [\App\Constants\Roles::INSTRUCTOR, \App\Constants\Roles::ADMIN]))
+        <!-- Trash (for instructors and admins) -->
+        <div class="sidebar-section">
+            <nav class="sidebar-nav">
+                @php
+                    $trashedCount = $trashedCount ?? 0;
+                @endphp
+                <a href="{{ route('trash.index') }}" class="nav-item {{ Request::is('trash*') ? 'active' : '' }}" data-tooltip="Trash">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Trash</span>
+                    @if($trashedCount > 0)
+                    <span class="nav-badge">{{ $trashedCount }}</span>
+                    @endif
+                </a>
+            </nav>
+        </div>
+        @else
+        <!-- Help & Support (for students only) -->
         <div class="sidebar-section">
             <nav class="sidebar-nav">
                 <a href="{{ route('help-support') }}" class="nav-item {{ Request::is('help-support*') ? 'active' : '' }}" data-tooltip="Help & Support">
@@ -188,6 +205,7 @@
                 </a>
             </nav>
         </div>
+        @endif
     </div>
 </aside>
 <div class="sidebar-backdrop" id="sidebar-backdrop"></div>

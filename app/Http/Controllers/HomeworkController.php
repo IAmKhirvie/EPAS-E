@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\InformationSheet;
 use App\Models\Homework;
 use App\Services\NotificationService;
+use App\Services\ProgressTrackingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -14,6 +15,10 @@ use App\Http\Traits\SanitizesContent;
 class HomeworkController extends Controller
 {
     use SanitizesContent;
+
+    public function __construct(private ProgressTrackingService $progressService)
+    {
+    }
 
     public function create(InformationSheet $informationSheet)
     {
@@ -176,6 +181,9 @@ class HomeworkController extends Controller
                 'work_hours' => $request->work_hours,
                 'submitted_at' => now(),
             ]);
+
+            // Track progress
+            $this->progressService->recordHomeworkProgress($homework, auth()->id());
 
             // Notify instructor of submission
             $homework->loadMissing('informationSheet.module.course.instructor');

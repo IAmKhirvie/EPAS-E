@@ -8,6 +8,7 @@ use App\Models\InformationSheet;
 use App\Models\SelfCheck;
 use App\Models\SelfCheckQuestion;
 use App\Services\NotificationService;
+use App\Services\ProgressTrackingService;
 use App\Services\SelfCheckGradingService;
 use App\Services\DocumentConversionService;
 use App\Http\Requests\StoreSelfCheckRequest;
@@ -45,8 +46,10 @@ use Illuminate\Support\Str;
  */
 class SelfCheckController extends Controller
 {
-    public function __construct(private SelfCheckGradingService $gradingService)
-    {
+    public function __construct(
+        private SelfCheckGradingService $gradingService,
+        private ProgressTrackingService $progressService
+    ) {
     }
 
     /*
@@ -685,6 +688,14 @@ class SelfCheckController extends Controller
                 'passed' => $passed,
                 'answers' => json_encode($request->answers),
                 'completed_at' => now(),
+            ]);
+
+            // Track progress
+            $this->progressService->recordSelfCheckProgress($selfCheck, auth()->id(), [
+                'score' => $score,
+                'total_points' => $totalPoints,
+                'percentage' => $percentage,
+                'passed' => $passed,
             ]);
 
             // Notify instructor of submission

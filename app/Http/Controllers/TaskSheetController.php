@@ -9,6 +9,7 @@ use App\Http\Requests\StoreTaskSheetRequest;
 use App\Http\Requests\UpdateTaskSheetRequest;
 use App\Services\DocumentConversionService;
 use App\Services\NotificationService;
+use App\Services\ProgressTrackingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +18,10 @@ use Illuminate\Support\Str;
 
 class TaskSheetController extends Controller
 {
+    public function __construct(private ProgressTrackingService $progressService)
+    {
+    }
+
     public function create(InformationSheet $informationSheet)
     {
         return view('task-sheets.create', compact('informationSheet'));
@@ -209,6 +214,9 @@ class TaskSheetController extends Controller
                 'findings' => json_encode($request->findings),
                 'submitted_at' => now(),
             ]);
+
+            // Track progress
+            $this->progressService->recordTaskSheetProgress($taskSheet, auth()->id());
 
             // Notify instructor of submission
             $taskSheet->loadMissing('informationSheet.module.course.instructor');

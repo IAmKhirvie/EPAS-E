@@ -66,6 +66,7 @@ use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ForumController;
+use App\Http\Controllers\TrashController;
 
 /*
 |--------------------------------------------------------------------------
@@ -933,4 +934,19 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         return view('help-support');
     })->name('help-support');
 
+    /*
+    |--------------------------------------------------------------------------
+    | Trash Routes
+    |--------------------------------------------------------------------------
+    |
+    | Routes for viewing and managing deleted content (soft deletes).
+    | Access restricted to admin and instructor roles.
+    |
+    */
+
+    Route::get('/trash', [TrashController::class, 'index'])
+        ->name('trash.index')
+        ->middleware('check.role:admin,instructor');
+
 });
+

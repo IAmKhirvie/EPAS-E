@@ -17,10 +17,10 @@
     <meta name="apple-mobile-web-app-title" content="EPAS-E">
     <link rel="apple-touch-icon" href="/images/icons/icon-192x192.png">
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- CSS (local) -->
+    <link rel="stylesheet" href="{{ dynamic_asset('vendor/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('vendor/css/fontawesome.min.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('vendor/css/animate.min.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('css/app.css') }}">
     
     <!-- Base CSS-->
@@ -83,6 +83,9 @@
     @stack('styles')
 </head>
 <body class="modern-layout" data-user-role="{{ auth()->user()->role ?? '' }}">
+
+  {{-- Page Loader --}}
+  @include('components.page-loader')
 
   {{-- Header --}}
   @include('partials.navbar')
@@ -466,9 +469,9 @@
     @endif
 @endauth
 
-  <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- Scripts (local) -->
+    <script src="{{ dynamic_asset('vendor/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ dynamic_asset('vendor/js/gsap.min.js') }}"></script>
 
     <!-- App Script -->
     <script src="{{ dynamic_asset('js/app.js') }}"></script>

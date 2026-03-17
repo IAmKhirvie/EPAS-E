@@ -9,6 +9,7 @@ use App\Http\Requests\StoreJobSheetRequest;
 use App\Http\Requests\UpdateJobSheetRequest;
 use App\Services\DocumentConversionService;
 use App\Services\NotificationService;
+use App\Services\ProgressTrackingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +18,10 @@ use Illuminate\Support\Str;
 
 class JobSheetController extends Controller
 {
+    public function __construct(private ProgressTrackingService $progressService)
+    {
+    }
+
     public function create(InformationSheet $informationSheet)
     {
         return view('job-sheets.create', compact('informationSheet'));
@@ -209,6 +214,9 @@ class JobSheetController extends Controller
                 'solutions' => $request->solutions,
                 'submitted_at' => now(),
             ]);
+
+            // Track progress
+            $this->progressService->recordJobSheetProgress($jobSheet, auth()->id());
 
             // Notify instructor of submission
             $jobSheet->loadMissing('informationSheet.module.course.instructor');

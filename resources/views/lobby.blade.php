@@ -6,12 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EPAS-E LMS - Electronic Products Assembly and Servicing</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ dynamic_asset('favicon.ico') }}">
+
+    <!-- Bootstrap CSS (local) -->
+    <link href="{{ dynamic_asset('vendor/css/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- Font Awesome (local) -->
+    <link rel="stylesheet" href="{{ dynamic_asset('vendor/css/fontawesome.min.css') }}">
 
     <!-- App CSS -->
     <link rel="stylesheet" href="{{ dynamic_asset('css/app.css') }}">
@@ -190,7 +191,7 @@
                 </div>
                 <div class="col-lg-6">
                     <div class="ps-lg-4 mt-4 mt-lg-0">
-                        <img src="{{ dynamic_asset('assets/epas1.jpg') }}" alt="EPAS-E Demo" class="img-fluid rounded shadow"
+                        <img src="{{ dynamic_asset('assets/epas1.jpg') }}" alt="EPAS-E Demo" class="img-fluid rounded shadow" loading="lazy"
                             onerror="this.onerror=null; this.src='https://placehold.co/800x600?text=EPAS-E'">
                     </div>
                 </div>
@@ -204,8 +205,8 @@
     @include('components.bottom-nav')
     @endauth
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS (local) -->
+    <script src="{{ dynamic_asset('vendor/js/bootstrap.bundle.min.js') }}"></script>
 
     <!-- Hero slideshow -->
     <script src="{{ dynamic_asset('js/lobby.js')}}"></script>

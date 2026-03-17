@@ -271,6 +271,81 @@ function markAsRead(event, announcementId)
     window.location.href = event.currentTarget.href;
 }
 
+function dismissNotification(button, announcementId) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Get dismissed notifications from localStorage
+    var dismissed = JSON.parse(localStorage.getItem('dismissedNotifications') || '[]');
+
+    // Add this notification to dismissed list
+    if (!dismissed.includes(announcementId)) {
+        dismissed.push(announcementId);
+        localStorage.setItem('dismissedNotifications', JSON.stringify(dismissed));
+    }
+
+    // Remove the notification item from DOM
+    var item = button.closest('.notification-item');
+    if (item) {
+        item.style.transition = 'opacity 0.3s, transform 0.3s';
+        item.style.opacity = '0';
+        item.style.transform = 'translateX(20px)';
+
+        setTimeout(function() {
+            item.remove();
+
+            // Update badge count
+            var badge = document.getElementById('notification-badge');
+            if (badge) {
+                var count = parseInt(badge.textContent) - 1;
+                if (count > 0) {
+                    badge.textContent = count;
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+
+            // Check if no more notifications
+            var list = document.getElementById('notifications-list');
+            if (list && list.querySelectorAll('.notification-item:not(.empty)').length === 0) {
+                list.innerHTML = '<div class="notification-item empty">' +
+                    '<div class="notification-content text-center py-4">' +
+                    '<div class="empty-icon"><i class="fas fa-inbox" aria-hidden="true"></i></div>' +
+                    '<div class="empty-text">No announcements yet</div>' +
+                    '<div class="empty-subtext">Check back later for updates</div>' +
+                    '</div></div>';
+            }
+        }, 300);
+    }
+}
+
+// Hide dismissed notifications on page load
+function hideDismissedNotifications() {
+    var dismissed = JSON.parse(localStorage.getItem('dismissedNotifications') || '[]');
+    var hiddenCount = 0;
+
+    dismissed.forEach(function(id) {
+        var item = document.querySelector('.notification-item[data-announcement-id="' + id + '"]');
+        if (item) {
+            item.remove();
+            hiddenCount++;
+        }
+    });
+
+    // Update badge count
+    if (hiddenCount > 0) {
+        var badge = document.getElementById('notification-badge');
+        if (badge) {
+            var count = parseInt(badge.textContent) - hiddenCount;
+            if (count > 0) {
+                badge.textContent = count;
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    }
+}
+
 function updateNotificationBadge() {
     const badge = document.getElementById('notification-badge');
     if (badge) {
@@ -347,7 +422,10 @@ function handleMobileMenu() {
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     window.topNavbar = new TopNavbar();
-    
+
+    // Hide previously dismissed notifications
+    hideDismissedNotifications();
+
     // Notification sorting
     const sortSelect = document.getElementById('notification-sort');
     if (sortSelect) {
@@ -355,10 +433,10 @@ document.addEventListener('DOMContentLoaded', function() {
             sortNotifications(this.value);
         });
     }
-    
+
     // Initialize notification count
     updateNotificationCount();
-    
+
     // Set up periodic updates (every 30 seconds)
     setInterval(updateNotificationCount, 30000);
 });

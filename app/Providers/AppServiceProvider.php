@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Pagination\Paginator;
 use App\Http\View\Composers\AnnouncementComposer;
+use App\Http\View\Composers\TrashComposer;
 use App\Models\Course;
 use App\Models\Module;
 use App\Models\Homework;
@@ -43,6 +44,7 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useBootstrapFive();
 
         View::composer('*', AnnouncementComposer::class);
+        View::composer('partials.sidebar', TrashComposer::class);
 
         // Register authorization policies
         Gate::policy(Course::class, CoursePolicy::class);
