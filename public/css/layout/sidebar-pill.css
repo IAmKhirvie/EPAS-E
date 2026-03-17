@@ -13,11 +13,13 @@
     --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
-/* Floating pill container with frosted glass */
+/* Floating pill container with frosted glass - CENTERED */
 .sidebar {
     left: var(--pill-margin) !important;
-    top: var(--pill-margin) !important;
-    height: calc(100vh - (var(--pill-margin) * 2)) !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    height: auto !important;
+    max-height: calc(100vh - (var(--pill-margin) * 2)) !important;
     border-radius: var(--pill-radius) !important;
     border-right: none !important;
     border: 1px solid var(--glass-border) !important;
@@ -31,6 +33,7 @@
 .sidebar-content {
     overflow-x: visible !important;
     overflow-y: auto !important;
+    padding-bottom: 0.5rem !important;
 }
 
 /* Prevent horizontal scroll on body */
@@ -38,10 +41,51 @@ html, body {
     overflow-x: hidden !important;
 }
 
-/* Round the profile section top corners */
+/* ============================================
+   PROFILE SECTION - Keep original ID card style
+   ============================================ */
+.sidebar-profile {
+    border-bottom: 1px solid var(--glass-border) !important;
+}
+
+/* Keep original profile card, add rounded top corners */
 .sidebar-profile__bg {
     border-radius: var(--pill-radius) var(--pill-radius) 0 0 !important;
-    background: linear-gradient(160deg, rgba(13, 110, 253, 0.9) 0%, rgba(0, 61, 128, 0.85) 100%) !important;
+}
+
+/* ============================================
+   COLLAPSED STATE - Clean icon only, no gradient
+   ============================================ */
+.sidebar.collapsed .sidebar-profile__collapsed {
+    background: transparent !important;
+}
+
+.sidebar.collapsed .sidebar-profile__collapsed-photo {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.sidebar.collapsed .sidebar-profile__collapsed-photo .avatar-fallback {
+    background: rgba(13, 110, 253, 0.2) !important;
+}
+
+/* ============================================
+   COMPACT SECTIONS - Remove empty space
+   ============================================ */
+.sidebar-section {
+    padding: 0.25rem 0 !important;
+}
+
+.sidebar-section:last-child {
+    padding-bottom: 0.5rem !important;
+}
+
+.sidebar-label {
+    padding: 0.4rem 1rem !important;
+}
+
+.sidebar-nav {
+    gap: 0.1rem !important;
 }
 
 /* Glass effect on nav items hover */
@@ -94,13 +138,15 @@ html, body {
     width: calc(100% - var(--sidebar-width-collapsed) - (var(--pill-margin) * 2)) !important;
 }
 
-/* Update tooltip position for pill sidebar */
+/* Update tooltip position for centered pill sidebar */
 .sidebar.collapsed .nav-item::after {
     left: calc(var(--sidebar-width-collapsed) + var(--pill-margin)) !important;
     background: rgba(13, 110, 253, 0.95) !important;
     backdrop-filter: var(--glass-blur) !important;
     -webkit-backdrop-filter: var(--glass-blur) !important;
     border: 1px solid var(--glass-border) !important;
+    /* Reset any transform from parent */
+    transform: translateY(-50%) !important;
 }
 
 .sidebar.collapsed .sidebar-profile__collapsed::after {
@@ -108,6 +154,47 @@ html, body {
     background: rgba(13, 110, 253, 0.95) !important;
     backdrop-filter: var(--glass-blur) !important;
     -webkit-backdrop-filter: var(--glass-blur) !important;
+    transform: translateY(-50%) !important;
+}
+
+/* ============================================
+   AUTO CONTRAST - Text adapts to background
+   ============================================ */
+/* Nav item icons and text - auto contrast using difference blend */
+.sidebar .nav-item:not(.active) i,
+.sidebar .nav-item:not(.active) span:not(.nav-badge) {
+    color: white !important;
+    mix-blend-mode: difference !important;
+}
+
+/* Flyout menu items (non-active) */
+.flyout-item:not(.active) i,
+.flyout-item:not(.active) span {
+    color: white !important;
+    mix-blend-mode: difference !important;
+}
+
+/* Section labels */
+.sidebar-label {
+    color: white !important;
+    mix-blend-mode: difference !important;
+    opacity: 0.7 !important;
+}
+
+/* Active items - solid white, no blend */
+.sidebar .nav-item.active i,
+.sidebar .nav-item.active span:not(.nav-badge),
+.flyout-item.active i,
+.flyout-item.active span {
+    mix-blend-mode: normal !important;
+    color: white !important;
+}
+
+/* Hover state - ensure visibility */
+.sidebar .nav-item:hover i,
+.sidebar .nav-item:hover span:not(.nav-badge) {
+    mix-blend-mode: normal !important;
+    color: white !important;
 }
 
 /* Flyout menu position adjustment */
@@ -135,7 +222,7 @@ html, body {
 }
 
 .dark-mode .sidebar-profile__bg {
-    background: linear-gradient(160deg, rgba(26, 54, 93, 0.95) 0%, rgba(15, 23, 42, 0.9) 100%) !important;
+    border-radius: var(--pill-radius) var(--pill-radius) 0 0 !important;
 }
 
 .dark-mode .nav-item:hover {
@@ -158,16 +245,26 @@ html, body {
 }
 
 /* ============================================
-   MOBILE RESPONSIVE - Reset pill on mobile
+   MOBILE RESPONSIVE - Keep same, add frosted glass
    ============================================ */
 @media (max-width: 1032px) {
     .sidebar {
         left: 0 !important;
         top: 0 !important;
+        transform: translateX(-100%) !important;
         height: 100vh !important;
+        max-height: 100vh !important;
         border-radius: 0 var(--pill-radius) var(--pill-radius) 0 !important;
         border: none !important;
         border-right: 1px solid var(--border) !important;
+        /* Frosted glass on mobile */
+        background: var(--glass-bg) !important;
+        backdrop-filter: var(--glass-blur) !important;
+        -webkit-backdrop-filter: var(--glass-blur) !important;
+    }
+
+    .sidebar:not(.mobile-hidden) {
+        transform: translateX(0) !important;
     }
 
     .sidebar-profile__bg {
