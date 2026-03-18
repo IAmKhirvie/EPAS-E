@@ -156,14 +156,14 @@
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.arc(this.points[0].x, this.points[0].y, 4, 0, Math.PI * 2);
+        ctx.arc(this.points[0].x, this.points[0].y, 2.5, 0, Math.PI * 2);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
 
         if (!this.live) {
             ctx.beginPath();
-            ctx.arc(this.points[this.points.length - 1].x, this.points[this.points.length - 1].y, 4, 0, Math.PI * 2);
+            ctx.arc(this.points[this.points.length - 1].x, this.points[this.points.length - 1].y, 2.5, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
             ctx.stroke();

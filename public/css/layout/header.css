@@ -52,6 +52,33 @@
     font-size: 1.25rem;
 }
 
+.sidebar-toggle .toggle-logo {
+    height: 24px;
+    width: auto;
+}
+
+.navbar-brand {
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.navbar-logo-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.navbar-logo-container .logo {
+    height: 36px;
+    width: auto;
+    flex-shrink: 0;
+}
+
+.navbar-title-container {
+    display: flex;
+    flex-direction: column;
+}
+
 .navbar-brand h2 {
     font-size: 1.125rem;
     font-weight: 500;
@@ -1104,7 +1131,8 @@ h3.user-card-subtitle {
         flex-shrink: 0;
     }
 
-    /* Hide home and dark mode toggle on mobile */
+    /* Hide home, dark mode toggle, and desktop sidebar toggle on mobile */
+    .navbar-item--desktop,
     .navbar-item:has(a[href*="lobby"]),
     .navbar-item:has(#dark-mode-toggle) {
         display: none;

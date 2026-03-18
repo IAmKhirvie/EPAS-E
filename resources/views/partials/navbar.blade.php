@@ -1,15 +1,17 @@
 <!-- Top Navbar - Private-->
 <header class="top-navbar">
 
-    <!-- Left side - Hamburger and Title -->
+    <!-- Left side - Logo and Title -->
     <div class="navbar-left">
-        <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
-            <i class="fas fa-bars" aria-hidden="true"></i>
-        </button>
-        <div class="navbar-brand">
-            <h2>EPAS-E</h2>
-            <p>Electronic Products Assembly and Servicing</p>
-        </div>
+        <a class="navbar-brand" href="{{ route('lobby') }}">
+            <div class="navbar-logo-container">
+                <img src="{{ dynamic_asset('assets/EPAS-E.png') }}" alt="EPAS-E LMS" class="logo">
+                <div class="navbar-title-container">
+                    <h2>EPAS-E</h2>
+                    <p>Electronic Products Assembly and Servicing</p>
+                </div>
+            </div>
+        </a>
     </div>
 
     <!-- Left side - Logo and Title (mobile) -->
@@ -30,6 +32,13 @@
 
     <!-- Right side actions - Rounded container -->
     <div class="navbar-right">
+        <!-- Sidebar Toggle (desktop) - EPAS logo icon -->
+        <div class="navbar-item navbar-item--desktop">
+            <button class="icon-button sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+                <img src="{{ dynamic_asset('assets/EPAS-E.png') }}" alt="Toggle sidebar" class="toggle-logo">
+            </button>
+        </div>
+
         <!-- Home Icon -->
         <div class="navbar-item">
             <a class="icon-button" href="{{ route('lobby') }}" aria-label="Home">
