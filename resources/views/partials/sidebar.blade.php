@@ -267,21 +267,7 @@
                     flyoutGroup.classList.remove('open');
                 } else {
                     flyoutGroup.classList.add('open');
-
-                    // Only position with fixed coords on desktop — mobile uses inline collapse
-                    if (window.innerWidth >= 1032) {
-                        const triggerRect = this.getBoundingClientRect();
-                        const sidebarRect = sidebar.getBoundingClientRect();
-
-                        flyoutMenu.style.left = sidebarRect.right + 8 + 'px';
-                        flyoutMenu.style.top = triggerRect.top + 'px';
-
-                        // Ensure flyout doesn't go off screen
-                        const flyoutRect = flyoutMenu.getBoundingClientRect();
-                        if (flyoutRect.bottom > window.innerHeight) {
-                            flyoutMenu.style.top = (window.innerHeight - flyoutRect.height - 10) + 'px';
-                        }
-                    }
+                    // Position handled by CSS - fixed at sidebar center
                 }
             });
         });

@@ -41,7 +41,6 @@
     <link rel="stylesheet" href="{{ dynamic_asset('css/layout/header.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('css/layout/main-content.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('css/layout/sidebar.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/layout/sidebar-pill.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('css/layout/footer.css') }}">
 
     <!-- Page Specific CSS -->
