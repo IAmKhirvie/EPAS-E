@@ -278,7 +278,7 @@
                                         <div class="flex-grow-1 min-width-0">
                                             <div class="d-flex justify-content-between align-items-start">
                                                 <div>
-                                                    <span class="badge bg-{{ $item['type'] === 'announcement' ? 'primary' : 'success' }} bg-opacity-10 text-{{ $item['type'] === 'announcement' ? 'primary' : 'success' }} mb-1">
+                                                    <span class="badge bg-{{ $item['type'] === 'announcement' ? 'primary' : 'success' }} bg-opacity-10 text-dark mb-1">
                                                         <i class="{{ $item['icon'] }} me-1"></i>{{ ucfirst($item['type']) }}
                                                     </span>
                                                     <h6 class="mb-1">
