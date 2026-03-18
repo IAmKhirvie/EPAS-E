@@ -21,10 +21,14 @@ class Course extends Model
         'order',
         'instructor_id',
         'target_sections',
+        'certificate_template',
+        'certificate_background',
+        'certificate_config',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
+        'certificate_config' => 'array',
     ];
 
     protected static function boot()

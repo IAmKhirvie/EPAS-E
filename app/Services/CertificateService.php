@@ -10,6 +10,25 @@ use Illuminate\Support\Facades\Storage;
 
 class CertificateService
 {
+    /**
+     * Available certificate templates.
+     */
+    public const TEMPLATES = [
+        'default' => 'Default (Blue)',
+        'gold' => 'Gold Premium',
+        'modern' => 'Modern Minimal',
+        'formal' => 'Formal/Traditional',
+        'custom' => 'Custom Background',
+    ];
+
+    /**
+     * Get available templates list.
+     */
+    public function getAvailableTemplates(): array
+    {
+        return self::TEMPLATES;
+    }
+
     public function generateCertificate(User $user, Course $course, array $metadata = []): Certificate
     {
         // Check if certificate already exists
@@ -25,6 +44,9 @@ class CertificateService
         // Generate unique certificate number
         $certificateNumber = Certificate::generateCertificateNumber();
 
+        // Get template from course or use default
+        $template = $course->certificate_template ?? 'default';
+
         // Create certificate record
         $certificate = Certificate::create([
             'user_id' => $user->id,
@@ -34,6 +56,7 @@ class CertificateService
             'description' => "This certifies that {$user->full_name} has successfully completed the {$course->course_name} course.",
             'issue_date' => now(),
             'status' => 'issued',
+            'template_used' => $template,
             'metadata' => array_merge([
                 'completion_date' => now()->toDateString(),
                 'course_name' => $course->course_name,
@@ -47,9 +70,15 @@ class CertificateService
         return $certificate;
     }
 
-    public function generatePdf(Certificate $certificate): string
+    public function generatePdf(Certificate $certificate, ?string $template = null): string
     {
         $certificate->load(['user', 'course']);
+
+        // Determine which template to use
+        $template = $template ?? $certificate->template_used ?? $certificate->course->certificate_template ?? 'default';
+
+        // Get certificate config from course
+        $config = $certificate->course->certificate_config ?? [];
 
         $data = [
             'certificate' => $certificate,
@@ -57,11 +86,21 @@ class CertificateService
             'course' => $certificate->course,
             'issue_date' => $certificate->issue_date->format('F d, Y'),
             'certificate_number' => $certificate->certificate_number,
+            'config' => $config,
         ];
 
-        $pdf = Pdf::loadView('certificates.template', $data)
+        // Use template-specific view or fallback to default
+        $viewName = "certificates.templates.{$template}";
+        if (!view()->exists($viewName)) {
+            $viewName = 'certificates.templates.default';
+        }
+
+        $pdf = Pdf::loadView($viewName, $data)
             ->setPaper('a4', 'landscape')
             ->setOptions(['isRemoteEnabled' => true]);
+
+        // If course has custom background, we could apply it here
+        // (requires additional implementation for background images)
 
         // Save to storage
         $filename = "certificates/{$certificate->certificate_number}.pdf";
@@ -71,6 +110,32 @@ class CertificateService
         $certificate->update(['pdf_path' => $filename]);
 
         return $filename;
+    }
+
+    /**
+     * Preview a certificate template without saving.
+     */
+    public function previewTemplate(string $template, User $user, Course $course): \Barryvdh\DomPDF\PDF
+    {
+        $config = $course->certificate_config ?? [];
+
+        $data = [
+            'certificate' => null,
+            'user' => $user,
+            'course' => $course,
+            'issue_date' => now()->format('F d, Y'),
+            'certificate_number' => 'CERT-PREVIEW-XXXXX',
+            'config' => $config,
+        ];
+
+        $viewName = "certificates.templates.{$template}";
+        if (!view()->exists($viewName)) {
+            $viewName = 'certificates.templates.default';
+        }
+
+        return Pdf::loadView($viewName, $data)
+            ->setPaper('a4', 'landscape')
+            ->setOptions(['isRemoteEnabled' => true]);
     }
 
     public function downloadPdf(Certificate $certificate)

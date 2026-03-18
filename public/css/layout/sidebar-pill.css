@@ -8,9 +8,9 @@
     --pill-margin: 16px;
     --pill-radius: 24px;
     --glass-blur: blur(20px);
-    --glass-bg: rgba(13, 110, 253, 0.15);
-    --glass-border: rgba(255, 255, 255, 0.18);
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    --glass-bg: rgba(15, 23, 42, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 /* Floating pill container with frosted glass - CENTERED */
@@ -99,6 +99,7 @@ html, body {
 }
 
 /* Flyout menu glass effect - must be position:fixed to escape sidebar */
+/* Hidden state */
 .flyout-menu {
     position: fixed !important;
     background: rgba(30, 41, 59, 0.95) !important;
@@ -107,6 +108,21 @@ html, body {
     border: 1px solid var(--glass-border) !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
     z-index: 9999 !important;
+    border-radius: 12px !important;
+    /* Hidden state - scale down slightly */
+    transform: scale(0.95) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: transform 0.15s ease, opacity 0.15s ease !important;
+}
+
+/* Visible state - JS handles left/top positioning */
+.nav-item-flyout.open .flyout-menu {
+    transform: scale(1) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
 }
 
 /* Prevent any horizontal overflow */
@@ -158,67 +174,55 @@ html, body {
 }
 
 /* ============================================
-   AUTO CONTRAST - Text adapts to background
+   TEXT COLORS - Light text on dark glass bg
    ============================================ */
-/* Nav item icons and text - auto contrast using difference blend */
-.sidebar .nav-item:not(.active) i,
-.sidebar .nav-item:not(.active) span:not(.nav-badge) {
-    color: white !important;
-    mix-blend-mode: difference !important;
+/* Nav item icons and text */
+.sidebar .nav-item i {
+    color: rgba(255, 255, 255, 0.7) !important;
 }
 
-/* Flyout menu items (non-active) */
-.flyout-item:not(.active) i,
-.flyout-item:not(.active) span {
-    color: white !important;
-    mix-blend-mode: difference !important;
+.sidebar .nav-item span:not(.nav-badge) {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Flyout menu items */
+.flyout-item i,
+.flyout-item span {
+    color: rgba(255, 255, 255, 0.85) !important;
 }
 
 /* Section labels */
 .sidebar-label {
-    color: white !important;
-    mix-blend-mode: difference !important;
-    opacity: 0.7 !important;
+    color: rgba(255, 255, 255, 0.5) !important;
 }
 
-/* Active items - solid white, no blend */
+/* Hover state */
+.sidebar .nav-item:hover i,
+.sidebar .nav-item:hover span:not(.nav-badge) {
+    color: white !important;
+}
+
+/* Active items - solid white */
 .sidebar .nav-item.active i,
 .sidebar .nav-item.active span:not(.nav-badge),
 .flyout-item.active i,
 .flyout-item.active span {
-    mix-blend-mode: normal !important;
     color: white !important;
 }
 
-/* Hover state - ensure visibility */
-.sidebar .nav-item:hover i,
-.sidebar .nav-item:hover span:not(.nav-badge) {
-    mix-blend-mode: normal !important;
-    color: white !important;
-}
-
-/* Flyout menu position adjustment */
-.sidebar:not(.collapsed) .flyout-menu {
-    left: calc(var(--sidebar-width) + var(--pill-margin) + 8px) !important;
-}
-
-.sidebar.collapsed .flyout-menu {
-    left: calc(var(--sidebar-width-collapsed) + var(--pill-margin) + 8px) !important;
-}
-
-/* Nav item flyout container */
+/* Nav item flyout container - ensure proper positioning */
 .nav-item-flyout {
     position: static !important;
     overflow: visible !important;
 }
 
 /* ============================================
-   DARK MODE - Darker frosted glass
+   DARK MODE - Same dark glass, slightly more opaque
    ============================================ */
 .dark-mode .sidebar {
-    --glass-bg: rgba(15, 23, 42, 0.75);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+    --glass-bg: rgba(15, 23, 42, 0.9);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
 }
 
 .dark-mode .sidebar-profile__bg {
@@ -234,7 +238,7 @@ html, body {
 }
 
 .dark-mode .flyout-menu {
-    background: rgba(15, 23, 42, 0.9) !important;
+    background: rgba(15, 23, 42, 0.95) !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
@@ -280,8 +284,34 @@ html, body {
         width: 100% !important;
     }
 
-    /* Mobile flyout - inline style */
+    /* Mobile flyout - inline collapsible style, not fixed popup */
     .flyout-menu {
+        position: static !important;
         left: auto !important;
+        top: auto !important;
+        transform: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        max-height: 0;
+        overflow: hidden;
+    }
+
+    .nav-item-flyout.open .flyout-menu {
+        max-height: 300px;
+    }
+
+    .flyout-item {
+        padding-left: 2.5rem !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .flyout-header {
+        display: none;
     }
 }

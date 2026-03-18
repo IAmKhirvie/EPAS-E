@@ -21,6 +21,7 @@ class Certificate extends Model
         'status',
         'metadata',
         'pdf_path',
+        'template_used',
         'requested_by',
         'requested_at',
         'approved_by',
