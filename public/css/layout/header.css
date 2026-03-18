@@ -1,4 +1,5 @@
 /* ===== TOP NAVBAR ===== */
+/* Navbar is NOT affected by sidebar collapse - always fixed at left:0, full width */
 .top-navbar {
     height: var(--navbar-height);
     background: transparent;
@@ -9,14 +10,9 @@
     padding-right:  1.5rem;
     flex-shrink: 0;
     position: fixed;
-    left: var(--sidebar-width);
+    left: 0;
     right: 0;
     z-index: var(--z-navbar);
-    transition: left var(--transition-speed) ease;
-}
-
-.sidebar-collapsed .top-navbar {
-    left: var(--sidebar-width-collapsed);
 }
 
 .navbar-left-2 {
@@ -1019,7 +1015,6 @@ h3.user-card-subtitle {
 @media (max-width: 1032px) {
     /* Solid background navbar on mobile */
     .top-navbar {
-        left: 0 !important;
         z-index: var(--z-navbar);
         background: var(--card);
         border-bottom: 1px solid var(--border);
@@ -1028,10 +1023,6 @@ h3.user-card-subtitle {
         min-height: 56px;
         padding: 0 0.75rem;
         gap: 0.5rem;
-    }
-
-    .sidebar-collapsed .top-navbar {
-        left: 0 !important;
     }
 
     /* Hide full navbar-left on mobile */

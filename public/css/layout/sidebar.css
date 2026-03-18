@@ -573,16 +573,8 @@ html, body {
     margin-left: calc(var(--sidebar-width-collapsed) + (var(--pill-margin) * 2));
 }
 
-.top-navbar {
-    left: calc(var(--sidebar-width) + (var(--pill-margin) * 2));
-    width: 100%;
-}
-
-.sidebar.collapsed ~ .top-navbar,
-.sidebar.collapsed + .layout-wrapper .top-navbar {
-    left: calc(var(--sidebar-width-collapsed) + (var(--pill-margin) * 2));
-    width: calc(100% - var(--sidebar-width-collapsed) - (var(--pill-margin) * 2));
-}
+/* Top navbar is NOT affected by sidebar collapse - stays fixed at left:0, full width */
+/* Only .main-content adjusts its margin based on sidebar state */
 
 /* ============================================
    DARK MODE
@@ -710,11 +702,6 @@ html, body {
 
     .main-content {
         margin-left: 0;
-    }
-
-    .top-navbar {
-        left: 0;
-        width: 100%;
     }
 
     /* Mobile flyout - inline collapsible */
