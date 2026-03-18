@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid py-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
@@ -11,26 +11,26 @@
                 <div class="card-body">
                     <form action="{{ route('private.announcements.store') }}" method="POST">
                         @csrf
-                        
+
                         <!-- Title -->
                         <div class="mb-3">
                             <label for="title" class="form-label">Announcement Title <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('title') is-invalid @enderror" 
-                                   id="title" name="title" value="{{ old('title') }}" 
-                                   placeholder="Enter announcement title" required>
+                            <input type="text" class="form-control @error('title') is-invalid @enderror"
+                                id="title" name="title" value="{{ old('title') }}"
+                                placeholder="Enter announcement title" required>
                             @error('title')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <!-- Content -->
                         <div class="mb-3">
                             <label for="content" class="form-label">Announcement Content <span class="text-danger">*</span></label>
-                            <textarea class="form-control @error('content') is-invalid @enderror" 
-                                      id="content" name="content" rows="6" 
-                                      placeholder="Enter announcement content" required>{{ old('content') }}</textarea>
+                            <textarea class="form-control @error('content') is-invalid @enderror"
+                                id="content" name="content" rows="6"
+                                placeholder="Enter announcement content" required>{{ old('content') }}</textarea>
                             @error('content')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -38,28 +38,28 @@
                             <!-- Publish Date & Time -->
                             <div class="col-md-6 mb-3">
                                 <label for="publish_at" class="form-label">Publish Date & Time</label>
-                                <input type="datetime-local" class="form-control @error('publish_at') is-invalid @enderror" 
-                                       id="publish_at" name="publish_at" value="{{ old('publish_at') }}"
-                                       placeholder="Leave empty to publish immediately">
+                                <input type="datetime-local" class="form-control @error('publish_at') is-invalid @enderror"
+                                    id="publish_at" name="publish_at" value="{{ old('publish_at') }}"
+                                    placeholder="Leave empty to publish immediately">
                                 <div class="form-text">
                                     Schedule when to publish this announcement. Leave empty to publish immediately.
                                 </div>
                                 @error('publish_at')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <!-- Deadline (Optional) -->
                             <div class="col-md-6 mb-3">
                                 <label for="deadline" class="form-label">Deadline (Optional)</label>
-                                <input type="datetime-local" class="form-control @error('deadline') is-invalid @enderror" 
-                                       id="deadline" name="deadline" value="{{ old('deadline') }}"
-                                       placeholder="Set a deadline if applicable">
+                                <input type="datetime-local" class="form-control @error('deadline') is-invalid @enderror"
+                                    id="deadline" name="deadline" value="{{ old('deadline') }}"
+                                    placeholder="Set a deadline if applicable">
                                 <div class="form-text">
                                     Set a deadline for this announcement (e.g., for assignments, events).
                                 </div>
                                 @error('deadline')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -68,8 +68,8 @@
                             <!-- Urgent Checkbox -->
                             <div class="col-md-6 mb-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="is_urgent" name="is_urgent" value="1" 
-                                           {{ old('is_urgent') ? 'checked' : '' }}>
+                                    <input class="form-check-input" type="checkbox" id="is_urgent" name="is_urgent" value="1"
+                                        {{ old('is_urgent') ? 'checked' : '' }}>
                                     <label class="form-check-label" for="is_urgent">
                                         <strong>Mark as Urgent</strong>
                                     </label>
@@ -82,8 +82,8 @@
                             <!-- Pin Checkbox -->
                             <div class="col-md-6 mb-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="is_pinned" name="is_pinned" value="1" 
-                                           {{ old('is_pinned') ? 'checked' : '' }}>
+                                    <input class="form-check-input" type="checkbox" id="is_pinned" name="is_pinned" value="1"
+                                        {{ old('is_pinned') ? 'checked' : '' }}>
                                     <label class="form-check-label" for="is_pinned">
                                         <strong>Pin to Top</strong>
                                     </label>
@@ -99,7 +99,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="target_roles" class="form-label">Target Roles</label>
                                 <select class="form-select @error('target_roles') is-invalid @enderror"
-                                        id="target_roles" name="target_roles">
+                                    id="target_roles" name="target_roles">
                                     <option value="" {{ old('target_roles') === null ? 'selected' : '' }}>All Roles</option>
                                     <option value="student" {{ old('target_roles') === 'student' ? 'selected' : '' }}>Students Only</option>
                                     <option value="instructor" {{ old('target_roles') === 'instructor' ? 'selected' : '' }}>Instructors Only</option>
@@ -109,7 +109,7 @@
                                 </select>
                                 <div class="form-text">Leave as "All Roles" to reach everyone.</div>
                                 @error('target_roles')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
@@ -117,13 +117,13 @@
                             <div class="col-md-6 mb-3">
                                 <label for="target_sections" class="form-label">Target Sections</label>
                                 <input type="text" class="form-control @error('target_sections') is-invalid @enderror"
-                                       id="target_sections" name="target_sections" value="{{ old('target_sections') }}"
-                                       placeholder="e.g., A1,B1,C1">
+                                    id="target_sections" name="target_sections" value="{{ old('target_sections') }}"
+                                    placeholder="e.g., A1,B1,C1">
                                 <div class="form-text">
                                     Comma-separated list of sections. Leave empty to reach all sections.
                                 </div>
                                 @error('target_sections')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -133,7 +133,7 @@
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-info-circle me-2"></i>
                                 <div>
-                                    <strong>Current Time:</strong> 
+                                    <strong>Current Time:</strong>
                                     <span id="current-time">{{ now()->format('F j, Y g:i A') }}</span>
                                 </div>
                             </div>
@@ -156,42 +156,42 @@
 </div>
 
 <script>
-// Update current time every minute
-function updateCurrentTime() {
+    // Update current time every minute
+    function updateCurrentTime() {
+        const now = new Date();
+        const options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+        };
+        document.getElementById('current-time').textContent = now.toLocaleDateString('en-US', options);
+    }
+
+    // Update time immediately and then every minute
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 60000);
+
+    // Set minimum datetime for publish_at and deadline to current time
     const now = new Date();
-    const options = { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: 'numeric', 
-        minute: 'numeric',
-        hour12: true 
-    };
-    document.getElementById('current-time').textContent = now.toLocaleDateString('en-US', options);
-}
+    const nowFormatted = now.toISOString().slice(0, 16);
 
-// Update time immediately and then every minute
-updateCurrentTime();
-setInterval(updateCurrentTime, 60000);
-
-// Set minimum datetime for publish_at and deadline to current time
-const now = new Date();
-const nowFormatted = now.toISOString().slice(0, 16);
-
-document.getElementById('publish_at').min = nowFormatted;
-document.getElementById('deadline').min = nowFormatted;
+    document.getElementById('publish_at').min = nowFormatted;
+    document.getElementById('deadline').min = nowFormatted;
 </script>
 
 <style>
-.form-text {
-    font-size: 0.875rem;
-    color: #6c757d;
-}
+    .form-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
 
-.alert-info {
-    background-color: #d1ecf1;
-    border-color: #bee5eb;
-    color: #0c5460;
-}
+    .alert-info {
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+        color: #0c5460;
+    }
 </style>
 @endsection

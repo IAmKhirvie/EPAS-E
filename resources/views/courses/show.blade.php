@@ -3,7 +3,7 @@
 @section('title', $course->course_name . ' - EPAS-E')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid py-5">
     <div class="row">
         <div class="col-12">
             <x-back-button :route="route('courses.index')" label="Back to Courses" />

@@ -22,76 +22,15 @@
                 <i class="fa-solid fa-house"></i>
             </a>
         </div>
-
-        <!-- About Icon -->
-        <div class="navbar-item">
-            <a class="icon-button" href="{{ route('about') }}" title="About">
-                <i class="fa-solid fa-circle-info"></i>
-            </a>
-        </div>
-
-        <!-- Contact Icon -->
-        <div class="navbar-item">
-            <a class="icon-button" href="{{ route('contact') }}" title="Contact">
-                <i class="fa-solid fa-phone"></i>
-            </a>
-        </div>
-
-        <!-- Dark Mode Toggle -->
-        <div class="navbar-item">
-            <button class="icon-button" id="dark-mode-toggle" title="Toggle Theme">
-                <i class="fas fa-moon" id="dark-mode-icon"></i>
-            </button>
-        </div>
-
-        {{-- ═══ GUEST: Login Dropdown ═══ --}}
-        @guest
-        <div class="navbar-item">
-            <button class="icon-button" id="login-dropdown-btn" title="Login">
-                <i class="fa-solid fa-user"></i>
-            </button>
-            <div class="dropdown" id="login-dropdown">
-                <div class="dropdown-content">
-                    <div class="login-modal-header">
-                        <h6>Choose Login Portal</h6>
-                    </div>
-                    <a class="dropdown-item login-option admin" href="{{ route('admin.login') }}">
-                        <i class="fas fa-user-shield"></i>
-                        <div>
-                            <strong>Admin Login</strong>
-                            <small class="d-block">System Administration</small>
-                        </div>
-                    </a>
-                    <a class="dropdown-item login-option instructor" href="{{ route('instructor.login') }}">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                        <div>
-                            <strong>Instructor Login</strong>
-                            <small class="d-block">Teaching Portal</small>
-                        </div>
-                    </a>
-                    <a class="dropdown-item login-option student" href="{{ route('login') }}">
-                        <i class="fas fa-user-graduate"></i>
-                        <div>
-                            <strong>Student Login</strong>
-                            <small class="d-block">Learning Portal</small>
-                        </div>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item login-option" href="{{ route('register') }}">
-                        <i class="fas fa-user-plus"></i>
-                        <div>
-                            <strong>Student Registration</strong>
-                            <small class="d-block">Create new account</small>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-        @endguest
-
         {{-- ═══ AUTHENTICATED: Notifications + User Avatar ═══ --}}
         @auth
         @php $user = Auth::user(); @endphp
+        <!-- Dark Mode Toggle -->
+        <div class="navbar-item">
+            <a class="icon-button" href="{{ route('dashboard') }}" title="Contact">
+                <i class="fas fa-chart-bar"></i>
+            </a>
+        </div>
 
         <!-- Notifications / Announcements -->
         <div class="navbar-item">
@@ -188,7 +127,7 @@
         <div class="navbar-item">
             {{-- Desktop: compact avatar button --}}
             <button class="user-button user-button--desktop" id="user-menu-btn">
-                <div class="avatar avatar--icon">
+                <div class="icon-button" id="desktop-avatar-trigger" title="Click to change photo">
                     <i class="fas fa-user"></i>
                 </div>
             </button>
@@ -208,7 +147,7 @@
                 <div class="dropdown-content">
                     {{-- Profile Header — ID card style --}}
                     <div class="user-card-header" id="dropdown-avatar-trigger" title="Tap to change photo"
-                         style="cursor: pointer; {{ $user->profile_image ? 'background-image: url(' . $user->profile_image_url . ');' : '' }}">
+                        style="cursor: pointer; {{ $user->profile_image ? 'background-image: url(' . $user->profile_image_url . ');' : '' }}">
                         <div class="user-card-header-overlay"></div>
                         @if(!$user->profile_image)
                         <span class="user-card-header-initials">{{ $user->initials }}</span>
@@ -280,10 +219,16 @@
                     @endif
 
                     {{-- Navigation Links --}}
-                    <a href="{{ route('dashboard') }}" class="dropdown-item">
-                        <i class="fas fa-chart-bar" aria-hidden="true"></i>
-                        Dashboard
+                    <a href="{{ route('about') }}" class="dropdown-item">
+                        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                        About Us
                     </a>
+
+                    <a href="{{ route('contact') }}" class="dropdown-item">
+                        <i class="fa-solid fa-phone" aria-hidden="true"></i>
+                        Contact
+                    </a>
+
                     <a href="{{ route('settings.index') }}" class="dropdown-item">
                         <i class="fas fa-cog" aria-hidden="true"></i>
                         Settings
@@ -304,6 +249,53 @@
             </div>
         </div>
         @endauth
+
+
+
+        {{-- ═══ GUEST: Login Dropdown ═══ --}}
+        @guest
+        <div class="navbar-item">
+            <button class="icon-button" id="login-dropdown-btn" title="Login">
+                <i class="fa-solid fa-user"></i>
+            </button>
+            <div class="dropdown" id="login-dropdown">
+                <div class="dropdown-content">
+                    <div class="login-modal-header">
+                        <h6>Choose Login Portal</h6>
+                    </div>
+                    <a class="dropdown-item login-option admin" href="{{ route('admin.login') }}">
+                        <i class="fas fa-user-shield"></i>
+                        <div>
+                            <strong>Admin Login</strong>
+                            <small class="d-block">System Administration</small>
+                        </div>
+                    </a>
+                    <a class="dropdown-item login-option instructor" href="{{ route('instructor.login') }}">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <div>
+                            <strong>Instructor Login</strong>
+                            <small class="d-block">Teaching Portal</small>
+                        </div>
+                    </a>
+                    <a class="dropdown-item login-option student" href="{{ route('login') }}">
+                        <i class="fas fa-user-graduate"></i>
+                        <div>
+                            <strong>Student Login</strong>
+                            <small class="d-block">Learning Portal</small>
+                        </div>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item login-option" href="{{ route('register') }}">
+                        <i class="fas fa-user-plus"></i>
+                        <div>
+                            <strong>Student Registration</strong>
+                            <small class="d-block">Create new account</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        @endguest
     </div>
 </header>
 
@@ -322,52 +314,56 @@
 
 <!-- Avatar upload trigger script -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var fileInput = document.getElementById('navbar-avatar-upload');
-    var form = document.getElementById('navbar-avatar-form');
-    if (!fileInput || !form) return;
+    document.addEventListener('DOMContentLoaded', function() {
+        var fileInput = document.getElementById('navbar-avatar-upload');
+        var form = document.getElementById('navbar-avatar-form');
+        if (!fileInput || !form) return;
 
-    ['mobile-avatar-trigger', 'dropdown-avatar-trigger'].forEach(function(id) {
-        var trigger = document.getElementById(id);
-        if (!trigger) return;
-        trigger.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            fileInput.click();
+        ['mobile-avatar-trigger', 'dropdown-avatar-trigger'].forEach(function(id) {
+            var trigger = document.getElementById(id);
+            if (!trigger) return;
+            trigger.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                fileInput.click();
+            });
+        });
+
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                form.submit();
+            }
         });
     });
-
-    fileInput.addEventListener('change', function() {
-        if (this.files && this.files.length > 0) {
-            form.submit();
-        }
-    });
-});
 </script>
 
 <!-- Dark mode toggle sync for user card -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var toggle = document.getElementById('user-card-dark-toggle');
-    if (!toggle) return;
-    toggle.checked = document.body.classList.contains('dark-mode');
-    toggle.addEventListener('change', function() {
-        var isDark = document.body.classList.contains('dark-mode');
-        var newTheme = isDark ? 'light' : 'dark';
-        document.body.classList.toggle('dark-mode', !isDark);
-        document.documentElement.classList.toggle('dark-mode', !isDark);
-        localStorage.setItem('theme', newTheme);
-        var icon = document.getElementById('dark-mode-icon');
-        if (icon) icon.className = !isDark ? 'fas fa-sun' : 'fas fa-moon';
-        window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: newTheme } }));
+    document.addEventListener('DOMContentLoaded', function() {
+        var toggle = document.getElementById('user-card-dark-toggle');
+        if (!toggle) return;
+        toggle.checked = document.body.classList.contains('dark-mode');
+        toggle.addEventListener('change', function() {
+            var isDark = document.body.classList.contains('dark-mode');
+            var newTheme = isDark ? 'light' : 'dark';
+            document.body.classList.toggle('dark-mode', !isDark);
+            document.documentElement.classList.toggle('dark-mode', !isDark);
+            localStorage.setItem('theme', newTheme);
+            var icon = document.getElementById('dark-mode-icon');
+            if (icon) icon.className = !isDark ? 'fas fa-sun' : 'fas fa-moon';
+            window.dispatchEvent(new CustomEvent('themeChange', {
+                detail: {
+                    theme: newTheme
+                }
+            }));
+        });
+        window.addEventListener('themeChange', function(e) {
+            toggle.checked = (e.detail.theme === 'dark');
+        });
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'theme') toggle.checked = (e.newValue === 'dark');
+        });
     });
-    window.addEventListener('themeChange', function(e) {
-        toggle.checked = (e.detail.theme === 'dark');
-    });
-    window.addEventListener('storage', function(e) {
-        if (e.key === 'theme') toggle.checked = (e.newValue === 'dark');
-    });
-});
 </script>
 @endauth
 
@@ -385,7 +381,12 @@ document.addEventListener('DOMContentLoaded', function() {
 <style>
     /* Lobby navbar — transparent */
     .top-navbar.lobby-navbar {
-        background: transparent !important;
+        background: var(--light) !important;
+        box-shadow: none !important;
+    }
+
+    .dark-mode .top-navbar.lobby-navbar {
+        background: var(--dark) !important;
         box-shadow: none !important;
     }
 

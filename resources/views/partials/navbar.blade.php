@@ -3,9 +3,6 @@
 
     <!-- Left side - Toggle, Logo, and Title -->
     <div class="navbar-left">
-        <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
-            <i class="fas fa-bars" aria-hidden="true"></i>
-        </button>
         <a class="navbar-brand" href="{{ route('lobby') }}">
             <div class="navbar-logo-container">
                 <img src="{{ dynamic_asset('assets/EPAS-E.png') }}" alt="EPAS-E LMS" class="logo">
@@ -15,13 +12,13 @@
                 </div>
             </div>
         </a>
+        <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+        </button>
     </div>
 
     <!-- Left side - Logo and Title (mobile) -->
     <div class="navbar-left-2">
-        <button class="mobile-sidebar-toggle" id="mobile-sidebar-toggle" aria-label="Open menu">
-            <i class="fas fa-bars" aria-hidden="true"></i>
-        </button>
         <a class="navbar-brand" href="{{ route('lobby') }}">
             <div class="navbar-logo-container">
                 <img src="{{ dynamic_asset('assets/EPAS-E.png') }}" alt="EPAS-E LMS" class="logo">
@@ -148,7 +145,7 @@
             @php $user = Auth::user(); @endphp
             {{-- Desktop: compact avatar button --}}
             <button class="user-button user-button--desktop" id="user-menu-btn">
-                <div class="avatar avatar--icon">
+                <div class="icon-button" id="desktop-avatar-trigger" title="Click to change photo">
                     <i class="fas fa-user"></i>
                 </div>
             </button>
@@ -168,7 +165,7 @@
                 <div class="dropdown-content">
                     {{-- Profile Header —  ID card style --}}
                     <div class="user-card-header" id="dropdown-avatar-trigger" title="Tap to change photo"
-                         style="cursor: pointer; {{ $user->profile_image ? 'background-image: url(' . $user->profile_image_url . ');' : '' }}">
+                        style="cursor: pointer; {{ $user->profile_image ? 'background-image: url(' . $user->profile_image_url . ');' : '' }}">
                         <div class="user-card-header-overlay"></div>
                         @if(!$user->profile_image)
                         <span class="user-card-header-initials">{{ $user->initials }}</span>
@@ -308,63 +305,67 @@
 
 <!-- Avatar upload trigger script -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var fileInput = document.getElementById('navbar-avatar-upload');
-    var form = document.getElementById('navbar-avatar-form');
-    if (!fileInput || !form) return;
+    document.addEventListener('DOMContentLoaded', function() {
+        var fileInput = document.getElementById('navbar-avatar-upload');
+        var form = document.getElementById('navbar-avatar-form');
+        if (!fileInput || !form) return;
 
-    // All avatar triggers (mobile avatar, dropdown avatar)
-    ['mobile-avatar-trigger', 'dropdown-avatar-trigger'].forEach(function(id) {
-        var trigger = document.getElementById(id);
-        if (!trigger) return;
-        trigger.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            fileInput.click();
+        // All avatar triggers (mobile avatar, dropdown avatar)
+        ['mobile-avatar-trigger', 'dropdown-avatar-trigger'].forEach(function(id) {
+            var trigger = document.getElementById(id);
+            if (!trigger) return;
+            trigger.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                fileInput.click();
+            });
+        });
+
+        // Auto-submit when file is selected
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                form.submit();
+            }
         });
     });
-
-    // Auto-submit when file is selected
-    fileInput.addEventListener('change', function() {
-        if (this.files && this.files.length > 0) {
-            form.submit();
-        }
-    });
-});
 </script>
 
 <!-- Dark mode toggle sync for user card -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var toggle = document.getElementById('user-card-dark-toggle');
-    if (!toggle) return;
+    document.addEventListener('DOMContentLoaded', function() {
+        var toggle = document.getElementById('user-card-dark-toggle');
+        if (!toggle) return;
 
-    // Sync initial state
-    toggle.checked = document.body.classList.contains('dark-mode');
+        // Sync initial state
+        toggle.checked = document.body.classList.contains('dark-mode');
 
-    // Toggle dark mode when switch changes
-    toggle.addEventListener('change', function() {
-        var isDark = document.body.classList.contains('dark-mode');
-        var newTheme = isDark ? 'light' : 'dark';
-        document.body.classList.toggle('dark-mode', !isDark);
-        document.documentElement.classList.toggle('dark-mode', !isDark);
-        localStorage.setItem('theme', newTheme);
-        // Update the navbar icon
-        var icon = document.getElementById('dark-mode-icon');
-        if (icon) icon.className = !isDark ? 'fas fa-sun' : 'fas fa-moon';
-        // Notify other components
-        window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: newTheme } }));
+        // Toggle dark mode when switch changes
+        toggle.addEventListener('change', function() {
+            var isDark = document.body.classList.contains('dark-mode');
+            var newTheme = isDark ? 'light' : 'dark';
+            document.body.classList.toggle('dark-mode', !isDark);
+            document.documentElement.classList.toggle('dark-mode', !isDark);
+            localStorage.setItem('theme', newTheme);
+            // Update the navbar icon
+            var icon = document.getElementById('dark-mode-icon');
+            if (icon) icon.className = !isDark ? 'fas fa-sun' : 'fas fa-moon';
+            // Notify other components
+            window.dispatchEvent(new CustomEvent('themeChange', {
+                detail: {
+                    theme: newTheme
+                }
+            }));
+        });
+
+        // Sync when theme changes from other sources
+        window.addEventListener('themeChange', function(e) {
+            toggle.checked = (e.detail.theme === 'dark');
+        });
+
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'theme') {
+                toggle.checked = (e.newValue === 'dark');
+            }
+        });
     });
-
-    // Sync when theme changes from other sources
-    window.addEventListener('themeChange', function(e) {
-        toggle.checked = (e.detail.theme === 'dark');
-    });
-
-    window.addEventListener('storage', function(e) {
-        if (e.key === 'theme') {
-            toggle.checked = (e.newValue === 'dark');
-        }
-    });
-});
 </script>

@@ -439,6 +439,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Set up periodic updates (every 30 seconds)
     setInterval(updateNotificationCount, 30000);
+
+    // Sidebar toggle rotation  ← ADD THIS
+    const toggle = document.getElementById('sidebar-toggle');
+    if (toggle) {
+        toggle.addEventListener('click', () => {
+            toggle.classList.toggle('active');
+        });
+    }
 });
 
 // Handle window resize for mobile menu

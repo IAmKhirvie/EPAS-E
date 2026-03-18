@@ -50,10 +50,10 @@
         </div>
 
         <div class="container">
-            <div class="row align-items-center">
+            <div class="row align-items-center mx-auto">
                 <div class="col-lg-6">
                     <div class="hero-content">
-                        <h1 class="hero-title fade-in-up">EPAS-E Learning Management System</h1>
+                        <h1 class="hero-title fade-in-up">EPAS - E Learning Management System</h1>
                         <p class="hero-subtitle fade-in-up delay-1">
                             Electronic Products Assembly and Servicing - Empowering students with hands-on technical education and digital learning experiences.
                         </p>
@@ -109,7 +109,7 @@
     <section id="features" class="features-section">
         <div class="container">
             <h2 class="section-title">Why Choose EPAS-E LMS?</h2>
-            <div class="row g-4">
+            <div class="row g-4 mx-auto">
                 <div class="col-lg-4 col-md-6">
                     <div class="card border-0 shadow-lg">
                         <div class="card-body">
@@ -168,7 +168,7 @@
     <!-- About Section -->
     <section id="about" class="about-section">
         <div class="container">
-            <div class="row align-items-center">
+            <div class="row align-items-center mx-auto">
                 <div class="col-lg-6">
                     <h2 class="section-title text-start">About EPAS-E LMS</h2>
                     <p class="lead">

@@ -289,6 +289,7 @@ html, body {
     height: 38px;
 }
 
+
 .nav-item i:first-child {
     width: 24px;
     min-width: 24px;
@@ -317,6 +318,11 @@ html, body {
 
 .nav-item:hover {
     background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.nav-item:active {
+    background: var(--primary);
     color: white;
 }
 
@@ -377,7 +383,7 @@ html, body {
     position: fixed;
     left: 3.5rem;
     transform: translateY(-50%);
-    margin-top: 60%;
+    margin-top: 70%;
     margin-left: 0.75rem;
     padding: 0.5rem 0.75rem;
     background: rgba(13, 110, 253, 0.95);
@@ -390,7 +396,6 @@ html, body {
     font-weight: 500;
     white-space: nowrap;
     opacity: 0;
-    visibility: hidden;
     pointer-events: none;
     transition: opacity 0.2s ease, visibility 0.2s ease;
     z-index: var(--z-tooltip);
@@ -480,8 +485,8 @@ html, body {
     padding: 0;
     margin: 0;
     /* Fixed position: right of sidebar, vertically centered */
-    left: calc(var(--sidebar-width) + var(--pill-margin) + 8px);
-    top: 50%;
+    left: calc(var(--sidebar-width) + var(--pill-margin) - 10px);
+    top: 87%;
     transform: translateY(-50%) scale(0.95);
 }
 

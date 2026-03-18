@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 :root {
     --primary: #2563eb;
     --primary-light: #3b82f6;
@@ -20,7 +21,7 @@
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Roboto', sans-serif;
     background: var(--light);
     color: #334155;
     overflow-x: hidden;
@@ -85,11 +86,12 @@ h1, h2, h3, h4, h5, h6 {
 .hero-content {
     position: relative;
     z-index: 2;
+    padding: 2rem;
 }
 
 .hero-title {
     font-size: 3.5rem;
-    font-weight: 800;
+    font-weight: bold;
     margin-bottom: 1.5rem;
     color: white;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -97,6 +99,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .hero-subtitle {
     font-size: 1.3rem;
+    font-weight: 300;
+    text-justify: justify;
     margin-bottom: 2.5rem;
     opacity: 0.9;
     max-width: 600px;

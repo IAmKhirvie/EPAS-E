@@ -3,7 +3,7 @@
 @section('title', 'Course Analytics')
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container-fluid py-5">
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-12">

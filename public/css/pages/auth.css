@@ -1,7 +1,7 @@
 :root {
     --primary: #0d6efd;
     --primary-light: #3c8bff;
-    --primary-dark: #0056b3;
+    --primary-dark: #16213e;
     --secondary: #7209b7;
     --success: #4cc9f0;
     --light: #f8f9fa;
@@ -91,7 +91,7 @@ body {
   top: 0;
   width: clamp(400px, 40vw, 500px);
   height: 100%;
-  background: #e9ecee;
+  background: var(--light);
   padding: 30px 40px;
   padding-top: 85px;
   box-shadow: -4px 0 8px rgba(0, 0, 0, 0.1);
@@ -127,6 +127,7 @@ body {
   font-size: 0.9em;
   pointer-events: none;
   transition: 0.22s ease all;
+  background: var(--light);
 }
 
 .input input {
@@ -837,6 +838,7 @@ body.dark-mode .input {
 
 body.dark-mode .input label {
     color: #a0aec0;
+    background: var(--primary-dark)
 }
 
 body.dark-mode .input input {

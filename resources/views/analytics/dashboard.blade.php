@@ -3,7 +3,7 @@
 @section('title', 'Analytics Dashboard')
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container-fluid py-5 py-4">
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-12">
@@ -188,32 +188,32 @@
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
                         @forelse($metrics['performance']['top_performers'] ?? [] as $index => $performer)
-                            <li class="list-group-item d-flex align-items-center py-3">
-                                <div class="me-3">
-                                    @if($index === 0)
-                                        <span class="badge bg-warning text-dark rounded-circle p-2" class="badge-circle">
-                                            <i class="fas fa-crown"></i>
-                                        </span>
-                                    @elseif($index === 1)
-                                        <span class="badge bg-secondary rounded-circle p-2" class="badge-circle">2</span>
-                                    @elseif($index === 2)
-                                        <span class="badge bg-danger rounded-circle p-2" class="badge-circle">3</span>
-                                    @else
-                                        <span class="badge bg-light text-dark rounded-circle p-2" class="badge-circle">{{ $index + 1 }}</span>
-                                    @endif
-                                </div>
-                                <div class="flex-grow-1">
-                                    <strong>{{ $performer->first_name }} {{ $performer->last_name }}</strong>
-                                </div>
-                                <div>
-                                    <span class="badge bg-primary rounded-pill px-3">{{ $performer->total_points ?? 0 }} pts</span>
-                                </div>
-                            </li>
+                        <li class="list-group-item d-flex align-items-center py-3">
+                            <div class="me-3">
+                                @if($index === 0)
+                                <span class="badge bg-warning text-dark rounded-circle p-2" class="badge-circle">
+                                    <i class="fas fa-crown"></i>
+                                </span>
+                                @elseif($index === 1)
+                                <span class="badge bg-secondary rounded-circle p-2" class="badge-circle">2</span>
+                                @elseif($index === 2)
+                                <span class="badge bg-danger rounded-circle p-2" class="badge-circle">3</span>
+                                @else
+                                <span class="badge bg-light text-dark rounded-circle p-2" class="badge-circle">{{ $index + 1 }}</span>
+                                @endif
+                            </div>
+                            <div class="flex-grow-1">
+                                <strong>{{ $performer->first_name }} {{ $performer->last_name }}</strong>
+                            </div>
+                            <div>
+                                <span class="badge bg-primary rounded-pill px-3">{{ $performer->total_points ?? 0 }} pts</span>
+                            </div>
+                        </li>
                         @empty
-                            <li class="list-group-item text-center text-muted py-4">
-                                <i class="fas fa-trophy fa-2x mb-2 d-block text-warning opacity-50"></i>
-                                No data available
-                            </li>
+                        <li class="list-group-item text-center text-muted py-4">
+                            <i class="fas fa-trophy fa-2x mb-2 d-block text-warning opacity-50"></i>
+                            No data available
+                        </li>
                         @endforelse
                     </ul>
                 </div>
@@ -230,29 +230,29 @@
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
                         @forelse($metrics['performance']['at_risk_students'] ?? [] as $student)
-                            <li class="list-group-item d-flex align-items-center py-3">
-                                <div class="rounded-circle bg-danger bg-opacity-10 p-2 me-3">
-                                    <i class="fas fa-user text-danger"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <strong>{{ $student->first_name }} {{ $student->last_name }}</strong>
-                                    <br><small class="text-muted">{{ $student->email }}</small>
-                                </div>
-                                <div class="text-end">
-                                    <small class="text-danger">
-                                        @if($student->last_login)
-                                            {{ $student->last_login->diffForHumans() }}
-                                        @else
-                                            Never logged in
-                                        @endif
-                                    </small>
-                                </div>
-                            </li>
+                        <li class="list-group-item d-flex align-items-center py-3">
+                            <div class="rounded-circle bg-danger bg-opacity-10 p-2 me-3">
+                                <i class="fas fa-user text-danger"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <strong>{{ $student->first_name }} {{ $student->last_name }}</strong>
+                                <br><small class="text-muted">{{ $student->email }}</small>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-danger">
+                                    @if($student->last_login)
+                                    {{ $student->last_login->diffForHumans() }}
+                                    @else
+                                    Never logged in
+                                    @endif
+                                </small>
+                            </div>
+                        </li>
                         @empty
-                            <li class="list-group-item text-center text-muted py-4">
-                                <i class="fas fa-check-circle fa-2x mb-2 d-block text-success"></i>
-                                All students are active!
-                            </li>
+                        <li class="list-group-item text-center text-muted py-4">
+                            <i class="fas fa-check-circle fa-2x mb-2 d-block text-success"></i>
+                            All students are active!
+                        </li>
                         @endforelse
                     </ul>
                 </div>
@@ -300,131 +300,138 @@
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Module Performance Chart (Bar)
-    const moduleCtx = document.getElementById('modulePerformanceChart');
-    if (moduleCtx) {
-        const moduleData = @json($metrics['modules']['modules_list'] ?? []);
+    document.addEventListener('DOMContentLoaded', function() {
+        // Module Performance Chart (Bar)
+        const moduleCtx = document.getElementById('modulePerformanceChart');
+        if (moduleCtx) {
+            const moduleData = @json($metrics['modules']['modules_list'] ?? []);
 
-        new Chart(moduleCtx, {
-            type: 'bar',
-            data: {
-                labels: moduleData.map(m => m.module_number || m.name.substring(0, 15)),
-                datasets: [
-                    {
-                        label: 'Pass Rate %',
-                        data: moduleData.map(m => m.pass_rate),
-                        backgroundColor: 'rgba(40, 167, 69, 0.7)',
-                        borderColor: 'rgba(40, 167, 69, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Fail Rate %',
-                        data: moduleData.map(m => m.fail_rate),
-                        backgroundColor: 'rgba(220, 53, 69, 0.7)',
-                        borderColor: 'rgba(220, 53, 69, 1)',
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
+            new Chart(moduleCtx, {
+                type: 'bar',
+                data: {
+                    labels: moduleData.map(m => m.module_number || m.name.substring(0, 15)),
+                    datasets: [{
+                            label: 'Pass Rate %',
+                            data: moduleData.map(m => m.pass_rate),
+                            backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                            borderColor: 'rgba(40, 167, 69, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Fail Rate %',
+                            data: moduleData.map(m => m.fail_rate),
+                            backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                            borderColor: 'rgba(220, 53, 69, 1)',
+                            borderWidth: 1
+                        }
+                    ]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            callback: function(value) {
-                                return value + '%';
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
                             }
                         }
                     }
                 }
-            }
-        });
-    }
+            });
+        }
 
-    // Overall Results Pie Chart
-    const pieCtx = document.getElementById('overallResultsChart');
-    if (pieCtx) {
-        const totalPassed = {{ $metrics['modules']['total_passed'] ?? 0 }};
-        const totalFailed = {{ $metrics['modules']['total_failed'] ?? 0 }};
-
-        new Chart(pieCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Passed', 'Failed'],
-                datasets: [{
-                    data: [totalPassed, totalFailed],
-                    backgroundColor: [
-                        'rgba(40, 167, 69, 0.8)',
-                        'rgba(220, 53, 69, 0.8)'
-                    ],
-                    borderColor: [
-                        'rgba(40, 167, 69, 1)',
-                        'rgba(220, 53, 69, 1)'
-                    ],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
+        // Overall Results Pie Chart
+        const pieCtx = document.getElementById('overallResultsChart');
+        if (pieCtx) {
+            const totalPassed = {
+                {
+                    $metrics['modules']['total_passed'] ?? 0
                 }
-            }
-        });
-    }
+            };
+            const totalFailed = {
+                {
+                    $metrics['modules']['total_failed'] ?? 0
+                }
+            };
 
-    // Daily Activity Line Chart
-    const dailyCtx = document.getElementById('dailyActivityChart');
-    if (dailyCtx) {
-        const dailyData = @json($metrics['engagement']['daily_active_users'] ?? []);
-
-        new Chart(dailyCtx, {
-            type: 'line',
-            data: {
-                labels: dailyData.map(d => d.date),
-                datasets: [{
-                    label: 'Active Users',
-                    data: dailyData.map(d => d.count),
-                    fill: true,
-                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                    borderColor: 'rgba(13, 110, 253, 1)',
-                    tension: 0.4,
-                    pointBackgroundColor: 'rgba(13, 110, 253, 1)',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
+            new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Passed', 'Failed'],
+                    datasets: [{
+                        data: [totalPassed, totalFailed],
+                        backgroundColor: [
+                            'rgba(40, 167, 69, 0.8)',
+                            'rgba(220, 53, 69, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(220, 53, 69, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
                         }
                     }
                 }
-            }
-        });
-    }
-});
+            });
+        }
+
+        // Daily Activity Line Chart
+        const dailyCtx = document.getElementById('dailyActivityChart');
+        if (dailyCtx) {
+            const dailyData = @json($metrics['engagement']['daily_active_users'] ?? []);
+
+            new Chart(dailyCtx, {
+                type: 'line',
+                data: {
+                    labels: dailyData.map(d => d.date),
+                    datasets: [{
+                        label: 'Active Users',
+                        data: dailyData.map(d => d.count),
+                        fill: true,
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        borderColor: 'rgba(13, 110, 253, 1)',
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgba(13, 110, 253, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
 </script>
 @endsection

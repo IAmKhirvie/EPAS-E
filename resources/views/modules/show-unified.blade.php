@@ -38,15 +38,15 @@
                 <i class="fas fa-arrow-left me-1"></i> Back
             </a>
             @if(Auth::user()->role !== 'student')
-                <a href="{{ route('courses.modules.edit', [$course, $module]) }}" class="btn btn-outline-primary btn-sm">
-                    <i class="fas fa-edit me-1"></i> Edit
-                </a>
+            <a href="{{ route('courses.modules.edit', [$course, $module]) }}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-edit me-1"></i> Edit
+            </a>
             @endif
         </div>
     </div>
 </div>
 
-<div class="container-fluid">
+<div class="container-fluid py-5">
     <div class="module-unified-layout">
         {{-- Main Content Area --}}
         <div class="main-content-section">
@@ -57,9 +57,9 @@
                         <div class="col-auto">
                             <div class="position-relative progress-circle-container">
                                 <svg viewBox="0 0 100 100" class="progress-circle-svg">
-                                    <circle cx="50" cy="50" r="40" fill="none" stroke="#e9ecef" stroke-width="8"/>
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="#e9ecef" stroke-width="8" />
                                     <circle cx="50" cy="50" r="40" fill="none" stroke="#0d6efd" stroke-width="8"
-                                            stroke-dasharray="251.2" stroke-dashoffset="251.2" id="progressCircle"/>
+                                        stroke-dasharray="251.2" stroke-dashoffset="251.2" id="progressCircle" />
                                 </svg>
                                 <div class="position-absolute top-50 start-50 translate-middle text-center">
                                     <strong id="progressText">0%</strong>
@@ -161,25 +161,25 @@
 
             {{-- Footer Navigation --}}
             @php
-                $courseModules = $course->modules()->where('is_active', true)->orderBy('order')->get();
-                $currentIndex = $courseModules->search(fn($m) => $m->id === $module->id);
-                $prevModule = $currentIndex > 0 ? $courseModules[$currentIndex - 1] : null;
-                $nextModule = $currentIndex !== false && $currentIndex < $courseModules->count() - 1 ? $courseModules[$currentIndex + 1] : null;
-            @endphp
-            <div class="d-flex justify-content-between mt-4 mb-3">
-                @if($prevModule)
-                <a href="{{ route('courses.modules.show', [$course, $prevModule, $prevModule->slug]) }}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-1"></i> {{ $prevModule->module_name }}
-                </a>
-                @else
-                <div></div>
-                @endif
-                @if($nextModule)
-                <a href="{{ route('courses.modules.show', [$course, $nextModule, $nextModule->slug]) }}" class="btn btn-primary">
-                    {{ $nextModule->module_name }} <i class="fas fa-arrow-right ms-1"></i>
-                </a>
-                @endif
-            </div>
+            $courseModules = $course->modules()->where('is_active', true)->orderBy('order')->get();
+            $currentIndex = $courseModules->search(fn($m) => $m->id === $module->id);
+            $prevModule = $currentIndex > 0 ? $courseModules[$currentIndex - 1] : null;
+            $nextModule = $currentIndex !== false && $currentIndex < $courseModules->count() - 1 ? $courseModules[$currentIndex + 1] : null;
+                @endphp
+                <div class="d-flex justify-content-between mt-4 mb-3">
+                    @if($prevModule)
+                    <a href="{{ route('courses.modules.show', [$course, $prevModule, $prevModule->slug]) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> {{ $prevModule->module_name }}
+                    </a>
+                    @else
+                    <div></div>
+                    @endif
+                    @if($nextModule)
+                    <a href="{{ route('courses.modules.show', [$course, $nextModule, $nextModule->slug]) }}" class="btn btn-primary">
+                        {{ $nextModule->module_name }} <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                    @endif
+                </div>
         </div>
 
         {{-- Right Sidebar --}}
@@ -237,52 +237,52 @@
 
                             {{-- Topics --}}
                             @if($sheet->topics && $sheet->topics->count() > 0)
-                                @foreach($sheet->topics as $topic)
-                                <div class="sidebar-topic-item" data-topic-id="{{ $topic->id }}" data-sheet-id="{{ $sheet->id }}">
-                                    <i class="fas fa-file-alt sidebar-topic-icon"></i>
-                                    <span>{{ $topic->title }}</span>
-                                </div>
-                                @endforeach
+                            @foreach($sheet->topics as $topic)
+                            <div class="sidebar-topic-item" data-topic-id="{{ $topic->id }}" data-sheet-id="{{ $sheet->id }}">
+                                <i class="fas fa-file-alt sidebar-topic-icon"></i>
+                                <span>{{ $topic->title }}</span>
+                            </div>
+                            @endforeach
                             @endif
 
                             {{-- Self-Checks --}}
                             @if($sheet->selfChecks && $sheet->selfChecks->count() > 0)
-                                @foreach($sheet->selfChecks as $sc)
-                                <a href="{{ route('self-checks.show', $sc) }}" class="sidebar-topic-item sidebar-topic-link">
-                                    <i class="fas fa-clipboard-check sidebar-topic-icon" style="color: #ffc107;"></i>
-                                    <span>{{ $sc->title }}</span>
-                                </a>
-                                @endforeach
+                            @foreach($sheet->selfChecks as $sc)
+                            <a href="{{ route('self-checks.show', $sc) }}" class="sidebar-topic-item sidebar-topic-link">
+                                <i class="fas fa-clipboard-check sidebar-topic-icon" style="color: #ffc107;"></i>
+                                <span>{{ $sc->title }}</span>
+                            </a>
+                            @endforeach
                             @endif
 
                             {{-- Task Sheets --}}
                             @if($sheet->taskSheets && $sheet->taskSheets->count() > 0)
-                                @foreach($sheet->taskSheets as $ts)
-                                <div class="sidebar-topic-item" data-sheet-id="{{ $sheet->id }}" data-assessment="task-sheet">
-                                    <i class="fas fa-clipboard-list sidebar-topic-icon" style="color: #0dcaf0;"></i>
-                                    <span>{{ $ts->title ?? 'Task Sheet' }}</span>
-                                </div>
-                                @endforeach
+                            @foreach($sheet->taskSheets as $ts)
+                            <div class="sidebar-topic-item" data-sheet-id="{{ $sheet->id }}" data-assessment="task-sheet">
+                                <i class="fas fa-clipboard-list sidebar-topic-icon" style="color: #0dcaf0;"></i>
+                                <span>{{ $ts->title ?? 'Task Sheet' }}</span>
+                            </div>
+                            @endforeach
                             @endif
 
                             {{-- Job Sheets --}}
                             @if($sheet->jobSheets && $sheet->jobSheets->count() > 0)
-                                @foreach($sheet->jobSheets as $js)
-                                <div class="sidebar-topic-item" data-sheet-id="{{ $sheet->id }}" data-assessment="job-sheet">
-                                    <i class="fas fa-hard-hat sidebar-topic-icon" style="color: #198754;"></i>
-                                    <span>{{ $js->title ?? 'Job Sheet' }}</span>
-                                </div>
-                                @endforeach
+                            @foreach($sheet->jobSheets as $js)
+                            <div class="sidebar-topic-item" data-sheet-id="{{ $sheet->id }}" data-assessment="job-sheet">
+                                <i class="fas fa-hard-hat sidebar-topic-icon" style="color: #198754;"></i>
+                                <span>{{ $js->title ?? 'Job Sheet' }}</span>
+                            </div>
+                            @endforeach
                             @endif
 
                             {{-- Document Assessments --}}
                             @if($sheet->documentAssessments && $sheet->documentAssessments->count() > 0)
-                                @foreach($sheet->documentAssessments as $da)
-                                <a href="{{ route('document-assessments.show', $da) }}" class="sidebar-topic-item sidebar-topic-link">
-                                    <i class="fas fa-file-word sidebar-topic-icon" style="color: #6f42c1;"></i>
-                                    <span>{{ $da->title }}</span>
-                                </a>
-                                @endforeach
+                            @foreach($sheet->documentAssessments as $da)
+                            <a href="{{ route('document-assessments.show', $da) }}" class="sidebar-topic-item sidebar-topic-link">
+                                <i class="fas fa-file-word sidebar-topic-icon" style="color: #6f42c1;"></i>
+                                <span>{{ $da->title }}</span>
+                            </a>
+                            @endforeach
                             @endif
                         </div>
                     </div>
@@ -345,61 +345,62 @@
 
 {{-- Data for JS --}}
 <div id="moduleData"
-     data-module-id="{{ $module->id }}"
-     data-course-id="{{ $course->id }}"
-     data-csrf="{{ csrf_token() }}"
-     data-base-url="{{ url('/courses/' . $course->id . '/module-' . $module->id) }}"
-     style="display: none;"></div>
+    data-module-id="{{ $module->id }}"
+    data-course-id="{{ $course->id }}"
+    data-csrf="{{ csrf_token() }}"
+    data-base-url="{{ url('/courses/' . $course->id . '/module-' . $module->id) }}"
+    style="display: none;"></div>
 
 {{-- Focus Mode Content Data --}}
 <script type="application/json" id="focusModeData">
-@php
-$focusContent = [];
+    @php
+    $focusContent = [];
 
-$focusContent[] = [
-    'type' => 'overview',
-    'title' => 'Module Overview: ' . $module->module_name,
-    'content' => $module->introduction ?? $module->learning_outcomes ?? 'Welcome to ' . $module->module_name,
-    'images' => $module->images ?? []
-];
-
-foreach($module->informationSheets as $sheet) {
     $focusContent[] = [
-        'type' => 'sheet',
-        'id' => $sheet->id,
-        'title' => 'Info Sheet ' . $sheet->sheet_number . ': ' . $sheet->title,
-        'content' => $sheet->content ?? '',
-        'images' => $sheet->parts ? collect($sheet->parts)->pluck('image')->filter()->values()->toArray() : []
+        'type' => 'overview',
+        'title' => 'Module Overview: '.$module - > module_name,
+        'content' => $module - > introduction ?? $module - > learning_outcomes ?? 'Welcome to '.$module - > module_name,
+        'images' => $module - > images ?? []
     ];
 
-    if($sheet->topics) {
-        foreach($sheet->topics as $topic) {
-            $topicImages = [];
-            if($topic->parts) {
-                foreach($topic->parts as $part) {
-                    if(!empty($part['image'])) {
-                        $topicImages[] = [
-                            'url' => $part['image'],
-                            'caption' => $part['title'] ?? ''
-                        ];
+    foreach($module - > informationSheets as $sheet) {
+        $focusContent[] = [
+            'type' => 'sheet',
+            'id' => $sheet - > id,
+            'title' => 'Info Sheet '.$sheet - > sheet_number.
+            ': '.$sheet - > title,
+            'content' => $sheet - > content ?? '',
+            'images' => $sheet - > parts ? collect($sheet - > parts) - > pluck('image') - > filter() - > values() - > toArray() : []
+        ];
+
+        if ($sheet - > topics) {
+            foreach($sheet - > topics as $topic) {
+                $topicImages = [];
+                if ($topic - > parts) {
+                    foreach($topic - > parts as $part) {
+                        if (!empty($part['image'])) {
+                            $topicImages[] = [
+                                'url' => $part['image'],
+                                'caption' => $part['title'] ?? ''
+                            ];
+                        }
                     }
                 }
-            }
 
-            $focusContent[] = [
-                'type' => 'topic',
-                'id' => $topic->id,
-                'sheetId' => $sheet->id,
-                'title' => $topic->title,
-                'content' => $topic->content ?? '',
-                'parts' => $topic->parts ?? [],
-                'images' => $topicImages
-            ];
+                $focusContent[] = [
+                    'type' => 'topic',
+                    'id' => $topic - > id,
+                    'sheetId' => $sheet - > id,
+                    'title' => $topic - > title,
+                    'content' => $topic - > content ?? '',
+                    'parts' => $topic - > parts ?? [],
+                    'images' => $topicImages
+                ];
+            }
         }
     }
-}
-@endphp
-@json($focusContent)
+    @endphp
+    @json($focusContent)
 </script>
 @endsection
 
