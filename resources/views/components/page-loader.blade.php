@@ -40,7 +40,7 @@
     var canvas = document.getElementById('circuit-canvas');
     if (!canvas) return;
 
-    var ctx = canvas.getContext('2d');
+    var ctx = canvas.getContext('2d', { willReadFrequently: true });
     var width = 200;
     var height = 200;
 

@@ -19,6 +19,9 @@
 
     <!-- Left side - Logo and Title (mobile) -->
     <div class="navbar-left-2">
+        <button class="mobile-sidebar-toggle" id="mobile-sidebar-toggle" aria-label="Open menu">
+            <i class="fas fa-bars" aria-hidden="true"></i>
+        </button>
         <a class="navbar-brand" href="{{ route('lobby') }}">
             <div class="navbar-logo-container">
                 <img src="{{ dynamic_asset('assets/EPAS-E.png') }}" alt="EPAS-E LMS" class="logo">
