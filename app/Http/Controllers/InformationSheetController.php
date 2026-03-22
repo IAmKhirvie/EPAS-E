@@ -9,14 +9,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Traits\SanitizesContent;
+use App\Models\Course;
+
 
 class InformationSheetController extends Controller
 {
     use SanitizesContent;
 
-    public function __construct(protected FileParsingService $fileParser)
-    {
-    }
+    public function __construct(protected FileParsingService $fileParser) {}
 
     public function create(Module $module)
     {
@@ -63,7 +63,6 @@ class InformationSheetController extends Controller
 
             return redirect()->route('content.management')
                 ->with('success', "Information Sheet {$informationSheet->sheet_number} created successfully!");
-
         } catch (\Exception $e) {
             Log::error('Information sheet creation failed: ' . $e->getMessage());
 
@@ -121,7 +120,6 @@ class InformationSheetController extends Controller
 
             return redirect()->route('content.management')
                 ->with('success', "Information Sheet {$informationSheet->sheet_number} updated successfully!");
-
         } catch (\Exception $e) {
             Log::error('Information sheet update failed: ' . $e->getMessage());
 
@@ -145,37 +143,24 @@ class InformationSheetController extends Controller
         return response()->download($filePath, $informationSheet->original_filename);
     }
 
-    public function destroy(Module $module, InformationSheet $informationSheet)
+    public function destroy(Course $course, Module $module, InformationSheet $informationSheet)
     {
         try {
-            $sheetNumber = $informationSheet->sheet_number;
-
-            // Delete attached file
-            if ($informationSheet->file_path) {
-                Storage::disk('public')->delete($informationSheet->file_path);
-            }
-
             $informationSheet->delete();
 
             if (request()->expectsJson()) {
-                return response()->json([
-                    'message' => "Information Sheet {$sheetNumber} deleted successfully!"
-                ]);
+                return response()->json(['message' => 'Information sheet deleted successfully!']);
             }
 
-            return redirect()->route('content.management')
-                ->with('success', "Information Sheet {$sheetNumber} deleted successfully!");
-
+            return redirect()->route('content.management')->with('success', 'Information sheet deleted!');
         } catch (\Exception $e) {
-            Log::error('Information sheet deletion failed: ' . $e->getMessage());
+            Log::error('Info sheet deletion failed: ' . $e->getMessage());
 
             if (request()->expectsJson()) {
-                return response()->json([
-                    'message' => 'Failed to delete information sheet. Please try again.'
-                ], 500);
+                return response()->json(['message' => 'Failed to delete. Please try again.'], 500);
             }
 
-            return back()->with('error', 'Failed to delete information sheet. Please try again.');
+            return back()->with('error', 'Failed to delete.');
         }
     }
 }

@@ -416,7 +416,7 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
             Route::post('/module-{module}/sheets', [InformationSheetController::class, 'store'])->name('sheets.store');
             Route::get('/module-{module}/sheets/{informationSheet}/edit', [InformationSheetController::class, 'edit'])->name('sheets.edit');
             Route::put('/module-{module}/sheets/{informationSheet}', [InformationSheetController::class, 'update'])->name('sheets.update');
-            Route::delete('/module-{module}/sheets/{informationSheet}', [InformationSheetController::class, 'destroy'])->name('sheets.destroy');
+            Route::delete('/module-{module}/information-sheets/{informationSheet}', [InformationSheetController::class, 'destroy'])->name('sheets.destroy');
             Route::get('/module-{module}/sheets/{informationSheet}/download', [InformationSheetController::class, 'download'])->name('sheets.download');
         });
 
@@ -504,7 +504,8 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
     })->name('modules.update');
 
     Route::delete('/modules/{module}', function (\App\Models\Module $module) {
-        return redirect()->route('courses.modules.destroy', [$module->course_id, $module]);
+        // Call the controller directly instead of redirecting (redirects don't work with DELETE)
+        return app(ModuleController::class)->destroy($module);
     })->name('modules.destroy');
 
     // Backward compatibility: legacy information sheet routes

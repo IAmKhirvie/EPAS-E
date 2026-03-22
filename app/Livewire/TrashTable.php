@@ -61,31 +61,111 @@ class TrashTable extends Component
         $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
     }
 
+    private function restoreCourseChildren(Course $course): void
+    {
+        $course->update(['is_active' => true]);
+
+        $modules = Module::onlyTrashed()->where('course_id', $course->id)->get();
+        foreach ($modules as $module) {
+            $module->restore();
+            $module->update(['is_active' => true]);
+            $this->restoreModuleChildren($module);
+        }
+    }
+
+    private function restoreModuleChildren(Module $module): void
+    {
+        $sheets = InformationSheet::onlyTrashed()->where('module_id', $module->id)->get();
+        foreach ($sheets as $sheet) {
+            $sheet->restore();
+            $this->restoreSheetChildren($sheet);
+        }
+    }
+
+    private function restoreSheetChildren(InformationSheet $sheet): void
+    {
+        SelfCheck::onlyTrashed()->where('information_sheet_id', $sheet->id)->restore();
+        TaskSheet::onlyTrashed()->where('information_sheet_id', $sheet->id)->restore();
+        JobSheet::onlyTrashed()->where('information_sheet_id', $sheet->id)->restore();
+        Homework::onlyTrashed()->where('information_sheet_id', $sheet->id)->restore();
+        Checklist::onlyTrashed()->where('information_sheet_id', $sheet->id)->restore();
+        Topic::onlyTrashed()->where('information_sheet_id', $sheet->id)->restore();
+    }
+
     public function restoreItem(string $type, int $id): void
     {
         try {
             $model = $this->getModelInstance($type, $id);
 
-            if (!$model) {
-                session()->flash('error', 'Item not found.');
+            if (!$model || !$this->canManageItem($model, $type)) {
+                session()->flash('error', 'Item not found or unauthorized.');
                 return;
             }
 
-            if (!$this->canManageItem($model, $type)) {
-                session()->flash('error', 'You do not have permission to restore this item.');
-                return;
-            }
-
+            // Restore parents first, then the item, then children
+            $this->restoreParents($type, $model);
             $model->restore();
 
-            // Remove from selection
+            match ($type) {
+                'course' => $this->restoreCourseChildren($model),
+                'module' => $this->restoreModuleChildren($model),
+                'information_sheet' => $this->restoreSheetChildren($model),
+                default => null,
+            };
+
             $uniqueKey = "{$type}_{$id}";
             $this->selectedItems = array_diff($this->selectedItems, [$uniqueKey]);
 
-            session()->flash('success', ucfirst($type) . ' restored successfully.');
+            session()->flash('success', ucfirst(str_replace('_', ' ', $type)) . ' restored successfully.');
         } catch (\Exception $e) {
             Log::error('Restore failed', ['type' => $type, 'id' => $id, 'error' => $e->getMessage()]);
             session()->flash('error', 'Failed to restore item.');
+        }
+    }
+
+    private function restoreParents(string $type, $model): void
+    {
+        match ($type) {
+            'information_sheet' => $this->ensureModuleAndCourseRestored($model->module_id),
+            'topic', 'self_check', 'task_sheet', 'job_sheet', 'homework', 'checklist' =>
+            $this->ensureSheetParentsRestored($model),
+            'module' => $this->ensureCourseRestored($model->course_id),
+            default => null,
+        };
+    }
+
+    private function ensureModuleAndCourseRestored(int $moduleId): void
+    {
+        $module = Module::withTrashed()->find($moduleId);
+        if (!$module) return;
+
+        // Restore course if deleted
+        $this->ensureCourseRestored($module->course_id);
+
+        // Restore module if deleted
+        if ($module->trashed()) {
+            $module->restore();
+        }
+    }
+
+    private function ensureCourseRestored(int $courseId): void
+    {
+        $course = Course::withTrashed()->find($courseId);
+        if ($course && $course->trashed()) {
+            $course->restore();
+            $course->update(['is_active' => true]);
+        }
+    }
+
+    private function ensureSheetParentsRestored($model): void
+    {
+        $sheet = InformationSheet::withTrashed()->find($model->information_sheet_id);
+        if (!$sheet) return;
+
+        $this->ensureModuleAndCourseRestored($sheet->module_id);
+
+        if ($sheet->trashed()) {
+            $sheet->restore();
         }
     }
 
@@ -127,7 +207,14 @@ class TrashTable extends Component
                 $model = $this->getModelInstance($type, (int)$id);
 
                 if ($model && $this->canManageItem($model, $type)) {
+                    $this->restoreParents($type, $model); // ← add this
                     $model->restore();
+                    match ($type) {
+                        'course' => $this->restoreCourseChildren($model),
+                        'module' => $this->restoreModuleChildren($model),
+                        'information_sheet' => $this->restoreSheetChildren($model),
+                        default => null,
+                    };
                     $restored++;
                 }
             }
@@ -167,7 +254,7 @@ class TrashTable extends Component
 
     private function getModelInstance(string $type, int $id)
     {
-        return match($type) {
+        return match ($type) {
             'module' => Module::onlyTrashed()->find($id),
             'topic' => Topic::onlyTrashed()->find($id),
             'information_sheet' => InformationSheet::onlyTrashed()->find($id),
@@ -193,12 +280,12 @@ class TrashTable extends Component
 
         // Instructors can only manage their own content
         if ($user->role === Roles::INSTRUCTOR) {
-            return match($type) {
+            return match ($type) {
                 'module' => $model->course && $model->course->instructor_id === $user->id,
                 'topic' => $model->module && $model->module->course && $model->module->course->instructor_id === $user->id,
                 'information_sheet' => $model->module && $model->module->course && $model->module->course->instructor_id === $user->id,
                 'homework', 'self_check', 'task_sheet', 'job_sheet', 'checklist' =>
-                    $model->informationSheet && $model->informationSheet->module &&
+                $model->informationSheet && $model->informationSheet->module &&
                     $model->informationSheet->module->course &&
                     $model->informationSheet->module->course->instructor_id === $user->id,
                 'course' => $model->instructor_id === $user->id,
@@ -228,12 +315,12 @@ class TrashTable extends Component
 
             // Apply instructor filter if not admin
             if (!$isAdmin) {
-                $trashedItems = match($type) {
+                $trashedItems = match ($type) {
                     'module' => $trashedItems->whereIn('course_id', $instructorCourseIds),
                     'topic' => $trashedItems->whereHas('module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
                     'information_sheet' => $trashedItems->whereHas('module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
                     'homework', 'self_check', 'task_sheet', 'job_sheet', 'checklist' =>
-                        $trashedItems->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
+                    $trashedItems->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
                     'course' => $trashedItems->where('instructor_id', $user->id),
                     'announcement' => $trashedItems->where('user_id', $user->id),
                     default => $trashedItems,
@@ -262,7 +349,7 @@ class TrashTable extends Component
             : [$this->typeFilter];
 
         foreach ($types as $type) {
-            match($type) {
+            match ($type) {
                 'module' => $addItems(Module::query(), 'module', 'module_title', fn($m) => $m->course?->name),
                 'topic' => $addItems(Topic::query(), 'topic', 'title', fn($t) => $t->module?->module_title),
                 'information_sheet' => $addItems(InformationSheet::query(), 'information_sheet', 'title', fn($s) => $s->module?->module_title),
@@ -282,7 +369,7 @@ class TrashTable extends Component
             $search = strtolower($this->search);
             $items = $items->filter(function ($item) use ($search) {
                 return str_contains(strtolower($item['name']), $search) ||
-                       ($item['parent_name'] && str_contains(strtolower($item['parent_name']), $search));
+                    ($item['parent_name'] && str_contains(strtolower($item['parent_name']), $search));
             });
         }
 
@@ -296,7 +383,7 @@ class TrashTable extends Component
 
     private function getTypeLabel(string $type): string
     {
-        return match($type) {
+        return match ($type) {
             'module' => 'Module',
             'topic' => 'Topic',
             'information_sheet' => 'Information Sheet',
@@ -327,12 +414,12 @@ class TrashTable extends Component
             $trashedQuery = $query->onlyTrashed();
 
             if (!$isAdmin) {
-                $trashedQuery = match($type) {
+                $trashedQuery = match ($type) {
                     'module' => $trashedQuery->whereIn('course_id', $instructorCourseIds),
                     'topic' => $trashedQuery->whereHas('module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
                     'information_sheet' => $trashedQuery->whereHas('module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
                     'homework', 'self_check', 'task_sheet', 'job_sheet', 'checklist' =>
-                        $trashedQuery->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
+                    $trashedQuery->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
                     'course' => $trashedQuery->where('instructor_id', $user->id),
                     'announcement' => $trashedQuery->where('user_id', $user->id),
                     default => $trashedQuery,

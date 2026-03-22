@@ -22,6 +22,21 @@
                 <i class="fa-solid fa-house"></i>
             </a>
         </div>
+        <div class="navbar-item">
+            <a href="{{ route('about') }}" class="icon-button">
+                <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+            </a>
+        </div>
+        <div class="navbar-item">
+            <a href="{{ route('contact') }}" class="icon-button">
+                <i class="fa-solid fa-phone" aria-hidden="true"></i>
+            </a>
+        </div>
+        <div class="navbar-item">
+            <button class="icon-button" id="dark-mode-toggle" aria-label="Toggle dark mode">
+                <i class="fas fa-moon" id="dark-mode-icon" aria-hidden="true"></i>
+            </button>
+        </div>
         {{-- ═══ AUTHENTICATED: Notifications + User Avatar ═══ --}}
         @auth
         @php $user = Auth::user(); @endphp
@@ -379,17 +394,6 @@
 </div>
 
 <style>
-    /* Lobby navbar — transparent */
-    .top-navbar.lobby-navbar {
-        background: var(--light) !important;
-        box-shadow: none !important;
-    }
-
-    .dark-mode .top-navbar.lobby-navbar {
-        background: var(--dark) !important;
-        box-shadow: none !important;
-    }
-
     /* Hide original title (keeps layout space so navbar doesn't shift) */
     .lobby-navbar .navbar-title-container {
         visibility: hidden;

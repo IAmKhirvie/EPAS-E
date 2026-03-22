@@ -1,8 +1,38 @@
 // EPAS-E Service Worker
 // Update CACHE_VERSION when deploying new assets to bust the cache
-const CACHE_VERSION = '2026-03-06r';
+const CACHE_VERSION = '2026-03-22-v4-no-reload';
 const CACHE_NAME = `epas-e-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline.html';
+
+// Install event - cache static assets
+self.addEventListener('install', event => {
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(cache => {
+                return cache.addAll(STATIC_ASSETS).catch(err => {
+                });
+            })
+            .then(() => self.skipWaiting())
+    );
+});
+
+// Activate event - clean up old caches but DON'T force reload
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames
+                    .filter(name => name !== CACHE_NAME)
+                    .map(name => {
+                        return caches.delete(name);
+                    })
+            );
+        }).then(() => {
+            // Take control of all pages immediately without reloading
+            return self.clients.claim();
+        })
+    );
+});
 
 // Static assets to cache immediately
 const STATIC_ASSETS = [

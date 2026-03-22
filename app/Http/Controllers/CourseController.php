@@ -21,7 +21,7 @@ class CourseController extends Controller
         $user = Auth::user();
 
         $query = Course::where('is_active', true)
-            ->withCount(['modules' => function($query) {
+            ->withCount(['modules' => function ($query) {
                 $query->where('is_active', true);
             }])
             ->with('instructor');
@@ -46,10 +46,10 @@ class CourseController extends Controller
         $user = Auth::user();
 
         $query = Course::with([
-            'modules' => function($query) {
+            'modules' => function ($query) {
                 $query->orderBy('order');
             },
-            'modules.informationSheets' => function($query) {
+            'modules.informationSheets' => function ($query) {
                 $query->orderBy('sheet_number')
                     ->with(['topics', 'selfChecks.questions', 'taskSheets', 'jobSheets', 'homeworks', 'checklists']);
             },
@@ -75,7 +75,12 @@ class CourseController extends Controller
     {
         $this->authorize('create', Course::class);
 
-        $instructors = User::where('role', Roles::INSTRUCTOR)->where('stat', 1)->orderBy('last_name')->get();
+        // CourseController - create() and edit()
+        $instructors = User::where('role', Roles::INSTRUCTOR)
+            ->where('stat', 1)
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get();
         $sections = User::whereNotNull('section')->where('section', '!=', '')->distinct()->pluck('section')->sort()->values();
         return view('courses.create', compact('instructors', 'sections'));
     }
@@ -107,7 +112,6 @@ class CourseController extends Controller
 
             return redirect()->route('courses.show', $course->id)
                 ->with('success', 'Course created successfully!');
-
         } catch (\Exception $e) {
             Log::error('Course creation failed: ' . $e->getMessage());
 
@@ -121,7 +125,7 @@ class CourseController extends Controller
         $this->authorize('view', $course);
         $user = Auth::user();
 
-        $course->load(['modules' => function($query) {
+        $course->load(['modules' => function ($query) {
             $query->where('is_active', true)->orderBy('order');
         }, 'instructor']);
 
@@ -169,7 +173,6 @@ class CourseController extends Controller
 
             return redirect()->route('courses.show', $course->id)
                 ->with('success', 'Course updated successfully!');
-
         } catch (\Exception $e) {
             Log::error('Course update failed: ' . $e->getMessage());
 
@@ -230,7 +233,6 @@ class CourseController extends Controller
 
             return redirect()->route('content.management')
                 ->with('success', 'Course and all associated content deleted successfully!');
-
         } catch (\Exception $e) {
             Log::error('Course deletion failed', [
                 'course_id' => $course->id,

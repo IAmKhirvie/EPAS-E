@@ -104,15 +104,32 @@
 
 @push('scripts')
 <script>
-// Optional: Add search/filter functionality for the select
+// Add native search functionality to the student select
 document.addEventListener('DOMContentLoaded', function() {
     const select = document.getElementById('student_id');
-    if (select && typeof Select2 !== 'undefined') {
-        $(select).select2({
-            placeholder: 'Search for a student...',
-            allowClear: true
+    if (!select) return;
+
+    // Create a search input for the dropdown
+    const searchContainer = document.createElement('div');
+    searchContainer.className = 'mb-3';
+    searchContainer.innerHTML = '<input type="text" id="studentSearch" class="form-control" placeholder="Search for a student...">';
+
+    select.parentNode.insertBefore(searchContainer, select);
+
+    const searchInput = document.getElementById('studentSearch');
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const options = select.querySelectorAll('option');
+
+        options.forEach(function(option) {
+            const text = option.textContent.toLowerCase();
+            if (text.indexOf(searchTerm) > -1) {
+                option.style.display = '';
+            } else {
+                option.style.display = 'none';
+            }
         });
-    }
+    });
 });
 </script>
 @endpush

@@ -837,7 +837,7 @@ body {
 
 /* Ensure proper width calculation (exclude fixed-position elements) */
 *:not(.sidebar):not(.sidebar-backdrop):not(.top-navbar):not(.bottom-nav):not(.fab-container):not(.fab-backdrop):not(.overlay):not(.slide-sidebar) {
-  max-width: 100%;
+  max-width: 80;
 }
 
 * {

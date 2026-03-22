@@ -4,6 +4,9 @@
     <meta charset="utf-8" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>@yield('title','EPAS-E - Electronic Products Assembly and Servicing')</title>
 
     <!-- Favicon -->
@@ -541,33 +544,16 @@
 
   <!-- PWA Service Worker Registration -->
   <script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/sw.js')
-                .then(function(registration) {
-
-                    // Check for updates and activate new service worker immediately
-                    registration.addEventListener('updatefound', () => {
-                        const newWorker = registration.installing;
-                        newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                // New service worker is available, activate it immediately
-                                newWorker.postMessage({ type: 'SKIP_WAITING' });
-                                // Reload the page to use the new service worker
-                                window.location.reload();
-                            }
-                        });
-                    });
-                })
-                .catch(function(err) {
-                });
-        });
-
-        // Listen for controlling service worker changes
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-            window.location.reload();
-        });
-    }
+    // Service worker temporarily disabled for debugging
+    // if ('serviceWorker' in navigator) {
+    //     navigator.serviceWorker.register('/sw.js')
+    //         .then(function(registration) {
+    //             console.log('[SW] Service Worker registered:', registration.scope);
+    //         })
+    //         .catch(function(err) {
+    //             console.log('[SW] Service Worker registration failed:', err);
+    //         });
+    // }
 
     // PWA Install Prompt Handler
     let deferredPrompt;

@@ -30,13 +30,13 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="cb-field-label">Course Name <span class="required">*</span></label>
                                     <input type="text" class="form-control @error('course_name') is-invalid @enderror"
-                                           name="course_name" value="{{ old('course_name', $course->course_name) }}" required>
+                                        name="course_name" value="{{ old('course_name', $course->course_name) }}" required>
                                     @error('course_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="cb-field-label">Course Code <span class="required">*</span></label>
                                     <input type="text" class="form-control @error('course_code') is-invalid @enderror"
-                                           name="course_code" value="{{ old('course_code', $course->course_code) }}" required>
+                                        name="course_code" value="{{ old('course_code', $course->course_code) }}" required>
                                     @error('course_code')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
@@ -44,7 +44,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="cb-field-label">Sector <span class="optional">(optional)</span></label>
                                     <input type="text" class="form-control @error('sector') is-invalid @enderror"
-                                           name="sector" value="{{ old('sector', $course->sector) }}">
+                                        name="sector" value="{{ old('sector', $course->sector) }}">
                                     @error('sector')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                                 @if(auth()->user()->role === \App\Constants\Roles::ADMIN && isset($instructors))
@@ -81,7 +81,7 @@
                             <div class="mb-3">
                                 <label class="cb-field-label">Description <span class="optional">(optional)</span></label>
                                 <textarea class="form-control @error('description') is-invalid @enderror"
-                                          name="description" rows="4">{{ old('description', $course->description) }}</textarea>
+                                    name="description" rows="4">{{ old('description', $course->description) }}</textarea>
                                 @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                         </div>
@@ -92,27 +92,11 @@
                         <div class="cb-settings">
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="1"
-                                       {{ old('is_active', $course->is_active) ? 'checked' : '' }}>
+                                    {{ old('is_active', $course->is_active) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="is_active">Active Course</label>
                             </div>
                         </div>
                     </div>
-
-                    @if(in_array(auth()->user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]) && $course->modules->isEmpty())
-                    <div class="cb-section">
-                        <div class="cb-section__title" style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Danger Zone</div>
-                        <div class="cb-settings" style="border: 1px solid #fecaca; background: #fef2f2;">
-                            <p class="mb-2" style="font-size: 0.85rem;">This course has no modules. You can safely delete it if needed.</p>
-                            <form action="{{ route('courses.destroy', $course) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this course? This action cannot be undone.')">
-                                    <i class="fas fa-trash me-1"></i>Delete Course
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    @endif
                 </div>
 
                 <div class="cb-footer">
@@ -127,19 +111,35 @@
                 </div>
             </div>
         </form>
+        @if(in_array(auth()->user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]) && $course->modules->isEmpty())
+        <div class="cb-section">
+            <div class="cb-section__title" style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Danger Zone</div>
+            <div class="cb-settings" style="border: 1px solid #fecaca; background: #fef2f2;">
+                <p class="mb-2" style="font-size: 0.85rem;">This course has no modules. You can safely delete it if needed.</p>
+                <form action="{{ route('courses.destroy', $course) }}" method="POST" class="d-inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this course? This action cannot be undone.')">
+                        <i class="fas fa-trash me-1"></i>Delete Course
+                    </button>
+                </form>
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const sectionCheckboxes = document.querySelectorAll('.section-checkbox');
-    const hiddenInput = document.getElementById('target_sections_input');
-    function syncSections() {
-        const checked = [...sectionCheckboxes].filter(cb => cb.checked).map(cb => cb.value);
-        hiddenInput.value = checked.join(',');
-    }
-    sectionCheckboxes.forEach(cb => cb.addEventListener('change', syncSections));
-});
+    document.addEventListener('DOMContentLoaded', function() {
+        const sectionCheckboxes = document.querySelectorAll('.section-checkbox');
+        const hiddenInput = document.getElementById('target_sections_input');
+
+        function syncSections() {
+            const checked = [...sectionCheckboxes].filter(cb => cb.checked).map(cb => cb.value);
+            hiddenInput.value = checked.join(',');
+        }
+        sectionCheckboxes.forEach(cb => cb.addEventListener('change', syncSections));
+    });
 </script>
 @endpush
 @endsection

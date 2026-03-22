@@ -412,9 +412,9 @@ html, body {
     content: 'Change Photo';
     position: fixed;
     left: calc(var(--sidebar-width-collapsed) + var(--pill-margin) + 8px);
-    top: var(--tooltip-top, 50%);
+    top: 5.6rem;
     transform: translateY(-50%);
-    margin-left: 0.75rem;
+    margin-left: -1rem;
     padding: 0.5rem 0.75rem;
     background: rgba(13, 110, 253, 0.95);
     backdrop-filter: var(--glass-blur);

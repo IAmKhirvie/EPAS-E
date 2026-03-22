@@ -132,6 +132,7 @@
 
                                                 <!-- Delete Module Button -->
                                                 <button type="button" class="btn btn-sm btn-outline-danger delete-module-btn"
+                                                    data-course-id="{{ $course->id }}"
                                                     data-module-id="{{ $module->id }}"
                                                     data-module-name="Module {{ $module->module_number }}: {{ $module->module_name }}"
                                                     data-info-sheets-count="{{ $module->informationSheets->count() }}">
@@ -195,8 +196,9 @@
                                                                     <i class="fas fa-plus me-1"></i>Add Topic
                                                                 </a>
                                                                 <button type="button" class="btn btn-sm btn-outline-danger delete-info-sheet-btn"
-                                                                    data-info-sheet-id="{{ $infoSheet->id }}"
+                                                                    data-course-id="{{ $course->id }}"
                                                                     data-module-id="{{ $module->id }}"
+                                                                    data-info-sheet-id="{{ $infoSheet->id }}"
                                                                     data-info-sheet-name="Information Sheet {{ $infoSheet->sheet_number }}: {{ $infoSheet->title }}">
                                                                     <i class="fas fa-trash me-1"></i>Delete Information Sheet
                                                                 </button>
@@ -224,6 +226,9 @@
                                                                             <div class="btn-group btn-group-sm">
                                                                                 <a href="{{ route('topics.edit', [$infoSheet->id, $topic->id]) }}" class="btn btn-outline-primary">Edit</a>
                                                                                 <button class="btn btn-outline-danger delete-topic-btn"
+                                                                                    data-course-id="{{ $course->id }}"
+                                                                                    data-module-id="{{ $module->id }}"
+                                                                                    data-info-sheet-id="{{ $infoSheet->id }}"
                                                                                     data-topic-id="{{ $topic->id }}"
                                                                                     data-topic-name="{{ $topic->title }}">
                                                                                     Delete
@@ -253,6 +258,8 @@
                                                                             <div class="btn-group btn-group-sm">
                                                                                 <a href="{{ route('self-checks.edit', [$infoSheet->id, $selfCheck->id]) }}" class="btn btn-outline-primary">Edit</a>
                                                                                 <button class="btn btn-outline-danger delete-self-check-btn"
+                                                                                    data-course-id="{{ $course->id }}"
+                                                                                    data-module-id="{{ $module->id }}"
                                                                                     data-info-sheet-id="{{ $infoSheet->id }}"
                                                                                     data-self-check-id="{{ $selfCheck->id }}"
                                                                                     data-self-check-name="{{ $selfCheck->title }}">
@@ -280,6 +287,8 @@
                                                                             <div class="btn-group btn-group-sm">
                                                                                 <a href="{{ route('task-sheets.edit', [$infoSheet->id, $taskSheet->id]) }}" class="btn btn-outline-primary">Edit</a>
                                                                                 <button class="btn btn-outline-danger delete-task-sheet-btn"
+                                                                                    data-course-id="{{ $course->id }}"
+                                                                                    data-module-id="{{ $module->id }}"
                                                                                     data-info-sheet-id="{{ $infoSheet->id }}"
                                                                                     data-task-sheet-id="{{ $taskSheet->id }}"
                                                                                     data-task-sheet-name="{{ $taskSheet->title }}">
@@ -307,6 +316,8 @@
                                                                             <div class="btn-group btn-group-sm">
                                                                                 <a href="{{ route('job-sheets.edit', [$infoSheet->id, $jobSheet->id]) }}" class="btn btn-outline-primary">Edit</a>
                                                                                 <button class="btn btn-outline-danger delete-job-sheet-btn"
+                                                                                    data-course-id="{{ $course->id }}"
+                                                                                    data-module-id="{{ $module->id }}"
                                                                                     data-info-sheet-id="{{ $infoSheet->id }}"
                                                                                     data-job-sheet-id="{{ $jobSheet->id }}"
                                                                                     data-job-sheet-name="{{ $jobSheet->title }}">
@@ -339,6 +350,8 @@
                                                                             <div class="btn-group btn-group-sm">
                                                                                 <a href="{{ route('homeworks.edit', [$infoSheet->id, $homework->id]) }}" class="btn btn-outline-primary">Edit</a>
                                                                                 <button class="btn btn-outline-danger delete-homework-btn"
+                                                                                    data-course-id="{{ $course->id }}"
+                                                                                    data-module-id="{{ $module->id }}"
                                                                                     data-info-sheet-id="{{ $infoSheet->id }}"
                                                                                     data-homework-id="{{ $homework->id }}"
                                                                                     data-homework-name="{{ $homework->title }}">
@@ -366,6 +379,8 @@
                                                                             <div class="btn-group btn-group-sm">
                                                                                 <a href="{{ route('checklists.edit', [$infoSheet->id, $checklist->id]) }}" class="btn btn-outline-primary">Edit</a>
                                                                                 <button class="btn btn-outline-danger delete-checklist-btn"
+                                                                                    data-course-id="{{ $course->id }}"
+                                                                                    data-module-id="{{ $module->id }}"
                                                                                     data-info-sheet-id="{{ $infoSheet->id }}"
                                                                                     data-checklist-id="{{ $checklist->id }}"
                                                                                     data-checklist-name="{{ $checklist->title }}">
@@ -398,6 +413,8 @@
                                                                                 <a href="{{ route('document-assessments.show', $docAssessment) }}" class="btn btn-outline-secondary">View</a>
                                                                                 <a href="{{ route('document-assessments.edit', [$infoSheet->id, $docAssessment->id]) }}" class="btn btn-outline-primary">Edit</a>
                                                                                 <button class="btn btn-outline-danger delete-doc-assessment-btn"
+                                                                                    data-course-id="{{ $course->id }}"
+                                                                                    data-module-id="{{ $module->id }}"
                                                                                     data-info-sheet-id="{{ $infoSheet->id }}"
                                                                                     data-doc-assessment-id="{{ $docAssessment->id }}"
                                                                                     data-doc-assessment-name="{{ $docAssessment->title }}">
@@ -560,7 +577,7 @@
     /* Dark mode overrides */
     .dark-mode .accordion-item {
         border-color: var(--border);
-        box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
     }
 
     .dark-mode .accordion-button:not(.collapsed) {
@@ -650,6 +667,7 @@
             opacity: 0;
             transform: translateX(-50%) translateY(-10px);
         }
+
         to {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
@@ -686,364 +704,598 @@
 </style>
 
 @push('scripts')
-<script>
-    $(document).ready(function() {
+<!-- Cache-bust: 2026-03-22-v2 -->
+<script nonce="{{ app('request')->secure() ? 'nonce-'.bin2hex(random_bytes(16)) : '' }}">
+    (function() {
+        'use strict';
+
+        // Debug: Log when script loads with timestamp
+        console.log('[Content Management] Script loaded - Vanilla JS v2 -', new Date().toISOString());
+        console.log('[Content Management] Delete handlers initialized for:', [
+            '.delete-course-btn',
+            '.delete-module-btn',
+            '.delete-info-sheet-btn',
+            '.delete-self-check-btn',
+            '.delete-task-sheet-btn',
+            '.delete-job-sheet-btn',
+            '.delete-homework-btn',
+            '.delete-checklist-btn',
+            '.delete-doc-assessment-btn',
+            '.delete-topic-btn'
+        ].join(', '));
+
         let currentDeleteUrl = '';
         let currentDeleteCallback = null;
 
         const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const deleteConfirmMessage = document.getElementById('deleteConfirmMessage');
+        const deleteConfirmModal = document.getElementById('deleteConfirmModal');
 
         // Route mapping for content types - using base URLs
         const routes = {
-            'topic': function(infoSheetId) { return '/information-sheets/' + infoSheetId + '/topics/create'; },
-            'self-check': function(infoSheetId) { return '/information-sheets/' + infoSheetId + '/self-checks/create'; },
-            'task-sheet': function(infoSheetId) { return '/information-sheets/' + infoSheetId + '/task-sheets/create'; },
-            'job-sheet': function(infoSheetId) { return '/information-sheets/' + infoSheetId + '/job-sheets/create'; },
-            'homework': function(infoSheetId) { return '/information-sheets/' + infoSheetId + '/homeworks/create'; },
-            'performance-criteria': function(infoSheetId) { return '/information-sheets/' + infoSheetId + '/performance-criteria/create'; },
-            'checklist': function(infoSheetId) { return '/information-sheets/' + infoSheetId + '/checklists/create'; },
-            'document-assessment': function(infoSheetId) { return '/information-sheets/' + infoSheetId + '/document-assessments/create'; }
+            'topic': function(infoSheetId) {
+                return '/information-sheets/' + infoSheetId + '/topics/create';
+            },
+            'self-check': function(infoSheetId) {
+                return '/information-sheets/' + infoSheetId + '/self-checks/create';
+            },
+            'task-sheet': function(infoSheetId) {
+                return '/information-sheets/' + infoSheetId + '/task-sheets/create';
+            },
+            'job-sheet': function(infoSheetId) {
+                return '/information-sheets/' + infoSheetId + '/job-sheets/create';
+            },
+            'homework': function(infoSheetId) {
+                return '/information-sheets/' + infoSheetId + '/homeworks/create';
+            },
+            'performance-criteria': function(infoSheetId) {
+                return '/information-sheets/' + infoSheetId + '/performance-criteria/create';
+            },
+            'checklist': function(infoSheetId) {
+                return '/information-sheets/' + infoSheetId + '/checklists/create';
+            },
+            'document-assessment': function(infoSheetId) {
+                return '/information-sheets/' + infoSheetId + '/document-assessments/create';
+            }
         };
 
+        // Helper functions
+        function getClosest(el, selector) {
+            if (!el || el === document) return null;
+            if (el.matches && el.matches(selector)) return el;
+            return getClosest(el.parentNode, selector);
+        }
+
+        function fadeOutAndRemove(el, duration, callback) {
+            if (!el) return;
+            el.style.transition = 'opacity ' + duration + 'ms, height ' + duration + 'ms, margin ' + duration + 'ms';
+            el.style.opacity = '0';
+            el.style.height = '0';
+            el.style.marginTop = '0';
+            el.style.marginBottom = '0';
+            el.style.overflow = 'hidden';
+            setTimeout(function() {
+                el.remove();
+                if (callback) callback();
+            }, duration);
+        }
+
+        function getDataAttr(el, attr) {
+            if (!el) return null;
+            return el.getAttribute('data-' + attr);
+        }
+
+        function setModalMessage(message) {
+            if (deleteConfirmMessage) {
+                deleteConfirmMessage.textContent = message;
+            }
+        }
+
+        function setButtonLoading(button, loading, defaultHtml) {
+            if (!button) return;
+            if (loading) {
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Deleting...';
+            } else {
+                button.disabled = false;
+                button.innerHTML = defaultHtml || 'Delete';
+            }
+        }
+
         // Popup toggle functionality
-        $(document).on('click', '.popup-btn', function(e) {
-            e.stopPropagation();
-            const popup = $(this).siblings('.popuptext');
+        document.addEventListener('click', function(e) {
+            const popupBtn = e.target.closest('.popup-btn');
+            if (popupBtn) {
+                e.stopPropagation();
+                const popups = document.querySelectorAll('.popuptext');
+                popups.forEach(function(popup) {
+                    if (popup !== popupBtn.nextElementSibling) {
+                        popup.classList.remove('show');
+                    }
+                });
+                const popup = popupBtn.nextElementSibling;
+                if (popup && popup.classList.contains('popuptext')) {
+                    popup.classList.toggle('show');
+                }
+                return;
+            }
 
-            // Close all other popups
-            $('.popuptext').not(popup).removeClass('show');
+            const popupItem = e.target.closest('.popup-item');
+            if (popupItem) {
+                e.stopPropagation();
+                const action = getDataAttr(popupItem, 'action');
+                const infoSheetId = getDataAttr(popupItem, 'info-sheet');
 
-            // Toggle current popup
-            popup.toggleClass('show');
-        });
+                if (routes[action] && infoSheetId) {
+                    const popups = document.querySelectorAll('.popuptext');
+                    popups.forEach(function(popup) {
+                        popup.classList.remove('show');
+                    });
+                    window.location.href = routes[action](infoSheetId);
+                }
+                return;
+            }
 
-        // Popup item clicks
-        $(document).on('click', '.popup-item', function(e) {
-            e.stopPropagation();
-            const action = $(this).data('action');
-            const infoSheetId = $(this).data('info-sheet');
-
-            if (routes[action] && infoSheetId) {
-                $('.popuptext').removeClass('show');
-                window.location.href = routes[action](infoSheetId);
+            const popup = e.target.closest('.popup');
+            if (!popup) {
+                const popups = document.querySelectorAll('.popuptext');
+                popups.forEach(function(p) {
+                    p.classList.remove('show');
+                });
             }
         });
 
-        // Close popup when clicking outside
-        $(document).on('click', function(e) {
-            if (!$(e.target).closest('.popup').length) {
-                $('.popuptext').removeClass('show');
-            }
-        });
+        // Delete handlers
+        function setupDeleteHandler(selector, getIdFn, getMessageFn, getUrlFn, getCallbackFn) {
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest(selector);
+                if (!btn) return;
+                e.preventDefault();
+
+                const id = getIdFn(btn);
+                const message = getMessageFn(btn, id);
+                setModalMessage(message);
+
+                // Get the URL immediately from the button that was clicked
+                const url = getUrlFn(btn, id);
+                console.log('[Content Management] Delete clicked:', {
+                    selector: selector,
+                    id: id,
+                    url: url,
+                    button: btn,
+                    allDataAttrs: Array.from(btn.attributes).filter(attr => attr.name.startsWith('data-'))
+                });
+
+                if (!url) {
+                    console.error('[Content Management] Delete URL is null/undefined!');
+                    showAlert('Error: Unable to determine delete URL.', 'error');
+                    return;
+                }
+                currentDeleteUrl = url;
+                currentDeleteCallback = getCallbackFn(btn, id);
+
+                deleteModal.show();
+            });
+        }
 
         // Delete Course
-        $(document).on('click', '.delete-course-btn', function(e) {
-            e.preventDefault();
-
-            const courseId = $(this).data('course-id');
-            const courseName = $(this).data('course-name');
-            const modulesCount = $(this).data('modules-count');
-
-            let message = `Are you sure you want to delete the course "${courseName}"?`;
-
-            if (modulesCount > 0) {
-                message += ` This course contains ${modulesCount} module(s) and ALL associated content will be permanently deleted.`;
+        setupDeleteHandler('.delete-course-btn',
+            function(btn) {
+                return getDataAttr(btn, 'course-id');
+            },
+            function(btn, id) {
+                const courseName = getDataAttr(btn, 'course-name');
+                const modulesCount = getDataAttr(btn, 'modules-count');
+                let message = 'Are you sure you want to delete the course "' + courseName + '"?';
+                if (modulesCount && parseInt(modulesCount) > 0) {
+                    message += ' This course contains ' + modulesCount + ' module(s) and ALL associated content will be permanently deleted.';
+                }
+                return message;
+            },
+            function(btn, id) {
+                return '/courses/' + id;
+            },
+            function(btn, id) {
+                return function(response) {
+                    const el = document.getElementById('courseHeading' + id);
+                    if (el) {
+                        const accordionItem = getClosest(el, '.accordion-item');
+                        fadeOutAndRemove(accordionItem, 300, function() {
+                            showAlert('Course deleted successfully!', 'success');
+                            checkIfNoCourses();
+                        });
+                    }
+                };
             }
-
-            $('#deleteConfirmMessage').text(message);
-
-            currentDeleteUrl = `/courses/${courseId}`;
-
-            currentDeleteCallback = function(response) {
-                $(`#courseHeading${courseId}`).closest('.accordion-item').fadeOut(300, function() {
-                    $(this).remove();
-                    showAlert('Course deleted successfully!', 'success');
-                    checkIfNoCourses();
-                });
-            };
-
-            deleteModal.show();
-        });
+        );
 
         // Delete Module
-        $(document).on('click', '.delete-module-btn', function(e) {
-            e.preventDefault();
-
-            const moduleId = $(this).data('module-id');
-            const moduleName = $(this).data('module-name');
-            const infoSheetsCount = $(this).data('info-sheets-count');
-
-            let message = `Are you sure you want to delete the module "${moduleName}"?`;
-
-            if (infoSheetsCount > 0) {
-                message += ` This module contains ${infoSheetsCount} information sheet(s) and all associated content will be permanently deleted.`;
+        setupDeleteHandler('.delete-module-btn',
+            function(btn) {
+                return getDataAttr(btn, 'module-id');
+            },
+            function(btn, id) {
+                const moduleName = getDataAttr(btn, 'module-name');
+                const infoSheetsCount = getDataAttr(btn, 'info-sheets-count');
+                const courseId = getDataAttr(btn, 'course-id');
+                let message = 'Are you sure you want to delete the module "' + moduleName + '"?';
+                if (infoSheetsCount && parseInt(infoSheetsCount) > 0) {
+                    message += ' This module contains ' + infoSheetsCount + ' information sheet(s) and all associated content will be permanently deleted.';
+                }
+                return message;
+            },
+            function(btn, id) {
+                const courseId = getDataAttr(btn, 'course-id');
+                if (!courseId) {
+                    console.error('Missing course-id for module delete');
+                    return null;
+                }
+                return '/courses/' + courseId + '/module-' + id;
+            },
+            function(btn, id) {
+                return function(response) {
+                    const el = document.getElementById('moduleHeading' + id);
+                    if (el) {
+                        const accordionItem = getClosest(el, '.accordion-item');
+                        fadeOutAndRemove(accordionItem, 300, function() {
+                            showAlert('Module deleted successfully!', 'success');
+                        });
+                    }
+                };
             }
-
-            $('#deleteConfirmMessage').text(message);
-
-            currentDeleteUrl = `/modules/${moduleId}`;
-
-            currentDeleteCallback = function(response) {
-                $(`#moduleHeading${moduleId}`).closest('.accordion-item').fadeOut(300, function() {
-                    $(this).remove();
-                    showAlert('Module deleted successfully!', 'success');
-                });
-            };
-
-            deleteModal.show();
-        });
+        );
 
         // Delete Information Sheet
-        $(document).on('click', '.delete-info-sheet-btn', function(e) {
-            e.preventDefault();
-
-            const infoSheetId = $(this).data('info-sheet-id');
-            const moduleId = $(this).data('module-id');
-            const infoSheetName = $(this).data('info-sheet-name');
-
-            let message = `Are you sure you want to delete the information sheet "${infoSheetName}"?`;
-
-            $('#deleteConfirmMessage').text(message);
-
-            currentDeleteUrl = `/modules/${moduleId}/information-sheets/${infoSheetId}`;
-
-            currentDeleteCallback = function(response) {
-                $(`#infoSheetHeading${infoSheetId}`).closest('.accordion-item').fadeOut(300, function() {
-                    $(this).remove();
-                    showAlert('Information sheet deleted successfully!', 'success');
-                });
-            };
-
-            deleteModal.show();
-        });
+        setupDeleteHandler('.delete-info-sheet-btn',
+            function(btn) {
+                return getDataAttr(btn, 'info-sheet-id');
+            },
+            function(btn, id) {
+                const infoSheetName = getDataAttr(btn, 'info-sheet-name');
+                return 'Are you sure you want to delete the information sheet "' + infoSheetName + '"?';
+            },
+            function(btn, id) {
+                const courseId = getDataAttr(btn, 'course-id');
+                const moduleId = getDataAttr(btn, 'module-id');
+                if (!courseId || !moduleId) {
+                    console.error('Missing course-id or module-id for information sheet delete');
+                    return null;
+                }
+                return '/courses/' + courseId + '/module-' + moduleId + '/information-sheets/' + id;
+            },
+            function(btn, id) {
+                return function(response) {
+                    const el = document.getElementById('infoSheetHeading' + id);
+                    if (el) {
+                        const accordionItem = getClosest(el, '.accordion-item');
+                        fadeOutAndRemove(accordionItem, 300, function() {
+                            showAlert('Information sheet deleted successfully!', 'success');
+                        });
+                    }
+                };
+            }
+        );
 
         // Delete Self-Check
-        $(document).on('click', '.delete-self-check-btn', function(e) {
-            e.preventDefault();
-
-            const infoSheetId = $(this).data('info-sheet-id');
-            const selfCheckId = $(this).data('self-check-id');
-            const selfCheckName = $(this).data('self-check-name');
-
-            $('#deleteConfirmMessage').text(`Are you sure you want to delete the self-check "${selfCheckName}"? All questions will be permanently deleted.`);
-
-            currentDeleteUrl = `/information-sheets/${infoSheetId}/self-checks/${selfCheckId}`;
-
-            currentDeleteCallback = function(response) {
-                $(this).closest('.list-group-item').fadeOut(300, function() {
-                    $(this).remove();
-                    showAlert('Self-check deleted successfully!', 'success');
-                });
-            }.bind(this);
-
-            deleteModal.show();
-        });
+        setupDeleteHandler('.delete-self-check-btn',
+            function(btn) {
+                return getDataAttr(btn, 'self-check-id');
+            },
+            function(btn, id) {
+                const selfCheckName = getDataAttr(btn, 'self-check-name');
+                return 'Are you sure you want to delete the self-check "' + selfCheckName + '"? All questions will be permanently deleted.';
+            },
+            function(btn, id) {
+                const infoSheetId = getDataAttr(btn, 'info-sheet-id');
+                if (!infoSheetId) {
+                    console.error('Missing info-sheet-id for self-check delete');
+                    return null;
+                }
+                return '/information-sheets/' + infoSheetId + '/self-checks/' + id;
+            },
+            function(btn, id) {
+                return function(response) {
+                    const el = getClosest(btn, '.list-group-item');
+                    fadeOutAndRemove(el, 300, function() {
+                        showAlert('Self-check deleted successfully!', 'success');
+                    });
+                };
+            }
+        );
 
         // Delete Task Sheet
-        $(document).on('click', '.delete-task-sheet-btn', function(e) {
-            e.preventDefault();
-
-            const infoSheetId = $(this).data('info-sheet-id');
-            const taskSheetId = $(this).data('task-sheet-id');
-            const taskSheetName = $(this).data('task-sheet-name');
-
-            $('#deleteConfirmMessage').text(`Are you sure you want to delete the task sheet "${taskSheetName}"?`);
-
-            currentDeleteUrl = `/information-sheets/${infoSheetId}/task-sheets/${taskSheetId}`;
-
-            currentDeleteCallback = function(response) {
-                $(this).closest('.list-group-item').fadeOut(300, function() {
-                    $(this).remove();
-                    showAlert('Task sheet deleted successfully!', 'success');
-                });
-            }.bind(this);
-
-            deleteModal.show();
-        });
+        setupDeleteHandler('.delete-task-sheet-btn',
+            function(btn) {
+                return getDataAttr(btn, 'task-sheet-id');
+            },
+            function(btn, id) {
+                const taskSheetName = getDataAttr(btn, 'task-sheet-name');
+                return 'Are you sure you want to delete the task sheet "' + taskSheetName + '"?';
+            },
+            function(btn, id) {
+                const infoSheetId = getDataAttr(btn, 'info-sheet-id');
+                if (!infoSheetId) {
+                    console.error('Missing info-sheet-id for task-sheet delete');
+                    return null;
+                }
+                return '/information-sheets/' + infoSheetId + '/task-sheets/' + id;
+            },
+            function(btn, id) {
+                return function(response) {
+                    const el = getClosest(btn, '.list-group-item');
+                    fadeOutAndRemove(el, 300, function() {
+                        showAlert('Task sheet deleted successfully!', 'success');
+                    });
+                };
+            }
+        );
 
         // Delete Job Sheet
-        $(document).on('click', '.delete-job-sheet-btn', function(e) {
-            e.preventDefault();
-
-            const infoSheetId = $(this).data('info-sheet-id');
-            const jobSheetId = $(this).data('job-sheet-id');
-            const jobSheetName = $(this).data('job-sheet-name');
-
-            $('#deleteConfirmMessage').text(`Are you sure you want to delete the job sheet "${jobSheetName}"?`);
-
-            currentDeleteUrl = `/information-sheets/${infoSheetId}/job-sheets/${jobSheetId}`;
-
-            currentDeleteCallback = function(response) {
-                $(this).closest('.list-group-item').fadeOut(300, function() {
-                    $(this).remove();
-                    showAlert('Job sheet deleted successfully!', 'success');
-                });
-            }.bind(this);
-
-            deleteModal.show();
-        });
+        setupDeleteHandler('.delete-job-sheet-btn',
+            function(btn) {
+                return getDataAttr(btn, 'job-sheet-id');
+            },
+            function(btn, id) {
+                const jobSheetName = getDataAttr(btn, 'job-sheet-name');
+                return 'Are you sure you want to delete the job sheet "' + jobSheetName + '"?';
+            },
+            function(btn, id) {
+                const infoSheetId = getDataAttr(btn, 'info-sheet-id');
+                if (!infoSheetId) {
+                    console.error('Missing info-sheet-id for job-sheet delete');
+                    return null;
+                }
+                return '/information-sheets/' + infoSheetId + '/job-sheets/' + id;
+            },
+            function(btn, id) {
+                return function(response) {
+                    const el = getClosest(btn, '.list-group-item');
+                    fadeOutAndRemove(el, 300, function() {
+                        showAlert('Job sheet deleted successfully!', 'success');
+                    });
+                };
+            }
+        );
 
         // Delete Homework
-        $(document).on('click', '.delete-homework-btn', function(e) {
-            e.preventDefault();
-
-            const infoSheetId = $(this).data('info-sheet-id');
-            const homeworkId = $(this).data('homework-id');
-            const homeworkName = $(this).data('homework-name');
-
-            $('#deleteConfirmMessage').text(`Are you sure you want to delete the homework "${homeworkName}"?`);
-
-            currentDeleteUrl = `/information-sheets/${infoSheetId}/homeworks/${homeworkId}`;
-
-            currentDeleteCallback = function(response) {
-                $(this).closest('.list-group-item').fadeOut(300, function() {
-                    $(this).remove();
-                    showAlert('Homework deleted successfully!', 'success');
-                });
-            }.bind(this);
-
-            deleteModal.show();
-        });
+        setupDeleteHandler('.delete-homework-btn',
+            function(btn) {
+                return getDataAttr(btn, 'homework-id');
+            },
+            function(btn, id) {
+                const homeworkName = getDataAttr(btn, 'homework-name');
+                return 'Are you sure you want to delete the homework "' + homeworkName + '"?';
+            },
+            function(btn, id) {
+                const infoSheetId = getDataAttr(btn, 'info-sheet-id');
+                if (!infoSheetId) {
+                    console.error('Missing info-sheet-id for homework delete');
+                    return null;
+                }
+                return '/information-sheets/' + infoSheetId + '/homeworks/' + id;
+            },
+            function(btn, id) {
+                return function(response) {
+                    const el = getClosest(btn, '.list-group-item');
+                    fadeOutAndRemove(el, 300, function() {
+                        showAlert('Homework deleted successfully!', 'success');
+                    });
+                };
+            }
+        );
 
         // Delete Checklist
-        $(document).on('click', '.delete-checklist-btn', function(e) {
-            e.preventDefault();
-
-            const infoSheetId = $(this).data('info-sheet-id');
-            const checklistId = $(this).data('checklist-id');
-            const checklistName = $(this).data('checklist-name');
-
-            $('#deleteConfirmMessage').text(`Are you sure you want to delete the checklist "${checklistName}"?`);
-
-            currentDeleteUrl = `/information-sheets/${infoSheetId}/checklists/${checklistId}`;
-
-            currentDeleteCallback = function(response) {
-                $(this).closest('.list-group-item').fadeOut(300, function() {
-                    $(this).remove();
-                    showAlert('Checklist deleted successfully!', 'success');
-                });
-            }.bind(this);
-
-            deleteModal.show();
-        });
+        setupDeleteHandler('.delete-checklist-btn',
+            function(btn) {
+                return getDataAttr(btn, 'checklist-id');
+            },
+            function(btn, id) {
+                const checklistName = getDataAttr(btn, 'checklist-name');
+                return 'Are you sure you want to delete the checklist "' + checklistName + '"?';
+            },
+            function(btn, id) {
+                const infoSheetId = getDataAttr(btn, 'info-sheet-id');
+                if (!infoSheetId) {
+                    console.error('Missing info-sheet-id for checklist delete');
+                    return null;
+                }
+                return '/information-sheets/' + infoSheetId + '/checklists/' + id;
+            },
+            function(btn, id) {
+                return function(response) {
+                    const el = getClosest(btn, '.list-group-item');
+                    fadeOutAndRemove(el, 300, function() {
+                        showAlert('Checklist deleted successfully!', 'success');
+                    });
+                };
+            }
+        );
 
         // Delete Document Assessment
-        $(document).on('click', '.delete-doc-assessment-btn', function(e) {
-            e.preventDefault();
-
-            const infoSheetId = $(this).data('info-sheet-id');
-            const docAssessmentId = $(this).data('doc-assessment-id');
-            const docAssessmentName = $(this).data('doc-assessment-name');
-
-            $('#deleteConfirmMessage').text(`Are you sure you want to delete the document assessment "${docAssessmentName}"?`);
-
-            currentDeleteUrl = `/information-sheets/${infoSheetId}/document-assessments/${docAssessmentId}`;
-
-            currentDeleteCallback = function(response) {
-                $(this).closest('.list-group-item').fadeOut(300, function() {
-                    $(this).remove();
-                    showAlert('Document assessment deleted successfully!', 'success');
-                });
-            }.bind(this);
-
-            deleteModal.show();
-        });
+        setupDeleteHandler('.delete-doc-assessment-btn',
+            function(btn) {
+                return getDataAttr(btn, 'doc-assessment-id');
+            },
+            function(btn, id) {
+                const docAssessmentName = getDataAttr(btn, 'doc-assessment-name');
+                return 'Are you sure you want to delete the document assessment "' + docAssessmentName + '"?';
+            },
+            function(btn, id) {
+                const infoSheetId = getDataAttr(btn, 'info-sheet-id');
+                if (!infoSheetId) {
+                    console.error('Missing info-sheet-id for document assessment delete');
+                    return null;
+                }
+                return '/information-sheets/' + infoSheetId + '/document-assessments/' + id;
+            },
+            function(btn, id) {
+                return function(response) {
+                    const el = getClosest(btn, '.list-group-item');
+                    fadeOutAndRemove(el, 300, function() {
+                        showAlert('Document assessment deleted successfully!', 'success');
+                    });
+                };
+            }
+        );
 
         // Delete Topic
-        $(document).on('click', '.delete-topic-btn', function(e) {
-            e.preventDefault();
-
-            const topicId = $(this).data('topic-id');
-            const topicName = $(this).data('topic-name');
-
-            let message = `Are you sure you want to delete the topic "${topicName}"?`;
-
-            $('#deleteConfirmMessage').text(message);
-
-            currentDeleteUrl = `/topics/${topicId}`;
-
-            currentDeleteCallback = function(response) {
-                $(this).closest('.list-group-item').fadeOut(300, function() {
-                    $(this).remove();
-                    showAlert('Topic deleted successfully!', 'success');
-                });
-            }.bind(this);
-
-            deleteModal.show();
-        });
+        setupDeleteHandler('.delete-topic-btn',
+            function(btn) {
+                return getDataAttr(btn, 'topic-id');
+            },
+            function(btn, id) {
+                const topicName = getDataAttr(btn, 'topic-name');
+                return 'Are you sure you want to delete the topic "' + topicName + '"?';
+            },
+            function(btn, id) {
+                const infoSheetId = getDataAttr(btn, 'info-sheet-id');
+                if (!infoSheetId) {
+                    console.error('Missing info-sheet-id for topic delete');
+                    return null;
+                }
+                return '/topics/' + id;
+            },
+            function(btn, id) {
+                return function(response) {
+                    const el = getClosest(btn, '.list-group-item');
+                    fadeOutAndRemove(el, 300, function() {
+                        showAlert('Topic deleted successfully!', 'success');
+                    });
+                };
+            }
+        );
 
         // Confirm Delete Button Handler
-        $('#confirmDeleteBtn').on('click', function() {
-            const button = $(this);
-            button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Deleting...');
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', function() {
+                console.log('[Content Management] Confirm delete clicked.');
+                console.log('[Content Management] currentDeleteUrl value:', currentDeleteUrl);
+                console.log('[Content Management] currentDeleteUrl type:', typeof currentDeleteUrl);
+                console.log('[Content Management] currentDeleteUrl length:', currentDeleteUrl ? currentDeleteUrl.length : 'N/A');
+                console.log('[Content Management] currentDeleteUrl is truthy:', !!currentDeleteUrl);
+                console.log('[Content Management] currentDeleteUrl === "":', currentDeleteUrl === '');
+                console.log('[Content Management] currentDeleteUrl === \'/content-management\':', currentDeleteUrl === '/content-management');
 
-            $.ajax({
-                url: currentDeleteUrl,
-                type: 'DELETE',
-                data: {
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    deleteModal.hide();
-                    button.prop('disabled', false).html('Delete');
-                    if (currentDeleteCallback) {
-                        currentDeleteCallback(response);
-                    }
-                },
-                error: function(xhr) {
-                    deleteModal.hide();
-                    button.prop('disabled', false).html('Delete');
-
-                    let errorMessage = 'Failed to delete. Please try again.';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    }
-
-                    showAlert(errorMessage, 'error');
+                if (!currentDeleteUrl || currentDeleteUrl === '' || currentDeleteUrl === '/content-management') {
+                    console.error('[Content Management] currentDeleteUrl is invalid!', currentDeleteUrl);
+                    showAlert('Error: No delete URL set. Please refresh the page and try again.', 'error');
+                    return;
                 }
+
+                const button = confirmDeleteBtn;
+                setButtonLoading(button, true);
+
+                // Create the URL explicitly to avoid any potential mutation
+                const deleteUrl = String(currentDeleteUrl);
+                console.log('[Content Management] Created deleteUrl variable:', deleteUrl);
+                console.log('[Content Management] deleteUrl === currentDeleteUrl:', deleteUrl === currentDeleteUrl);
+
+                // Log immediately before fetch
+                console.log('[Content Management] About to fetch URL:', deleteUrl);
+
+                // Create a Request object to debug what's being sent
+                const fetchUrl = deleteUrl;
+                const fetchOptions = {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    redirect: 'manual'
+                };
+
+                console.log('[Content Management] Fetch URL (string):', fetchUrl);
+                console.log('[Content Management] Fetch options:', fetchOptions);
+                console.log('[Content Management] document.baseURI:', document.baseURI);
+
+                // Try creating a Request object to see what URL it resolves to
+                try {
+                    const testRequest = new Request(fetchUrl, fetchOptions);
+                    console.log('[Content Management] Request object URL:', testRequest.url);
+                } catch (e) {
+                    console.error('[Content Management] Failed to create Request object:', e);
+                }
+
+                fetch(fetchUrl, fetchOptions)
+                    .then(function(response) {
+                        if (!response.ok) {
+                            return response.json().then(function(err) {
+                                throw err;
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(function(response) {
+                        deleteModal.hide();
+                        setButtonLoading(button, false);
+                        if (currentDeleteCallback) {
+                            currentDeleteCallback(response);
+                        }
+                    })
+                    .catch(function(error) {
+                        deleteModal.hide();
+                        setButtonLoading(button, false);
+
+                        let errorMessage = 'Failed to delete. Please try again.';
+                        if (error && error.message) {
+                            errorMessage = error.message;
+                        }
+
+                        showAlert(errorMessage, 'error');
+                    });
             });
-        });
+        }
 
         // Reset modal when hidden
-        $('#deleteConfirmModal').on('hidden.bs.modal', function() {
-            $('#confirmDeleteBtn').prop('disabled', false).html('Delete');
-        });
+        if (deleteConfirmModal) {
+            deleteConfirmModal.addEventListener('hidden.bs.modal', function() {
+                if (confirmDeleteBtn) {
+                    setButtonLoading(confirmDeleteBtn, false);
+                }
+            });
+        }
 
         // Function to show alert messages
         function showAlert(message, type) {
             const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-            const alertHtml = `
-            <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        `;
+            const alertHtml = document.createElement('div');
+            alertHtml.className = 'alert ' + alertClass + ' alert-dismissible fade show';
+            alertHtml.setAttribute('role', 'alert');
+            alertHtml.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
 
-            $('.container-fluid .row .col-12').prepend(alertHtml);
+            const container = document.querySelector('.container-fluid .row .col-12');
+            if (container) {
+                container.insertBefore(alertHtml, container.firstChild);
+            }
 
-            setTimeout(() => {
-                $('.alert').fadeOut(300, function() {
-                    $(this).remove();
-                });
+            setTimeout(function() {
+                fadeOutAndRemove(alertHtml, 300);
             }, 5000);
         }
 
         // Function to check if no courses are left
+        // Pre-resolve the route in Blade (safe, outside the JS string)
+        const CREATE_COURSE_URL = "{{ route('courses.create') }}";
+
         function checkIfNoCourses() {
-            if ($('#coursesAccordion .accordion-item').length === 0) {
-                $('.container-fluid .row .col-12').html(`
-                <div class="text-center py-5">
-                    <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
-                    <h4>No Courses Available</h4>
-                    <p class="text-muted">No learning courses have been created yet.</p>
-                    <a href="{{ route('courses.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>Create First Course
-                    </a>
-                </div>
-            `);
+            const accordion = document.getElementById('coursesAccordion');
+            if (accordion && accordion.querySelectorAll('.accordion-item').length === 0) {
+                const container = document.querySelector('.container-fluid .row .col-12');
+                if (container) {
+                    container.innerHTML = '<div class="text-center py-5">' +
+                        '<i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>' +
+                        '<h4>No Courses Available</h4>' +
+                        '<p class="text-muted">No learning courses have been created yet.</p>' +
+                        '<a href="' + CREATE_COURSE_URL + '" class="btn btn-primary">' +
+                        '<i class="fas fa-plus me-2"></i>Create First Course</a>' +
+                        '</div>';
+                }
             }
         }
-    });
+    })();
 </script>
 @endpush
 @endsection
