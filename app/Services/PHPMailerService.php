@@ -140,15 +140,14 @@ class PHPMailerService
                 return false;
             }
 
-        } catch (Exception $e) {
-            Log::error("EXCEPTION sending email to {$user->email}: " . $e->getMessage());
-            Log::error("PHPMailer ErrorInfo: {$this->mail->ErrorInfo}");
+        } catch (Exception|\Exception $e) {
+            Log::error("Exception sending email to {$user->email}: " . $e->getMessage());
+            if (!empty($this->mail->ErrorInfo)) {
+                Log::error("PHPMailer ErrorInfo: {$this->mail->ErrorInfo}");
+            }
             if (!empty($this->debugOutput)) {
                 Log::error("SMTP Debug Output:\n{$this->debugOutput}");
             }
-            return false;
-        } catch (\Exception $e) {
-            Log::error("GENERAL EXCEPTION sending email to {$user->email}: " . $e->getMessage());
             return false;
         }
     }
@@ -306,15 +305,14 @@ class PHPMailerService
                 return false;
             }
 
-        } catch (Exception $e) {
-            Log::error("EXCEPTION sending password reset to {$user->email}: " . $e->getMessage());
-            Log::error("PHPMailer ErrorInfo: {$this->mail->ErrorInfo}");
+        } catch (Exception|\Exception $e) {
+            Log::error("Exception sending password reset to {$user->email}: " . $e->getMessage());
+            if (!empty($this->mail->ErrorInfo)) {
+                Log::error("PHPMailer ErrorInfo: {$this->mail->ErrorInfo}");
+            }
             if (!empty($this->debugOutput)) {
                 Log::error("SMTP Debug Output:\n{$this->debugOutput}");
             }
-            return false;
-        } catch (\Exception $e) {
-            Log::error("GENERAL EXCEPTION sending password reset to {$user->email}: " . $e->getMessage());
             return false;
         }
     }
@@ -487,21 +485,133 @@ class PHPMailerService
                 ];
             }
 
-        } catch (Exception $e) {
-            Log::error("EXCEPTION sending test email: " . $e->getMessage());
-            return [
-                'success' => false,
-                'message' => "PHPMailer Exception: " . $e->getMessage(),
-                'debug' => $this->debugOutput
-            ];
-        } catch (\Exception $e) {
-            Log::error("GENERAL EXCEPTION sending test email: " . $e->getMessage());
+        } catch (Exception|\Exception $e) {
+            Log::error("Exception sending test email: " . $e->getMessage());
             return [
                 'success' => false,
                 'message' => "Exception: " . $e->getMessage(),
                 'debug' => $this->debugOutput
             ];
         }
+    }
+
+    /**
+     * Send contact inquiry email to admin
+     */
+    public function sendContactInquiry(array $data): bool
+    {
+        try {
+            if (!$this->hasValidCredentials()) {
+                Log::warning('SMTP credentials not configured. Contact inquiry not sent.');
+                return false;
+            }
+
+            $this->debugOutput = '';
+            $this->mail->clearAddresses();
+            $this->mail->clearAttachments();
+            $this->mail->clearReplyTos();
+
+            // Set reply-to as the person who submitted the form
+            $this->mail->addReplyTo($data['email'], $data['name']);
+
+            // Send to admin email
+            $adminEmail = config('joms.mail.admin_email', config('joms.mail.username'));
+            if (empty($adminEmail) || !filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+                Log::error('Invalid admin email for contact inquiry');
+                return false;
+            }
+
+            $this->mail->addAddress($adminEmail, 'EPAS-E Admin');
+
+            $this->mail->isHTML(true);
+            $this->mail->Subject = '[EPAS-E Inquiry] ' . $data['subject'];
+            $this->mail->Body = $this->getContactInquiryTemplate($data);
+            $this->mail->AltBody = $this->getPlainTextContactInquiry($data);
+
+            $result = $this->mail->send();
+            if ($result) {
+                Log::info("Contact inquiry sent to admin", ['from' => $data['email'], 'subject' => $data['subject']]);
+            }
+            return $result;
+        } catch (\Exception $e) {
+            Log::error("Failed to send contact inquiry: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    protected function getContactInquiryTemplate(array $data): string
+    {
+        $name = htmlspecialchars($data['name'], ENT_QUOTES, 'UTF-8');
+        $email = htmlspecialchars($data['email'], ENT_QUOTES, 'UTF-8');
+        $subject = htmlspecialchars($data['subject'], ENT_QUOTES, 'UTF-8');
+        $message = nl2br(htmlspecialchars($data['message'], ENT_QUOTES, 'UTF-8'));
+
+        return "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: #007bff; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+                .content { padding: 20px; background: #f9f9f9; }
+                .details { background: white; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #ddd; }
+                .message-box { background: white; padding: 15px; border-radius: 5px; border-left: 4px solid #007bff; margin: 15px 0; }
+                .footer { padding: 20px; text-align: center; font-size: 0.9em; color: #666; }
+            </style>
+        </head>
+        <body>
+            <div class='header'>
+                <h1 style='margin:0; color: #ffffff;'>New Contact Inquiry</h1>
+                <p style='margin:0; color: #ffffff;'>EPAS-E LMS</p>
+            </div>
+
+            <div class='content'>
+                <h2 style='color: #333;'>{$subject}</h2>
+
+                <div class='details'>
+                    <p><strong>From:</strong> {$name}</p>
+                    <p><strong>Email:</strong> <a href='mailto:{$email}'>{$email}</a></p>
+                    <p><strong>Received:</strong> " . date('F j, Y g:i A') . "</p>
+                </div>
+
+                <h3>Message:</h3>
+                <div class='message-box'>
+                    {$message}
+                </div>
+
+                <p style='text-align: center;'>
+                    <a href='mailto:{$email}?subject=Re: {$subject}'
+                       style='display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;'>
+                        Reply to {$name}
+                    </a>
+                </p>
+            </div>
+
+            <div class='footer'>
+                <p>This inquiry was submitted through the EPAS-E LMS contact form.</p>
+            </div>
+        </body>
+        </html>
+        ";
+    }
+
+    protected function getPlainTextContactInquiry(array $data): string
+    {
+        return "
+New Contact Inquiry - EPAS-E LMS
+
+Subject: {$data['subject']}
+
+From: {$data['name']}
+Email: {$data['email']}
+Received: " . date('F j, Y g:i A') . "
+
+Message:
+{$data['message']}
+
+---
+This inquiry was submitted through the EPAS-E LMS contact form.
+        ";
     }
 
     /**

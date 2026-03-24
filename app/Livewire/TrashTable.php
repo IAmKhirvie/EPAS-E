@@ -282,7 +282,7 @@ class TrashTable extends Component
         if ($user->role === Roles::INSTRUCTOR) {
             return match ($type) {
                 'module' => $model->course && $model->course->instructor_id === $user->id,
-                'topic' => $model->module && $model->module->course && $model->module->course->instructor_id === $user->id,
+                'topic' => $model->informationSheet && $model->informationSheet->module && $model->informationSheet->module->course && $model->informationSheet->module->course->instructor_id === $user->id,
                 'information_sheet' => $model->module && $model->module->course && $model->module->course->instructor_id === $user->id,
                 'homework', 'self_check', 'task_sheet', 'job_sheet', 'checklist' =>
                 $model->informationSheet && $model->informationSheet->module &&
@@ -317,7 +317,7 @@ class TrashTable extends Component
             if (!$isAdmin) {
                 $trashedItems = match ($type) {
                     'module' => $trashedItems->whereIn('course_id', $instructorCourseIds),
-                    'topic' => $trashedItems->whereHas('module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
+                    'topic' => $trashedItems->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
                     'information_sheet' => $trashedItems->whereHas('module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
                     'homework', 'self_check', 'task_sheet', 'job_sheet', 'checklist' =>
                     $trashedItems->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
@@ -351,7 +351,7 @@ class TrashTable extends Component
         foreach ($types as $type) {
             match ($type) {
                 'module' => $addItems(Module::query(), 'module', 'module_title', fn($m) => $m->course?->name),
-                'topic' => $addItems(Topic::query(), 'topic', 'title', fn($t) => $t->module?->module_title),
+                'topic' => $addItems(Topic::query(), 'topic', 'title', fn($t) => $t->informationSheet?->title),
                 'information_sheet' => $addItems(InformationSheet::query(), 'information_sheet', 'title', fn($s) => $s->module?->module_title),
                 'homework' => $addItems(Homework::query(), 'homework', 'title', fn($h) => $h->informationSheet?->title),
                 'self_check' => $addItems(SelfCheck::query(), 'self_check', 'title', fn($s) => $s->informationSheet?->title),
@@ -416,7 +416,7 @@ class TrashTable extends Component
             if (!$isAdmin) {
                 $trashedQuery = match ($type) {
                     'module' => $trashedQuery->whereIn('course_id', $instructorCourseIds),
-                    'topic' => $trashedQuery->whereHas('module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
+                    'topic' => $trashedQuery->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
                     'information_sheet' => $trashedQuery->whereHas('module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),
                     'homework', 'self_check', 'task_sheet', 'job_sheet', 'checklist' =>
                     $trashedQuery->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds)),

@@ -72,6 +72,7 @@ return [
         'encryption' => env('MAIL_ENCRYPTION', 'tls'),
         'from_address' => env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME')),
         'from_name' => env('MAIL_FROM_NAME', 'EPAS-E LMS'),
+        'admin_email' => env('MAIL_ADMIN_EMAIL', env('MAIL_USERNAME')),
         'timeout' => 30,
     ],
 

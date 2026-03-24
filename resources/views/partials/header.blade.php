@@ -269,6 +269,7 @@
 
         {{-- ═══ GUEST: Login Dropdown ═══ --}}
         @guest
+        <!-- Login -->
         <div class="navbar-item">
             <button class="icon-button" id="login-dropdown-btn" title="Login">
                 <i class="fa-solid fa-user"></i>

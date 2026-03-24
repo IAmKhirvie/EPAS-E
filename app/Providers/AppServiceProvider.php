@@ -32,11 +32,22 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Force HTTPS scheme if:
-        // - FORCE_HTTPS is enabled
-        // - APP is in production
-        // - OR the current request is already secure (Cloudflare tunnel, etc.)
-        if (config('app.force_https', false) || config('app.env') === 'production' || request()->secure()) {
+        // Auto-detect HTTPS based on environment:
+        // 1. FORCE_HTTPS=true in .env - always use HTTPS
+        // 2. Production environment - always use HTTPS
+        // 3. Cloudflare tunnel detected (X-Forwarded-Proto or trycloudflare.com host)
+        // 4. Any reverse proxy with X-Forwarded-Proto: https
+        //
+        // For local development without tunnel: set FORCE_HTTPS=false (default)
+        // For Cloudflare tunnel: auto-detected, no config needed
+        // For production: set FORCE_HTTPS=true or APP_ENV=production
+
+        $forceHttps = config('app.force_https', false);
+        $isProduction = config('app.env') === 'production';
+        $isBehindHttpsProxy = isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https';
+        $isCloudflare = isset($_SERVER['HTTP_CF_VISITOR']) || str_contains($_SERVER['HTTP_HOST'] ?? '', 'trycloudflare.com');
+
+        if ($forceHttps || $isProduction || $isBehindHttpsProxy || $isCloudflare) {
             URL::forceScheme('https');
         }
 

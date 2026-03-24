@@ -3,14 +3,16 @@
     display: grid;
     grid-template-columns: 1fr 320px;
     gap: 1.5rem;
-    align-items: start;
+}
+
+/* Right Sidebar Section */
+.sidebar-section {
+    position: sticky;
+    top: 0;
 }
 
 /* Right Sidebar TOC */
 .toc-sidebar {
-    position: sticky;
-    top: 80px;
-    max-height: calc(100vh - 100px);
     overflow-y: auto;
 }
 

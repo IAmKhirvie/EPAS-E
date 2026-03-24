@@ -69,7 +69,6 @@ class InformationSheet extends Model
         return $this->hasMany(Topic::class);
     }
 
-    // NEW RELATIONSHIPS - Add these:
     public function selfChecks(): HasMany
     {
         return $this->hasMany(SelfCheck::class);

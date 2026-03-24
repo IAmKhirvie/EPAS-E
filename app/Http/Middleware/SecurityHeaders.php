@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class SecurityHeaders
 {
@@ -33,17 +32,20 @@ class SecurityHeaders
         // Allow Vite dev server in local development
         $viteDevServer = (config('app.debug') && config('app.env') !== 'production') ? ' http://127.0.0.1:5173' : '';
 
+        // Allow Cloudflare tunnel domains
+        $cloudflareTunnel = ' https://*.trycloudflare.com';
+
         $csp = implode('; ', [
-            "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com" . $viteDevServer, // unsafe-inline + unsafe-eval required for Livewire/Alpine
-            "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.googleapis.com" . $viteDevServer,
-            "font-src 'self' data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com",
-            "img-src 'self' data: https: blob:",
-            "connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com" . ($viteDevServer ? ' ws://127.0.0.1:5173' . $viteDevServer : ''),
-            "frame-src 'self' https://www.google.com https://maps.google.com",
+            "default-src 'self'" . $cloudflareTunnel,
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com" . $viteDevServer . $cloudflareTunnel, // unsafe-inline + unsafe-eval required for Livewire/Alpine
+            "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.googleapis.com" . $viteDevServer . $cloudflareTunnel,
+            "font-src 'self' data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com" . $cloudflareTunnel,
+            "img-src 'self' data: https: blob:" . $cloudflareTunnel,
+            "connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com" . ($viteDevServer ? ' ws://127.0.0.1:5173' . $viteDevServer : '') . $cloudflareTunnel,
+            "frame-src 'self' https://www.google.com https://maps.google.com" . $cloudflareTunnel,
             "frame-ancestors 'none'",
             "base-uri 'self'",
-            "form-action 'self'",
+            "form-action 'self'" . $cloudflareTunnel,
             "object-src 'none'",
         ]);
         $response->headers->set('Content-Security-Policy', $csp);

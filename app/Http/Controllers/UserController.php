@@ -32,8 +32,6 @@ use Maatwebsite\Excel\Facades\Excel;
  */
 class UserController extends Controller
 {
-    public function __construct() {}
-
     /*
     |--------------------------------------------------------------------------
     | User Creation

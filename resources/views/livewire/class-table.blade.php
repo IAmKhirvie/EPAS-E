@@ -32,18 +32,46 @@
         @return
     @endif
 
-    {{-- Search --}}
+    {{-- Search and Actions --}}
     <div class="d-flex flex-wrap gap-2 mb-3">
         <div class="flex-grow-1" style="min-width: 200px;">
             <input type="text" wire:model.live.debounce.300ms="search" class="form-control form-control-sm"
                 placeholder="Search student name, ID...">
         </div>
         @if($sectionFilter)
+            <button wire:click="openAddStudentModal" class="btn btn-success btn-sm">
+                <i class="fas fa-user-plus me-1"></i> Add Student
+            </button>
             <button wire:click="clearSection" class="btn btn-outline-secondary btn-sm">
                 <i class="fas fa-arrow-left me-1"></i> All Sections
             </button>
         @endif
     </div>
+
+    {{-- Bulk Actions Bar --}}
+    @if(count($selectedStudents) > 0 && $sectionFilter)
+        <div class="alert alert-info d-flex flex-wrap align-items-center gap-2 mb-3">
+            <span class="me-2">
+                <strong>{{ count($selectedStudents) }}</strong> student(s) selected
+            </span>
+            <button wire:click="bulkRemoveFromSection" wire:confirm="Are you sure you want to remove these students from this section?"
+                class="btn btn-warning btn-sm">
+                <i class="fas fa-user-minus me-1"></i> Remove from Section
+            </button>
+            @if(!$isInstructor)
+                <button wire:click="bulkActivate" class="btn btn-success btn-sm">
+                    <i class="fas fa-check me-1"></i> Activate
+                </button>
+                <button wire:click="bulkDeactivate" wire:confirm="Are you sure you want to deactivate these students?"
+                    class="btn btn-secondary btn-sm">
+                    <i class="fas fa-ban me-1"></i> Deactivate
+                </button>
+            @endif
+            <button wire:click="$set('selectedStudents', [])" class="btn btn-outline-secondary btn-sm ms-auto">
+                Clear Selection
+            </button>
+        </div>
+    @endif
 
     {{-- Loading --}}
     <div wire:loading class="text-center py-2">
@@ -186,4 +214,90 @@
             </div>
         @endif
     </div>
+
+    {{-- Add Student Modal --}}
+    @if($showAddStudentModal)
+        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-user-plus me-2"></i>Add Students to {{ $sectionFilter }}
+                        </h5>
+                        <button type="button" class="btn-close" wire:click="closeAddStudentModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <input type="text" wire:model.live.debounce.300ms="addStudentSearch" class="form-control"
+                                placeholder="Search unassigned students by name, ID, or email...">
+                        </div>
+
+                        @if(count($studentsToAdd) > 0)
+                            <div class="alert alert-info py-2 mb-3">
+                                <strong>{{ count($studentsToAdd) }}</strong> student(s) selected to add
+                            </div>
+                        @endif
+
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-hover table-sm">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th style="width: 40px;"></th>
+                                        <th>Student ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($this->unassignedStudents as $student)
+                                        <tr wire:click="toggleStudentToAdd({{ $student->id }})" style="cursor: pointer;"
+                                            class="{{ in_array($student->id, $studentsToAdd) ? 'table-primary' : '' }}">
+                                            <td>
+                                                <input type="checkbox" class="form-check-input"
+                                                    {{ in_array($student->id, $studentsToAdd) ? 'checked' : '' }}
+                                                    wire:click.stop="toggleStudentToAdd({{ $student->id }})">
+                                            </td>
+                                            <td>{{ $student->student_id ?? '-' }}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <img src="{{ $student->profile_image_url }}" alt="" class="rounded-circle" width="24" height="24">
+                                                    <span>{{ $student->full_name }}</span>
+                                                </div>
+                                            </td>
+                                            <td>{{ $student->email }}</td>
+                                            <td>
+                                                @if((int) $student->stat === 1)
+                                                    <span class="badge bg-success">Active</span>
+                                                @else
+                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted py-4">
+                                                @if($addStudentSearch)
+                                                    No unassigned students found matching "{{ $addStudentSearch }}".
+                                                @else
+                                                    No unassigned students available. All students are already in a section.
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" wire:click="closeAddStudentModal">Cancel</button>
+                        <button type="button" class="btn btn-success" wire:click="addSelectedStudentsToSection"
+                            {{ count($studentsToAdd) === 0 ? 'disabled' : '' }}>
+                            <i class="fas fa-plus me-1"></i>Add {{ count($studentsToAdd) }} Student(s)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

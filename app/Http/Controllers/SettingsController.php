@@ -213,10 +213,10 @@ class SettingsController extends Controller
         $notifications = [
             'email_announcements' => $request->has('email_announcements'),
             'email_grades' => $request->has('email_grades'),
-            'email_grade_posted' => $request->has('email_grades'),
+            'email_grade_posted' => $request->has('email_grade_posted'),
             'email_reminders' => $request->has('email_reminders'),
-            'email_deadline_reminder' => $request->has('email_reminders'),
-            'email_forum_reply' => $request->has('email_announcements'),
+            'email_deadline_reminder' => $request->has('email_deadline_reminder'),
+            'email_forum_reply' => $request->has('email_forum_reply'),
             'push_enabled' => $request->has('push_enabled'),
         ];
 

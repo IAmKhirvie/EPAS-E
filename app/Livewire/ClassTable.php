@@ -22,6 +22,11 @@ class ClassTable extends Component
     public array $selectedStudents = [];
     public bool $selectAll = false;
 
+    // Add Student Modal
+    public bool $showAddStudentModal = false;
+    public string $addStudentSearch = '';
+    public array $studentsToAdd = [];
+
     protected $queryString = [
         'search' => ['except' => ''],
         'sectionFilter' => ['except' => '', 'as' => 'section'],
@@ -157,6 +162,168 @@ class ClassTable extends Component
             ? $this->sortField : 'last_name';
 
         return $query->orderBy($sortColumn, $this->sortDirection);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Bulk Actions
+    |--------------------------------------------------------------------------
+    */
+
+    public function bulkRemoveFromSection(): void
+    {
+        if (empty($this->selectedStudents) || !$this->sectionFilter) {
+            return;
+        }
+
+        $viewer = Auth::user();
+
+        // Authorization check
+        if ($viewer->role === Roles::INSTRUCTOR) {
+            $accessibleSections = $viewer->getAllAccessibleSections();
+            if (!$accessibleSections->contains($this->sectionFilter)) {
+                session()->flash('error', 'You can only manage students in your assigned sections.');
+                return;
+            }
+        }
+
+        $count = User::whereIn('id', $this->selectedStudents)
+            ->where('role', Roles::STUDENT)
+            ->where('section', $this->sectionFilter)
+            ->update(['section' => null]);
+
+        $this->selectedStudents = [];
+        $this->selectAll = false;
+
+        session()->flash('success', "{$count} student(s) removed from section.");
+    }
+
+    public function bulkActivate(): void
+    {
+        if (empty($this->selectedStudents)) {
+            return;
+        }
+
+        $viewer = Auth::user();
+        if ($viewer->role !== Roles::ADMIN) {
+            session()->flash('error', 'Only administrators can activate students.');
+            return;
+        }
+
+        $count = User::whereIn('id', $this->selectedStudents)
+            ->where('role', Roles::STUDENT)
+            ->update(['stat' => 1]);
+
+        $this->selectedStudents = [];
+        $this->selectAll = false;
+
+        session()->flash('success', "{$count} student(s) activated.");
+    }
+
+    public function bulkDeactivate(): void
+    {
+        if (empty($this->selectedStudents)) {
+            return;
+        }
+
+        $viewer = Auth::user();
+        if ($viewer->role !== Roles::ADMIN) {
+            session()->flash('error', 'Only administrators can deactivate students.');
+            return;
+        }
+
+        $count = User::whereIn('id', $this->selectedStudents)
+            ->where('role', Roles::STUDENT)
+            ->update(['stat' => 0]);
+
+        $this->selectedStudents = [];
+        $this->selectAll = false;
+
+        session()->flash('success', "{$count} student(s) deactivated.");
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Add Student to Section
+    |--------------------------------------------------------------------------
+    */
+
+    public function openAddStudentModal(): void
+    {
+        if (!$this->sectionFilter) {
+            session()->flash('error', 'Please select a section first.');
+            return;
+        }
+
+        $this->addStudentSearch = '';
+        $this->studentsToAdd = [];
+        $this->showAddStudentModal = true;
+    }
+
+    public function closeAddStudentModal(): void
+    {
+        $this->showAddStudentModal = false;
+        $this->addStudentSearch = '';
+        $this->studentsToAdd = [];
+    }
+
+    public function getUnassignedStudentsProperty()
+    {
+        if (!$this->showAddStudentModal) {
+            return collect();
+        }
+
+        $query = User::where('role', Roles::STUDENT)
+            ->where(function ($q) {
+                $q->whereNull('section')->orWhere('section', '');
+            });
+
+        if ($this->addStudentSearch) {
+            $search = $this->addStudentSearch;
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('student_id', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->orderBy('last_name')->orderBy('first_name')->limit(20)->get();
+    }
+
+    public function toggleStudentToAdd(int $studentId): void
+    {
+        if (in_array($studentId, $this->studentsToAdd)) {
+            $this->studentsToAdd = array_filter($this->studentsToAdd, fn($id) => $id !== $studentId);
+        } else {
+            $this->studentsToAdd[] = $studentId;
+        }
+    }
+
+    public function addSelectedStudentsToSection(): void
+    {
+        if (empty($this->studentsToAdd) || !$this->sectionFilter) {
+            return;
+        }
+
+        $viewer = Auth::user();
+
+        // Authorization check
+        if ($viewer->role === Roles::INSTRUCTOR) {
+            $accessibleSections = $viewer->getAllAccessibleSections();
+            if (!$accessibleSections->contains($this->sectionFilter)) {
+                session()->flash('error', 'You can only add students to your assigned sections.');
+                return;
+            }
+        }
+
+        $count = User::whereIn('id', $this->studentsToAdd)
+            ->where('role', Roles::STUDENT)
+            ->update(['section' => $this->sectionFilter]);
+
+        $this->closeAddStudentModal();
+
+        session()->flash('success', "{$count} student(s) added to section {$this->sectionFilter}.");
     }
 
     public function render()
