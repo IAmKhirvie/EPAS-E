@@ -1,68 +1,87 @@
 
 
 :root {
-    --primary: #0d6efd;
-    --primary-light: #3c8bff;
-    --primary-dark: #0056b3;
-    --primary-foreground: #0d6dfd88;
-    --secondary: #7209b7;
-    --success: #4cc9f0;
-    --warning: #f2c71c;
-    --light: #f8f9fa;
-    --dark: #212529;
-    --gray: #6c757d;
-    --light-gray: #FAFAFA;
+    /* ══ Petrichor Color Scheme ══ */
+    /* 60% Dominant: Storm - primary backgrounds, navbar */
+    /* 30% Secondary: Slate/Rain - supporting elements */
+    /* 10% Accent: Ochre - CTAs, highlights */
+
+    --ink: #1A1814;        /* the sky at midnight */
+    --storm: #2E3D4F;      /* cumulonimbus at dusk */
+    --slate: #6B7F8E;      /* wet flagstone */
+    --rain: #8FAFC2;       /* first drops on glass */
+    --moss: #4A5E45;       /* lichen on old walls */
+    --clay: #9C7C5E;       /* exposed earth */
+    --ochre: #C4893A;      /* amber before the storm */
+    --petal: #D4A5A0;      /* wild rose, last bloom */
+    --dust: #C8BFAD;       /* dry road before rain */
+    --stone: #E8E2D9;      /* limestone in afternoon light */
+
+    /* Mapped to standard variables */
+    --primary: #2E3D4F;           /* Storm - 60% */
+    --primary-light: #3d5166;
+    --primary-dark: #1A1814;      /* Ink */
+    --primary-foreground: rgba(46, 61, 79, 0.5);
+    --secondary: #6B7F8E;         /* Slate - 30% */
+    --success: #4A5E45;           /* Moss */
+    --warning: #C4893A;           /* Ochre */
+    --light: #E8E2D9;             /* Stone */
+    --dark: #1A1814;              /* Ink */
+    --gray: #6B7F8E;              /* Slate */
+    --light-gray: #E8E2D9;        /* Stone */
     --card: white;
     --border-radius: 8px;
     --transition: all 0.3s ease;
-    --danger: #f31f1f;
+    --danger: #9C7C5E;            /* Clay (muted danger) */
+    --accent: #C4893A;            /* Ochre - 10% */
     --sidebar-width: 250px;
     --sidebar-width-collapsed: 60px;
-    --sidebar-bg: #1e293b;
-    --sidebar-border: #374151;
-    --sidebar-submenu-bg: rgba(0, 0, 0, 0.1);
-    --foreground: #9ca7b3;
-    --muted-foreground: #94a3b8;
-    --border: #374151;
+    --sidebar-bg: #2E3D4F;        /* Storm */
+    --sidebar-border: #1A1814;    /* Ink */
+    --sidebar-submenu-bg: rgba(26, 24, 20, 0.2);
+    --foreground: #6B7F8E;        /* Slate */
+    --muted-foreground: #6B7F8E;  /* Slate */
+    --border: #C8BFAD;            /* Dust */
     --radius: 8px;
-    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow: 0 10px 15px -3px rgba(26, 24, 20, 0.1), 0 4px 6px -2px rgba(26, 24, 20, 0.05);
     --transition-speed: 0.3s;
-    --background: #f0f0f0;
-    --text-primary: #212529;
-    --card-bg: #f8f9fa;
-    --card-text: #212529;
-    --card-border: #e0e0e0;
-    --card-header-bg: #f8f9fa;
-    --card-header-text: #212529;
+    --background: #E8E2D9;        /* Stone */
+    --text-primary: #1A1814;      /* Ink */
+    --card-bg: white;
+    --card-text: #1A1814;         /* Ink */
+    --card-border: #C8BFAD;       /* Dust */
+    --card-header-bg: #E8E2D9;    /* Stone */
+    --card-header-text: #1A1814;  /* Ink */
 }
 
 .dark-mode {
-    --background: #202020;
-    --foreground: #f8f9fa;
-    --card: #1a1a1a;
-    --card-foreground: #f8f9fa;
-    --primary: #3b82f6;
-    --primary-foreground: #478aff9f;
-    --secondary: #262626;
-    --secondary-foreground: #f8f9fa;
-    --muted: #262626;
-    --muted-foreground: #a1a1aa;
-    --accent: #06b6d4;
-    --accent-foreground: #f8f9fa;
-    --border: #656565;
-    --sidebar-bg: #181818;
-    --sidebar-foreground: #f8f9fa;
-    --sidebar-border: #2d2d2d;
-    --light-gray: #d4d4d4;
-    --text-primary: #f8f9fa;
-    --light: #f8f9fa;
-    --dark: #1a1a1a;
-    --gray: #303030;
-    --card-bg: #2a2a2a;
-    --card-text: #f8f9fa;
-    --card-border: #000;
-    --card-header-bg: #222121;
-    --card-header-text: #f8f9fa;
+    /* ══ Petrichor Dark Mode ══ */
+    --background: #1A1814;        /* Ink */
+    --foreground: #E8E2D9;        /* Stone */
+    --card: #2E3D4F;              /* Storm */
+    --card-foreground: #E8E2D9;   /* Stone */
+    --primary: #8FAFC2;           /* Rain - lighter for dark mode */
+    --primary-foreground: rgba(143, 175, 194, 0.5);
+    --secondary: #2E3D4F;         /* Storm */
+    --secondary-foreground: #E8E2D9;
+    --muted: #2E3D4F;             /* Storm */
+    --muted-foreground: #6B7F8E;  /* Slate */
+    --accent: #C4893A;            /* Ochre */
+    --accent-foreground: #E8E2D9; /* Stone */
+    --border: #6B7F8E;            /* Slate */
+    --sidebar-bg: #1A1814;        /* Ink */
+    --sidebar-foreground: #E8E2D9;
+    --sidebar-border: #2E3D4F;    /* Storm */
+    --light-gray: #C8BFAD;        /* Dust */
+    --text-primary: #E8E2D9;      /* Stone */
+    --light: #E8E2D9;             /* Stone */
+    --dark: #1A1814;              /* Ink */
+    --gray: #6B7F8E;              /* Slate */
+    --card-bg: #2E3D4F;           /* Storm */
+    --card-text: #E8E2D9;         /* Stone */
+    --card-border: #1A1814;       /* Ink */
+    --card-header-bg: #1A1814;    /* Ink */
+    --card-header-text: #E8E2D9;  /* Stone */
 }
 
 /* ===== TOP NAVBAR ===== */
@@ -82,7 +101,7 @@
 }
 
 .logo{
-    height: calc(55px);
+    height: 60px;
     width: auto;
     border-right: 2px solid var(--primary-dark);
     padding-right: 0.5rem;
@@ -125,8 +144,10 @@
     background-color: var(--light-gray);
     border-radius: 9999px;
     padding: 0.5rem;
+    backdrop-filter: blur(10px);
     transition: all 0.3s ease;
     height: 3.5rem;
+    /* border: 1px solid var(--border); */
 }
 
 .navbar-item {
@@ -167,11 +188,7 @@
 
 /* Specific styles for user dropdown */
 .dropdown {
-    min-width: 22rem;
-    width: 22rem;
-    padding: 0;
-    overflow: hidden;
-    border-radius: 16px;
+    min-width: 14rem;
 }
 
 /* Popover Header Enhancement */
@@ -259,6 +276,7 @@
 
 .notification-item:hover {
     background-color: var(--accent);
+    transform: translateX(2px);
 }
 
 .notification-item.unread {
@@ -511,8 +529,6 @@
 
 .icon-button:hover, .user-button:hover {
     transform: scale(1.05);
-    background: var(--primary-light);
-    color: var(--light);
 }
 
 /* Enhanced Notification Badge */
@@ -549,17 +565,13 @@
 
 /* Enhanced Avatar */
 .avatar img{
-    width: 3rem !important;
-    height: auto !important;
+    width: 2rem !important;
+    height: 2rem !important;
 }
 
 .avatar {
     width: 2rem !important;
     height: 2rem !important;
-    align-content: center;
-    align-items: center;
-    justify-content: center;
-    margin: auto 0;
     border-radius: 50%;
     overflow: hidden;
     position: relative;
@@ -652,36 +664,30 @@
         transform: scale(0.95);
     }
 
-    /* Login dropdown → centered modal on mobile (override header.css bottom-sheet styles) */
+    /* Login dropdown → centered modal on mobile */
     #login-dropdown {
-        position: fixed !important;
-        top: 50% !important;
-        left: 50% !important;
-        right: auto !important;
-        bottom: auto !important;
-        width: calc(100% - 2rem) !important;
-        max-width: 360px !important;
-        min-width: unset !important;
-        border-radius: 20px !important;
-        z-index: 1100 !important;
-        transform: translate(-50%, -50%) scale(0.9) !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25) !important;
-        overflow: hidden !important;
-        background-color: var(--card) !important;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        right: auto;
+        bottom: auto;
+        width: calc(100% - 2rem);
+        max-width: 360px;
+        min-width: unset;
+        border-radius: 20px;
+        z-index: 1100;
+        transform: translate(-50%, -50%) scale(0.9);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
     }
 
     #login-dropdown.active {
-        transform: translate(-50%, -50%) scale(1) !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-    }
-
-    /* Remove bottom-sheet drag handle from login dropdown */
-    #login-dropdown::before {
-        display: none !important;
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+        visibility: visible;
     }
 
     /* Bigger login options in modal */
@@ -1355,7 +1361,6 @@ h3.user-card-subtitle {
         left: 0;
         right: 0;
         width: 100%;
-        padding-bottom: 3rem;
         min-width: unset;
         max-width: unset;
         border-radius: 20px 20px 0 0;
@@ -1387,8 +1392,7 @@ h3.user-card-subtitle {
         height: 4px;
         background: var(--light-gray);
         border-radius: 2px;
-        margin: 0px auto 6px;
-        z-index: 1000000;
+        margin: 10px auto 6px;
     }
 
     #notifications-popover {
@@ -1442,6 +1446,14 @@ h3.user-card-subtitle {
     #user-dropdown .toggle-row {
         padding: 0.625rem 0;
         min-height: 52px;
+    }
+
+    /* Safe area for notched devices */
+    @supports (padding: env(safe-area-inset-bottom)) {
+        #notifications-popover,
+        #user-dropdown {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
     }
 }
 
