@@ -46,7 +46,7 @@
     --radius: 8px;
     --shadow: 0 10px 15px -3px rgba(26, 24, 20, 0.1), 0 4px 6px -2px rgba(26, 24, 20, 0.05);
     --transition-speed: 0.3s;
-    --background: #E8E2D9;        /* Stone */
+    --background: #E8E2D9;        /* Stone - light mode background */
     --text-primary: #1A1814;      /* Ink */
     --card-bg: white;
     --card-text: #1A1814;         /* Ink */
