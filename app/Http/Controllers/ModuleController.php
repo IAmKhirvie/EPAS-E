@@ -40,6 +40,7 @@ class ModuleController extends Controller
             'module_title' => 'required|string|max:255',
             'module_number' => 'required|string|max:50',
             'module_name' => 'required|string|max:255',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'table_of_contents' => 'nullable|string',
             'how_to_use_cblm' => 'nullable|string',
             'introduction' => 'nullable|string',
@@ -47,7 +48,12 @@ class ModuleController extends Controller
         ]);
 
         try {
-            $module = DB::transaction(function () use ($validated, $course) {
+            $module = DB::transaction(function () use ($validated, $course, $request) {
+                $thumbnailPath = null;
+                if ($request->hasFile('thumbnail')) {
+                    $thumbnailPath = $request->file('thumbnail')->store('modules/thumbnails', 'public');
+                }
+
                 return Module::create([
                     'course_id' => $course->id,
                     'qualification_title' => $validated['qualification_title'],
@@ -55,6 +61,7 @@ class ModuleController extends Controller
                     'module_title' => $validated['module_title'],
                     'module_number' => $validated['module_number'],
                     'module_name' => $validated['module_name'],
+                    'thumbnail' => $thumbnailPath,
                     'table_of_contents' => $validated['table_of_contents'],
                     'how_to_use_cblm' => $validated['how_to_use_cblm'],
                     'introduction' => $validated['introduction'],
@@ -66,6 +73,18 @@ class ModuleController extends Controller
 
             return redirect()->route('courses.show', $course)
                 ->with('success', 'Module created successfully!');
+
+        } catch (\Illuminate\Database\QueryException $e) {
+            Log::error('Module creation failed: ' . $e->getMessage());
+
+            // Check for duplicate entry error
+            if ($e->errorInfo[1] == 1062) {
+                return back()->withInput()
+                    ->with('error', 'A module with a similar title already exists in this course. Please use a different module title.');
+            }
+
+            return back()->withInput()
+                ->with('error', 'Failed to create module due to a database error. Please try again.');
 
         } catch (\Exception $e) {
             Log::error('Module creation failed: ' . $e->getMessage());
@@ -254,6 +273,8 @@ class ModuleController extends Controller
             'module_title' => 'required|string|max:255',
             'module_number' => 'required|string|max:50',
             'module_name' => 'required|string|max:255',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'remove_thumbnail' => 'nullable|boolean',
             'table_of_contents' => 'nullable|string',
             'how_to_use_cblm' => 'nullable|string',
             'introduction' => 'nullable|string',
@@ -261,10 +282,41 @@ class ModuleController extends Controller
             'is_active' => 'boolean',
             'prerequisites' => 'nullable|array',
             'prerequisites.*' => 'exists:modules,id',
+            // Assessment fields
+            'require_final_assessment' => 'boolean',
+            'assessment_randomize_questions' => 'boolean',
+            'assessment_show_answers' => 'boolean',
+            'assessment_passing_score' => 'nullable|integer|min:0|max:100',
+            'assessment_time_limit' => 'nullable|integer|min:1',
+            'assessment_max_attempts' => 'nullable|integer|min:1',
+            'assessment_question_count' => 'nullable|integer|min:1',
+            'assessment_question_mode' => 'nullable|in:all,random_subset',
+            'assessment_require_completion' => 'boolean',
         ]);
+
+        // Handle boolean checkboxes (they're not sent when unchecked)
+        $validated['require_final_assessment'] = $request->has('require_final_assessment');
+        $validated['assessment_randomize_questions'] = $request->has('assessment_randomize_questions');
+        $validated['assessment_show_answers'] = $request->has('assessment_show_answers');
+        $validated['assessment_require_completion'] = $request->has('assessment_require_completion');
 
         try {
             DB::transaction(function () use ($validated, $module, $request) {
+                // Handle thumbnail upload
+                if ($request->hasFile('thumbnail')) {
+                    // Delete old thumbnail if exists
+                    if ($module->thumbnail) {
+                        \Storage::disk('public')->delete($module->thumbnail);
+                    }
+                    $validated['thumbnail'] = $request->file('thumbnail')->store('modules/thumbnails', 'public');
+                } elseif ($request->boolean('remove_thumbnail') && $module->thumbnail) {
+                    \Storage::disk('public')->delete($module->thumbnail);
+                    $validated['thumbnail'] = null;
+                } else {
+                    unset($validated['thumbnail']);
+                }
+                unset($validated['remove_thumbnail']);
+
                 $module->update($validated);
 
                 // Update prerequisites if provided

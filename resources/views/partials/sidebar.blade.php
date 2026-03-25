@@ -44,7 +44,7 @@
         <div class="sidebar-section">
             <div class="sidebar-label">Main Menu</div>
             <nav class="sidebar-nav">
-                <a href="{{ route('dashboard') }}" class="nav-item {{ Request::routeIs('dashboard') ? 'active' : '' }}" data-tooltip="Dashboard">
+                <a href="{{ route('dashboard') }}" class="nav-item {{ Request::routeIs('dashboard', 'student.dashboard', 'admin.dashboard') ? 'active' : '' }}" data-tooltip="Dashboard">
                     <i class="fas fa-chart-bar"></i>
                     <span>Dashboard</span>
                 </a>

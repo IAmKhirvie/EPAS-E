@@ -89,13 +89,14 @@ function initializeActivityFeed() {
     var searchInput = document.getElementById('feed-search');
     var filterType = document.getElementById('feed-filter-type');
     var sortSelect = document.getElementById('feed-sort');
-    var feedItems = document.querySelectorAll('.feed-item');
     var noResults = document.getElementById('no-results');
     var activityFeed = document.getElementById('activity-feed');
 
     if (!activityFeed) return;
 
     function filterAndSort() {
+        // Get fresh list of items each time
+        var feedItems = activityFeed.querySelectorAll('.feed-item');
         var searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
         var typeFilter = filterType ? filterType.value : '';
         var sortOrder = sortSelect ? sortSelect.value : 'newest';
@@ -103,6 +104,14 @@ function initializeActivityFeed() {
         var visibleCount = 0;
         var items = Array.from(feedItems);
 
+        // First, sort ALL items by date
+        items.sort(function(a, b) {
+            var dateA = new Date(a.dataset.date || 0);
+            var dateB = new Date(b.dataset.date || 0);
+            return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+
+        // Then apply filters and re-append in sorted order
         items.forEach(function(item) {
             var type = item.dataset.type;
             var subtype = item.dataset.subtype || '';
@@ -122,23 +131,15 @@ function initializeActivityFeed() {
                 (typeFilter === 'task' && subtype === 'task_sheet');
 
             if (matchesSearch && matchesType) {
-                item.classList.remove('hidden');
+                item.style.display = '';
                 visibleCount++;
             } else {
-                item.classList.add('hidden');
+                item.style.display = 'none';
             }
-        });
 
-        var visibleItems = items.filter(function(item) {
-            return !item.classList.contains('hidden');
+            // Re-append item in sorted order
+            activityFeed.appendChild(item);
         });
-        visibleItems.sort(function(a, b) {
-            var dateA = new Date(a.dataset.date);
-            var dateB = new Date(b.dataset.date);
-            return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
-        });
-
-        visibleItems.forEach(function(item) { activityFeed.appendChild(item); });
 
         if (noResults) {
             noResults.style.display = visibleCount === 0 ? 'block' : 'none';

@@ -41,7 +41,9 @@ class Module extends Model
         $slug = $baseSlug;
         $counter = 1;
 
-        while (static::where('course_id', $courseId)
+        // Include soft-deleted records to avoid unique constraint violations at DB level
+        while (static::withTrashed()
+            ->where('course_id', $courseId)
             ->where('slug', $slug)
             ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
             ->exists()
@@ -62,6 +64,7 @@ class Module extends Model
         'slug',
         'module_number',
         'module_name',
+        'thumbnail',
         'table_of_contents',
         'how_to_use_cblm',
         'introduction',
@@ -69,11 +72,28 @@ class Module extends Model
         'is_active',
         'order',
         'images',
+        // Assessment fields
+        'require_final_assessment',
+        'assessment_randomize_questions',
+        'assessment_show_answers',
+        'assessment_passing_score',
+        'assessment_time_limit',
+        'assessment_max_attempts',
+        'assessment_question_count',
+        'assessment_question_mode',
+        'assessment_include_sources',
+        'assessment_require_completion',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'images' => 'array',
+        // Assessment casts
+        'require_final_assessment' => 'boolean',
+        'assessment_randomize_questions' => 'boolean',
+        'assessment_show_answers' => 'boolean',
+        'assessment_require_completion' => 'boolean',
+        'assessment_include_sources' => 'array',
     ];
 
     // Add this relationship
@@ -85,6 +105,134 @@ class Module extends Model
     public function informationSheets(): HasMany
     {
         return $this->hasMany(InformationSheet::class)->orderBy('order');
+    }
+
+    /**
+     * Get assessment submissions for this module.
+     */
+    public function assessmentSubmissions(): HasMany
+    {
+        return $this->hasMany(ModuleAssessmentSubmission::class);
+    }
+
+    /**
+     * Get the default assessment sources.
+     */
+    public function getAssessmentSourcesAttribute(): array
+    {
+        return $this->assessment_include_sources ?? ['self_check'];
+    }
+
+    /**
+     * Check if user has passed the final assessment.
+     */
+    public function hasPassedAssessment(User $user): bool
+    {
+        return $this->assessmentSubmissions()
+            ->where('user_id', $user->id)
+            ->where('passed', true)
+            ->where('status', 'completed')
+            ->exists();
+    }
+
+    /**
+     * Get the number of assessment attempts by a user.
+     */
+    public function getAssessmentAttemptCount(User $user): int
+    {
+        return $this->assessmentSubmissions()
+            ->where('user_id', $user->id)
+            ->where('status', 'completed')
+            ->count();
+    }
+
+    /**
+     * Check if user can take the assessment.
+     */
+    public function canTakeAssessment(User $user): bool
+    {
+        // Check if assessment is enabled
+        if (!$this->require_final_assessment) {
+            return false;
+        }
+
+        // Check max attempts
+        if ($this->assessment_max_attempts) {
+            $attempts = $this->getAssessmentAttemptCount($user);
+            if ($attempts >= $this->assessment_max_attempts) {
+                return false;
+            }
+        }
+
+        // Check if already passed
+        if ($this->hasPassedAssessment($user)) {
+            return false;
+        }
+
+        // Check if completion is required
+        if ($this->assessment_require_completion && !$this->hasCompletedAllActivities($user)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if user has completed all activities (self-checks, etc.)
+     */
+    public function hasCompletedAllActivities(User $user): bool
+    {
+        $sheets = $this->informationSheets;
+
+        foreach ($sheets as $sheet) {
+            $selfChecks = $sheet->selfChecks;
+            foreach ($selfChecks as $selfCheck) {
+                $submission = $selfCheck->submissions()
+                    ->where('user_id', $user->id)
+                    ->where('status', 'completed')
+                    ->first();
+
+                if (!$submission) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Get best assessment submission for a user.
+     */
+    public function getBestAssessmentFor(User $user): ?ModuleAssessmentSubmission
+    {
+        return $this->assessmentSubmissions()
+            ->where('user_id', $user->id)
+            ->where('status', 'completed')
+            ->orderByDesc('percentage')
+            ->first();
+    }
+
+    /**
+     * Get latest assessment submission for a user.
+     */
+    public function getLatestAssessmentFor(User $user): ?ModuleAssessmentSubmission
+    {
+        return $this->assessmentSubmissions()
+            ->where('user_id', $user->id)
+            ->latest()
+            ->first();
+    }
+
+    /**
+     * Get in-progress assessment submission for a user.
+     */
+    public function getInProgressAssessmentFor(User $user): ?ModuleAssessmentSubmission
+    {
+        return $this->assessmentSubmissions()
+            ->where('user_id', $user->id)
+            ->where('status', 'in_progress')
+            ->first();
     }
 
     /**
@@ -124,6 +272,11 @@ class Module extends Model
                     return false;
                 }
             }
+        }
+
+        // If final assessment is required, check if user has passed it
+        if ($this->require_final_assessment) {
+            return $this->hasPassedAssessment($user);
         }
 
         return true;

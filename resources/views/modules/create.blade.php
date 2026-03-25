@@ -12,7 +12,7 @@
     </nav>
 
     <div class="cb-container--simple">
-        <form method="POST" action="{{ route('courses.modules.store', $course) }}">
+        <form method="POST" action="{{ route('courses.modules.store', $course) }}" enctype="multipart/form-data">
             @csrf
 
             <div class="cb-main">
@@ -29,9 +29,9 @@
                             <label class="cb-field-label">Select Course <span class="required">*</span></label>
                             <select class="form-select @error('course_id') is-invalid @enderror" name="course_id" required>
                                 <option value="">Select a Course</option>
-                                @foreach($courses as $course)
-                                <option value="{{ $course->id }}" {{ old('course_id') == $course->id ? 'selected' : '' }}>
-                                    {{ $course->course_name }} ({{ $course->course_code }})
+                                @foreach($courses as $courseOption)
+                                <option value="{{ $courseOption->id }}" {{ old('course_id', $course->id ?? '') == $courseOption->id ? 'selected' : '' }}>
+                                    {{ $courseOption->course_name }} ({{ $courseOption->course_code }})
                                 </option>
                                 @endforeach
                             </select>
@@ -71,11 +71,18 @@
                                     @error('module_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
-                            <div>
+                            <div class="mb-3">
                                 <label class="cb-field-label">Module Name <span class="required">*</span></label>
                                 <input type="text" class="form-control @error('module_name') is-invalid @enderror"
                                        name="module_name" value="{{ old('module_name', 'Competency based learning material') }}" required>
                                 @error('module_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div>
+                                <label class="cb-field-label">Module Thumbnail <span class="optional">(optional)</span></label>
+                                <input type="file" class="form-control @error('thumbnail') is-invalid @enderror"
+                                       name="thumbnail" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp">
+                                @error('thumbnail')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                <small class="text-muted">Recommended: 800x450px (16:9 ratio). Max 5MB.</small>
                             </div>
                         </div>
                     </div>

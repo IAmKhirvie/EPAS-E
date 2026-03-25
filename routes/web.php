@@ -449,6 +449,14 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::get('/module-{module}/sheets/{informationSheet}/task-sheet', [ModuleController::class, 'getTaskSheetContent'])->name('task-sheet');
         Route::get('/module-{module}/sheets/{informationSheet}/job-sheet', [ModuleController::class, 'getJobSheetContent'])->name('job-sheet');
 
+        // Module Final Assessment Routes
+        Route::get('/module-{module}/final-assessment', [\App\Http\Controllers\ModuleAssessmentController::class, 'show'])->name('assessment.show');
+        Route::post('/module-{module}/final-assessment', [\App\Http\Controllers\ModuleAssessmentController::class, 'submit'])->name('assessment.submit');
+        Route::post('/module-{module}/final-assessment/save', [\App\Http\Controllers\ModuleAssessmentController::class, 'saveProgress'])->name('assessment.save');
+        Route::get('/module-{module}/final-assessment/{submission}/results', [\App\Http\Controllers\ModuleAssessmentController::class, 'results'])->name('assessment.results');
+        Route::get('/module-{module}/final-assessment/history', [\App\Http\Controllers\ModuleAssessmentController::class, 'history'])->name('assessment.history');
+        Route::get('/module-{module}/final-assessment/stats', [\App\Http\Controllers\ModuleAssessmentController::class, 'stats'])->name('assessment.stats');
+
         // Information Sheet View
         Route::get('/module-{module}/information-sheets/{informationSheet}', [ModuleController::class, 'showInformationSheet'])->name('information-sheet');
         Route::get('/module-{module}/information-sheets/{informationSheet}/topics/{topic}', [ModuleController::class, 'showTopic'])->name('topic');

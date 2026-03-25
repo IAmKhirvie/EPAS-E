@@ -90,6 +90,70 @@
                 </div>
             </div>
 
+            {{-- Final Assessment Card --}}
+            @if($module->require_final_assessment)
+            @php
+                $user = Auth::user();
+                $hasPassed = $module->hasPassedAssessment($user);
+                $canTake = $module->canTakeAssessment($user);
+                $latestAttempt = $module->getLatestAssessmentFor($user);
+                $attemptCount = $module->getAssessmentAttemptCount($user);
+                $maxAttempts = $module->assessment_max_attempts;
+            @endphp
+            <div class="card border-0 shadow-sm mb-4 assessment-card-section">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="assessment-icon {{ $hasPassed ? 'passed' : ($canTake ? 'available' : 'locked') }}">
+                                @if($hasPassed)
+                                    <i class="fas fa-check-circle"></i>
+                                @elseif($canTake)
+                                    <i class="fas fa-clipboard-check"></i>
+                                @else
+                                    <i class="fas fa-lock"></i>
+                                @endif
+                            </div>
+                            <div>
+                                <h6 class="mb-1 fw-bold">Final Assessment</h6>
+                                <div class="text-muted small">
+                                    @if($hasPassed)
+                                        <span class="text-success"><i class="fas fa-check me-1"></i>Passed with {{ number_format($latestAttempt->percentage ?? 0, 1) }}%</span>
+                                    @elseif($canTake)
+                                        <span>{{ $module->assessment_passing_score }}% required to pass</span>
+                                        @if($module->assessment_time_limit)
+                                            <span class="ms-2"><i class="fas fa-clock me-1"></i>{{ $module->assessment_time_limit }} min</span>
+                                        @endif
+                                    @else
+                                        <span class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Complete all activities first</span>
+                                    @endif
+                                </div>
+                                @if($attemptCount > 0 && !$hasPassed)
+                                <div class="text-muted small mt-1">
+                                    Attempts: {{ $attemptCount }}{{ $maxAttempts ? ' / ' . $maxAttempts : '' }}
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                        <div>
+                            @if($hasPassed)
+                                <a href="{{ route('courses.modules.assessment.results', [$course, $module, $latestAttempt]) }}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View Results
+                                </a>
+                            @elseif($canTake)
+                                <a href="{{ route('courses.modules.assessment.show', [$course, $module]) }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-play me-1"></i>{{ $attemptCount > 0 ? 'Retake' : 'Start' }} Assessment
+                                </a>
+                            @else
+                                <a href="{{ route('courses.modules.assessment.show', [$course, $module]) }}" class="btn btn-outline-secondary btn-sm disabled">
+                                    <i class="fas fa-lock me-1"></i>Locked
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             {{-- Content Area --}}
             <div id="contentArea">
                 {{-- Overview (Default) --}}

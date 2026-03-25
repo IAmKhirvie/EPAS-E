@@ -17,6 +17,14 @@ class Course extends Model
         'course_code',
         'description',
         'sector',
+        'category_id',
+        'thumbnail',
+        'start_date',
+        'end_date',
+        'schedule_days',
+        'schedule_time_start',
+        'schedule_time_end',
+        'duration_hours',
         'is_active',
         'order',
         'instructor_id',
@@ -29,7 +37,48 @@ class Course extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'certificate_config' => 'array',
+        'start_date' => 'date',
+        'end_date' => 'date',
     ];
+
+    /**
+     * Get formatted schedule string
+     */
+    public function getFormattedScheduleAttribute(): ?string
+    {
+        if (!$this->schedule_days) {
+            return null;
+        }
+
+        $days = $this->schedule_days;
+        $time = '';
+
+        if ($this->schedule_time_start && $this->schedule_time_end) {
+            $start = \Carbon\Carbon::parse($this->schedule_time_start)->format('g:i A');
+            $end = \Carbon\Carbon::parse($this->schedule_time_end)->format('g:i A');
+            $time = " ({$start} - {$end})";
+        }
+
+        return $days . $time;
+    }
+
+    /**
+     * Get formatted date range string
+     */
+    public function getFormattedDateRangeAttribute(): ?string
+    {
+        if (!$this->start_date) {
+            return null;
+        }
+
+        $start = $this->start_date->format('M d, Y');
+
+        if ($this->end_date) {
+            return $start . ' - ' . $this->end_date->format('M d, Y');
+        }
+
+        return 'Starts ' . $start;
+    }
 
     protected static function boot()
     {
@@ -55,6 +104,27 @@ class Course extends Model
     public function instructor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'instructor_id');
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(CourseCategory::class, 'category_id');
+    }
+
+    /**
+     * Get the category color or default
+     */
+    public function getCategoryColorAttribute(): string
+    {
+        return $this->category?->color ?? '#3b82f6';
+    }
+
+    /**
+     * Get the thumbnail URL or null
+     */
+    public function getThumbnailUrlAttribute(): ?string
+    {
+        return $this->thumbnail ? asset('storage/' . $this->thumbnail) : null;
     }
 
     public function scopeActive($query)

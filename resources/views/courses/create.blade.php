@@ -12,7 +12,7 @@
     </nav>
 
     <div class="cb-container--simple">
-        <form method="POST" action="{{ route('courses.store') }}">
+        <form method="POST" action="{{ route('courses.store') }}" enctype="multipart/form-data">
             @csrf
 
             <div class="cb-main">
@@ -41,13 +41,70 @@
                                     @error('course_code')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
+
+                            {{-- Category Selection --}}
                             <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="cb-field-label">Category <span class="optional">(optional)</span></label>
+                                    <div class="category-select-wrapper">
+                                        <select class="form-select @error('category_id') is-invalid @enderror"
+                                            name="category_id" id="category_select">
+                                            <option value="">-- Select a Category --</option>
+                                            @foreach($categories as $category)
+                                            <option value="{{ $category->id }}"
+                                                data-color="{{ $category->color }}"
+                                                data-icon="{{ $category->icon }}"
+                                                {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                        @error('category_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    </div>
+                                    <div class="cb-field-hint">Category determines the course card color theme.</div>
+
+                                    {{-- Add New Category --}}
+                                    <div class="mt-2">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="toggleNewCategory">
+                                            <i class="fas fa-plus me-1"></i>Add New Category
+                                        </button>
+                                        <div id="newCategoryInput" class="mt-2" style="display: none;">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" name="new_category" id="new_category"
+                                                    placeholder="Enter new category name...">
+                                                <button type="button" class="btn btn-outline-danger" id="cancelNewCategory">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            <small class="text-muted">A color will be automatically assigned.</small>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="col-md-6 mb-3">
                                     <label class="cb-field-label">Sector <span class="optional">(optional)</span></label>
                                     <input type="text" class="form-control @error('sector') is-invalid @enderror"
                                         name="sector" value="{{ old('sector') }}" placeholder="e.g., Electronics Sector">
                                     @error('sector')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
+                            </div>
+
+                            {{-- Thumbnail Upload --}}
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="cb-field-label">Course Thumbnail <span class="optional">(optional)</span></label>
+                                    <div class="thumbnail-upload-wrapper">
+                                        <div class="thumbnail-preview" id="thumbnailPreview">
+                                            <i class="fas fa-image"></i>
+                                            <span>Click to upload image</span>
+                                        </div>
+                                        <input type="file" class="form-control d-none @error('thumbnail') is-invalid @enderror"
+                                            name="thumbnail" id="thumbnail_input" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp">
+                                        @error('thumbnail')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                    </div>
+                                    <div class="cb-field-hint">Recommended: 800x450px (16:9 ratio). Max 2MB.</div>
+                                </div>
+
                                 @if(isset($instructors))
                                 <div class="col-md-6 mb-3">
                                     <label class="cb-field-label">Assign Instructor <span class="required">(Required)</span></label>
@@ -66,6 +123,7 @@
                                 </div>
                                 @endif
                             </div>
+
                             <div class="mb-3">
                                 <label class="cb-field-label">Target Sections <span class="optional">(optional — leave empty for all sections)</span></label>
                                 <div class="d-flex flex-wrap gap-2">
@@ -85,6 +143,66 @@
                                 <textarea class="form-control @error('description') is-invalid @enderror"
                                     name="description" rows="4" placeholder="Enter course description...">{{ old('description') }}</textarea>
                                 @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Schedule Section --}}
+                    <div class="cb-section">
+                        <div class="cb-section__title"><i class="fas fa-calendar-alt"></i> Schedule & Duration</div>
+                        <div class="cb-settings">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="cb-field-label">Start Date <span class="optional">(optional)</span></label>
+                                    <input type="date" class="form-control @error('start_date') is-invalid @enderror"
+                                        name="start_date" value="{{ old('start_date') }}">
+                                    @error('start_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="cb-field-label">End Date <span class="optional">(optional)</span></label>
+                                    <input type="date" class="form-control @error('end_date') is-invalid @enderror"
+                                        name="end_date" value="{{ old('end_date') }}">
+                                    @error('end_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="cb-field-label">Total Hours <span class="optional">(optional)</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control @error('duration_hours') is-invalid @enderror"
+                                            name="duration_hours" value="{{ old('duration_hours') }}" min="1" placeholder="e.g., 40">
+                                        <span class="input-group-text">hours</span>
+                                    </div>
+                                    @error('duration_hours')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="cb-field-label">Schedule Days <span class="optional">(optional)</span></label>
+                                    <div class="schedule-days-wrapper">
+                                        @php $days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; @endphp
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @foreach($days as $day)
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input day-checkbox" type="checkbox" value="{{ $day }}"
+                                                    id="day_{{ $day }}" {{ in_array($day, old('schedule_days') ? explode(',', old('schedule_days')) : []) ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="day_{{ $day }}">{{ $day }}</label>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                        <input type="hidden" name="schedule_days" id="schedule_days_input" value="{{ old('schedule_days') }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="cb-field-label">Time Start <span class="optional">(optional)</span></label>
+                                    <input type="time" class="form-control @error('schedule_time_start') is-invalid @enderror"
+                                        name="schedule_time_start" value="{{ old('schedule_time_start') }}">
+                                    @error('schedule_time_start')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="cb-field-label">Time End <span class="optional">(optional)</span></label>
+                                    <input type="time" class="form-control @error('schedule_time_end') is-invalid @enderror"
+                                        name="schedule_time_end" value="{{ old('schedule_time_end') }}">
+                                    @error('schedule_time_end')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -108,6 +226,66 @@
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 <style>
+    /* Category Select with Color Indicator */
+    .category-option {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .category-color-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    /* Thumbnail Upload */
+    .thumbnail-upload-wrapper {
+        position: relative;
+    }
+
+    .thumbnail-preview {
+        width: 100%;
+        height: 150px;
+        border: 2px dashed var(--border);
+        border-radius: var(--border-radius);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: var(--surface);
+        color: var(--text-muted);
+        overflow: hidden;
+    }
+
+    .thumbnail-preview:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .thumbnail-preview i {
+        font-size: 2rem;
+    }
+
+    .thumbnail-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .thumbnail-preview.has-image {
+        border-style: solid;
+    }
+
+    .thumbnail-preview.has-image span,
+    .thumbnail-preview.has-image i {
+        display: none;
+    }
+
     /* Tom Select - light/dark mode support */
     .ts-wrapper .ts-control {
         background-color: var(--cb-surface, #fff);
@@ -163,6 +341,11 @@
         background-color: var(--card-bg);
         color: var(--text-primary);
     }
+
+    .dark-mode .thumbnail-preview {
+        background: var(--card-bg);
+        border-color: var(--border);
+    }
 </style>
 @endpush
 @push('scripts')
@@ -181,12 +364,40 @@
                 },
                 maxOptions: 500,
                 onInitialize: function() {
-                    // Hide the disabled placeholder from the dropdown list
                     const emptyOption = this.options[''];
                     if (emptyOption) {
                         emptyOption.disabled = true;
                     }
                 },
+            });
+        }
+
+        // Tom Select for category dropdown with color dots
+        if (document.getElementById('category_select')) {
+            new TomSelect('#category_select', {
+                mode: 'single',
+                allowEmptyOption: true,
+                placeholder: 'Select a category...',
+                render: {
+                    option: function(data, escape) {
+                        const color = data.color || '#6366f1';
+                        const icon = data.icon || 'fas fa-folder';
+                        return '<div class="category-option">' +
+                            '<span class="category-color-dot" style="background-color: ' + escape(color) + '"></span>' +
+                            '<i class="' + escape(icon) + ' me-1" style="color: ' + escape(color) + '"></i>' +
+                            '<span>' + escape(data.text) + '</span>' +
+                            '</div>';
+                    },
+                    item: function(data, escape) {
+                        const color = data.color || '#6366f1';
+                        const icon = data.icon || 'fas fa-folder';
+                        return '<div class="category-option">' +
+                            '<span class="category-color-dot" style="background-color: ' + escape(color) + '"></span>' +
+                            '<i class="' + escape(icon) + ' me-1" style="color: ' + escape(color) + '"></i>' +
+                            '<span>' + escape(data.text) + '</span>' +
+                            '</div>';
+                    }
+                }
             });
         }
 
@@ -209,6 +420,59 @@
             hiddenInput.value = checked.join(',');
         }
         sectionCheckboxes.forEach(cb => cb.addEventListener('change', syncSections));
+
+        // Sync day checkboxes with hidden input
+        const dayCheckboxes = document.querySelectorAll('.day-checkbox');
+        const hiddenDaysInput = document.getElementById('schedule_days_input');
+
+        function syncDays() {
+            const checked = [...dayCheckboxes].filter(cb => cb.checked).map(cb => cb.value);
+            hiddenDaysInput.value = checked.join(',');
+        }
+        dayCheckboxes.forEach(cb => cb.addEventListener('change', syncDays));
+
+        // Toggle new category input
+        const toggleBtn = document.getElementById('toggleNewCategory');
+        const newCategoryInput = document.getElementById('newCategoryInput');
+        const cancelBtn = document.getElementById('cancelNewCategory');
+        const categorySelect = document.getElementById('category_select');
+
+        toggleBtn.addEventListener('click', function() {
+            newCategoryInput.style.display = 'block';
+            toggleBtn.style.display = 'none';
+            if (categorySelect.tomselect) {
+                categorySelect.tomselect.disable();
+            }
+        });
+
+        cancelBtn.addEventListener('click', function() {
+            newCategoryInput.style.display = 'none';
+            toggleBtn.style.display = 'inline-flex';
+            document.getElementById('new_category').value = '';
+            if (categorySelect.tomselect) {
+                categorySelect.tomselect.enable();
+            }
+        });
+
+        // Thumbnail preview
+        const thumbnailInput = document.getElementById('thumbnail_input');
+        const thumbnailPreview = document.getElementById('thumbnailPreview');
+
+        thumbnailPreview.addEventListener('click', function() {
+            thumbnailInput.click();
+        });
+
+        thumbnailInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    thumbnailPreview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+                    thumbnailPreview.classList.add('has-image');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     });
 </script>
 @endpush

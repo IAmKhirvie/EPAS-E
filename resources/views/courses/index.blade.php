@@ -2,128 +2,826 @@
 
 @section('title', 'Courses - EPAS-E')
 
+@push('styles')
+<link rel="stylesheet" href="{{ dynamic_asset('css/pages/courses.css') }}">
+<style>
+/* Courses Page Layout */
+.courses-page-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 1.5rem;
+    min-height: calc(100vh - 200px);
+}
+
+/* Right Sidebar */
+.courses-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.sidebar-widget {
+    background: var(--surface);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.sidebar-widget-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-widget-header h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sidebar-widget-header h3 i {
+    color: var(--primary);
+}
+
+.sidebar-widget-body {
+    padding: 1rem 1.25rem;
+}
+
+/* Mini Calendar */
+.mini-calendar {
+    width: 100%;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.calendar-header h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.calendar-nav {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.calendar-nav button {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-nav button:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    text-align: center;
+}
+
+.calendar-day-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 0.5rem 0;
+}
+
+.calendar-day {
+    position: relative;
+    padding: 0.4rem;
+    padding-bottom: 0.6rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-day:hover {
+    background: var(--primary-light);
+    color: white;
+}
+
+.calendar-day.today {
+    background: var(--primary);
+    color: white;
+    font-weight: 700;
+}
+
+.calendar-day.other-month {
+    color: var(--text-muted);
+    opacity: 0.5;
+}
+
+/* Calendar event dots */
+.calendar-day.has-events {
+    cursor: pointer;
+}
+
+.calendar-event-dots {
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 2px;
+    justify-content: center;
+}
+
+.event-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.calendar-day.today .event-dot {
+    box-shadow: 0 0 0 1px white;
+}
+
+/* Upcoming Tasks */
+.upcoming-tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.upcoming-task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--background);
+    border-radius: calc(var(--border-radius) / 2);
+    transition: all 0.2s ease;
+}
+
+.upcoming-task-item:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.upcoming-task-item:hover .task-course,
+.upcoming-task-item:hover .task-due {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.task-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.85rem;
+}
+
+.task-icon.quiz {
+    background: rgba(139, 92, 246, 0.15);
+    color: #8b5cf6;
+}
+
+.task-icon.assignment {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+}
+
+.task-icon.deadline {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+.task-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.task-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.15rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.task-course {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.task-due {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.upcoming-task-item:hover .task-title {
+    color: white;
+}
+
+.no-tasks {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-muted);
+}
+
+.no-tasks i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+.no-tasks p {
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+/* Category Stats Widget */
+.category-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.category-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: calc(var(--border-radius) / 2);
+}
+
+.category-stat-item:hover {
+    padding-left: 0.5rem;
+    background: var(--background);
+}
+
+.category-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.category-name {
+    flex: 1;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+.category-count {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* Main Content Area */
+.courses-main {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .courses-page-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .courses-sidebar {
+        display: none;
+    }
+}
+
+/* Dark mode */
+.dark-mode .sidebar-widget {
+    background: var(--surface);
+    border-color: var(--border);
+}
+
+.dark-mode .upcoming-task-item {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .calendar-day:hover {
+    background: var(--primary);
+}
+</style>
+@endpush
+
 @section('content')
-<div class="container-fluid py-5">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 mb-0">EPAS-E Courses</h1>
+<div class="container-fluid py-4">
+    {{-- Header --}}
+    <div class="courses-header">
+        <h1><i class="fas fa-graduation-cap me-2"></i>My Courses</h1>
+        @if(in_array(auth()->user()->role, ['admin', 'instructor']))
+        <div class="courses-header-actions">
+            <a href="{{ route('courses.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Create Course
+            </a>
+        </div>
+        @endif
+    </div>
+
+    {{-- Management Mode Notice --}}
+    @if(Request::get('manage'))
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-info-circle me-2"></i>
+        You are in management mode.
+        <a href="{{ route('courses.index') }}" class="btn btn-sm btn-outline-info ms-3">Back to Normal View</a>
+    </div>
+    @endif
+
+    <div class="courses-page-wrapper">
+        {{-- Main Content --}}
+        <div class="courses-main">
+            {{-- Toolbar: Search & View Toggle --}}
+            <div class="courses-toolbar">
+                <div class="courses-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="courseSearch" placeholder="Search courses..." autocomplete="off">
+                </div>
+
+                @if($categories->count() > 0)
+                <div class="courses-filter">
+                    <button class="category-filter-btn active" data-category="all">
+                        All
+                    </button>
+                    @foreach($categories->take(5) as $category)
+                    <button class="category-filter-btn" data-category="{{ $category->id }}">
+                        <span class="category-dot" style="background: {{ $category->color }}"></span>
+                        {{ $category->name }}
+                    </button>
+                    @endforeach
+                </div>
+                @endif
+
+                <div class="view-toggle">
+                    <button id="gridViewBtn" class="active" title="Grid View">
+                        <i class="fas fa-th-large"></i>
+                        <span class="d-none d-sm-inline">Grid</span>
+                    </button>
+                    <button id="listViewBtn" title="List View">
+                        <i class="fas fa-list"></i>
+                        <span class="d-none d-sm-inline">List</span>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Courses Container --}}
+            @if($courses->count() > 0)
+            <div class="courses-container grid-view" id="coursesContainer">
+                @foreach($courses as $course)
+                @php
+                    $categoryColor = $course->category?->color ?? '#3b82f6';
+                    $categoryColorDark = $course->category?->darker_color ?? '#1e40af';
+                    $thumbnailUrl = $course->thumbnail ? asset('storage/' . $course->thumbnail) : '';
+                @endphp
+                <div class="course-card {{ $course->thumbnail ? 'has-thumbnail' : '' }}"
+                     data-course-name="{{ strtolower($course->course_name) }}"
+                     data-course-code="{{ strtolower($course->course_code) }}"
+                     data-category="{{ $course->category_id ?? '' }}"
+                     style="--category-color: {{ $categoryColor }}; --category-color-dark: {{ $categoryColorDark }}; {{ $thumbnailUrl ? '--bg-image: url(' . $thumbnailUrl . ');' : '' }}">
+
+                    {{-- Background Overlay --}}
+                    <div class="course-card-bg"></div>
+
+                    {{-- Top Bar: Menu & Badges --}}
+                    <div class="course-card-top">
+                        {{-- Category & Module Badge --}}
+                        <div class="course-card-badges">
+                            @if($course->category)
+                            <span class="course-badge category-badge">
+                                <i class="{{ $course->category->icon ?? 'fas fa-folder' }}"></i>
+                                {{ $course->category->name }}
+                            </span>
+                            @endif
+                            <span class="course-badge module-badge">
+                                <i class="fas fa-book"></i>
+                                {{ $course->modules_count }} {{ Str::plural('Module', $course->modules_count) }}
+                            </span>
+                        </div>
+
+                        {{-- Menu Button --}}
+                        @if(in_array(auth()->user()->role, ['admin', 'instructor']))
+                        <div class="course-card-menu">
+                            <div class="dropdown">
+                                <button class="course-menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('courses.edit', $course) }}">
+                                            <i class="fas fa-edit me-2"></i>Edit Course
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('courses.modules.create', $course) }}">
+                                            <i class="fas fa-plus me-2"></i>Add Module
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form action="{{ route('courses.destroy', $course) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="dropdown-item text-danger"
+                                                    onclick="return confirm('Are you sure you want to delete this course?')">
+                                                <i class="fas fa-trash me-2"></i>Delete
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+
+                    {{-- Card Content (centered) --}}
+                    <div class="course-card-body">
+                        {{-- Course Code --}}
+                        <span class="course-code-badge">{{ $course->course_code }}</span>
+
+                        {{-- Course Title --}}
+                        <h3 class="course-card-title">{{ $course->course_name }}</h3>
+
+                        {{-- Instructor Name --}}
+                        @if($course->instructor)
+                        <div class="course-instructor-line">
+                            <div class="instructor-avatar-sm">
+                                @if($course->instructor->profile_photo)
+                                    <img src="{{ asset('storage/' . $course->instructor->profile_photo) }}" alt="{{ $course->instructor->full_name }}">
+                                @else
+                                    {{ strtoupper(substr($course->instructor->first_name, 0, 1)) }}{{ strtoupper(substr($course->instructor->last_name, 0, 1)) }}
+                                @endif
+                            </div>
+                            <span>{{ $course->instructor->full_name }}</span>
+                        </div>
+                        @endif
+
+                        {{-- Description --}}
+                        @if($course->description)
+                        <p class="course-card-description">{{ Str::limit($course->description, 80) }}</p>
+                        @endif
+                    </div>
+
+                    {{-- Card Footer --}}
+                    <div class="course-card-footer">
+                        <div class="course-stats-row">
+                            @if($course->formatted_date_range)
+                            <div class="stat-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>{{ $course->formatted_date_range }}</span>
+                            </div>
+                            @endif
+                            @if($course->duration_hours)
+                            <div class="stat-item">
+                                <i class="fas fa-clock"></i>
+                                <span>{{ $course->duration_hours }}h</span>
+                            </div>
+                            @endif
+                            @if($course->sector && !$course->formatted_date_range && !$course->duration_hours)
+                            <div class="stat-item">
+                                <i class="fas fa-industry"></i>
+                                <span>{{ Str::limit($course->sector, 20) }}</span>
+                            </div>
+                            @endif
+                        </div>
+                        <div class="course-card-actions">
+                            @if(in_array(auth()->user()->role, ['admin', 'instructor']))
+                            <a href="{{ route('courses.edit', $course) }}" class="btn btn-edit-course" title="Edit Course">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            @endif
+                            <a href="{{ route('courses.show', $course) }}" class="btn btn-view-course">
+                                View <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+
+            {{-- No Results Message --}}
+            <div class="courses-empty" id="noResults" style="display: none;">
+                <div class="courses-empty-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3>No Courses Found</h3>
+                <p>No courses match your search criteria.</p>
+            </div>
+            @else
+            {{-- Empty State --}}
+            <div class="courses-empty">
+                <div class="courses-empty-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3>No Courses Available</h3>
+                <p>No learning courses have been created yet.</p>
                 @if(in_array(auth()->user()->role, ['admin', 'instructor']))
-                <a href="{{ route('courses.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Create New Course
+                <a href="{{ route('courses.create') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>Create Your First Course
                 </a>
                 @endif
             </div>
+            @endif
+        </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Available Courses</h5>
+        {{-- Right Sidebar --}}
+        <aside class="courses-sidebar">
+            {{-- Mini Calendar --}}
+            <div class="sidebar-widget">
+                <div class="sidebar-widget-header">
+                    <h3><i class="fas fa-calendar-alt"></i> Calendar</h3>
                 </div>
-                @if(Request::get('manage'))
-                <div class="alert alert-info mb-4">
-                    <i class="fas fa-info-circle me-2"></i>
-                    You are in management mode. Click "Back to Normal View" to return to the student view.
-                    <a href="{{ route('courses.index') }}" class="btn btn-sm btn-outline-info ms-3">Back to Normal View</a>
-                </div>
-                @endif
-                <div class="card-body">
-                    @if($courses->count() > 0)
-                    <div class="row">
-                        @foreach($courses as $course)
-                        <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card course-card h-100">
-                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0">{{ $course->course_code }}</h6>
-                                    <span class="badge bg-light text-dark">
-                                        {{ $course->modules_count }} {{ Str::plural('Module', $course->modules_count) }}
-                                    </span>
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ $course->course_name }}</h5>
-                                    @if($course->sector)
-                                    <p class="card-text text-muted small mb-2">
-                                        <i class="fas fa-industry me-1"></i>{{ $course->sector }}
-                                    </p>
-                                    @endif
-                                    @if($course->description)
-                                    <p class="card-text">{{ Str::limit($course->description, 120) }}</p>
-                                    @endif
-                                </div>
-                                <div class="card-footer bg-transparent">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <a href="{{ route('courses.show', $course) }}" class="btn btn-outline-primary btn-sm">
-                                            <i class="fas fa-eye me-1"></i>View Course
-                                        </a>
-                                        @if(in_array(auth()->user()->role, ['admin', 'instructor']))
-                                        <div class="dropdown">
-                                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                                <i class="fas fa-cog"></i>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" href="{{ route('courses.edit', $course) }}">
-                                                        <i class="fas fa-edit me-2"></i>Edit Course
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="{{ route('courses.modules.create', $course) }}">
-                                                        <i class="fas fa-plus me-2"></i>Add Module
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <hr class="dropdown-divider">
-                                                </li>
-                                                <li>
-                                                    <form action="{{ route('courses.destroy', $course) }}" method="POST" class="d-inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Are you sure you want to delete this course? All modules and content will be lost.')">
-                                                            <i class="fas fa-trash me-2"></i>Delete Course
-                                                        </button>
-                                                    </form>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        @endif
-                                    </div>
-                                </div>
+                <div class="sidebar-widget-body">
+                    <div class="mini-calendar">
+                        <div class="calendar-header">
+                            <h4 id="calendarMonth">{{ now()->format('F Y') }}</h4>
+                            <div class="calendar-nav">
+                                <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                                <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
                             </div>
                         </div>
-                        @endforeach
+                        <div class="calendar-grid" id="calendarGrid">
+                            {{-- Calendar days will be populated by JS --}}
+                        </div>
                     </div>
-                    @else
-                    <div class="text-center py-5">
-                        <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
-                        <h4>No Courses Available</h4>
-                        <p class="text-muted">No learning courses have been created yet.</p>
-                        @if(in_array(auth()->user()->role, ['admin', 'instructor']))
-                        <a href="{{ route('courses.create') }}" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>Create First Course
-                        </a>
-                        @endif
-                    </div>
-                    @endif
                 </div>
             </div>
-        </div>
+
+            {{-- Upcoming Tasks --}}
+            <div class="sidebar-widget">
+                <div class="sidebar-widget-header">
+                    <h3><i class="fas fa-tasks"></i> Upcoming</h3>
+                </div>
+                <div class="sidebar-widget-body">
+                    <div class="upcoming-tasks-list" id="upcomingTasks">
+                        {{-- Tasks will be loaded dynamically --}}
+                        <div class="no-tasks">
+                            <i class="fas fa-check-circle"></i>
+                            <p>All caught up!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Categories --}}
+            @if($categories->count() > 0)
+            <div class="sidebar-widget">
+                <div class="sidebar-widget-header">
+                    <h3><i class="fas fa-folder"></i> Categories</h3>
+                </div>
+                <div class="sidebar-widget-body">
+                    <div class="category-stats">
+                        @foreach($categories as $category)
+                        @php
+                            $courseCount = $courses->where('category_id', $category->id)->count();
+                        @endphp
+                        @if($courseCount > 0)
+                        <div class="category-stat-item" data-category="{{ $category->id }}">
+                            <span class="category-dot" style="background: {{ $category->color }}"></span>
+                            <span class="category-name">{{ $category->name }}</span>
+                            <span class="category-count">{{ $courseCount }}</span>
+                        </div>
+                        @endif
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
+        </aside>
     </div>
 </div>
 @endsection
 
-@push('styles')
-<style>
-    .course-card {
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        border: 1px solid var(--border);
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const gridViewBtn = document.getElementById('gridViewBtn');
+    const listViewBtn = document.getElementById('listViewBtn');
+    const coursesContainer = document.getElementById('coursesContainer');
+    const courseSearch = document.getElementById('courseSearch');
+    const noResults = document.getElementById('noResults');
+    const categoryFilterBtns = document.querySelectorAll('.category-filter-btn');
+    const categoryStatItems = document.querySelectorAll('.category-stat-item');
+
+    let activeCategory = 'all';
+
+    // View Toggle
+    function setView(view) {
+        if (!coursesContainer) return;
+
+        if (view === 'grid') {
+            coursesContainer.classList.remove('list-view');
+            coursesContainer.classList.add('grid-view');
+            gridViewBtn.classList.add('active');
+            listViewBtn.classList.remove('active');
+        } else {
+            coursesContainer.classList.remove('grid-view');
+            coursesContainer.classList.add('list-view');
+            listViewBtn.classList.add('active');
+            gridViewBtn.classList.remove('active');
+        }
+        localStorage.setItem('coursesViewPreference', view);
     }
 
-    .course-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    const savedView = localStorage.getItem('coursesViewPreference') || 'grid';
+    setView(savedView);
+
+    if (gridViewBtn) gridViewBtn.addEventListener('click', () => setView('grid'));
+    if (listViewBtn) listViewBtn.addEventListener('click', () => setView('list'));
+
+    // Filter and Search
+    function filterCourses() {
+        const searchTerm = courseSearch ? courseSearch.value.toLowerCase().trim() : '';
+        const courseCards = document.querySelectorAll('.course-card');
+        let visibleCount = 0;
+
+        courseCards.forEach(function(card) {
+            const name = card.dataset.courseName || '';
+            const code = card.dataset.courseCode || '';
+            const category = card.dataset.category || '';
+            const text = card.textContent.toLowerCase();
+
+            const matchesSearch = !searchTerm ||
+                name.includes(searchTerm) ||
+                code.includes(searchTerm) ||
+                text.includes(searchTerm);
+
+            const matchesCategory = activeCategory === 'all' || category === activeCategory;
+
+            if (matchesSearch && matchesCategory) {
+                card.style.display = '';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        if (noResults) {
+            noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+        if (coursesContainer) {
+            coursesContainer.style.display = visibleCount === 0 ? 'none' : '';
+        }
     }
 
-    .course-card .card-header {
-        border-bottom: 2px solid var(--primary);
+    if (courseSearch) {
+        courseSearch.addEventListener('input', filterCourses);
     }
-</style>
+
+    // Category filter buttons
+    categoryFilterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            categoryFilterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            activeCategory = this.dataset.category;
+            filterCourses();
+        });
+    });
+
+    // Category stat items (sidebar)
+    categoryStatItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const categoryId = this.dataset.category;
+            activeCategory = categoryId;
+
+            categoryFilterBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.category === categoryId);
+            });
+
+            filterCourses();
+        });
+    });
+
+    // Mini Calendar with Events
+    const calendarGrid = document.getElementById('calendarGrid');
+    const calendarMonth = document.getElementById('calendarMonth');
+    const prevMonthBtn = document.getElementById('prevMonth');
+    const nextMonthBtn = document.getElementById('nextMonth');
+
+    // Calendar events from server
+    const calendarEvents = @json($calendarEvents ?? []);
+
+    let currentDate = new Date();
+
+    // Group events by date
+    function getEventsForDate(dateStr) {
+        return calendarEvents.filter(event => event.date === dateStr);
+    }
+
+    function renderCalendar() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+
+        calendarMonth.textContent = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const startDay = firstDay.getDay();
+        const daysInMonth = lastDay.getDate();
+
+        const today = new Date();
+        const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
+
+        let html = '';
+
+        // Day labels
+        const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+        days.forEach(day => {
+            html += `<div class="calendar-day-label">${day}</div>`;
+        });
+
+        // Previous month days
+        const prevMonthDays = new Date(year, month, 0).getDate();
+        for (let i = startDay - 1; i >= 0; i--) {
+            html += `<div class="calendar-day other-month">${prevMonthDays - i}</div>`;
+        }
+
+        // Current month days
+        for (let day = 1; day <= daysInMonth; day++) {
+            const isToday = isCurrentMonth && day === today.getDate();
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dayEvents = getEventsForDate(dateStr);
+            const hasEvents = dayEvents.length > 0;
+
+            // Generate event dots (max 3 visible)
+            let dotsHtml = '';
+            if (hasEvents) {
+                const uniqueColors = [...new Set(dayEvents.map(e => e.color))];
+                const visibleColors = uniqueColors.slice(0, 3);
+                dotsHtml = '<div class="calendar-event-dots">';
+                visibleColors.forEach(color => {
+                    dotsHtml += `<span class="event-dot" style="background: ${color}"></span>`;
+                });
+                dotsHtml += '</div>';
+            }
+
+            // Generate tooltip
+            let tooltipAttr = '';
+            if (hasEvents) {
+                const eventTitles = dayEvents.map(e => e.title).join('\\n');
+                tooltipAttr = ` title="${eventTitles}" data-events='${JSON.stringify(dayEvents)}'`;
+            }
+
+            html += `<div class="calendar-day${isToday ? ' today' : ''}${hasEvents ? ' has-events' : ''}"${tooltipAttr}>${day}${dotsHtml}</div>`;
+        }
+
+        // Next month days
+        const remaining = 42 - (startDay + daysInMonth);
+        for (let i = 1; i <= remaining; i++) {
+            html += `<div class="calendar-day other-month">${i}</div>`;
+        }
+
+        calendarGrid.innerHTML = html;
+    }
+
+    if (calendarGrid) {
+        renderCalendar();
+
+        prevMonthBtn.addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
+
+        nextMonthBtn.addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+    }
+});
+</script>
 @endpush
