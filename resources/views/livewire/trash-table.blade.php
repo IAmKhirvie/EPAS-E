@@ -240,9 +240,8 @@
         </small>
     </div>
     @endif
-</div>
 
-<style>
+    <style>
     /* Bulk action bar styling */
     .bulk-action-bar {
         background-color: var(--light, #f8f9fa);
@@ -253,4 +252,5 @@
         background-color: var(--light-gray) !important;
         border-color: var(--border) !important;
     }
-</style>
+    </style>
+</div>
