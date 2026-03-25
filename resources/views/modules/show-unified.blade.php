@@ -4,6 +4,45 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/pages/module-unified.css') }}">
+@php
+    $categoryColor = $course->category?->color ?? '#3b82f6';
+    $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darken($course->category->color, 15) : '#1e40af';
+@endphp
+<style>
+/* Category-specific colors */
+:root {
+    --category-color: {{ $categoryColor }};
+    --category-color-dark: {{ $categoryColorDark }};
+}
+
+.module-category-accent {
+    color: var(--category-color) !important;
+}
+
+.btn-category {
+    background: var(--category-color);
+    border-color: var(--category-color);
+    color: white;
+}
+
+.btn-category:hover,
+.btn-category:focus {
+    background: var(--category-color-dark);
+    border-color: var(--category-color-dark);
+    color: white;
+}
+
+.progress-circle-fill {
+    stroke: var(--category-color);
+}
+
+.card-header .fa-bullseye,
+.card-header .fa-book-open,
+.card-header .fa-list-ol,
+.card-header .fa-info-circle {
+    color: var(--category-color) !important;
+}
+</style>
 @endpush
 
 @section('content')
@@ -58,7 +97,7 @@
                             <div class="position-relative progress-circle-container">
                                 <svg viewBox="0 0 100 100" class="progress-circle-svg">
                                     <circle cx="50" cy="50" r="40" fill="none" stroke="#e9ecef" stroke-width="8" />
-                                    <circle cx="50" cy="50" r="40" fill="none" stroke="#0d6efd" stroke-width="8"
+                                    <circle cx="50" cy="50" r="40" fill="none" class="progress-circle-fill" stroke-width="8"
                                         stroke-dasharray="251.2" stroke-dashoffset="251.2" id="progressCircle" />
                                 </svg>
                                 <div class="position-absolute top-50 start-50 translate-middle text-center">
@@ -69,7 +108,7 @@
                         <div class="col">
                             <div class="row text-center">
                                 <div class="col-6 col-md-3 mb-2 mb-md-0">
-                                    <div class="fw-bold text-primary">{{ $module->informationSheets->count() }}</div>
+                                    <div class="fw-bold module-category-accent">{{ $module->informationSheets->count() }}</div>
                                     <small class="text-muted">Info Sheets</small>
                                 </div>
                                 <div class="col-6 col-md-3 mb-2 mb-md-0">
@@ -140,7 +179,7 @@
                                     <i class="fas fa-eye me-1"></i>View Results
                                 </a>
                             @elseif($canTake)
-                                <a href="{{ route('courses.modules.assessment.show', [$course, $module]) }}" class="btn btn-primary btn-sm">
+                                <a href="{{ route('courses.modules.assessment.show', [$course, $module]) }}" class="btn btn-category btn-sm">
                                     <i class="fas fa-play me-1"></i>{{ $attemptCount > 0 ? 'Retake' : 'Start' }} Assessment
                                 </a>
                             @else
@@ -161,7 +200,7 @@
                     @if($module->learning_outcomes)
                     <div class="card border-0 shadow-sm mb-3">
                         <div class="card-header bg-white">
-                            <h6 class="mb-0"><i class="fas fa-bullseye text-primary me-2"></i>Learning Outcomes</h6>
+                            <h6 class="mb-0"><i class="fas fa-bullseye module-category-accent me-2"></i>Learning Outcomes</h6>
                         </div>
                         <div class="card-body">
                             {!! nl2br(e($module->learning_outcomes)) !!}
@@ -172,7 +211,7 @@
                     @if($module->introduction)
                     <div class="card border-0 shadow-sm mb-3">
                         <div class="card-header bg-white">
-                            <h6 class="mb-0"><i class="fas fa-book-open text-primary me-2"></i>Introduction</h6>
+                            <h6 class="mb-0"><i class="fas fa-book-open module-category-accent me-2"></i>Introduction</h6>
                         </div>
                         <div class="card-body">
                             {!! nl2br(e($module->introduction)) !!}
@@ -183,7 +222,7 @@
                     @if($module->how_to_use_cblm)
                     <div class="card border-0 shadow-sm mb-3">
                         <div class="card-header bg-white">
-                            <h6 class="mb-0"><i class="fas fa-info-circle text-primary me-2"></i>How to Use This CBLM</h6>
+                            <h6 class="mb-0"><i class="fas fa-info-circle module-category-accent me-2"></i>How to Use This CBLM</h6>
                         </div>
                         <div class="card-body">
                             {!! nl2br(e($module->how_to_use_cblm)) !!}
@@ -194,7 +233,7 @@
                     {{-- Module Details --}}
                     <div class="card border-0 shadow-sm mb-3">
                         <div class="card-header bg-white">
-                            <h6 class="mb-0"><i class="fas fa-info text-primary me-2"></i>Module Details</h6>
+                            <h6 class="mb-0"><i class="fas fa-info module-category-accent me-2"></i>Module Details</h6>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -239,7 +278,7 @@
                     <div></div>
                     @endif
                     @if($nextModule)
-                    <a href="{{ route('courses.modules.show', [$course, $nextModule, $nextModule->slug]) }}" class="btn btn-primary">
+                    <a href="{{ route('courses.modules.show', [$course, $nextModule, $nextModule->slug]) }}" class="btn btn-category">
                         {{ $nextModule->module_name }} <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                     @endif
@@ -254,7 +293,7 @@
                     <button class="btn btn-outline-secondary btn-sm" id="sidebarPrev" disabled>
                         <i class="fas fa-arrow-left"></i> Previous
                     </button>
-                    <button class="btn btn-primary btn-sm" id="sidebarNext">
+                    <button class="btn btn-category btn-sm" id="sidebarNext">
                         Next <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>

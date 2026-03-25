@@ -442,6 +442,20 @@
     background: var(--surface);
     border-color: var(--border);
 }
+
+/* Category-colored buttons */
+.btn-category {
+    background: var(--category-color);
+    border-color: var(--category-color);
+    color: white;
+}
+
+.btn-category:hover,
+.btn-category:focus {
+    background: var(--category-color-dark);
+    border-color: var(--category-color-dark);
+    color: white;
+}
 </style>
 @endpush
 
@@ -628,7 +642,7 @@
                 </div>
                 <div class="module-card-footer">
                     <div class="module-card-actions">
-                        <a href="{{ route('courses.modules.show', [$course, $module, $module->slug]) }}" class="btn btn-primary btn-sm">
+                        <a href="{{ route('courses.modules.show', [$course, $module, $module->slug]) }}" class="btn btn-category btn-sm">
                             <i class="fas fa-eye me-1"></i>View
                         </a>
                         <a href="{{ route('courses.modules.print', [$course, $module]) }}" class="btn btn-outline-secondary btn-sm" target="_blank" title="Print">
@@ -681,7 +695,7 @@
             <h4>No Modules Yet</h4>
             <p>This course doesn't have any modules created.</p>
             @if(isset($canEdit) && $canEdit)
-            <a href="{{ route('courses.modules.create', $course) }}" class="btn btn-primary">
+            <a href="{{ route('courses.modules.create', $course) }}" class="btn btn-category">
                 <i class="fas fa-plus me-2"></i>Create First Module
             </a>
             @endif
