@@ -275,10 +275,6 @@
                     <div class="tools-grid mt-3">
                         <div class="tool-item">
                             <i class="fas fa-robot"></i>
-                            <span>Claude (Anthropic)</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fas fa-robot"></i>
                             <span>DeepSeek</span>
                         </div>
                         <div class="tool-item">
