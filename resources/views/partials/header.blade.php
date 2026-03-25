@@ -22,6 +22,8 @@
                 <i class="fa-solid fa-house"></i>
             </a>
         </div>
+        {{-- About/Contact only for guests - authenticated users have these in user dropdown --}}
+        @guest
         <div class="navbar-item">
             <a href="{{ route('about') }}" class="icon-button">
                 <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
@@ -32,6 +34,7 @@
                 <i class="fa-solid fa-phone" aria-hidden="true"></i>
             </a>
         </div>
+        @endguest
         <div class="navbar-item">
             <button class="icon-button" id="dark-mode-toggle" aria-label="Toggle dark mode">
                 <i class="fas fa-moon" id="dark-mode-icon" aria-hidden="true"></i>
@@ -353,31 +356,55 @@
     });
 </script>
 
-<!-- Dark mode toggle sync for user card -->
+<!-- Dark mode toggle for navbar button and user card -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var toggle = document.getElementById('user-card-dark-toggle');
-        if (!toggle) return;
-        toggle.checked = document.body.classList.contains('dark-mode');
-        toggle.addEventListener('change', function() {
+        // Navbar dark mode toggle button
+        var darkModeBtn = document.getElementById('dark-mode-toggle');
+        var darkModeIcon = document.getElementById('dark-mode-icon');
+        var userCardToggle = document.getElementById('user-card-dark-toggle');
+
+        // Initialize icon based on current theme
+        var currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.documentElement.classList.add('dark-mode');
+            if (darkModeIcon) darkModeIcon.className = 'fas fa-sun';
+            if (userCardToggle) userCardToggle.checked = true;
+        }
+
+        // Toggle function
+        function toggleDarkMode() {
             var isDark = document.body.classList.contains('dark-mode');
             var newTheme = isDark ? 'light' : 'dark';
             document.body.classList.toggle('dark-mode', !isDark);
             document.documentElement.classList.toggle('dark-mode', !isDark);
             localStorage.setItem('theme', newTheme);
-            var icon = document.getElementById('dark-mode-icon');
-            if (icon) icon.className = !isDark ? 'fas fa-sun' : 'fas fa-moon';
-            window.dispatchEvent(new CustomEvent('themeChange', {
-                detail: {
-                    theme: newTheme
-                }
-            }));
-        });
-        window.addEventListener('themeChange', function(e) {
-            toggle.checked = (e.detail.theme === 'dark');
-        });
+            if (darkModeIcon) darkModeIcon.className = !isDark ? 'fas fa-sun' : 'fas fa-moon';
+            if (userCardToggle) userCardToggle.checked = !isDark;
+            window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: newTheme } }));
+        }
+
+        // Navbar button click
+        if (darkModeBtn) {
+            darkModeBtn.addEventListener('click', toggleDarkMode);
+        }
+
+        // User card toggle change
+        if (userCardToggle) {
+            userCardToggle.checked = document.body.classList.contains('dark-mode');
+            userCardToggle.addEventListener('change', toggleDarkMode);
+        }
+
+        // Sync across tabs
         window.addEventListener('storage', function(e) {
-            if (e.key === 'theme') toggle.checked = (e.newValue === 'dark');
+            if (e.key === 'theme') {
+                var isDark = e.newValue === 'dark';
+                document.body.classList.toggle('dark-mode', isDark);
+                document.documentElement.classList.toggle('dark-mode', isDark);
+                if (darkModeIcon) darkModeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+                if (userCardToggle) userCardToggle.checked = isDark;
+            }
         });
     });
 </script>
