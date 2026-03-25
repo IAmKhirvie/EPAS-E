@@ -1,29 +1,16 @@
-:root {
-    --primary: #0d6efd;
-    --primary-light: #3c8bff;
-    --primary-dark: #16213e;
-    --secondary: #7209b7;
-    --success: #4cc9f0;
-    --light: #f8f9fa;
-    --dark: #212529;
-    --gray: #6c757d;
-    --light-gray: #e9ecef;
-    --border-radius: 8px;
-    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --transition: all 0.3s ease;
-}
+/* Auth page inherits Petrichor colors from reset.css */
 
 /* Reset + font */
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Body + container */
 body {
-  background: var(--light);
+  background: var(--background);
   overflow-x: hidden;
 }
 

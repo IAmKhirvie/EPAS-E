@@ -15,6 +15,7 @@
     --border-radius: 8px;
     --transition: all 0.3s ease;
     --danger: #f31f1f;
+    --accent: #06b6d4;
     --sidebar-width: 250px;
     --sidebar-width-collapsed: 60px;
     --sidebar-bg: #1e293b;
@@ -33,6 +34,21 @@
     --card-border: #e0e0e0;
     --card-header-bg: #f8f9fa;
     --card-header-text: #212529;
+
+    /* Content Builder design tokens */
+    --cb-sidebar-width: 280px;
+    --cb-radius-lg: 12px;
+    --cb-radius-md: 10px;
+    --cb-radius-sm: 8px;
+    --cb-shadow-card: 0 2px 12px rgba(0,0,0,0.08);
+    --cb-shadow-hover: 0 4px 16px rgba(0,0,0,0.12);
+    --cb-shadow-footer: 0 -2px 10px rgba(0,0,0,0.05);
+    --cb-surface: #fff;
+    --cb-surface-alt: #f8f9fa;
+    --cb-border: #e9ecef;
+    --cb-border-dashed: #dee2e6;
+    --cb-text-label: #495057;
+    --cb-text-hint: #6c757d;
 }
 
 .dark-mode {
@@ -62,6 +78,17 @@
     --card-border: #000;
     --card-header-bg: #222121;
     --card-header-text: #f8f9fa;
+
+    /* Content Builder dark tokens */
+    --cb-surface: var(--card-bg);
+    --cb-surface-alt: var(--light-gray);
+    --cb-border: var(--border);
+    --cb-border-dashed: var(--border);
+    --cb-text-label: var(--card-text);
+    --cb-text-hint: var(--muted-foreground);
+    --cb-shadow-card: 0 2px 12px rgba(0,0,0,0.25);
+    --cb-shadow-hover: 0 4px 16px rgba(0,0,0,0.3);
+    --cb-shadow-footer: 0 -2px 10px rgba(0,0,0,0.15);
 }
 
 /* Reset and base layout fixes */
@@ -78,7 +105,7 @@ html, body {
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--background);
   color: var(--text-primary);
   line-height: 1.6;
@@ -90,7 +117,7 @@ body {
 
 /* Fix for mobile layout */
 .layout-wrapper {
-  margin-top: 4rem;
+  margin-top: 5rem;
   min-height: calc(100vh - 56px);
   width: 100%;
   display: flex;
@@ -558,6 +585,102 @@ body {
     color: white;
 }
 
+/* ===== BREADCRUMB DARK MODE ===== */
+.breadcrumb {
+    background-color: transparent;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-item a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--primary-light);
+    text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+    color: var(--muted-foreground);
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: var(--muted-foreground);
+}
+
+.dark-mode .breadcrumb-item a {
+    color: var(--primary);
+}
+
+.dark-mode .breadcrumb-item a:hover {
+    color: #60a5fa;
+}
+
+.dark-mode .breadcrumb-item.active {
+    color: var(--muted-foreground);
+}
+
+.dark-mode .breadcrumb-item + .breadcrumb-item::before {
+    color: var(--muted-foreground);
+}
+
+/* ===== NAV TABS DARK MODE ===== */
+.dark-mode .nav-tabs {
+    border-bottom-color: var(--border);
+}
+
+.dark-mode .nav-tabs .nav-link {
+    color: var(--muted-foreground);
+    border-color: transparent;
+}
+
+.dark-mode .nav-tabs .nav-link:hover {
+    border-color: var(--border) var(--border) transparent;
+    color: var(--text-primary);
+}
+
+.dark-mode .nav-tabs .nav-link.active {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    border-color: var(--border) var(--border) var(--card-bg);
+}
+
+/* ===== TABLE HEADER DARK MODE ===== */
+.dark-mode .table-light,
+.dark-mode thead.table-light th {
+    background-color: var(--card-header-bg) !important;
+    color: var(--card-header-text) !important;
+    border-color: var(--border) !important;
+}
+
+/* ===== PAGINATION DARK MODE ===== */
+.dark-mode .page-link {
+    background-color: var(--card-bg);
+    border-color: var(--border);
+    color: var(--text-primary);
+}
+
+.dark-mode .page-link:hover {
+    background-color: var(--light-gray);
+    border-color: var(--border);
+    color: var(--text-primary);
+}
+
+.dark-mode .page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.dark-mode .page-item.disabled .page-link {
+    background-color: var(--card-bg);
+    border-color: var(--border);
+    color: var(--muted-foreground);
+}
+
 /* ===== MOBILE RESPONSIVENESS FIXES ===== */
 
 /* Tablet and Mobile devices (< 1032px) */
@@ -715,7 +838,7 @@ body {
 
 /* Ensure proper width calculation (exclude fixed-position elements) */
 *:not(.sidebar):not(.sidebar-backdrop):not(.top-navbar):not(.bottom-nav):not(.fab-container):not(.fab-backdrop):not(.overlay):not(.slide-sidebar) {
-  max-width: 100%;
+  max-width: 80;
 }
 
 * {

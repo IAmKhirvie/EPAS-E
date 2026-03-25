@@ -9,6 +9,11 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ dynamic_asset('favicon.ico') }}">
 
+    <!-- Google Fonts - Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+
     <!-- Bootstrap CSS (local) -->
     <link href="{{ dynamic_asset('vendor/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Font Awesome (local) -->
