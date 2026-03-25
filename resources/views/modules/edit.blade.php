@@ -211,7 +211,7 @@
                                                 </label>
                                             </div>
 
-                                            <div class="form-check form-switch mb-2">
+                                            <div class="form-check form-switch">
                                                 <input type="checkbox" class="form-check-input" id="assessment_show_answers"
                                                        name="assessment_show_answers" value="1"
                                                        {{ old('assessment_show_answers', $module->assessment_show_answers) ? 'checked' : '' }}>
@@ -221,15 +221,12 @@
                                                 </label>
                                             </div>
 
-                                            <div class="form-check form-switch">
-                                                <input type="checkbox" class="form-check-input" id="assessment_require_completion"
-                                                       name="assessment_require_completion" value="1"
-                                                       {{ old('assessment_require_completion', $module->assessment_require_completion ?? true) ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="assessment_require_completion">
-                                                    <i class="fas fa-tasks me-1 text-warning"></i>
-                                                    Require Completion of All Activities First
-                                                </label>
-                                            </div>
+                                            {{-- Always require completion of activities (hidden, always true) --}}
+                                            <input type="hidden" name="assessment_require_completion" value="1">
+                                            <p class="text-muted small mt-2 mb-0">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Students must complete all activities before taking the final assessment.
+                                            </p>
                                         </div>
                                     </div>
 

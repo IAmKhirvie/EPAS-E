@@ -486,12 +486,12 @@ class ProgressTrackingService
     {
         $module = Module::with('informationSheets')->find($moduleId);
         if (!$module) {
-            return ['percentage' => 0, 'status' => 'not_started'];
+            return ['percentage' => 0, 'status' => 'not_started', 'completed_sheets' => 0, 'total_sheets' => 0];
         }
 
         $totalSheets = $module->informationSheets->count();
         if ($totalSheets === 0) {
-            return ['percentage' => 0, 'status' => 'not_started'];
+            return ['percentage' => 0, 'status' => 'not_started', 'completed_sheets' => 0, 'total_sheets' => 0];
         }
 
         $sheetIds = $module->informationSheets->pluck('id')->toArray();

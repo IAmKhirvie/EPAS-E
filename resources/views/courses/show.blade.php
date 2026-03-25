@@ -157,21 +157,8 @@
     align-items: center;
     justify-content: center;
     font-size: 1rem;
-}
-
-.course-info-card-icon.schedule {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
-}
-
-.course-info-card-icon.instructor {
-    background: rgba(139, 92, 246, 0.15);
-    color: #8b5cf6;
-}
-
-.course-info-card-icon.info {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
+    background: color-mix(in srgb, var(--category-color) 15%, transparent);
+    color: var(--category-color);
 }
 
 .course-info-card-title {
@@ -197,7 +184,7 @@
 
 .info-row i {
     width: 18px;
-    color: var(--text-muted);
+    color: var(--category-color);
     font-size: 0.85rem;
 }
 
@@ -217,7 +204,7 @@
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    background: linear-gradient(135deg, var(--category-color), var(--category-color-dark));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -274,11 +261,11 @@
 }
 
 .modules-section-header h3 i {
-    color: var(--primary);
+    color: var(--category-color);
 }
 
 .module-count-badge {
-    background: var(--primary);
+    background: var(--category-color);
     color: white;
     padding: 0.25rem 0.6rem;
     border-radius: 50px;
@@ -355,7 +342,7 @@
 }
 
 .module-card-stat i {
-    color: var(--primary);
+    color: var(--category-color);
 }
 
 .module-card-footer {
@@ -395,7 +382,7 @@
 
 .modules-empty-icon i {
     font-size: 2rem;
-    color: var(--text-muted);
+    color: var(--category-color);
 }
 
 .modules-empty h4 {
@@ -459,16 +446,16 @@
 @endpush
 
 @section('content')
-<div class="container-fluid py-4">
+@php
+    $categoryColor = $course->category?->color ?? '#3b82f6';
+    $categoryColorDark = $course->category?->darker_color ?? '#1e40af';
+@endphp
+
+<div class="container-fluid py-4" style="--category-color: {{ $categoryColor }}; --category-color-dark: {{ $categoryColorDark }}">
     <x-back-button :route="route('courses.index')" label="Back to Courses" />
 
-    @php
-        $categoryColor = $course->category?->color ?? '#3b82f6';
-        $categoryColorDark = $course->category?->darker_color ?? '#1e40af';
-    @endphp
-
     {{-- Course Hero --}}
-    <div class="course-hero" style="--category-color: {{ $categoryColor }}; --category-color-dark: {{ $categoryColorDark }}">
+    <div class="course-hero">
         <div class="course-hero-bg {{ $course->thumbnail ? 'has-thumbnail' : '' }}"
              style="{{ $course->thumbnail ? 'background-image: url(' . asset('storage/' . $course->thumbnail) . ');' : '' }}"></div>
 
@@ -611,7 +598,7 @@
     </div>
 
     {{-- Modules Section --}}
-    <div class="modules-section" style="--category-color: {{ $categoryColor }}; --category-color-dark: {{ $categoryColorDark }}">
+    <div class="modules-section">
         <div class="modules-section-header">
             <h3>
                 <i class="fas fa-book"></i>

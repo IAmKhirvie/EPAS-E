@@ -45,7 +45,23 @@ class ModuleController extends Controller
             'how_to_use_cblm' => 'nullable|string',
             'introduction' => 'nullable|string',
             'learning_outcomes' => 'nullable|string',
+            // Final Assessment fields
+            'require_final_assessment' => 'boolean',
+            'assessment_question_mode' => 'nullable|in:all,random_subset',
+            'assessment_question_count' => 'nullable|integer|min:1',
+            'assessment_passing_score' => 'nullable|integer|min:0|max:100',
+            'assessment_time_limit' => 'nullable|integer|min:1',
+            'assessment_max_attempts' => 'nullable|integer|min:1',
+            'assessment_randomize_questions' => 'boolean',
+            'assessment_show_answers' => 'boolean',
+            'assessment_require_completion' => 'boolean',
         ]);
+
+        // Handle boolean checkboxes (they're not sent when unchecked)
+        $validated['require_final_assessment'] = $request->has('require_final_assessment');
+        $validated['assessment_randomize_questions'] = $request->has('assessment_randomize_questions');
+        $validated['assessment_show_answers'] = $request->has('assessment_show_answers');
+        $validated['assessment_require_completion'] = $request->has('assessment_require_completion');
 
         try {
             $module = DB::transaction(function () use ($validated, $course, $request) {
@@ -68,6 +84,16 @@ class ModuleController extends Controller
                     'learning_outcomes' => $validated['learning_outcomes'],
                     'is_active' => true,
                     'order' => Module::where('course_id', $course->id)->max('order') + 1,
+                    // Final Assessment fields
+                    'require_final_assessment' => $validated['require_final_assessment'],
+                    'assessment_question_mode' => $validated['assessment_question_mode'] ?? 'all',
+                    'assessment_question_count' => $validated['assessment_question_count'] ?? null,
+                    'assessment_passing_score' => $validated['assessment_passing_score'] ?? 70,
+                    'assessment_time_limit' => $validated['assessment_time_limit'] ?? null,
+                    'assessment_max_attempts' => $validated['assessment_max_attempts'] ?? null,
+                    'assessment_randomize_questions' => $validated['assessment_randomize_questions'],
+                    'assessment_show_answers' => $validated['assessment_show_answers'],
+                    'assessment_require_completion' => $validated['assessment_require_completion'],
                 ]);
             });
 

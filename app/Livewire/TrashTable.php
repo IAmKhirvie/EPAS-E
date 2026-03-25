@@ -14,6 +14,7 @@ use App\Models\Checklist;
 use App\Models\Course;
 use App\Models\Announcement;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Collection;
 use Livewire\Component;
@@ -116,6 +117,9 @@ class TrashTable extends Component
             $uniqueKey = "{$type}_{$id}";
             $this->selectedItems = array_diff($this->selectedItems, [$uniqueKey]);
 
+            // Clear the trash count cache
+            Cache::forget("trash_count_" . Auth::id());
+
             session()->flash('success', ucfirst(str_replace('_', ' ', $type)) . ' restored successfully.');
         } catch (\Exception $e) {
             Log::error('Restore failed', ['type' => $type, 'id' => $id, 'error' => $e->getMessage()]);
@@ -190,6 +194,9 @@ class TrashTable extends Component
             $uniqueKey = "{$type}_{$id}";
             $this->selectedItems = array_diff($this->selectedItems, [$uniqueKey]);
 
+            // Clear the trash count cache
+            Cache::forget("trash_count_" . Auth::id());
+
             session()->flash('success', ucfirst($type) . ' permanently deleted.');
         } catch (\Exception $e) {
             Log::error('Force delete failed', ['type' => $type, 'id' => $id, 'error' => $e->getMessage()]);
@@ -221,6 +228,10 @@ class TrashTable extends Component
 
             $this->selectedItems = [];
             $this->selectAll = false;
+
+            // Clear the trash count cache
+            Cache::forget("trash_count_" . Auth::id());
+
             session()->flash('success', "{$restored} item(s) restored successfully.");
         } catch (\Exception $e) {
             Log::error('Bulk restore failed', ['error' => $e->getMessage()]);
@@ -245,6 +256,10 @@ class TrashTable extends Component
 
             $this->selectedItems = [];
             $this->selectAll = false;
+
+            // Clear the trash count cache
+            Cache::forget("trash_count_" . Auth::id());
+
             session()->flash('success', "{$deleted} item(s) permanently deleted.");
         } catch (\Exception $e) {
             Log::error('Bulk force delete failed', ['error' => $e->getMessage()]);
