@@ -23,11 +23,14 @@ class TrustProxies extends Middleware
 
     public function __construct()
     {
-        $proxies = config('app.trusted_proxies');
+        $proxies = config('app.trusted_proxies') ?? env('TRUSTED_PROXIES');
         if ($proxies === '*') {
             $this->proxies = '*';
-        } elseif ($proxies) {
+        } elseif (!empty($proxies)) {
             $this->proxies = array_map('trim', explode(',', $proxies));
+        } else {
+            // Default to trusting all proxies in local development
+            $this->proxies = '*';
         }
     }
 }
