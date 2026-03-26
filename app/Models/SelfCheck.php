@@ -26,10 +26,12 @@ class SelfCheck extends Model
         'passing_score',
         'total_points',
         'is_active',
+        'is_required',
         'max_attempts',
         'reveal_answers',
         'randomize_questions',
         'randomize_options',
+        'parts',
     ];
 
     protected $casts = [
@@ -38,10 +40,12 @@ class SelfCheck extends Model
         'passing_score' => 'integer',
         'total_points' => 'integer',
         'is_active' => 'boolean',
+        'is_required' => 'boolean',
         'max_attempts' => 'integer',
         'reveal_answers' => 'boolean',
         'randomize_questions' => 'boolean',
         'randomize_options' => 'boolean',
+        'parts' => 'array',
     ];
 
     public function informationSheet(): BelongsTo

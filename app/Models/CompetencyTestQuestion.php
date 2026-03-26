@@ -5,14 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class SelfCheckQuestion extends Model
+class CompetencyTestQuestion extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'self_check_id',
+        'competency_test_id',
         'question_text',
         'question_type',
         'points',
@@ -30,21 +29,27 @@ class SelfCheckQuestion extends Model
         'options' => 'array',
     ];
 
-    public function selfCheck(): BelongsTo
+    public function competencyTest(): BelongsTo
     {
-        return $this->belongsTo(SelfCheck::class);
+        return $this->belongsTo(CompetencyTest::class);
     }
 
-    public function questionOptions(): HasMany
+    /**
+     * Get the part this question belongs to.
+     */
+    public function getPartAttribute(): ?array
     {
-        return $this->hasMany(SelfCheckQuestionOption::class, 'question_id')->orderBy('order');
+        if ($this->part_index === null) {
+            return null;
+        }
+
+        $parts = $this->competencyTest->parts ?? [];
+        return $parts[$this->part_index] ?? null;
     }
 
-    public function submissionAnswers(): HasMany
-    {
-        return $this->hasMany(SelfCheckSubmissionAnswer::class);
-    }
-
+    /**
+     * Get formatted options (A, B, C, D).
+     */
     public function getFormattedOptionsAttribute(): array
     {
         $options = $this->options ?? [];
@@ -56,13 +61,16 @@ class SelfCheckQuestion extends Model
         return $formatted;
     }
 
+    /**
+     * Get correct answer formatted.
+     */
     public function getCorrectAnswerFormattedAttribute(): string
     {
-        if ($this->question_type === 'multiple_choice') {
+        if (in_array($this->question_type, ['multiple_choice', 'true_false'])) {
             $options = $this->formatted_options;
-            return $options[$this->correct_answer] ?? $this->correct_answer;
+            return $options[$this->correct_answer] ?? $this->correct_answer ?? '';
         }
 
-        return $this->correct_answer;
+        return $this->correct_answer ?? '';
     }
 }

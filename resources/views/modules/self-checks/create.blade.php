@@ -626,7 +626,7 @@
                                     <small class="text-muted">When unchecked, students only see their overall score</small>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label class="cb-field-label d-block"><i class="fas fa-random text-primary me-1"></i> Randomization</label>
                                     <div class="form-check mt-2">
@@ -638,6 +638,16 @@
                                         <label class="form-check-label" for="randomize_options">Randomize answer options</label>
                                     </div>
                                     <small class="text-muted">Each student sees questions/options in different order</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="cb-field-label d-block"><i class="fas fa-asterisk text-danger me-1"></i> Required</label>
+                                    <div class="form-check mt-2">
+                                        <input type="checkbox" class="form-check-input" name="is_required" id="is_required" value="1">
+                                        <label class="form-check-label" for="is_required">Mark as required</label>
+                                    </div>
+                                    <small class="text-muted">Students must complete this to finish the module</small>
                                 </div>
                             </div>
                             <div class="col-12">

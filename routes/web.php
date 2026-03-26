@@ -457,6 +457,20 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::get('/module-{module}/final-assessment/history', [\App\Http\Controllers\ModuleAssessmentController::class, 'history'])->name('assessment.history');
         Route::get('/module-{module}/final-assessment/stats', [\App\Http\Controllers\ModuleAssessmentController::class, 'stats'])->name('assessment.stats');
 
+        // Competency Test Routes
+        Route::get('/module-{module}/competency-tests', [\App\Http\Controllers\CompetencyTestController::class, 'index'])->name('competency-tests.index');
+        Route::get('/module-{module}/competency-tests/create', [\App\Http\Controllers\CompetencyTestController::class, 'create'])->name('competency-tests.create');
+        Route::post('/module-{module}/competency-tests', [\App\Http\Controllers\CompetencyTestController::class, 'store'])->name('competency-tests.store');
+        Route::get('/module-{module}/competency-tests/{competencyTest}', [\App\Http\Controllers\CompetencyTestController::class, 'show'])->name('competency-tests.show');
+        Route::get('/module-{module}/competency-tests/{competencyTest}/edit', [\App\Http\Controllers\CompetencyTestController::class, 'edit'])->name('competency-tests.edit');
+        Route::put('/module-{module}/competency-tests/{competencyTest}', [\App\Http\Controllers\CompetencyTestController::class, 'update'])->name('competency-tests.update');
+        Route::delete('/module-{module}/competency-tests/{competencyTest}', [\App\Http\Controllers\CompetencyTestController::class, 'destroy'])->name('competency-tests.destroy');
+        Route::post('/module-{module}/competency-tests/{competencyTest}/submit', [\App\Http\Controllers\CompetencyTestController::class, 'submit'])->name('competency-tests.submit');
+        Route::post('/module-{module}/competency-tests/{competencyTest}/save', [\App\Http\Controllers\CompetencyTestController::class, 'saveProgress'])->name('competency-tests.save');
+        Route::get('/module-{module}/competency-tests/{competencyTest}/results/{submission}', [\App\Http\Controllers\CompetencyTestController::class, 'results'])->name('competency-tests.results');
+        Route::post('/module-{module}/competency-tests/{competencyTest}/questions', [\App\Http\Controllers\CompetencyTestController::class, 'storeQuestions'])->name('competency-tests.questions.store');
+        Route::get('/module-{module}/competency-tests/{competencyTest}/stats', [\App\Http\Controllers\CompetencyTestController::class, 'stats'])->name('competency-tests.stats');
+
         // Information Sheet View
         Route::get('/module-{module}/information-sheets/{informationSheet}', [ModuleController::class, 'showInformationSheet'])->name('information-sheet');
         Route::get('/module-{module}/information-sheets/{informationSheet}/topics/{topic}', [ModuleController::class, 'showTopic'])->name('topic');

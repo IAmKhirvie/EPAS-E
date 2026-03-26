@@ -108,6 +108,14 @@ class Module extends Model
     }
 
     /**
+     * Get competency tests for this module.
+     */
+    public function competencyTests(): HasMany
+    {
+        return $this->hasMany(CompetencyTest::class)->orderBy('order');
+    }
+
+    /**
      * Get assessment submissions for this module.
      */
     public function assessmentSubmissions(): HasMany
