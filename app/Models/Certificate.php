@@ -10,9 +10,19 @@ class Certificate extends Model
 {
     use HasFactory, HasCommonScopes;
 
+    // Status constants
+    const STATUS_PENDING = 'pending';
+    const STATUS_PENDING_INSTRUCTOR = 'pending_instructor';
+    const STATUS_PENDING_ADMIN = 'pending_admin';
+    const STATUS_ISSUED = 'issued';
+    const STATUS_REVOKED = 'revoked';
+    const STATUS_EXPIRED = 'expired';
+    const STATUS_REJECTED = 'rejected';
+
     protected $fillable = [
         'user_id',
         'course_id',
+        'module_id',
         'certificate_number',
         'title',
         'description',
@@ -26,6 +36,10 @@ class Certificate extends Model
         'requested_at',
         'approved_by',
         'approved_at',
+        'instructor_approved_by',
+        'instructor_approved_at',
+        'admin_approved_by',
+        'admin_approved_at',
         'rejection_reason',
     ];
 
@@ -35,6 +49,8 @@ class Certificate extends Model
         'metadata' => 'array',
         'requested_at' => 'datetime',
         'approved_at' => 'datetime',
+        'instructor_approved_at' => 'datetime',
+        'admin_approved_at' => 'datetime',
     ];
 
     public function user()
@@ -47,6 +63,11 @@ class Certificate extends Model
         return $this->belongsTo(Course::class);
     }
 
+    public function module()
+    {
+        return $this->belongsTo(Module::class);
+    }
+
     public function requestedBy()
     {
         return $this->belongsTo(User::class, 'requested_by');
@@ -57,14 +78,63 @@ class Certificate extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
+    public function instructorApprovedBy()
+    {
+        return $this->belongsTo(User::class, 'instructor_approved_by');
+    }
+
+    public function adminApprovedBy()
+    {
+        return $this->belongsTo(User::class, 'admin_approved_by');
+    }
+
     public function scopePending($query)
     {
-        return $query->where('status', 'pending');
+        return $query->whereIn('status', [self::STATUS_PENDING, self::STATUS_PENDING_INSTRUCTOR, self::STATUS_PENDING_ADMIN]);
+    }
+
+    public function scopePendingInstructor($query)
+    {
+        return $query->where('status', self::STATUS_PENDING_INSTRUCTOR);
+    }
+
+    public function scopePendingAdmin($query)
+    {
+        return $query->where('status', self::STATUS_PENDING_ADMIN);
     }
 
     public function scopeIssued($query)
     {
-        return $query->where('status', 'issued');
+        return $query->where('status', self::STATUS_ISSUED);
+    }
+
+    public function scopeForModule($query, $moduleId)
+    {
+        return $query->where('module_id', $moduleId);
+    }
+
+    /**
+     * Check if certificate needs instructor approval
+     */
+    public function needsInstructorApproval(): bool
+    {
+        return $this->status === self::STATUS_PENDING_INSTRUCTOR;
+    }
+
+    /**
+     * Check if certificate needs admin approval
+     */
+    public function needsAdminApproval(): bool
+    {
+        return $this->status === self::STATUS_PENDING_ADMIN;
+    }
+
+    /**
+     * Check if certificate is fully approved and issued
+     */
+    public function isIssued(): bool
+    {
+        return $this->status === self::STATUS_ISSUED;
     }
 
     public static function generateCertificateNumber()

@@ -772,6 +772,20 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::post('/course/{course}/generate', [CertificateController::class, 'generate'])->name('generate');
     });
 
+    // Admin Certificate Management
+    Route::prefix('admin/certificates')->name('admin.certificates.')->middleware('check.role:admin,instructor')->group(function () {
+        Route::get('/', [CertificateController::class, 'adminIndex'])->name('index');
+        Route::get('/pending', [CertificateController::class, 'pending'])->name('pending');
+        Route::get('/manual-release', [CertificateController::class, 'manualReleaseForm'])->name('manual-release');
+        Route::post('/manual-release', [CertificateController::class, 'manualRelease'])->name('manual-release.store');
+        Route::post('/bulk-release', [CertificateController::class, 'bulkRelease'])->name('bulk-release');
+        Route::get('/{certificate}', [CertificateController::class, 'show'])->name('show');
+        Route::post('/{certificate}/instructor-approve', [CertificateController::class, 'instructorApprove'])->name('instructor-approve');
+        Route::post('/{certificate}/admin-approve', [CertificateController::class, 'adminApprove'])->name('admin-approve');
+        Route::post('/{certificate}/reject', [CertificateController::class, 'reject'])->name('reject');
+        Route::post('/{certificate}/revoke', [CertificateController::class, 'revoke'])->name('revoke');
+    });
+
     /*
     |--------------------------------------------------------------------------
     | Analytics Routes

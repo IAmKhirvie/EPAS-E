@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Certificate;
 use App\Models\Course;
+use App\Models\Module;
+use App\Models\User;
 use App\Services\CertificateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -153,6 +155,165 @@ class CertificateController extends Controller
                 'certificate_id' => $certificate->id,
             ]);
             return back()->with('error', 'Certificate revocation failed. Please try again.');
+        }
+    }
+
+    /**
+     * Show pending certificates for approval.
+     */
+    public function pending()
+    {
+        $pendingInstructor = $this->certificateService->getPendingForInstructor();
+        $pendingAdmin = $this->certificateService->getPendingForAdmin();
+
+        return view('admin.certificates.pending', compact('pendingInstructor', 'pendingAdmin'));
+    }
+
+    /**
+     * Instructor approves a certificate.
+     */
+    public function instructorApprove(Certificate $certificate)
+    {
+        try {
+            $result = $this->certificateService->instructorApprove($certificate, auth()->user());
+
+            if ($result) {
+                return back()->with('success', 'Certificate approved! Awaiting admin approval.');
+            }
+
+            return back()->with('error', 'Certificate cannot be approved at this stage.');
+        } catch (\Exception $e) {
+            Log::error('CertificateController::instructorApprove failed', [
+                'error' => $e->getMessage(),
+                'user' => auth()->id(),
+                'certificate_id' => $certificate->id,
+            ]);
+            return back()->with('error', 'Approval failed. Please try again.');
+        }
+    }
+
+    /**
+     * Admin approves a certificate (final approval).
+     */
+    public function adminApprove(Certificate $certificate)
+    {
+        try {
+            $result = $this->certificateService->adminApprove($certificate, auth()->user());
+
+            if ($result) {
+                return back()->with('success', 'Certificate issued successfully!');
+            }
+
+            return back()->with('error', 'Certificate cannot be approved at this stage.');
+        } catch (\Exception $e) {
+            Log::error('CertificateController::adminApprove failed', [
+                'error' => $e->getMessage(),
+                'user' => auth()->id(),
+                'certificate_id' => $certificate->id,
+            ]);
+            return back()->with('error', 'Approval failed. Please try again.');
+        }
+    }
+
+    /**
+     * Reject a certificate request.
+     */
+    public function reject(Certificate $certificate, Request $request)
+    {
+        try {
+            $request->validate([
+                'reason' => 'nullable|string|max:500',
+            ]);
+
+            $this->certificateService->rejectCertificate(
+                $certificate,
+                auth()->user(),
+                $request->get('reason')
+            );
+
+            return back()->with('success', 'Certificate request rejected.');
+        } catch (\Exception $e) {
+            Log::error('CertificateController::reject failed', [
+                'error' => $e->getMessage(),
+                'user' => auth()->id(),
+                'certificate_id' => $certificate->id,
+            ]);
+            return back()->with('error', 'Rejection failed. Please try again.');
+        }
+    }
+
+    /**
+     * Show manual release form.
+     */
+    public function manualReleaseForm()
+    {
+        $students = User::where('role', 'student')->where('stat', 1)->orderBy('last_name')->get();
+        $modules = Module::with('course')->where('is_active', true)->orderBy('module_title')->get();
+
+        return view('admin.certificates.manual-release', compact('students', 'modules'));
+    }
+
+    /**
+     * Manually release a certificate (bypasses approval workflow).
+     */
+    public function manualRelease(Request $request)
+    {
+        try {
+            $request->validate([
+                'user_id' => 'required|exists:users,id',
+                'module_id' => 'required|exists:modules,id',
+            ]);
+
+            $user = User::findOrFail($request->user_id);
+            $module = Module::findOrFail($request->module_id);
+
+            $certificate = $this->certificateService->manualRelease(
+                $user,
+                $module,
+                auth()->user()
+            );
+
+            return redirect()->route('admin.certificates.show', $certificate)
+                ->with('success', "Certificate issued to {$user->full_name} for {$module->module_title}!");
+        } catch (\Exception $e) {
+            Log::error('CertificateController::manualRelease failed', [
+                'error' => $e->getMessage(),
+                'user' => auth()->id(),
+            ]);
+            return back()->with('error', 'Manual release failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Bulk release certificates for testing.
+     */
+    public function bulkRelease(Request $request)
+    {
+        try {
+            $request->validate([
+                'user_id' => 'required|exists:users,id',
+            ]);
+
+            $user = User::findOrFail($request->user_id);
+            $modules = Module::with('course')->where('is_active', true)->get();
+            $issued = 0;
+
+            foreach ($modules as $module) {
+                $certificate = $this->certificateService->manualRelease(
+                    $user,
+                    $module,
+                    auth()->user()
+                );
+                $issued++;
+            }
+
+            return back()->with('success', "Issued {$issued} certificates to {$user->full_name}!");
+        } catch (\Exception $e) {
+            Log::error('CertificateController::bulkRelease failed', [
+                'error' => $e->getMessage(),
+                'user' => auth()->id(),
+            ]);
+            return back()->with('error', 'Bulk release failed: ' . $e->getMessage());
         }
     }
 }

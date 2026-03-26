@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\Course;
+use App\Models\Module;
 use App\Models\Certificate;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class CertificateService
 {
@@ -203,5 +205,206 @@ class CertificateService
         }
 
         return true;
+    }
+
+    /**
+     * Generate a module-level certificate (requires approval workflow).
+     */
+    public function generateModuleCertificate(User $user, Module $module, array $metadata = []): Certificate
+    {
+        // Check if certificate already exists
+        $existing = Certificate::where('user_id', $user->id)
+            ->where('module_id', $module->id)
+            ->whereNotIn('status', [Certificate::STATUS_REJECTED, Certificate::STATUS_REVOKED])
+            ->first();
+
+        if ($existing) {
+            return $existing;
+        }
+
+        $course = $module->course;
+        $certificateNumber = Certificate::generateCertificateNumber();
+        $template = $course->certificate_template ?? 'default';
+
+        // Create certificate with pending status (needs instructor approval first)
+        $certificate = Certificate::create([
+            'user_id' => $user->id,
+            'course_id' => $course->id,
+            'module_id' => $module->id,
+            'certificate_number' => $certificateNumber,
+            'title' => "Certificate of Completion - {$module->module_title}",
+            'description' => "This certifies that {$user->full_name} has successfully completed the {$module->module_title} module.",
+            'status' => Certificate::STATUS_PENDING_INSTRUCTOR,
+            'template_used' => $template,
+            'requested_at' => now(),
+            'metadata' => array_merge([
+                'completion_date' => now()->toDateString(),
+                'course_name' => $course->course_name,
+                'module_name' => $module->module_title,
+                'student_name' => $user->full_name,
+            ], $metadata),
+        ]);
+
+        Log::info("Module certificate created for user {$user->id}, module {$module->id}", [
+            'certificate_id' => $certificate->id,
+        ]);
+
+        return $certificate;
+    }
+
+    /**
+     * Instructor approves a certificate.
+     */
+    public function instructorApprove(Certificate $certificate, User $instructor): bool
+    {
+        if ($certificate->status !== Certificate::STATUS_PENDING_INSTRUCTOR) {
+            return false;
+        }
+
+        $certificate->update([
+            'status' => Certificate::STATUS_PENDING_ADMIN,
+            'instructor_approved_by' => $instructor->id,
+            'instructor_approved_at' => now(),
+        ]);
+
+        Log::info("Certificate {$certificate->id} approved by instructor {$instructor->id}");
+
+        return true;
+    }
+
+    /**
+     * Admin approves a certificate (final approval - issues the certificate).
+     */
+    public function adminApprove(Certificate $certificate, User $admin): bool
+    {
+        if ($certificate->status !== Certificate::STATUS_PENDING_ADMIN) {
+            return false;
+        }
+
+        $certificate->update([
+            'status' => Certificate::STATUS_ISSUED,
+            'admin_approved_by' => $admin->id,
+            'admin_approved_at' => now(),
+            'approved_by' => $admin->id,
+            'approved_at' => now(),
+            'issue_date' => now(),
+        ]);
+
+        // Generate the PDF
+        $this->generatePdf($certificate);
+
+        Log::info("Certificate {$certificate->id} approved by admin {$admin->id} and issued");
+
+        return true;
+    }
+
+    /**
+     * Reject a certificate request.
+     */
+    public function rejectCertificate(Certificate $certificate, User $rejectedBy, string $reason = null): bool
+    {
+        $certificate->update([
+            'status' => Certificate::STATUS_REJECTED,
+            'rejection_reason' => $reason,
+            'metadata' => array_merge($certificate->metadata ?? [], [
+                'rejected_at' => now()->toDateTimeString(),
+                'rejected_by' => $rejectedBy->id,
+                'rejection_reason' => $reason,
+            ]),
+        ]);
+
+        Log::info("Certificate {$certificate->id} rejected by user {$rejectedBy->id}");
+
+        return true;
+    }
+
+    /**
+     * Manually release/issue a certificate (bypasses approval workflow - for testing/admin use).
+     */
+    public function manualRelease(User $user, Module $module, User $issuedBy, array $metadata = []): Certificate
+    {
+        // Check if certificate already exists and is issued
+        $existing = Certificate::where('user_id', $user->id)
+            ->where('module_id', $module->id)
+            ->where('status', Certificate::STATUS_ISSUED)
+            ->first();
+
+        if ($existing) {
+            return $existing;
+        }
+
+        $course = $module->course;
+        $certificateNumber = Certificate::generateCertificateNumber();
+        $template = $course->certificate_template ?? 'default';
+
+        // Create certificate directly as issued
+        $certificate = Certificate::create([
+            'user_id' => $user->id,
+            'course_id' => $course->id,
+            'module_id' => $module->id,
+            'certificate_number' => $certificateNumber,
+            'title' => "Certificate of Completion - {$module->module_title}",
+            'description' => "This certifies that {$user->full_name} has successfully completed the {$module->module_title} module.",
+            'issue_date' => now(),
+            'status' => Certificate::STATUS_ISSUED,
+            'template_used' => $template,
+            'requested_at' => now(),
+            'instructor_approved_by' => $issuedBy->id,
+            'instructor_approved_at' => now(),
+            'admin_approved_by' => $issuedBy->id,
+            'admin_approved_at' => now(),
+            'approved_by' => $issuedBy->id,
+            'approved_at' => now(),
+            'metadata' => array_merge([
+                'completion_date' => now()->toDateString(),
+                'course_name' => $course->course_name,
+                'module_name' => $module->module_title,
+                'student_name' => $user->full_name,
+                'manual_release' => true,
+                'issued_by' => $issuedBy->full_name,
+            ], $metadata),
+        ]);
+
+        // Generate the PDF
+        $this->generatePdf($certificate);
+
+        Log::info("Certificate manually released for user {$user->id}, module {$module->id} by {$issuedBy->id}", [
+            'certificate_id' => $certificate->id,
+        ]);
+
+        return $certificate;
+    }
+
+    /**
+     * Get pending certificates for instructor approval.
+     */
+    public function getPendingForInstructor(): \Illuminate\Database\Eloquent\Collection
+    {
+        return Certificate::pendingInstructor()
+            ->with(['user', 'course', 'module'])
+            ->orderBy('created_at', 'asc')
+            ->get();
+    }
+
+    /**
+     * Get pending certificates for admin approval.
+     */
+    public function getPendingForAdmin(): \Illuminate\Database\Eloquent\Collection
+    {
+        return Certificate::pendingAdmin()
+            ->with(['user', 'course', 'module', 'instructorApprovedBy'])
+            ->orderBy('instructor_approved_at', 'asc')
+            ->get();
+    }
+
+    /**
+     * Get all certificates for a module.
+     */
+    public function getModuleCertificates(Module $module): \Illuminate\Database\Eloquent\Collection
+    {
+        return Certificate::forModule($module->id)
+            ->with(['user'])
+            ->orderByDesc('issue_date')
+            ->get();
     }
 }
