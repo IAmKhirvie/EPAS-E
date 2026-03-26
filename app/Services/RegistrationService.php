@@ -71,6 +71,7 @@ class RegistrationService
 
         // Create a temporary user object for the mailer
         $tempUser = new \stdClass();
+        $tempUser->id = $registration->id;
         $tempUser->first_name = $registration->first_name;
         $tempUser->last_name = $registration->last_name;
         $tempUser->email = $registration->email;

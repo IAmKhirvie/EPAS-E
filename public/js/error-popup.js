@@ -105,41 +105,7 @@
   // ── Intercept fetch errors globally ──
   var originalFetch = window.fetch;
   window.fetch = function() {
-    // Debug logging for ALL fetch calls
-    console.log('[error-popup.js] fetch() called with arguments:');
-    console.log('[error-popup.js]   arguments[0]:', arguments[0], 'type:', typeof arguments[0]);
-    console.log('[error-popup.js]   arguments[1]:', arguments[1]);
-    console.log('[error-popup.js]   arguments.length:', arguments.length);
-    
-    // Check if this is a DELETE request
-    var isDelete = false;
-    var fetchUrl = arguments[0];
-    if (arguments[0] && arguments[0].method === 'DELETE') {
-      isDelete = true;
-      fetchUrl = arguments[0].url || arguments[0].toString();
-    } else if (arguments[1] && arguments[1].method === 'DELETE') {
-      isDelete = true;
-    }
-    
-    if (isDelete) {
-      console.log('[error-popup.js] DELETE request detected!');
-      console.log('[error-popup.js]   URL:', fetchUrl);
-      console.log('[error-popup.js]   Full arguments:', Array.from(arguments));
-      
-      // Store the original URL for comparison
-      var originalUrl = typeof arguments[0] === 'string' ? arguments[0] : (arguments[0].url || String(arguments[0]));
-      console.log('[error-popup.js]   Original URL before fetch:', originalUrl);
-    }
-
     return originalFetch.apply(this, arguments).then(function(response) {
-      // Log redirect responses
-      if (response.redirected) {
-        console.log('[error-popup.js] Request was redirected!');
-        console.log('[error-popup.js]   Original URL:', response.url);
-        console.log('[error-popup.js]   Redirected to:', response.url);
-        console.log('[error-popup.js]   Response status:', response.status);
-      }
-      
       if (!response.ok && response.headers.get('content-type') && response.headers.get('content-type').includes('application/json')) {
         var cloned = response.clone();
         cloned.json().then(function(data) {

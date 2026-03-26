@@ -86,12 +86,13 @@ class PHPMailerService
     {
         try {
             if (!$this->hasValidCredentials()) {
-                Log::warning('SMTP credentials not configured. Email not sent.', ['to' => $user->id]);
+                Log::warning('SMTP credentials not configured. Email not sent.', ['to' => $user->email ?? 'unknown']);
                 return false;
             }
 
             $this->debugOutput = '';
-            Log::info("Sending verification email to user ID: {$user->id}");
+            $userId = $user->id ?? 'N/A';
+            Log::info("Sending verification email to user ID: {$userId}, email: {$user->email}");
 
             // Clear any previous addresses and attachments
             $this->mail->clearAddresses();
