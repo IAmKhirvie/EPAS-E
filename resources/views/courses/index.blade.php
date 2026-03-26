@@ -338,6 +338,47 @@
 .dark-mode .calendar-day:hover {
     background: var(--primary);
 }
+
+/* Category Filter Tabs */
+.category-tabs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.category-tab {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.category-tab:hover {
+    border-color: var(--tab-color, var(--primary));
+    color: var(--tab-color, var(--primary));
+}
+
+.category-tab.active {
+    background: var(--tab-color, var(--primary));
+    border-color: var(--tab-color, var(--primary));
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .category-tabs {
+        order: 3;
+        width: 100%;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+}
 </style>
 @endpush
 
@@ -372,6 +413,16 @@
                 <div class="courses-search">
                     <i class="fas fa-search"></i>
                     <input type="text" id="courseSearch" placeholder="Search courses..." autocomplete="off">
+                </div>
+
+                {{-- Category Filter Tabs --}}
+                <div class="category-tabs">
+                    <button class="category-tab active" data-category="all">All</button>
+                    @foreach($categories as $category)
+                    <button class="category-tab" data-category="{{ $category->id }}" style="--tab-color: {{ $category->color }}">
+                        {{ $category->name }}
+                    </button>
+                    @endforeach
                 </div>
 
                 <div class="view-toggle">
@@ -622,6 +673,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const courseSearch = document.getElementById('courseSearch');
     const noResults = document.getElementById('noResults');
     const categoryStatItems = document.querySelectorAll('.category-stat-item');
+    const categoryTabs = document.querySelectorAll('.category-tab');
 
     let activeCategory = 'all';
 
@@ -688,6 +740,27 @@ document.addEventListener('DOMContentLoaded', function() {
         courseSearch.addEventListener('input', filterCourses);
     }
 
+    // Category tabs (toolbar)
+    categoryTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const categoryId = this.dataset.category;
+            activeCategory = categoryId;
+
+            // Update active state on tabs
+            categoryTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+
+            // Also update sidebar items
+            categoryStatItems.forEach(i => i.classList.remove('active'));
+            if (categoryId !== 'all') {
+                const sidebarItem = document.querySelector(`.category-stat-item[data-category="${categoryId}"]`);
+                if (sidebarItem) sidebarItem.classList.add('active');
+            }
+
+            filterCourses();
+        });
+    });
+
     // Category stat items (sidebar)
     categoryStatItems.forEach(item => {
         item.addEventListener('click', function() {
@@ -697,10 +770,16 @@ document.addEventListener('DOMContentLoaded', function() {
             if (activeCategory === categoryId) {
                 activeCategory = 'all';
                 categoryStatItems.forEach(i => i.classList.remove('active'));
+                categoryTabs.forEach(t => {
+                    t.classList.toggle('active', t.dataset.category === 'all');
+                });
             } else {
                 activeCategory = categoryId;
                 categoryStatItems.forEach(i => i.classList.remove('active'));
                 this.classList.add('active');
+                categoryTabs.forEach(t => {
+                    t.classList.toggle('active', t.dataset.category === categoryId);
+                });
             }
 
             filterCourses();
