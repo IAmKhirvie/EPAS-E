@@ -374,6 +374,20 @@
                     <input type="text" id="courseSearch" placeholder="Search courses..." autocomplete="off">
                 </div>
 
+                @if($categories->count() > 0)
+                <div class="courses-filter">
+                    <button class="category-filter-btn active" data-category="all">
+                        All
+                    </button>
+                    @foreach($categories->take(5) as $category)
+                    <button class="category-filter-btn" data-category="{{ $category->id }}">
+                        <span class="category-dot" style="background: {{ $category->color }}"></span>
+                        {{ $category->name }}
+                    </button>
+                    @endforeach
+                </div>
+                @endif
+
                 <div class="view-toggle">
                     <button id="gridViewBtn" class="active" title="Grid View">
                         <i class="fas fa-th-large"></i>
@@ -621,6 +635,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const coursesContainer = document.getElementById('coursesContainer');
     const courseSearch = document.getElementById('courseSearch');
     const noResults = document.getElementById('noResults');
+    const categoryFilterBtns = document.querySelectorAll('.category-filter-btn');
     const categoryStatItems = document.querySelectorAll('.category-stat-item');
 
     let activeCategory = 'all';
@@ -688,20 +703,25 @@ document.addEventListener('DOMContentLoaded', function() {
         courseSearch.addEventListener('input', filterCourses);
     }
 
+    // Category filter buttons
+    categoryFilterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            categoryFilterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            activeCategory = this.dataset.category;
+            filterCourses();
+        });
+    });
+
     // Category stat items (sidebar)
     categoryStatItems.forEach(item => {
         item.addEventListener('click', function() {
             const categoryId = this.dataset.category;
+            activeCategory = categoryId;
 
-            // Toggle: if clicking the same category, show all
-            if (activeCategory === categoryId) {
-                activeCategory = 'all';
-                categoryStatItems.forEach(i => i.classList.remove('active'));
-            } else {
-                activeCategory = categoryId;
-                categoryStatItems.forEach(i => i.classList.remove('active'));
-                this.classList.add('active');
-            }
+            categoryFilterBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.category === categoryId);
+            });
 
             filterCourses();
         });
