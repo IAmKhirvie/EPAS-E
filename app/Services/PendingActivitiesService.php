@@ -156,25 +156,25 @@ class PendingActivitiesService
     // =========================================================================
 
     /**
-     * Get pending registrations awaiting approval (for admin dashboard).
+     * Get pending registrations (pending or email verified, for admin dashboard).
      */
     public function getPendingRegistrations(): Collection
     {
         return Cache::remember('dashboard_pending_registrations', 300, function () {
-            return Registration::awaitingApproval()
-                ->orderBy('email_verified_at', 'desc')
+            return Registration::pending()
+                ->orderBy('created_at', 'desc')
                 ->limit(10)
                 ->get();
         });
     }
 
     /**
-     * Get count of pending registrations (email verified, awaiting approval).
+     * Get count of pending registrations (pending or email verified).
      */
     public function getPendingRegistrationsCount(): int
     {
         return Cache::remember('dashboard_pending_registrations_count', 300, function () {
-            return Registration::awaitingApproval()->count();
+            return Registration::pending()->count();
         });
     }
 
