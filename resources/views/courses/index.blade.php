@@ -442,8 +442,8 @@
             <div class="courses-container grid-view" id="coursesContainer">
                 @foreach($courses as $course)
                 @php
-                    $categoryColor = $course->category?->color ?? '#3b82f6';
-                    $categoryColorDark = $course->category?->darker_color ?? '#1e40af';
+                    $categoryColor = $course->category?->color ?? '#0d6efd';
+                    $categoryColorDark = $course->category?->darker_color ?? '#0056b3';
                     $thumbnailUrl = $course->thumbnail ? asset('storage/' . $course->thumbnail) : '';
                 @endphp
                 <div class="course-card {{ $course->thumbnail ? 'has-thumbnail' : '' }}"

@@ -22,7 +22,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, var(--category-color, #3b82f6), var(--category-color-dark, #1e40af));
+    background: linear-gradient(135deg, var(--category-color, #0d6efd), var(--category-color-dark, #0056b3));
     z-index: 0;
 }
 
@@ -461,8 +461,8 @@
 
 @section('content')
 @php
-    $categoryColor = $course->category?->color ?? '#3b82f6';
-    $categoryColorDark = $course->category?->darker_color ?? '#1e40af';
+    $categoryColor = $course->category?->color ?? '#0d6efd';
+    $categoryColorDark = $course->category?->darker_color ?? '#0056b3';
 @endphp
 
 <div class="container-fluid py-4" style="--category-color: {{ $categoryColor }}; --category-color-dark: {{ $categoryColorDark }}">

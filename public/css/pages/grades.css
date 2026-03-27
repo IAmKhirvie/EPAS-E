@@ -119,3 +119,38 @@
     border-radius: 50%;
     margin-right: 0.5rem;
 }
+
+/* Additional dark mode support for grades page */
+.dark-mode .table-light {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-mode .table-light th {
+    color: var(--text-primary, #e0e0e0) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: var(--border-color, #333) !important;
+}
+
+.dark-mode .table-hover tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-mode .card-header.bg-light {
+    background: var(--card-bg, #1e1e1e) !important;
+    border-color: var(--border-color, #333);
+}
+
+.dark-mode .card-header.bg-light h5,
+.dark-mode .card-header.bg-light .h5 {
+    color: var(--text-primary, #e0e0e0);
+}
+
+/* Grade scale card in dark mode */
+.dark-mode .grade-scale-item {
+    color: var(--text-primary, #e0e0e0);
+}
+
+/* Progress bars in dark mode */
+.dark-mode .progress {
+    background-color: var(--border-color, #333);
+}

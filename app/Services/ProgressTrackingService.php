@@ -248,19 +248,17 @@ class ProgressTrackingService
         ])->first();
 
         // Only update if not already completed
-        if (!$existing || $existing->status !== 'completed') {
-            UserProgress::updateOrCreate(
-                [
-                    'user_id' => $userId,
-                    'module_id' => $moduleId,
-                    'progressable_type' => InformationSheet::class,
-                    'progressable_id' => $sheetId,
-                ],
-                [
-                    'status' => 'in_progress',
-                    'started_at' => \DB::raw('COALESCE(started_at, NOW())'),
-                ]
-            );
+        if (!$existing) {
+            UserProgress::create([
+                'user_id' => $userId,
+                'module_id' => $moduleId,
+                'progressable_type' => InformationSheet::class,
+                'progressable_id' => $sheetId,
+                'status' => 'in_progress',
+                'started_at' => now(),
+            ]);
+        } elseif ($existing->status !== 'completed') {
+            $existing->update(['status' => 'in_progress']);
         }
 
         // Also mark module as in progress
@@ -280,19 +278,17 @@ class ProgressTrackingService
         ])->first();
 
         // Only update if not already completed
-        if (!$existing || $existing->status !== 'completed') {
-            UserProgress::updateOrCreate(
-                [
-                    'user_id' => $userId,
-                    'module_id' => $moduleId,
-                    'progressable_type' => Module::class,
-                    'progressable_id' => $moduleId,
-                ],
-                [
-                    'status' => 'in_progress',
-                    'started_at' => \DB::raw('COALESCE(started_at, NOW())'),
-                ]
-            );
+        if (!$existing) {
+            UserProgress::create([
+                'user_id' => $userId,
+                'module_id' => $moduleId,
+                'progressable_type' => Module::class,
+                'progressable_id' => $moduleId,
+                'status' => 'in_progress',
+                'started_at' => now(),
+            ]);
+        } elseif ($existing->status !== 'completed') {
+            $existing->update(['status' => 'in_progress']);
         }
     }
 
@@ -481,10 +477,12 @@ class ProgressTrackingService
 
     /**
      * Get detailed progress for a module.
+     * Calculates progress based on individual items (topics, self-checks, etc.)
      */
     public function getModuleProgress(int $moduleId, int $userId): array
     {
-        $module = Module::with('informationSheets')->find($moduleId);
+        $module = Module::with(['informationSheets.topics', 'informationSheets.selfChecks',
+                                'informationSheets.taskSheets', 'informationSheets.jobSheets'])->find($moduleId);
         if (!$module) {
             return ['percentage' => 0, 'status' => 'not_started', 'completed_sheets' => 0, 'total_sheets' => 0];
         }
@@ -494,8 +492,65 @@ class ProgressTrackingService
             return ['percentage' => 0, 'status' => 'not_started', 'completed_sheets' => 0, 'total_sheets' => 0];
         }
 
-        $sheetIds = $module->informationSheets->pluck('id')->toArray();
+        // Count all trackable items across all sheets
+        $totalItems = 0;
+        $completedItems = 0;
 
+        foreach ($module->informationSheets as $sheet) {
+            // Topics
+            $topicIds = $sheet->topics->pluck('id')->toArray();
+            $totalItems += count($topicIds);
+            if (!empty($topicIds)) {
+                $completedItems += UserProgress::where('user_id', $userId)
+                    ->where('module_id', $moduleId)
+                    ->where('progressable_type', 'App\Models\Topic')
+                    ->whereIn('progressable_id', $topicIds)
+                    ->where('status', 'completed')
+                    ->count();
+            }
+
+            // Self-checks
+            $selfCheckIds = $sheet->selfChecks->pluck('id')->toArray();
+            $totalItems += count($selfCheckIds);
+            if (!empty($selfCheckIds)) {
+                $completedItems += UserProgress::where('user_id', $userId)
+                    ->where('module_id', $moduleId)
+                    ->where('progressable_type', SelfCheck::class)
+                    ->whereIn('progressable_id', $selfCheckIds)
+                    ->whereIn('status', ['passed', 'completed'])
+                    ->count();
+            }
+
+            // Task sheets
+            $taskSheetIds = $sheet->taskSheets->pluck('id')->toArray();
+            $totalItems += count($taskSheetIds);
+            if (!empty($taskSheetIds)) {
+                $completedItems += UserProgress::where('user_id', $userId)
+                    ->where('module_id', $moduleId)
+                    ->where('progressable_type', TaskSheet::class)
+                    ->whereIn('progressable_id', $taskSheetIds)
+                    ->where('status', 'completed')
+                    ->count();
+            }
+
+            // Job sheets
+            $jobSheetIds = $sheet->jobSheets->pluck('id')->toArray();
+            $totalItems += count($jobSheetIds);
+            if (!empty($jobSheetIds)) {
+                $completedItems += UserProgress::where('user_id', $userId)
+                    ->where('module_id', $moduleId)
+                    ->where('progressable_type', JobSheet::class)
+                    ->whereIn('progressable_id', $jobSheetIds)
+                    ->where('status', 'completed')
+                    ->count();
+            }
+        }
+
+        // Calculate percentage based on individual items
+        $percentage = $totalItems > 0 ? round(($completedItems / $totalItems) * 100) : 0;
+
+        // Count completed sheets for display
+        $sheetIds = $module->informationSheets->pluck('id')->toArray();
         $completedSheets = UserProgress::where('user_id', $userId)
             ->where('module_id', $moduleId)
             ->where('progressable_type', InformationSheet::class)
@@ -503,18 +558,9 @@ class ProgressTrackingService
             ->where('status', 'completed')
             ->count();
 
-        $inProgressSheets = UserProgress::where('user_id', $userId)
-            ->where('module_id', $moduleId)
-            ->where('progressable_type', InformationSheet::class)
-            ->whereIn('progressable_id', $sheetIds)
-            ->where('status', 'in_progress')
-            ->count();
-
-        $percentage = round(($completedSheets / $totalSheets) * 100);
-
         $status = match(true) {
-            $completedSheets >= $totalSheets => 'completed',
-            $completedSheets > 0 || $inProgressSheets > 0 => 'in_progress',
+            $percentage >= 100 => 'completed',
+            $completedItems > 0 => 'in_progress',
             default => 'not_started',
         };
 
@@ -523,6 +569,8 @@ class ProgressTrackingService
             'status' => $status,
             'completed_sheets' => $completedSheets,
             'total_sheets' => $totalSheets,
+            'completed_items' => $completedItems,
+            'total_items' => $totalItems,
         ];
     }
 

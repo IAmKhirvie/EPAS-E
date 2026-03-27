@@ -11,8 +11,11 @@ class AnnouncementComposer
     public function compose(View $view)
     {
         if (Auth::check()) {
-            // Get recent announcements
+            $user = Auth::user();
+
+            // Get recent announcements filtered by user role
             $recentAnnouncements = Announcement::with(['user'])
+                ->forUser($user) // Filter by target_roles
                 ->where(function($query) {
                     $query->whereNull('publish_at')
                         ->orWhere('publish_at', '<=', now());

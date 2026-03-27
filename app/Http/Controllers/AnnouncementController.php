@@ -118,8 +118,15 @@ class AnnouncementController extends Controller
 
     public function getRecentAnnouncements()
     {
-        $announcements = Announcement::with('user')
-            ->orderBy('is_pinned', 'desc')
+        $user = auth()->user();
+        $query = Announcement::with('user');
+
+        // Filter by user role if logged in
+        if ($user) {
+            $query->forUser($user);
+        }
+
+        $announcements = $query->orderBy('is_pinned', 'desc')
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()

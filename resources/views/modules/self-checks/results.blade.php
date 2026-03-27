@@ -6,7 +6,20 @@
 <div class="content-area">
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
+            @if(in_array(auth()->user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]))
             <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
+            @else
+            @php
+                $bcCourse = $selfCheck->informationSheet->module->course ?? null;
+                $bcModule = $selfCheck->informationSheet->module ?? null;
+            @endphp
+            @if($bcCourse)
+            <li class="breadcrumb-item"><a href="{{ route('courses.show', $bcCourse) }}">{{ $bcCourse->course_code }}</a></li>
+            @endif
+            @if($bcModule)
+            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$bcCourse, $bcModule, $bcModule->slug]) }}">{{ $bcModule->title }}</a></li>
+            @endif
+            @endif
             <li class="breadcrumb-item"><a href="{{ route('self-checks.show', $selfCheck) }}">{{ $selfCheck->title }}</a></li>
             <li class="breadcrumb-item active">Results</li>
         </ol>
@@ -89,10 +102,16 @@
                     <i class="fas fa-redo me-1"></i>Try Again
                 </a>
                 @endif
-                <a href="{{ route('information-sheets.show', ['module' => $selfCheck->informationSheet->module_id, 'informationSheet' => $selfCheck->informationSheet->id]) }}"
+                @php
+                    $backModule = $selfCheck->informationSheet->module ?? null;
+                    $backCourse = $backModule?->course ?? null;
+                @endphp
+                @if($backModule && $backCourse)
+                <a href="{{ route('courses.modules.show', [$backCourse, $backModule, $backModule->slug]) }}"
                    class="btn btn-outline-secondary w-100 btn-sm">
-                    <i class="fas fa-arrow-left me-1"></i>Back to Info Sheet
+                    <i class="fas fa-arrow-left me-1"></i>Back to Module
                 </a>
+                @endif
             </div>
         </div>
 

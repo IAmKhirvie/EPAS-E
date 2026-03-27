@@ -146,15 +146,17 @@ Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->na
 Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:3,1');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Password Reset
-Route::prefix('forgot-password')->group(function () {
-    Route::get('/', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-    Route::post('/', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email')->middleware('throttle:5,1');
-});
+// Password Reset (guest only - logged in users should use settings to change password)
+Route::middleware('guest')->group(function () {
+    Route::prefix('forgot-password')->group(function () {
+        Route::get('/', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+        Route::post('/', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email')->middleware('throttle:5,1');
+    });
 
-Route::prefix('reset-password')->group(function () {
-    Route::get('/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
-    Route::post('/', [ForgotPasswordController::class, 'reset'])->name('password.update')->middleware('throttle:5,1');
+    Route::prefix('reset-password')->group(function () {
+        Route::get('/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+        Route::post('/', [ForgotPasswordController::class, 'reset'])->name('password.update')->middleware('throttle:5,1');
+    });
 });
 
 // Registration Verification (public routes for email verification flow)
@@ -445,6 +447,7 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         // AJAX Content Endpoints
         Route::get('/module-{module}/sheets/{informationSheet}/content', [ModuleController::class, 'getSheetContent'])->name('sheet-content');
         Route::get('/module-{module}/sheets/{informationSheet}/topics/{topic}', [ModuleController::class, 'getTopicContent'])->name('topic-content');
+        Route::post('/module-{module}/sheets/{informationSheet}/topics/{topic}/complete', [ModuleController::class, 'markTopicComplete'])->name('topic-complete');
         Route::get('/module-{module}/sheets/{informationSheet}/self-check', [ModuleController::class, 'getSelfCheckContent'])->name('self-check');
         Route::get('/module-{module}/sheets/{informationSheet}/task-sheet', [ModuleController::class, 'getTaskSheetContent'])->name('task-sheet');
         Route::get('/module-{module}/sheets/{informationSheet}/job-sheet', [ModuleController::class, 'getJobSheetContent'])->name('job-sheet');

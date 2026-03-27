@@ -5,8 +5,8 @@
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/pages/module-unified.css') }}">
 @php
-    $categoryColor = $course->category?->color ?? '#3b82f6';
-    $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darken($course->category->color, 15) : '#1e40af';
+    $categoryColor = $course->category?->color ?? '#0d6efd';
+    $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darken($course->category->color, 15) : '#0056b3';
 @endphp
 <style>
 /* Category-specific colors */
@@ -94,14 +94,19 @@
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-auto">
+                            @php
+                                $percentage = $progress ? ($progress['percentage'] ?? 0) : 0;
+                                $circumference = 251.2;
+                                $offset = $circumference - ($percentage / 100) * $circumference;
+                            @endphp
                             <div class="position-relative progress-circle-container">
                                 <svg viewBox="0 0 100 100" class="progress-circle-svg">
                                     <circle cx="50" cy="50" r="40" fill="none" stroke="#e9ecef" stroke-width="8" />
                                     <circle cx="50" cy="50" r="40" fill="none" class="progress-circle-fill" stroke-width="8"
-                                        stroke-dasharray="251.2" stroke-dashoffset="251.2" id="progressCircle" />
+                                        stroke-dasharray="{{ $circumference }}" stroke-dashoffset="{{ $offset }}" id="progressCircle" />
                                 </svg>
                                 <div class="position-absolute top-50 start-50 translate-middle text-center">
-                                    <strong id="progressText">0%</strong>
+                                    <strong id="progressText">{{ round($percentage) }}%</strong>
                                 </div>
                             </div>
                         </div>
@@ -120,7 +125,7 @@
                                     <small class="text-muted">Sector</small>
                                 </div>
                                 <div class="col-6 col-md-3">
-                                    <div class="fw-bold text-warning" id="completedCount">0</div>
+                                    <div class="fw-bold text-warning" id="completedCount">{{ $progress ? ($progress['completed_items'] ?? 0) . ' of ' . ($progress['total_items'] ?? 0) : '0 of 0' }}</div>
                                     <small class="text-muted">Completed</small>
                                 </div>
                             </div>
@@ -309,7 +314,7 @@
                 <div class="sidebar-toc">
                     <div class="sidebar-toc-title">
                         <i class="fas fa-list"></i> Table of Contents
-                        <span class="badge bg-primary ms-auto" id="progressBadge">0%</span>
+                        <span class="badge bg-success ms-auto" id="progressBadge">{{ round($progress ? ($progress['percentage'] ?? 0) : 0) }}%</span>
                     </div>
 
                     {{-- Overview --}}
@@ -321,60 +326,64 @@
                     </div>
 
                     {{-- Information Sheets --}}
-                    @foreach($module->informationSheets as $sheet)
+                    @foreach($module->informationSheets as $sheetIndex => $sheet)
                     <div class="sidebar-toc-item sidebar-sheet-item">
-                        <div class="sidebar-toc-link sidebar-sheet-header" data-sheet-id="{{ $sheet->id }}">
-                            <i class="fas fa-chevron-down sidebar-toc-icon sidebar-toggle-icon"></i>
+                        {{-- Sheet Header - Shows "Start Reading" view --}}
+                        <div class="sidebar-toc-link sidebar-sheet-header" data-sheet-id="{{ $sheet->id }}" data-sheet-index="{{ $sheetIndex }}">
+                            <i class="fas fa-book-open sidebar-toc-icon"></i>
                             <div class="sidebar-sheet-title">
-                                <div class="sidebar-sheet-main">Information Sheet {{ $sheet->sheet_number }}</div>
-                                <div class="sidebar-sheet-sub">{{ $sheet->title }}</div>
+                                <div class="sidebar-sheet-main">{{ $sheet->sheet_number }}. {{ $sheet->title }}</div>
+                                <div class="sidebar-sheet-sub">
+                                    {{ $sheet->topics->count() }} topics
+                                    @if($sheet->selfChecks->count() > 0), {{ $sheet->selfChecks->count() }} self-check(s)@endif
+                                </div>
                             </div>
                         </div>
 
-                        <div class="sidebar-topics-dropdown">
-                            {{-- Sheet content --}}
-                            <div class="sidebar-topic-item" data-sheet-id="{{ $sheet->id }}" data-action="content">
-                                <i class="fas fa-align-left sidebar-topic-icon"></i>
-                                <span>{{ Str::limit($sheet->title, 30) }}</span>
-                            </div>
+                        {{-- Dropdown Toggle (separate small button) --}}
+                        <button class="sidebar-dropdown-toggle" data-sheet-id="{{ $sheet->id }}" title="Show contents">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
 
+                        {{-- Topics Dropdown (collapsed by default) --}}
+                        <div class="sidebar-topics-dropdown">
                             {{-- Topics --}}
                             @if($sheet->topics && $sheet->topics->count() > 0)
-                            @foreach($sheet->topics as $topic)
-                            <div class="sidebar-topic-item" data-topic-id="{{ $topic->id }}" data-sheet-id="{{ $sheet->id }}">
+                            @foreach($sheet->topics as $topicIndex => $topic)
+                            <div class="sidebar-topic-item" data-topic-id="{{ $topic->id }}" data-sheet-id="{{ $sheet->id }}" data-focus-index="{{ $topicIndex }}">
                                 <i class="fas fa-file-alt sidebar-topic-icon"></i>
-                                <span>{{ $topic->title }}</span>
+                                <span>{{ $topic->topic_number ?? ($topicIndex + 1) }}. {{ $topic->title }}</span>
                             </div>
                             @endforeach
                             @endif
 
                             {{-- Self-Checks --}}
                             @if($sheet->selfChecks && $sheet->selfChecks->count() > 0)
-                            @foreach($sheet->selfChecks as $sc)
+                            @foreach($sheet->selfChecks as $scIndex => $sc)
                             <a href="{{ route('self-checks.show', $sc) }}" class="sidebar-topic-item sidebar-topic-link">
                                 <i class="fas fa-clipboard-check sidebar-topic-icon" style="color: #ffc107;"></i>
-                                <span>{{ $sc->title }}</span>
+                                <span>Self-Check {{ $scIndex + 1 }}: {{ Str::limit($sc->title, 25) }}</span>
                             </a>
                             @endforeach
                             @endif
 
                             {{-- Task Sheets --}}
                             @if($sheet->taskSheets && $sheet->taskSheets->count() > 0)
-                            @foreach($sheet->taskSheets as $ts)
-                            <div class="sidebar-topic-item" data-sheet-id="{{ $sheet->id }}" data-assessment="task-sheet">
+                            @foreach($sheet->taskSheets as $tsIndex => $ts)
+                            <a href="{{ route('task-sheets.show', $ts) }}" class="sidebar-topic-item sidebar-topic-link">
                                 <i class="fas fa-clipboard-list sidebar-topic-icon" style="color: #0dcaf0;"></i>
-                                <span>{{ $ts->title ?? 'Task Sheet' }}</span>
-                            </div>
+                                <span>Task Sheet {{ $tsIndex + 1 }}</span>
+                            </a>
                             @endforeach
                             @endif
 
                             {{-- Job Sheets --}}
                             @if($sheet->jobSheets && $sheet->jobSheets->count() > 0)
-                            @foreach($sheet->jobSheets as $js)
-                            <div class="sidebar-topic-item" data-sheet-id="{{ $sheet->id }}" data-assessment="job-sheet">
+                            @foreach($sheet->jobSheets as $jsIndex => $js)
+                            <a href="{{ route('job-sheets.show', $js) }}" class="sidebar-topic-item sidebar-topic-link">
                                 <i class="fas fa-hard-hat sidebar-topic-icon" style="color: #198754;"></i>
-                                <span>{{ $js->title ?? 'Job Sheet' }}</span>
-                            </div>
+                                <span>Job Sheet {{ $jsIndex + 1 }}</span>
+                            </a>
                             @endforeach
                             @endif
 
@@ -397,12 +406,12 @@
 </div>
 
 {{-- Mobile TOC Toggle --}}
-<button class="btn btn-primary toc-mobile-toggle d-lg-none" id="tocMobileToggle">
+<button class="btn btn-success toc-mobile-toggle d-lg-none" id="tocMobileToggle">
     <i class="fas fa-list"></i>
 </button>
 
 {{-- Focus Mode Floating Button --}}
-<button class="btn btn-primary focus-mode-btn" id="focusModeFloatingBtn" title="Enter Focus Mode">
+<button class="btn btn-success focus-mode-btn" id="focusModeFloatingBtn" title="Enter Focus Mode">
     <i class="fas fa-expand"></i>
 </button>
 

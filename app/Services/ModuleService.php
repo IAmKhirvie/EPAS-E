@@ -85,9 +85,12 @@ class ModuleService
         $progress = $this->progressService->getModuleProgress($module->id, $userId);
 
         return [
-            'overall_progress' => $progress['percentage'],
-            'completed_sheets' => $progress['completed_sheets'],
-            'total_sheets' => $progress['total_sheets'],
+            'percentage' => $progress['percentage'],
+            'completed' => $progress['completed_sheets'],
+            'total' => $progress['total_sheets'],
+            'completed_items' => $progress['completed_items'],
+            'total_items' => $progress['total_items'],
+            'status' => $progress['status'],
         ];
     }
 

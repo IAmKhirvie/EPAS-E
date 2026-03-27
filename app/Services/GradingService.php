@@ -80,6 +80,10 @@ class GradingService
         $weightedScore = 0;
 
         foreach ($components as $type => $data) {
+            // Skip non-array values like 'total_submissions'
+            if (!is_array($data)) {
+                continue;
+            }
             if ($data['count'] > 0 && isset($weights[$type])) {
                 $weightedScore += $data['percentage'] * $weights[$type];
                 $totalWeight += $weights[$type];

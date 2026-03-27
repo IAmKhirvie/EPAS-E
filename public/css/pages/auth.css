@@ -846,7 +846,7 @@ body.dark-mode .input .toggle:hover {
 }
 
 body.dark-mode .btn-primary {
-    background: linear-gradient(135deg, #4cc9f0, #0d6efd);
+    background: linear-gradient(135deg, #4cc9f0, #007bff);
     color: #fff;
 }
 
@@ -960,7 +960,7 @@ body.dark-mode .close-modal:hover {
 }
 
 body.dark-mode .modal-content .btn-primary {
-    background: linear-gradient(135deg, #4cc9f0, #0d6efd);
+    background: linear-gradient(135deg, #4cc9f0, #007bff);
     color: #fff;
 }
 
@@ -996,7 +996,7 @@ body.dark-mode .confirm-modal {
 }
 
 body.dark-mode .confirm-header {
-    background: linear-gradient(135deg, #4cc9f0, #0d6efd);
+    background: linear-gradient(135deg, #4cc9f0, #007bff);
 }
 
 body.dark-mode .confirm-body {

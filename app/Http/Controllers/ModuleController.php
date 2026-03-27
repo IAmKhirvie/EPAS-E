@@ -154,7 +154,13 @@ class ModuleController extends Controller
             'prerequisites.prerequisiteModule',
         ]);
 
-        return view('modules.show-unified', compact('module', 'course'));
+        // Get progress for logged-in users
+        $progress = null;
+        if ($user) {
+            $progress = $this->moduleService->getProgress($module, $user->id);
+        }
+
+        return view('modules.show-unified', compact('module', 'course', 'progress'));
     }
 
     public function showInformationSheet(Course $course, Module $module, InformationSheet $informationSheet)
@@ -257,8 +263,49 @@ class ModuleController extends Controller
     {
         $this->verifyModuleBelongsToCourse($course, $module);
 
+        if (!auth()->check()) {
+            return response()->json([
+                'percentage' => 0,
+                'completed' => 0,
+                'total' => 0,
+                'completed_items' => 0,
+                'total_items' => 0,
+                'status' => 'not_started'
+            ]);
+        }
+
         $progress = $this->moduleService->getProgress($module, auth()->id());
         return response()->json($progress);
+    }
+
+    /**
+     * Mark a topic as completed (called when user scrolls to the bottom).
+     */
+    public function markTopicComplete(Course $course, Module $module, InformationSheet $informationSheet, Topic $topic)
+    {
+        $this->verifyModuleBelongsToCourse($course, $module);
+
+        if ($topic->information_sheet_id !== $informationSheet->id ||
+            $informationSheet->module_id !== $module->id) {
+            return response()->json(['success' => false, 'message' => 'Not found'], 404);
+        }
+
+        try {
+            // Track the topic as viewed/completed
+            $this->moduleService->trackTopicProgress($topic);
+
+            // Get updated progress
+            $progress = $this->moduleService->getProgress($module, auth()->id());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Topic marked as complete',
+                'progress' => $progress
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to mark topic complete: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to update progress.']);
+        }
     }
 
     public function edit(Course $course, Module $module)

@@ -1,12 +1,12 @@
 /* Reset and base styles */
 :root {
     --primary: #0d6efd;
-    --primary-light: #3c8bff;
+    --primary-light: #6ea8fe;
     --primary-dark: #0056b3;
     --primary-foreground: #0d6efd29;
-    --secondary: #7209b7;
-    --success: #4cc9f0;
-    --warning: #f2c71c;
+    --secondary: #6c757d;
+    --success: #198754;
+    --warning: #ffc107;
     --light: #f8f9fa;
     --dark: #212529;
     --gray: #6c757d;
@@ -56,9 +56,9 @@
     --foreground: #f8f9fa;
     --card: #1a1a1a;
     --card-foreground: #f8f9fa;
-    --primary: #3b82f6;
-    --primary-foreground: #478aff9f;
-    --secondary: #262626;
+    --primary: #6ea8fe;
+    --primary-foreground: #6ea8fe9f;
+    --secondary: #6c757d;
     --secondary-foreground: #f8f9fa;
     --muted: #262626;
     --muted-foreground: #a1a1aa;

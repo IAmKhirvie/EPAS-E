@@ -1,21 +1,46 @@
+/* ==================== THEME VARIABLES ==================== */
+:root {
+    --theme-primary: #0d6efd;
+    --theme-primary-light: #6ea8fe;
+    --theme-primary-dark: #0056b3;
+    --theme-secondary: #6c757d;
+    --theme-secondary-dark: #495057;
+    --theme-gradient-start: #0d6efd;
+    --theme-gradient-end: #0056b3;
+    --theme-accent: #0dcaf0;
+}
+
+/* ==================== SCALED DOWN UI ==================== */
+/* Base scaling - reduce everything by ~15-20% */
+.module-unified-layout,
+.module-unified-layout * {
+    font-size: inherit;
+}
+
 /* Module Unified Layout */
 .module-unified-layout {
     display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 1.5rem;
+    grid-template-columns: 1fr 280px;
+    gap: 1.25rem;
     align-items: start;
+    font-size: 0.9rem;
+}
+
+/* Right Sidebar Container */
+.sidebar-section {
+    position: sticky;
+    top: 70px;
+    align-self: start;
 }
 
 /* Right Sidebar */
 .toc-sidebar {
-    position: sticky;
-    top: 80px;
-    max-height: calc(100vh - 100px);
+    max-height: calc(100vh - 90px);
     overflow-y: auto;
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    padding: 1.25rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 1rem;
 }
 
 .toc-sidebar::-webkit-scrollbar {
@@ -58,7 +83,7 @@
 }
 
 .sidebar-action-btn:hover {
-    background: #0d6efd;
+    background: var(--theme-primary, #198754);
     color: white;
     text-decoration: none;
 }
@@ -94,9 +119,9 @@
 
 .sidebar-toc-link:hover,
 .sidebar-toc-link.active {
-    background: #0d6efd;
+    background: var(--theme-primary, #198754);
     color: white;
-    border-color: #0d6efd;
+    border-color: var(--theme-primary, #198754);
 }
 
 .sidebar-toc-icon {
@@ -124,11 +149,44 @@
     text-overflow: ellipsis;
 }
 
-.sidebar-toggle-icon {
-    transition: transform 0.2s ease;
+/* Sheet item with dropdown toggle */
+.sidebar-sheet-item {
+    position: relative;
 }
 
-.sidebar-sheet-item.expanded .sidebar-toggle-icon {
+.sidebar-sheet-header {
+    padding-right: 2.5rem !important;
+}
+
+.sidebar-dropdown-toggle {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: rgba(0,0,0,0.05);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 2;
+}
+
+.sidebar-dropdown-toggle:hover {
+    background: var(--category-color, var(--theme-primary, #198754));
+    color: white;
+}
+
+.sidebar-dropdown-toggle i {
+    font-size: 0.75rem;
+    transition: transform 0.2s;
+}
+
+.sidebar-sheet-item.expanded .sidebar-dropdown-toggle i {
     transform: rotate(180deg);
 }
 
@@ -160,7 +218,7 @@
 
 .sidebar-topic-item:hover,
 .sidebar-topic-item.active {
-    background: #0d6efd;
+    background: var(--theme-primary, #198754);
     color: white;
     text-decoration: none;
 }
@@ -242,7 +300,7 @@
     justify-content: center;
     border-radius: 8px;
     background: #e7f1ff;
-    color: #0d6efd;
+    color: var(--theme-primary, #198754);
     font-size: 1rem;
     flex-shrink: 0;
 }
@@ -272,7 +330,7 @@
 .topic-content-area h3,
 .topic-content-area h4 {
     margin: 1.5rem 0 0.75rem;
-    color: #0d6efd;
+    color: var(--theme-primary, #198754);
 }
 
 .topic-content-area ul,
@@ -434,7 +492,7 @@ body.focus-mode-active .main-content-section {
     left: 0;
     right: 0;
     height: 60px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--theme-gradient-start, #20c997) 0%, var(--theme-gradient-end, #198754) 100%);
     color: white;
     display: flex;
     align-items: center;
@@ -529,7 +587,7 @@ body.focus-mode-active .main-content-section {
     color: #333;
     margin-bottom: 20px;
     padding-bottom: 15px;
-    border-bottom: 3px solid #667eea;
+    border-bottom: 3px solid var(--theme-gradient-start, #20c997);
 }
 
 .focus-content-panel .content-body {
@@ -563,7 +621,7 @@ body.focus-mode-active .main-content-section {
 
 .focus-nav .btn-prev,
 .focus-nav .btn-next {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--theme-gradient-start, #20c997) 0%, var(--theme-gradient-end, #198754) 100%);
     color: white;
 }
 
@@ -725,7 +783,7 @@ body.focus-mode-active .main-content-section {
 
 /* ==================== FINAL ASSESSMENT CARD ==================== */
 .assessment-card-section {
-    border-left: 4px solid var(--bs-primary, #0d6efd);
+    border-left: 4px solid var(--theme-primary, var(--theme-primary, #198754));
 }
 
 .assessment-icon {
@@ -740,7 +798,7 @@ body.focus-mode-active .main-content-section {
 
 .assessment-icon.available {
     background: rgba(13, 110, 253, 0.15);
-    color: #0d6efd;
+    color: var(--theme-primary, #198754);
 }
 
 .assessment-icon.passed {
@@ -769,4 +827,525 @@ body.focus-mode-active .main-content-section {
 
 .dark-mode .assessment-icon.locked {
     background: rgba(108, 117, 125, 0.25);
+}
+
+/* ==================== DARK MODE - TOC SIDEBAR ==================== */
+.dark-mode .toc-sidebar {
+    background: #1a1a2e;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .sidebar-toc-title {
+    color: #e9ecef;
+}
+
+.dark-mode .sidebar-toc-link {
+    background: #2a2a3e;
+    border-color: #3a3a5a;
+    color: #e9ecef;
+}
+
+.dark-mode .sidebar-toc-link:hover,
+.dark-mode .sidebar-toc-link.active {
+    background: var(--theme-primary, #198754);
+    border-color: var(--theme-primary, #198754);
+    color: white;
+}
+
+.dark-mode .sidebar-sheet-header {
+    background: #2a2a3e;
+    border-color: #3a3a5a;
+    color: #e9ecef;
+}
+
+.dark-mode .sidebar-sheet-header:hover {
+    background: #3a3a4e;
+}
+
+.dark-mode .sidebar-topics-dropdown {
+    background: #232333;
+    border-color: #3a3a5a;
+}
+
+.dark-mode .sidebar-topic-item {
+    background: #232333;
+    color: #adb5bd;
+    border-color: #3a3a5a;
+}
+
+.dark-mode .sidebar-sheet-main {
+    color: #e9ecef;
+}
+
+.dark-mode .sidebar-sheet-sub {
+    color: #adb5bd;
+}
+
+.dark-mode .sidebar-topic-item:hover {
+    background: #2a2a3e;
+    color: #e9ecef;
+}
+
+.dark-mode .sidebar-topic-item.active {
+    background: rgba(13, 110, 253, 0.2);
+    color: #6ea8fe;
+}
+
+.dark-mode .sidebar-action-btn {
+    background: #2a2a3e;
+    border-color: #3a3a5a;
+    color: #e9ecef;
+}
+
+.dark-mode .sidebar-action-btn:hover {
+    background: var(--theme-primary, #198754);
+    color: white;
+}
+
+.dark-mode .sidebar-nav-buttons .btn-outline-secondary {
+    color: #adb5bd;
+    border-color: #3a3a5a;
+}
+
+.dark-mode .sidebar-nav-buttons .btn-outline-secondary:hover {
+    background: #3a3a5a;
+    color: #e9ecef;
+}
+
+/* Mobile sidebar dark mode */
+@media (max-width: 991.98px) {
+    .dark-mode .sidebar-section {
+        background: #1a1a2e;
+    }
+}
+
+/* ==================== FOCUS MODE IMPROVEMENTS ==================== */
+.focus-mode-container {
+    flex-direction: column;
+}
+
+.focus-mode-body {
+    margin-top: 60px;
+    height: calc(100vh - 120px); /* Account for header and nav */
+    padding-bottom: 80px;
+}
+
+.focus-content-panel {
+    padding: 30px 40px 100px;
+}
+
+.focus-content-panel h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.focus-content-panel .content-body {
+    max-width: 800px;
+}
+
+.focus-content-panel .content-body h3,
+.focus-content-panel .content-body h4 {
+    color: var(--theme-gradient-start, #20c997);
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.focus-content-panel .content-body p {
+    margin-bottom: 1rem;
+    text-align: justify;
+}
+
+.focus-content-panel .content-body ul,
+.focus-content-panel .content-body ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.focus-content-panel .content-body li {
+    margin-bottom: 0.5rem;
+}
+
+.focus-content-panel .part-section {
+    border-left: 4px solid var(--theme-gradient-start, #20c997);
+}
+
+.focus-content-panel .part-section h5 {
+    color: #333;
+    font-weight: 600;
+}
+
+/* Focus mode dark mode */
+.dark-mode .focus-mode-container {
+    background: #121220;
+}
+
+.dark-mode .focus-mode-header {
+    background: linear-gradient(135deg, #3a3a6a 0%, #4a3a6a 100%);
+}
+
+.dark-mode .focus-content-panel .part-section {
+    background: #2a2a3e;
+    border-left-color: var(--theme-gradient-start, #20c997);
+}
+
+.dark-mode .focus-content-panel .part-section h5 {
+    color: #e9ecef;
+}
+
+.dark-mode .focus-content-panel .part-section p {
+    color: #adb5bd;
+}
+
+/* Focus nav positioning fix */
+.focus-nav {
+    bottom: 20px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode .focus-nav {
+    background: rgba(26, 26, 46, 0.95);
+}
+
+/* Focus mode - hide image panel when no images (full width content) */
+.focus-mode-body.no-images .focus-image-panel {
+    display: none;
+}
+
+.focus-mode-body.no-images .focus-content-panel {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 60px 100px;
+}
+
+.focus-mode-body.no-images .focus-content-panel .content-body {
+    max-width: 100%;
+}
+
+/* Focus mode - tables in side panel */
+.focus-mode-body.has-tables .focus-image-panel {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    justify-content: flex-start;
+    padding-top: 40px;
+}
+
+.focus-image-panel .table-container {
+    width: 100%;
+    padding: 20px;
+    overflow-x: auto;
+}
+
+.focus-image-panel .table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.focus-image-panel .table-container th,
+.focus-image-panel .table-container td {
+    padding: 12px 15px;
+    text-align: left;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e9ecef;
+}
+
+.focus-image-panel .table-container th {
+    background: rgba(102, 126, 234, 0.3);
+    font-weight: 600;
+}
+
+.focus-image-panel .table-container tr:nth-child(even) td {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.focus-image-panel .table-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+/* Responsive focus mode */
+@media (max-width: 991.98px) {
+    .focus-content-panel {
+        padding: 20px 20px 100px;
+    }
+
+    .focus-content-panel h2 {
+        font-size: 1.25rem;
+    }
+
+    .focus-content-panel .content-body {
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+}
+
+/* ==================== SCROLL-TO-COMPLETE FEATURE ==================== */
+
+/* Scroll end marker */
+.scroll-end-marker {
+    text-align: center;
+    padding: 30px 20px;
+    margin-top: 40px;
+    color: #28a745;
+    font-size: 0.9rem;
+    border-top: 2px dashed #e9ecef;
+}
+
+.scroll-end-marker i {
+    font-size: 1.5rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.dark-mode .scroll-end-marker {
+    color: #75d4a0;
+    border-top-color: #3a3a5a;
+}
+
+/* Locked next button */
+.focus-nav .btn-locked {
+    background: #6c757d !important;
+    border-color: #6c757d !important;
+    color: white !important;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.focus-nav .btn-locked:hover {
+    background: #5a6268 !important;
+    border-color: #5a6268 !important;
+}
+
+/* ==================== START READING CARD ==================== */
+
+.start-reading-card {
+    max-width: 500px;
+    margin: 3rem auto;
+    padding: 3rem;
+    text-align: center;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.start-reading-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, var(--category-color, var(--theme-gradient-start, #20c997)), var(--category-color-dark, var(--theme-gradient-end, #198754)));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.start-reading-icon i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.start-reading-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 0.5rem;
+}
+
+.start-reading-meta {
+    color: #6c757d;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+
+.start-reading-info {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.start-reading-info .info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #495057;
+}
+
+.start-reading-info .info-item i {
+    color: var(--category-color, var(--theme-gradient-start, #20c997));
+}
+
+.start-reading-btn {
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    transition: all 0.3s;
+}
+
+.start-reading-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+.start-reading-hint {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: #adb5bd;
+}
+
+/* Dark mode Start Reading */
+.dark-mode .start-reading-card {
+    background: var(--card-bg, #1e1e2e);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.dark-mode .start-reading-title {
+    color: #e9ecef;
+}
+
+.dark-mode .start-reading-meta {
+    color: #adb5bd;
+}
+
+.dark-mode .start-reading-info .info-item {
+    color: #ced4da;
+}
+
+/* ==================== SCALED DOWN ELEMENTS ==================== */
+
+/* Module header */
+.module-header-section {
+    padding: 1rem 1.5rem;
+}
+
+.module-header-section h4 {
+    font-size: 1.1rem;
+}
+
+.module-header-section .btn {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.75rem;
+}
+
+/* Progress card */
+.progress-card-section .card-body {
+    padding: 1rem;
+}
+
+.progress-circle-container {
+    width: 70px;
+    height: 70px;
+}
+
+.progress-circle-svg {
+    width: 70px;
+    height: 70px;
+}
+
+.progress-text {
+    font-size: 0.9rem;
+}
+
+/* Overview section */
+.overview-section h5 {
+    font-size: 1rem;
+}
+
+.overview-section p,
+.overview-section li {
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+/* Content cards */
+.content-section .card-body {
+    padding: 1rem;
+}
+
+.content-section h5 {
+    font-size: 0.95rem;
+}
+
+.content-section p {
+    font-size: 0.875rem;
+}
+
+/* Sidebar TOC */
+.sidebar-toc-title {
+    font-size: 0.85rem;
+    padding: 0.5rem;
+}
+
+.sidebar-sheet-main {
+    font-size: 0.8rem;
+}
+
+.sidebar-sheet-sub {
+    font-size: 0.7rem;
+}
+
+.sidebar-topic-item {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.75rem;
+}
+
+.sidebar-topic-icon {
+    font-size: 0.75rem;
+}
+
+/* Focus mode scaled down */
+.focus-mode-header {
+    padding: 12px 25px;
+}
+
+.focus-mode-header h3 {
+    font-size: 1rem;
+}
+
+.focus-content-panel {
+    padding: 25px 35px 90px;
+}
+
+.focus-content-panel h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    padding-bottom: 10px;
+}
+
+.focus-content-panel .content-body {
+    font-size: 0.95rem;
+    line-height: 1.75;
+}
+
+.focus-content-panel .part-section {
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.focus-content-panel .part-section h5 {
+    font-size: 0.9rem;
+}
+
+.focus-nav {
+    padding: 8px 16px;
+}
+
+.focus-nav .btn {
+    font-size: 0.85rem;
+    padding: 8px 16px;
+}
+
+/* Focus progress badge */
+.focus-progress-badge {
+    font-size: 0.8rem;
+    padding: 4px 10px;
 }

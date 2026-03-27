@@ -2,86 +2,58 @@ document.addEventListener('DOMContentLoaded', function () {
     const moduleData = document.getElementById('moduleData');
     const csrfToken = moduleData.dataset.csrf;
     const baseUrl = moduleData.dataset.baseUrl;
+    const moduleId = moduleData.dataset.moduleId;
+    const courseId = moduleData.dataset.courseId;
 
     // ==================== TOC NAVIGATION ====================
 
-    // Build navigation index for prev/next
-    var navItems = [];
-    navItems.push({ type: 'overview', el: document.querySelector('[data-section="overview"]') });
-
-    document.querySelectorAll('.sidebar-topic-item').forEach(function (item) {
-        // Skip direct links (self-checks, doc assessments) — they navigate away
-        if (item.tagName === 'A') return;
-        navItems.push({ type: 'topic', el: item });
-    });
-
-    var currentNavIndex = 0;
-    var prevBtn = document.getElementById('sidebarPrev');
-    var nextBtn = document.getElementById('sidebarNext');
-
-    function updateNavButtons() {
-        if (prevBtn) prevBtn.disabled = currentNavIndex <= 0;
-        if (nextBtn) nextBtn.disabled = currentNavIndex >= navItems.length - 1;
-    }
-
-    function navigateTo(index) {
-        if (index < 0 || index >= navItems.length) return;
-        currentNavIndex = index;
-        var item = navItems[index];
-        if (item.el) item.el.click();
-        updateNavButtons();
-    }
-
-    if (prevBtn) prevBtn.addEventListener('click', function () { navigateTo(currentNavIndex - 1); });
-    if (nextBtn) nextBtn.addEventListener('click', function () { navigateTo(currentNavIndex + 1); });
-
-    // Sheet headers - toggle expand
-    document.querySelectorAll('.sidebar-sheet-header').forEach(function (header) {
-        header.addEventListener('click', function (e) {
-            e.preventDefault();
-            var parent = this.closest('.sidebar-sheet-item');
-            var wasExpanded = parent.classList.contains('expanded');
+    // Dropdown toggle buttons - expand/collapse topics
+    document.querySelectorAll('.sidebar-dropdown-toggle').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const sheetItem = this.closest('.sidebar-sheet-item');
+            const wasExpanded = sheetItem.classList.contains('expanded');
 
             // Collapse all
             document.querySelectorAll('.sidebar-sheet-item').forEach(function (item) {
                 item.classList.remove('expanded');
             });
 
+            // Toggle this one
             if (!wasExpanded) {
-                parent.classList.add('expanded');
+                sheetItem.classList.add('expanded');
             }
         });
     });
 
-    // Topic items (non-link) — load content via AJAX
+    // Sheet headers - show "Start Reading" view
+    document.querySelectorAll('.sidebar-sheet-header').forEach(function (header) {
+        header.addEventListener('click', function (e) {
+            e.preventDefault();
+            const sheetId = this.dataset.sheetId;
+            const sheetIndex = parseInt(this.dataset.sheetIndex) || 0;
+            showSheetStartReading(sheetId, sheetIndex, this);
+        });
+    });
+
+    // Topic items - enter focus mode at specific topic
     document.querySelectorAll('.sidebar-topic-item:not(a)').forEach(function (item) {
         item.addEventListener('click', function () {
-            var sheetId = this.dataset.sheetId;
-            var topicId = this.dataset.topicId;
-            var assessment = this.dataset.assessment;
-            var action = this.dataset.action;
+            const topicId = this.dataset.topicId;
+            const sheetId = this.dataset.sheetId;
 
-            if (assessment) {
-                loadAssessmentContent(sheetId, assessment);
-            } else if (topicId) {
-                loadTopicContent(sheetId, topicId);
-            } else if (action === 'content') {
-                loadSheetContent(sheetId);
+            if (topicId) {
+                // Find the index in focusModeData and enter focus mode
+                enterFocusModeAtTopic(sheetId, topicId);
             }
 
             setActiveItem(this);
             closeMobileToc();
-
-            // Update nav index
-            for (var i = 0; i < navItems.length; i++) {
-                if (navItems[i].el === this) { currentNavIndex = i; break; }
-            }
-            updateNavButtons();
         });
     });
 
     // Overview link
-    var overviewLink = document.querySelector('[data-section="overview"]');
+    const overviewLink = document.querySelector('[data-section="overview"]');
     if (overviewLink) {
         overviewLink.addEventListener('click', function (e) {
             e.preventDefault();
@@ -89,134 +61,68 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('dynamicContent').style.display = 'none';
             setActiveItem(this);
             closeMobileToc();
-            currentNavIndex = 0;
-            updateNavButtons();
         });
     }
 
     function setActiveItem(element) {
         document.querySelectorAll('.sidebar-toc-link').forEach(function (l) { l.classList.remove('active'); });
         document.querySelectorAll('.sidebar-topic-item').forEach(function (l) { l.classList.remove('active'); });
+        document.querySelectorAll('.sidebar-sheet-header').forEach(function (l) { l.classList.remove('active'); });
         element.classList.add('active');
     }
 
-    updateNavButtons();
+    // ==================== SHEET "START READING" VIEW ====================
 
-    // ==================== CONTENT LOADING ====================
-
-    function showLoading() {
+    function showSheetStartReading(sheetId, sheetIndex, headerElement) {
         const contentArea = document.getElementById('dynamicContent');
-        contentArea.innerHTML = '<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><p class="mt-2 text-muted">Loading...</p></div>';
+        const overviewSection = document.getElementById('overviewSection');
+
+        overviewSection.style.display = 'none';
         contentArea.style.display = 'block';
-        document.getElementById('overviewSection').style.display = 'none';
-    }
 
-    function loadSheetContent(sheetId) {
-        showLoading();
-        const contentArea = document.getElementById('dynamicContent');
+        // Get sheet info from the header
+        const sheetItem = headerElement.closest('.sidebar-sheet-item');
+        const sheetTitle = sheetItem.querySelector('.sidebar-sheet-main').textContent;
+        const sheetSub = sheetItem.querySelector('.sidebar-sheet-sub').textContent;
 
-        fetch(`${baseUrl}/sheets/${sheetId}/content`, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                contentArea.innerHTML = data.html;
-            } else {
-                contentArea.innerHTML = '<div class="alert alert-warning">Could not load content.</div>';
-            }
-        })
-        .catch(() => {
-            contentArea.innerHTML = '<div class="alert alert-danger">Failed to load content.</div>';
+        // Count topics
+        const topicItems = sheetItem.querySelectorAll('.sidebar-topic-item[data-topic-id]');
+        const topicCount = topicItems.length;
+
+        contentArea.innerHTML = `
+            <div class="start-reading-card">
+                <div class="start-reading-icon">
+                    <i class="fas fa-book-reader"></i>
+                </div>
+                <h2 class="start-reading-title">${sheetTitle}</h2>
+                <p class="start-reading-meta">${sheetSub}</p>
+                <div class="start-reading-info">
+                    <div class="info-item">
+                        <i class="fas fa-file-alt"></i>
+                        <span>${topicCount} Topics</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-clock"></i>
+                        <span>~${Math.ceil(topicCount * 3)} min read</span>
+                    </div>
+                </div>
+                <button class="btn btn-category btn-lg start-reading-btn" data-sheet-id="${sheetId}" data-sheet-index="${sheetIndex}">
+                    <i class="fas fa-play me-2"></i> Start Reading
+                </button>
+                <p class="start-reading-hint">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Opens in Focus Mode for distraction-free reading
+                </p>
+            </div>
+        `;
+
+        // Bind the start reading button
+        contentArea.querySelector('.start-reading-btn').addEventListener('click', function () {
+            const sId = this.dataset.sheetId;
+            enterFocusModeAtSheet(sId);
         });
-    }
 
-    function loadTopicContent(sheetId, topicId) {
-        showLoading();
-        const contentArea = document.getElementById('dynamicContent');
-
-        fetch(`${baseUrl}/sheets/${sheetId}/topics/${topicId}`, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                contentArea.innerHTML = data.html;
-            } else {
-                contentArea.innerHTML = '<div class="alert alert-warning">Could not load topic.</div>';
-            }
-        })
-        .catch(() => {
-            contentArea.innerHTML = '<div class="alert alert-danger">Failed to load topic.</div>';
-        });
-    }
-
-    function loadAssessmentContent(sheetId, assessmentType) {
-        showLoading();
-        const contentArea = document.getElementById('dynamicContent');
-
-        fetch(`${baseUrl}/sheets/${sheetId}/${assessmentType}`, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                contentArea.innerHTML = '<div class="assessment-inline-container">' + data.html + '</div>';
-                bindAssessmentFormHandlers();
-            } else {
-                contentArea.innerHTML = data.html || '<div class="alert alert-info">No assessment available.</div>';
-            }
-        })
-        .catch(() => {
-            contentArea.innerHTML = '<div class="alert alert-danger">Failed to load assessment.</div>';
-        });
-    }
-
-    // ==================== ASSESSMENT FORM HANDLING ====================
-
-    function bindAssessmentFormHandlers() {
-        const forms = document.querySelectorAll('#dynamicContent form[data-inline-submit]');
-        forms.forEach(form => {
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                const submitBtn = this.querySelector('button[type="submit"]');
-                const originalText = submitBtn.innerHTML;
-
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Submitting...';
-
-                fetch(this.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': csrfToken,
-                    }
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success !== undefined) {
-                        const resultDiv = document.createElement('div');
-                        resultDiv.className = 'assessment-result ' + (data.passed ? 'passed' : 'failed');
-                        resultDiv.innerHTML = `
-                            <i class="fas fa-${data.passed ? 'check-circle' : 'times-circle'} fa-3x mb-2"></i>
-                            <div class="score-display">${data.score} / ${data.max_score}</div>
-                            <p>${data.passed ? 'You passed!' : 'You did not pass. Try again.'}</p>
-                        `;
-                        this.replaceWith(resultDiv);
-                    } else {
-                        showNotification('Submission saved successfully!', 'success');
-                        submitBtn.innerHTML = '<i class="fas fa-check me-1"></i> Submitted';
-                    }
-                })
-                .catch(() => {
-                    showNotification('Failed to submit. Please try again.', 'error');
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                });
-            });
-        });
+        setActiveItem(headerElement);
     }
 
     // ==================== MOBILE TOC ====================
@@ -225,7 +131,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const sidebar = document.querySelector('.sidebar-section');
 
     if (tocToggle && sidebar) {
-        // Create overlay
         const overlay = document.createElement('div');
         overlay.className = 'toc-mobile-overlay';
         document.body.appendChild(overlay);
@@ -246,34 +151,47 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ==================== PROGRESS ====================
 
-    const moduleId = moduleData.dataset.moduleId;
-    const courseId = moduleData.dataset.courseId;
+    function fetchProgress() {
+        fetch(`/courses/${courseId}/module-${moduleId}/progress`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
+        })
+        .then(r => r.json())
+        .then(data => {
+            updateProgressDisplay(data);
+        })
+        .catch(() => {});
+    }
 
-    fetch(`/courses/${courseId}/module-${moduleId}/progress`, {
-        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
-    })
-    .then(r => r.json())
-    .then(data => {
-        const progress = data.percentage || 0;
+    fetchProgress();
+
+    function updateProgressDisplay(progress) {
+        const percentage = progress.percentage || 0;
+
+        // Update progress circle
         const circle = document.getElementById('progressCircle');
         if (circle) {
             const circumference = 2 * Math.PI * 40;
-            const offset = circumference - (progress / 100) * circumference;
+            const offset = circumference - (percentage / 100) * circumference;
             circle.style.strokeDasharray = circumference;
             circle.style.strokeDashoffset = offset;
         }
+
+        // Update progress text
         const progressText = document.getElementById('progressText');
-        if (progressText) progressText.textContent = Math.round(progress) + '%';
+        if (progressText) progressText.textContent = Math.round(percentage) + '%';
 
+        // Update progress badge
         const progressBadge = document.getElementById('progressBadge');
-        if (progressBadge) progressBadge.textContent = Math.round(progress) + '%';
+        if (progressBadge) progressBadge.textContent = Math.round(percentage) + '%';
 
+        // Update completed count (show "X of Y" format)
         const completedCount = document.getElementById('completedCount');
-        if (completedCount && data.completed !== undefined) {
-            completedCount.textContent = data.completed;
+        if (completedCount) {
+            const completed = progress.completed_items !== undefined ? progress.completed_items : (progress.completed || 0);
+            const total = progress.total_items !== undefined ? progress.total_items : (progress.total || 0);
+            completedCount.textContent = completed + ' of ' + total;
         }
-    })
-    .catch(() => {});
+    }
 
     // ==================== FOCUS MODE ====================
 
@@ -283,42 +201,201 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentFocusIndex = 0;
     let currentImageIndex = 0;
 
+    // Track completed sections
+    let completedSections = new Set();
+    const storageKey = 'focus_completed_' + moduleId;
     try {
-        focusModeData = JSON.parse(focusModeDataEl.textContent);
+        const saved = localStorage.getItem(storageKey);
+        if (saved) completedSections = new Set(JSON.parse(saved));
     } catch (e) {}
 
+    // Track if current section has been scrolled to bottom
+    let currentSectionScrolled = false;
+    let scrollHandler = null;
+
+    try {
+        focusModeData = JSON.parse(focusModeDataEl.textContent);
+    } catch (e) {
+        console.error('Failed to parse focus mode data:', e);
+    }
+
     function enterFocusMode() {
+        currentFocusIndex = 0;
+        startFocusMode();
+    }
+
+    function enterFocusModeAtSheet(sheetId) {
+        // Find first topic of this sheet
+        for (let i = 0; i < focusModeData.length; i++) {
+            if (focusModeData[i].sheetId == sheetId && focusModeData[i].type === 'topic') {
+                currentFocusIndex = i;
+                break;
+            }
+        }
+        startFocusMode();
+    }
+
+    function enterFocusModeAtTopic(sheetId, topicId) {
+        // Find this specific topic
+        for (let i = 0; i < focusModeData.length; i++) {
+            if (focusModeData[i].id == topicId && focusModeData[i].type === 'topic') {
+                currentFocusIndex = i;
+                break;
+            }
+        }
+        startFocusMode();
+    }
+
+    function startFocusMode() {
         document.body.classList.add('focus-mode-active');
         focusModeContainer.classList.add('active');
         updateFocusContent();
         document.addEventListener('keydown', focusKeyHandler);
+        setupScrollTracking();
     }
 
     function exitFocusMode() {
         document.body.classList.remove('focus-mode-active');
         focusModeContainer.classList.remove('active');
         document.removeEventListener('keydown', focusKeyHandler);
+        removeScrollTracking();
+        // Refresh progress when exiting
+        fetchProgress();
     }
 
     function focusKeyHandler(e) {
         if (e.key === 'Escape') exitFocusMode();
-        else if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextFocusContent(); }
+        else if (e.key === 'ArrowRight' || e.key === ' ') {
+            e.preventDefault();
+            if (canProceedToNext()) nextFocusContent();
+        }
         else if (e.key === 'ArrowLeft') { e.preventDefault(); prevFocusContent(); }
         else if (e.key === 'ArrowUp') { e.preventDefault(); prevImage(); }
         else if (e.key === 'ArrowDown') { e.preventDefault(); nextImage(); }
+    }
+
+    function canProceedToNext() {
+        return completedSections.has(currentFocusIndex) || currentSectionScrolled;
+    }
+
+    function setupScrollTracking() {
+        removeScrollTracking();
+        const contentPanel = document.querySelector('.focus-content-panel');
+        if (!contentPanel) return;
+
+        scrollHandler = function() {
+            checkScrollCompletion(contentPanel);
+        };
+        contentPanel.addEventListener('scroll', scrollHandler);
+    }
+
+    function removeScrollTracking() {
+        if (scrollHandler) {
+            const contentPanel = document.querySelector('.focus-content-panel');
+            if (contentPanel) {
+                contentPanel.removeEventListener('scroll', scrollHandler);
+            }
+            scrollHandler = null;
+        }
+    }
+
+    function checkScrollCompletion(panel) {
+        const scrolledToBottom = panel.scrollHeight - panel.scrollTop - panel.clientHeight < 50;
+
+        if (scrolledToBottom && !currentSectionScrolled) {
+            currentSectionScrolled = true;
+            markCurrentSectionComplete();
+        }
+
+        updateNextButtonState();
+    }
+
+    function markCurrentSectionComplete() {
+        completedSections.add(currentFocusIndex);
+
+        // Save to localStorage
+        try {
+            localStorage.setItem(storageKey, JSON.stringify([...completedSections]));
+        } catch (e) {}
+
+        // If this is a topic, call the API to record progress
+        const content = focusModeData[currentFocusIndex];
+        if (content && content.type === 'topic' && content.id && content.sheetId) {
+            markTopicCompleteOnServer(content.sheetId, content.id);
+        }
+
+        updateNextButtonState();
+    }
+
+    function markTopicCompleteOnServer(sheetId, topicId) {
+        console.log('Marking topic complete:', sheetId, topicId);
+
+        fetch(`${baseUrl}/sheets/${sheetId}/topics/${topicId}/complete`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            console.log('Topic complete response:', data);
+            if (data.success && data.progress) {
+                updateProgressDisplay(data.progress);
+            }
+        })
+        .catch(err => console.error('Failed to mark topic complete:', err));
+    }
+
+    function updateNextButtonState() {
+        const nextBtn = document.getElementById('focusNextBtn');
+        if (!nextBtn) return;
+
+        const isLastSection = currentFocusIndex >= focusModeData.length - 1;
+        const canProceed = canProceedToNext();
+
+        nextBtn.disabled = isLastSection || !canProceed;
+
+        if (!isLastSection && !canProceed) {
+            nextBtn.innerHTML = '<i class="fas fa-lock me-2"></i>Scroll to Continue';
+            nextBtn.classList.add('btn-locked');
+        } else if (isLastSection) {
+            nextBtn.innerHTML = '<i class="fas fa-check me-2"></i>Complete';
+            nextBtn.classList.remove('btn-locked');
+        } else {
+            nextBtn.innerHTML = 'Next<i class="fas fa-arrow-right ms-2"></i>';
+            nextBtn.classList.remove('btn-locked');
+        }
     }
 
     function updateFocusContent() {
         const content = focusModeData[currentFocusIndex];
         if (!content) return;
 
+        // Reset scroll state for new section (unless already completed)
+        currentSectionScrolled = completedSections.has(currentFocusIndex);
+
         document.getElementById('focusModeTitle').textContent = content.title;
         document.getElementById('focusContentTitle').textContent = content.title;
 
+        // Build content and extract tables
         let bodyHtml = '';
+        let extractedTables = [];
+
         if (content.content) {
-            bodyHtml += '<div class="mb-4">' + content.content.replace(/\n/g, '<br>') + '</div>';
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content.content;
+
+            const tables = tempDiv.querySelectorAll('table');
+            tables.forEach(function(table) {
+                extractedTables.push(table.outerHTML);
+                table.remove();
+            });
+
+            bodyHtml += '<div class="mb-4">' + tempDiv.innerHTML.replace(/\n/g, '<br>') + '</div>';
         }
+
         if (content.parts && content.parts.length > 0) {
             content.parts.forEach(function (part, idx) {
                 bodyHtml += '<div class="part-section mb-4 p-3 bg-light rounded">' +
@@ -328,31 +405,77 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        // Add scroll indicator at the bottom
+        bodyHtml += '<div class="scroll-end-marker" id="scrollEndMarker">' +
+            '<i class="fas fa-check-circle"></i> End of section' +
+            '</div>';
+
         document.getElementById('focusContentBody').innerHTML = bodyHtml || '<p class="text-muted">No content available for this section.</p>';
 
+        // Scroll content panel to top and check if scrolling is needed
+        const contentPanel = document.querySelector('.focus-content-panel');
+        if (contentPanel) {
+            contentPanel.scrollTop = 0;
+
+            // Check if content fits without scrolling
+            setTimeout(() => {
+                if (contentPanel.scrollHeight <= contentPanel.clientHeight + 50) {
+                    currentSectionScrolled = true;
+                    markCurrentSectionComplete();
+                }
+                updateNextButtonState();
+            }, 100);
+        }
+
         currentImageIndex = 0;
-        updateFocusImage(content);
+        updateFocusImageAndTables(content, extractedTables);
 
         document.getElementById('focusProgressBadge').textContent = (currentFocusIndex + 1) + ' / ' + focusModeData.length;
         document.getElementById('focusPrevBtn').disabled = currentFocusIndex === 0;
-        document.getElementById('focusNextBtn').disabled = currentFocusIndex === focusModeData.length - 1;
+        updateNextButtonState();
+
+        // Re-setup scroll tracking for new content
+        setupScrollTracking();
     }
 
     function updateFocusImage(content) {
+        updateFocusImageAndTables(content, []);
+    }
+
+    function updateFocusImageAndTables(content, extractedTables) {
         const images = content.images || [];
         const noImage = document.getElementById('focusNoImage');
         const focusImage = document.getElementById('focusImage');
         const imageCaption = document.getElementById('focusImageCaption');
         const imageNav = document.getElementById('imageNav');
         const imageCounter = document.getElementById('imageCounter');
+        const focusModeBody = document.querySelector('.focus-mode-body');
 
-        if (images.length === 0) {
-            noImage.style.display = 'block';
+        focusModeBody.classList.remove('no-images', 'has-tables');
+
+        const hasImages = images.length > 0;
+        const hasTables = extractedTables && extractedTables.length > 0;
+
+        if (!hasImages && !hasTables) {
+            focusModeBody.classList.add('no-images');
+            noImage.style.display = 'none';
             focusImage.style.display = 'none';
             imageNav.style.display = 'none';
             imageCaption.textContent = '';
             imageCounter.textContent = '';
-        } else {
+        } else if (hasTables && !hasImages) {
+            focusModeBody.classList.add('has-tables');
+            noImage.style.display = 'none';
+            focusImage.style.display = 'none';
+            imageNav.style.display = 'none';
+
+            let tableHtml = '<div class="table-label"><i class="fas fa-table me-2"></i>Reference Table</div>';
+            extractedTables.forEach(function(table) {
+                tableHtml += '<div class="table-container">' + table + '</div>';
+            });
+            imageCaption.innerHTML = tableHtml;
+            imageCounter.textContent = extractedTables.length > 1 ? extractedTables.length + ' tables' : '';
+        } else if (hasImages) {
             noImage.style.display = 'none';
             focusImage.style.display = 'block';
             const img = images[currentImageIndex];
@@ -370,17 +493,35 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function nextFocusContent() {
-        if (currentFocusIndex < focusModeData.length - 1) { currentFocusIndex++; updateFocusContent(); }
+        if (currentFocusIndex < focusModeData.length - 1 && canProceedToNext()) {
+            currentFocusIndex++;
+            updateFocusContent();
+        } else if (currentFocusIndex >= focusModeData.length - 1) {
+            // Last section completed - show completion message
+            showNotification('Section completed! Great work!', 'success');
+        }
     }
+
     function prevFocusContent() {
-        if (currentFocusIndex > 0) { currentFocusIndex--; updateFocusContent(); }
+        if (currentFocusIndex > 0) {
+            currentFocusIndex--;
+            updateFocusContent();
+        }
     }
+
     function nextImage() {
         const content = focusModeData[currentFocusIndex];
-        if (currentImageIndex < (content.images || []).length - 1) { currentImageIndex++; updateFocusImage(content); }
+        if (currentImageIndex < (content.images || []).length - 1) {
+            currentImageIndex++;
+            updateFocusImage(content);
+        }
     }
+
     function prevImage() {
-        if (currentImageIndex > 0) { currentImageIndex--; updateFocusImage(focusModeData[currentFocusIndex]); }
+        if (currentImageIndex > 0) {
+            currentImageIndex--;
+            updateFocusImage(focusModeData[currentFocusIndex]);
+        }
     }
 
     // Focus mode event listeners
@@ -395,44 +536,99 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==================== OFFLINE SAVE ====================
 
     const saveOfflineBtn = document.getElementById('saveOfflineBtn');
-    const saveOfflineText = document.getElementById('saveOfflineText');
 
-    if ('caches' in window) {
-        caches.has('module-' + moduleId).then(function (cached) {
-            if (cached) {
-                saveOfflineText.textContent = 'Saved';
-                saveOfflineBtn.classList.remove('btn-outline-warning');
-                saveOfflineBtn.classList.add('btn-warning');
-            }
-        });
-    }
-
-    saveOfflineBtn.addEventListener('click', async function () {
-        if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) {
-            alert('Offline mode requires service worker support. Please refresh the page.');
-            return;
-        }
-
+    saveOfflineBtn.addEventListener('click', function () {
         saveOfflineBtn.disabled = true;
-        saveOfflineBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Saving...';
+        saveOfflineBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Generating...';
 
         try {
-            const result = await window.cacheModuleForOffline(moduleId, window.location.href);
-            if (result.success) {
-                saveOfflineBtn.innerHTML = '<i class="fas fa-check me-1"></i> Saved';
-                saveOfflineBtn.classList.remove('btn-outline-warning');
-                saveOfflineBtn.classList.add('btn-success');
-                showNotification('Module saved for offline viewing!', 'success');
-            } else {
-                throw new Error(result.error || 'Failed to save');
-            }
+            const moduleTitle = document.querySelector('.module-header-section h4')?.textContent || 'Module';
+            const offlineHtml = generateOfflineFocusModeHtml(focusModeData, moduleTitle);
+
+            const blob = new Blob([offlineHtml], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = moduleTitle.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase() + '-offline.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            saveOfflineBtn.innerHTML = '<i class="fas fa-check me-1"></i> Downloaded';
+            saveOfflineBtn.classList.remove('btn-outline-warning');
+            saveOfflineBtn.classList.add('btn-success');
+            showNotification('Focus mode version downloaded!', 'success');
         } catch (error) {
+            console.error('Offline save error:', error);
             saveOfflineBtn.innerHTML = '<i class="fas fa-cloud-download-alt me-1"></i> Save Offline';
-            showNotification('Failed to save module for offline viewing.', 'error');
+            showNotification('Failed to generate offline version.', 'error');
         } finally {
             saveOfflineBtn.disabled = false;
         }
     });
+
+    function generateOfflineFocusModeHtml(data, title) {
+        if (!data || !Array.isArray(data) || data.length === 0) {
+            return '<!DOCTYPE html><html><head><title>No Content</title></head><body><h1>No content available</h1></body></html>';
+        }
+
+        function safeText(text) {
+            if (!text) return '';
+            return String(text);
+        }
+
+        let contentHtml = '';
+        data.forEach(function(item, index) {
+            if (!item) return;
+
+            let itemContent = '';
+            if (item.content) {
+                itemContent += '<div class="content-text">' + safeText(item.content).replace(/\n/g, '<br>') + '</div>';
+            }
+            if (item.parts && Array.isArray(item.parts) && item.parts.length > 0) {
+                item.parts.forEach(function(part, pIdx) {
+                    if (!part) return;
+                    itemContent += '<div class="part-section">' +
+                        '<h4><span class="part-badge">' + (pIdx + 1) + '</span> ' + safeText(part.title) + '</h4>' +
+                        '<p>' + safeText(part.explanation).replace(/\n/g, '<br>') + '</p>' +
+                        '</div>';
+                });
+            }
+
+            contentHtml += '<section class="content-section" id="section-' + index + '">' +
+                '<h2>' + safeText(item.title || 'Section ' + (index + 1)) + '</h2>' +
+                itemContent +
+                '</section>';
+        });
+
+        let navHtml = '<nav class="offline-nav"><ul>';
+        data.forEach(function(item, index) {
+            if (!item) return;
+            navHtml += '<li><a href="#section-' + index + '">' + safeText(item.title || 'Section ' + (index + 1)) + '</a></li>';
+        });
+        navHtml += '</ul></nav>';
+
+        const isDarkMode = document.body.classList.contains('dark-mode');
+
+        return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+            '<title>' + title + ' - Offline</title><style>' +
+            'body{font-family:-apple-system,sans-serif;margin:0;' + (isDarkMode ? 'background:#121220;color:#e9ecef;' : 'background:#f8f9fa;color:#333;') + '}' +
+            '.header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:20px 30px;position:sticky;top:0;z-index:100}' +
+            '.header h1{margin:0;font-size:1.5rem}.container{display:flex;max-width:1400px;margin:0 auto}' +
+            '.offline-nav{width:280px;padding:20px;position:sticky;top:80px;height:calc(100vh - 80px);overflow-y:auto;' + (isDarkMode ? 'background:#1a1a2e;' : 'background:#fff;') + 'border-right:1px solid ' + (isDarkMode ? '#3a3a5a' : '#dee2e6') + '}' +
+            '.offline-nav ul{list-style:none;padding:0;margin:0}.offline-nav li{margin-bottom:8px}' +
+            '.offline-nav a{display:block;padding:10px 15px;text-decoration:none;border-radius:8px;' + (isDarkMode ? 'color:#adb5bd;background:#2a2a3e;' : 'color:#333;background:#f8f9fa;') + '}' +
+            '.offline-nav a:hover{background:#667eea;color:#fff}.main-content{flex:1;padding:30px 50px;max-width:900px}' +
+            '.content-section{margin-bottom:60px;padding-bottom:40px;border-bottom:2px solid ' + (isDarkMode ? '#3a3a5a' : '#e9ecef') + '}' +
+            '.content-section h2{color:#667eea;border-bottom:3px solid #667eea;padding-bottom:15px;margin-bottom:25px}' +
+            '.part-section{padding:20px;margin:20px 0;border-radius:8px;border-left:4px solid #667eea;' + (isDarkMode ? 'background:#2a2a3e;' : 'background:#f8f9fa;') + '}' +
+            '.part-badge{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#667eea;color:#fff;border-radius:50%;font-size:.85rem;margin-right:10px}' +
+            '@media(max-width:768px){.container{flex-direction:column}.offline-nav{width:100%;position:static;height:auto}.main-content{padding:20px}}' +
+            '</style></head><body><header class="header"><h1>' + title + '</h1></header>' +
+            '<div class="container">' + navHtml + '<main class="main-content">' + contentHtml +
+            '<div style="text-align:center;padding:40px;color:#888"><p>— End of Module —</p></div></main></div></body></html>';
+    }
 
     // ==================== NOTIFICATIONS ====================
 

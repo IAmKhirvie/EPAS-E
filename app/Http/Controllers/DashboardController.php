@@ -229,6 +229,8 @@ class DashboardController extends Controller
             'average_grade' => $progressSummary['average_score'] . '%',
             'pendingActivities' => $this->stats->getPendingActivitiesForStudent($user),
             'completedActivitiesList' => $this->stats->getCompletedActivitiesForStudent($user),
+            'upcomingDeadlines' => $this->stats->getUpcomingDeadlinesForStudent($user),
+            'upcomingDeadlinesCount' => $this->stats->getUpcomingDeadlinesCount($user),
         ];
 
         return view('dashboard', $data);

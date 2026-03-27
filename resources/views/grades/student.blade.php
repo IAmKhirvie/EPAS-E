@@ -560,7 +560,7 @@ document.addEventListener('DOMContentLoaded', function() {
         $activityIndex = 0;
 
         foreach ($gradesData as $moduleData) {
-            $moduleName = $moduleData['module']->title;
+            $moduleName = $moduleData['module']->module_name;
 
             foreach ($moduleData['self_checks'] as $item) {
                 if ($item['percentage'] !== null) {

@@ -372,9 +372,9 @@ class RegistrationService
     }
 
     /**
-     * Create an announcement visible to admins/instructors
+     * Create an announcement visible to admins only (for internal notifications like registrations)
      */
-    protected function createAnnouncementForAdmins(string $title, string $content, string $targetRoles = 'admin,instructor'): void
+    protected function createAnnouncementForAdmins(string $title, string $content, string $targetRoles = 'admin'): void
     {
         try {
             Announcement::create([

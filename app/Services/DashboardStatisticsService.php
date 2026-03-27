@@ -231,20 +231,30 @@ class DashboardStatisticsService
     }
 
     /**
-     * Get recent announcements.
+     * Get recent announcements for the current user.
+     * Filters by target_roles so users only see announcements meant for them.
      *
      * @param int $limit
      * @return Collection
      */
     public function getRecentAnnouncements(int $limit = 3): Collection
     {
-        return Cache::remember("dashboard_announcements_{$limit}", 300, function () use ($limit) {
-            return Announcement::with(['user', 'comments'])
+        $user = auth()->user();
+        $role = $user?->role ?? 'guest';
+
+        return Cache::remember("dashboard_announcements_{$limit}_{$role}", 300, function () use ($limit, $user) {
+            $query = Announcement::with(['user', 'comments'])
                 ->where(function ($query) {
                     $query->whereNull('publish_at')
                         ->orWhere('publish_at', '<=', now());
-                })
-                ->orderBy('is_pinned', 'desc')
+                });
+
+            // Apply role-based filtering if user is logged in
+            if ($user) {
+                $query->forUser($user);
+            }
+
+            return $query->orderBy('is_pinned', 'desc')
                 ->orderBy('created_at', 'desc')
                 ->limit($limit)
                 ->get();
@@ -252,17 +262,28 @@ class DashboardStatisticsService
     }
 
     /**
-     * Get count of recent announcements.
+     * Get count of recent announcements for the current user.
+     * Filters by target_roles so users only see announcements meant for them.
      *
      * @return int
      */
     public function getRecentAnnouncementsCount(): int
     {
-        return Cache::remember('dashboard_announcements_count', 300, function () {
-            return Announcement::where(function ($query) {
+        $user = auth()->user();
+        $role = $user?->role ?? 'guest';
+
+        return Cache::remember("dashboard_announcements_count_{$role}", 300, function () use ($user) {
+            $query = Announcement::where(function ($query) {
                 $query->whereNull('publish_at')
                     ->orWhere('publish_at', '<=', now());
-            })->count();
+            });
+
+            // Apply role-based filtering if user is logged in
+            if ($user) {
+                $query->forUser($user);
+            }
+
+            return $query->count();
         });
     }
 
@@ -390,6 +411,14 @@ class DashboardStatisticsService
     public function getUpcomingDeadlinesForInstructor(User $user): Collection
     {
         return $this->pendingActivities->getUpcomingDeadlinesForInstructor($user);
+    }
+
+    /**
+     * Get upcoming deadlines for student dashboard.
+     */
+    public function getUpcomingDeadlinesForStudent(User $user): Collection
+    {
+        return $this->pendingActivities->getUpcomingDeadlinesForStudent($user);
     }
 
     /**

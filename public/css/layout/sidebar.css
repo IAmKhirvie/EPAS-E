@@ -557,7 +557,7 @@ html, body {
 
 .nav-item-flyout.open > .nav-item.has-flyout,
 .nav-item-flyout.active > .nav-item.has-flyout {
-    background: rgba(var(--primary-rgb, 13, 110, 253), 0.2);
+    background: rgba(var(--primary-rgb, 124, 179, 66), 0.2);
 }
 
 /* ============================================

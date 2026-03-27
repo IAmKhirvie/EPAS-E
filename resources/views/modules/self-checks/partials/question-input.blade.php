@@ -9,7 +9,13 @@
 @switch($question->question_type)
     {{-- Multiple Choice --}}
     @case('multiple_choice')
-        @php $options = array_filter($question->options ?? [], fn($v, $k) => is_int($k), ARRAY_FILTER_USE_BOTH); @endphp
+        @php
+            $rawOptions = $question->options ?? [];
+            if (is_string($rawOptions)) {
+                $rawOptions = json_decode($rawOptions, true) ?? [];
+            }
+            $options = array_filter($rawOptions, fn($v, $k) => is_int($k), ARRAY_FILTER_USE_BOTH);
+        @endphp
         <div class="multiple-choice-options">
             @foreach($options as $optIndex => $option)
             <div class="form-check mb-2 p-3 border rounded option-item" onclick="selectOption(this, {{ $question->id }}, {{ $optIndex }})">
@@ -187,7 +193,13 @@
 
     {{-- Image Choice --}}
     @case('image_choice')
-        @php $options = array_filter($question->options ?? [], fn($v, $k) => is_int($k), ARRAY_FILTER_USE_BOTH); @endphp
+        @php
+            $rawOptions = $question->options ?? [];
+            if (is_string($rawOptions)) {
+                $rawOptions = json_decode($rawOptions, true) ?? [];
+            }
+            $options = array_filter($rawOptions, fn($v, $k) => is_int($k), ARRAY_FILTER_USE_BOTH);
+        @endphp
         <div class="image-choice-container">
             @foreach($options as $optIndex => $option)
             <div class="image-choice-item" onclick="selectImageOption(this, {{ $question->id }}, {{ $optIndex }})">
@@ -215,7 +227,13 @@
 
     {{-- Multiple Select (Checkboxes) --}}
     @case('multiple_select')
-        @php $options = array_filter($question->options ?? [], fn($v, $k) => is_int($k), ARRAY_FILTER_USE_BOTH); @endphp
+        @php
+            $rawOptions = $question->options ?? [];
+            if (is_string($rawOptions)) {
+                $rawOptions = json_decode($rawOptions, true) ?? [];
+            }
+            $options = array_filter($rawOptions, fn($v, $k) => is_int($k), ARRAY_FILTER_USE_BOTH);
+        @endphp
         <div class="multiple-select-options">
             <p class="text-muted small mb-3">
                 <i class="fas fa-info-circle me-1"></i>Select all answers that apply.

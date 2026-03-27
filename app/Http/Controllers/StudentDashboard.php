@@ -89,9 +89,16 @@ class StudentDashboard extends Controller
     
     private function getAnnouncements()
     {
-        return Announcement::where('is_active', true)
-            ->with('author') // Eager load to prevent N+1
-            ->orderBy('created_at', 'desc')
+        $user = auth()->user();
+        $query = Announcement::where('is_active', true)
+            ->with('author'); // Eager load to prevent N+1
+
+        // Filter by user role
+        if ($user) {
+            $query->forUser($user);
+        }
+
+        return $query->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()
             ->map(function($announcement) {

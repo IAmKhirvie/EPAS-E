@@ -223,7 +223,6 @@ class PendingActivitiesService
             })
             ->whereNotNull('due_date')
             ->where('due_date', '>=', now())
-            ->where('is_active', true)
             ->orderBy('due_date')
             ->limit(10)
             ->get();
@@ -236,7 +235,7 @@ class PendingActivitiesService
                 'due_date' => $homework->due_date,
                 'icon' => 'fas fa-book',
                 'color' => '#fd7e14',
-                'url' => '#',
+                'url' => route('homeworks.show', $homework->id),
             ]);
         }
 
@@ -262,7 +261,7 @@ class PendingActivitiesService
                     'due_date' => $test->due_date,
                     'icon' => 'fas fa-file-alt',
                     'color' => '#dc3545',
-                    'url' => '#',
+                    'url' => $test->module ? route('competency-tests.show', ['module' => $test->module->id, 'competencyTest' => $test->id]) : '#',
                 ]);
             }
         }
@@ -275,7 +274,68 @@ class PendingActivitiesService
      */
     public function getUpcomingDeadlinesCount(User $user): int
     {
+        if ($user->role === Roles::STUDENT) {
+            return $this->getUpcomingDeadlinesForStudent($user)->count();
+        }
         return $this->getUpcomingDeadlinesForInstructor($user)->count();
+    }
+
+    /**
+     * Get upcoming deadlines for student dashboard.
+     * Shows activities with due dates that the student hasn't completed yet.
+     */
+    public function getUpcomingDeadlinesForStudent(User $user): Collection
+    {
+        $deadlines = collect();
+
+        // Get submitted IDs to exclude completed items
+        $submittedSelfCheckIds = SelfCheckSubmission::where('user_id', $user->id)->pluck('self_check_id');
+        $submittedHomeworkIds = HomeworkSubmission::where('user_id', $user->id)->pluck('homework_id');
+
+        // Get self-checks with due dates that student hasn't submitted
+        $selfChecks = SelfCheck::whereNotIn('id', $submittedSelfCheckIds)
+            ->whereNotNull('due_date')
+            ->where('due_date', '>=', now())
+            ->where('is_active', true)
+            ->with('informationSheet.module')
+            ->orderBy('due_date')
+            ->limit(10)
+            ->get();
+
+        foreach ($selfChecks as $selfCheck) {
+            $deadlines->push([
+                'type' => 'self_check',
+                'title' => $selfCheck->title,
+                'subtitle' => $selfCheck->informationSheet?->module?->module_name ?? 'Self-Check',
+                'due_date' => $selfCheck->due_date,
+                'icon' => 'fas fa-clipboard-check',
+                'color' => '#6f42c1',
+                'url' => route('self-checks.show', $selfCheck->id),
+            ]);
+        }
+
+        // Get homeworks with due dates that student hasn't submitted
+        $homeworks = Homework::whereNotIn('id', $submittedHomeworkIds)
+            ->whereNotNull('due_date')
+            ->where('due_date', '>=', now())
+            ->with('informationSheet.module')
+            ->orderBy('due_date')
+            ->limit(10)
+            ->get();
+
+        foreach ($homeworks as $homework) {
+            $deadlines->push([
+                'type' => 'homework',
+                'title' => $homework->title,
+                'subtitle' => $homework->informationSheet?->module?->module_name ?? 'Homework',
+                'due_date' => $homework->due_date,
+                'icon' => 'fas fa-book',
+                'color' => '#fd7e14',
+                'url' => route('homeworks.show', $homework->id),
+            ]);
+        }
+
+        return $deadlines->sortBy('due_date')->take(10)->values();
     }
 
     // =========================================================================
