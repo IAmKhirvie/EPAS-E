@@ -186,8 +186,19 @@ class DashboardController extends Controller
         $data['unreadCount'] = 0;
         $data['recentSubmissions'] = $this->stats->getRecentSubmissionsForInstructor($user);
         $data['pendingEvaluations'] = $this->stats->getPendingEvaluationsCount($user);
-        $data['pendingRegistrations'] = $this->stats->getPendingRegistrations();
-        $data['pendingRegistrationsCount'] = $this->stats->getPendingRegistrationsCount();
+
+        // Pending registrations only for admin
+        if ($user->role === \App\Constants\Roles::ADMIN) {
+            $data['pendingRegistrations'] = $this->stats->getPendingRegistrations();
+            $data['pendingRegistrationsCount'] = $this->stats->getPendingRegistrationsCount();
+        } else {
+            $data['pendingRegistrations'] = collect();
+            $data['pendingRegistrationsCount'] = 0;
+        }
+
+        // Upcoming deadlines for instructors
+        $data['upcomingDeadlines'] = $this->stats->getUpcomingDeadlinesForInstructor($user);
+        $data['upcomingDeadlinesCount'] = $this->stats->getUpcomingDeadlinesCount($user);
 
         return view('dashboard', $data);
     }

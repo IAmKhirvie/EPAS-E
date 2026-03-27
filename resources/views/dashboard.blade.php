@@ -338,11 +338,19 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-warning bg-opacity-10 d-flex justify-content-between align-items-center py-2">
                         <h6 class="mb-0">
-                            <i class="fas fa-clock text-warning me-2"></i>Pending Requests
+                            @if(Auth::user()->role === \App\Constants\Roles::STUDENT)
+                                <i class="fas fa-clock text-warning me-2"></i>Pending Activities
+                            @elseif(Auth::user()->role === \App\Constants\Roles::ADMIN)
+                                <i class="fas fa-clock text-warning me-2"></i>Pending Requests
+                            @else
+                                <i class="fas fa-calendar-check text-warning me-2"></i>Upcoming Deadlines
+                            @endif
                             @php
                             $pendingCount = Auth::user()->role === \App\Constants\Roles::STUDENT
                             ? (isset($pendingActivities) ? $pendingActivities->count() : 0)
-                            : (($pendingEvaluations ?? 0) + ($pendingRegistrationsCount ?? 0));
+                            : (Auth::user()->role === \App\Constants\Roles::ADMIN
+                                ? (($pendingEvaluations ?? 0) + ($pendingRegistrationsCount ?? 0))
+                                : (($upcomingDeadlinesCount ?? 0) + ($pendingEvaluations ?? 0)));
                             @endphp
                             @if($pendingCount > 0)
                             <span class="badge bg-warning text-dark">{{ $pendingCount }}</span>
@@ -387,12 +395,37 @@
                         @endif
                         @else
                         {{-- Instructor/Admin Pending Items --}}
-                        @if((isset($pendingRegistrations) && $pendingRegistrations->count() > 0) ||
+                        @if((isset($upcomingDeadlines) && $upcomingDeadlines->count() > 0) ||
+                        (isset($pendingRegistrations) && $pendingRegistrations->count() > 0) ||
                         (isset($recentSubmissions) && $recentSubmissions->count() > 0))
                         <div class="list-group list-group-flush" id="pending-list">
 
-                            {{-- Pending Registrations --}}
-                            @if(isset($pendingRegistrations) && $pendingRegistrations->count() > 0)
+                            {{-- Upcoming Deadlines (for Instructors) --}}
+                            @if(isset($upcomingDeadlines) && $upcomingDeadlines->count() > 0)
+                            <div class="list-group-item bg-light py-1 border-bottom">
+                                <small class="text-muted fw-bold text-uppercase">Upcoming Deadlines</small>
+                            </div>
+                            @foreach($upcomingDeadlines as $deadline)
+                            <a href="{{ $deadline['url'] ?? '#' }}" class="list-group-item list-group-item-action py-2 pending-item" data-type="deadline" data-date="{{ $deadline['due_date'] }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="activity-icon-sm me-2" style="background-color: {{ $deadline['color'] }}20; color: {{ $deadline['color'] }}">
+                                        <i class="{{ $deadline['icon'] }}"></i>
+                                    </div>
+                                    <div class="flex-grow-1 min-width-0">
+                                        <div class="fw-medium text-truncate small">{{ $deadline['title'] }}</div>
+                                        <small class="text-muted text-truncate d-block">{{ $deadline['subtitle'] }}</small>
+                                        <small class="text-danger">
+                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            {{ \Carbon\Carbon::parse($deadline['due_date'])->format('M d, Y h:i A') }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </a>
+                            @endforeach
+                            @endif
+
+                            {{-- Pending Registrations (Admin Only) --}}
+                            @if(Auth::user()->role === \App\Constants\Roles::ADMIN && isset($pendingRegistrations) && $pendingRegistrations->count() > 0)
                             <div class="list-group-item bg-light py-1 border-bottom">
                                 <small class="text-muted fw-bold text-uppercase">Pending Registrations</small>
                             </div>
@@ -447,7 +480,13 @@
                         @else
                         <div class="text-center py-4 text-muted">
                             <i class="fas fa-check-circle text-success mb-2"></i>
-                            <p class="mb-0 small">No pending items</p>
+                            <p class="mb-0 small">
+                                @if(Auth::user()->role === \App\Constants\Roles::INSTRUCTOR)
+                                    No upcoming deadlines
+                                @else
+                                    No pending items
+                                @endif
+                            </p>
                         </div>
                         @endif
                         @endif

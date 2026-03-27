@@ -384,6 +384,22 @@ class DashboardStatisticsService
         return $this->pendingActivities->getPendingRegistrationsCount();
     }
 
+    /**
+     * Get upcoming deadlines for instructor dashboard.
+     */
+    public function getUpcomingDeadlinesForInstructor(User $user): Collection
+    {
+        return $this->pendingActivities->getUpcomingDeadlinesForInstructor($user);
+    }
+
+    /**
+     * Get count of upcoming deadlines.
+     */
+    public function getUpcomingDeadlinesCount(User $user): int
+    {
+        return $this->pendingActivities->getUpcomingDeadlinesCount($user);
+    }
+
     // =========================================================================
     // CACHE MANAGEMENT
     // =========================================================================

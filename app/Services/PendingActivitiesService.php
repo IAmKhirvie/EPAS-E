@@ -179,6 +179,106 @@ class PendingActivitiesService
     }
 
     // =========================================================================
+    // PUBLIC METHODS - Upcoming Deadlines (for Instructors)
+    // =========================================================================
+
+    /**
+     * Get upcoming deadlines for instructor dashboard.
+     * Shows self-checks, competency tests, homeworks, etc. with due dates.
+     */
+    public function getUpcomingDeadlinesForInstructor(User $user): Collection
+    {
+        $deadlines = collect();
+
+        // Get self-checks with due dates
+        $selfChecks = SelfCheck::whereHas('informationSheet.module.course', function ($q) use ($user) {
+                if ($user->role === Roles::INSTRUCTOR) {
+                    $q->where('instructor_id', $user->id);
+                }
+            })
+            ->whereNotNull('due_date')
+            ->where('due_date', '>=', now())
+            ->where('is_active', true)
+            ->orderBy('due_date')
+            ->limit(10)
+            ->get();
+
+        foreach ($selfChecks as $selfCheck) {
+            $deadlines->push([
+                'type' => 'self_check',
+                'title' => $selfCheck->title,
+                'subtitle' => $selfCheck->informationSheet?->module?->module_title ?? 'Self-Check',
+                'due_date' => $selfCheck->due_date,
+                'icon' => 'fas fa-clipboard-check',
+                'color' => '#6f42c1',
+                'url' => route('modules.self-checks.show', $selfCheck->id),
+            ]);
+        }
+
+        // Get homeworks with due dates
+        $homeworks = Homework::whereHas('informationSheet.module.course', function ($q) use ($user) {
+                if ($user->role === Roles::INSTRUCTOR) {
+                    $q->where('instructor_id', $user->id);
+                }
+            })
+            ->whereNotNull('due_date')
+            ->where('due_date', '>=', now())
+            ->where('is_active', true)
+            ->orderBy('due_date')
+            ->limit(10)
+            ->get();
+
+        foreach ($homeworks as $homework) {
+            $deadlines->push([
+                'type' => 'homework',
+                'title' => $homework->title,
+                'subtitle' => $homework->informationSheet?->module?->module_title ?? 'Homework',
+                'due_date' => $homework->due_date,
+                'icon' => 'fas fa-book',
+                'color' => '#fd7e14',
+                'url' => '#',
+            ]);
+        }
+
+        // Get competency tests with due dates (if they have time-based deadlines)
+        if (class_exists(\App\Models\CompetencyTest::class)) {
+            $tests = \App\Models\CompetencyTest::whereHas('module.course', function ($q) use ($user) {
+                    if ($user->role === Roles::INSTRUCTOR) {
+                        $q->where('instructor_id', $user->id);
+                    }
+                })
+                ->whereNotNull('due_date')
+                ->where('due_date', '>=', now())
+                ->where('is_active', true)
+                ->orderBy('due_date')
+                ->limit(10)
+                ->get();
+
+            foreach ($tests as $test) {
+                $deadlines->push([
+                    'type' => 'competency_test',
+                    'title' => $test->title,
+                    'subtitle' => $test->module?->module_title ?? 'Competency Test',
+                    'due_date' => $test->due_date,
+                    'icon' => 'fas fa-file-alt',
+                    'color' => '#dc3545',
+                    'url' => '#',
+                ]);
+            }
+        }
+
+        return $deadlines->sortBy('due_date')->take(10)->values();
+    }
+
+    /**
+     * Get count of upcoming deadlines.
+     */
+    public function getUpcomingDeadlinesCount(User $user): int
+    {
+        return $this->getUpcomingDeadlinesForInstructor($user)->count();
+    }
+
+    // =========================================================================
     // PUBLIC METHODS - Utility Helpers
     // =========================================================================
 
