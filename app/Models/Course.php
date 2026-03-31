@@ -116,7 +116,7 @@ class Course extends Model
      */
     public function getCategoryColorAttribute(): string
     {
-        return $this->category?->color ?? '#3b82f6';
+        return $this->category?->color ?? '#6d9773';
     }
 
     /**

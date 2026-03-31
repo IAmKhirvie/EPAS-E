@@ -392,7 +392,7 @@ body {
 }
 
 .terms-link {
-    color: #007bff;
+    color: #ffb902;
     cursor: pointer;
     text-decoration: underline;
 }
@@ -846,12 +846,12 @@ body.dark-mode .input .toggle:hover {
 }
 
 body.dark-mode .btn-primary {
-    background: linear-gradient(135deg, #4cc9f0, #0d6efd);
-    color: #fff;
+    background: linear-gradient(135deg, #ffca28, #ffb902);
+    color: #0c3a2d;
 }
 
 body.dark-mode .btn-primary:hover {
-    background: linear-gradient(135deg, #3db8df, #0056b3);
+    background: linear-gradient(135deg, #e5a702, #bb8954);
 }
 
 body.dark-mode .divider {
@@ -960,8 +960,8 @@ body.dark-mode .close-modal:hover {
 }
 
 body.dark-mode .modal-content .btn-primary {
-    background: linear-gradient(135deg, #4cc9f0, #0d6efd);
-    color: #fff;
+    background: linear-gradient(135deg, #ffca28, #ffb902);
+    color: #0c3a2d;
 }
 
 /* Mobile responsive modal */
@@ -996,7 +996,7 @@ body.dark-mode .confirm-modal {
 }
 
 body.dark-mode .confirm-header {
-    background: linear-gradient(135deg, #4cc9f0, #0d6efd);
+    background: linear-gradient(135deg, #6d9773, #0c3a2d);
 }
 
 body.dark-mode .confirm-body {

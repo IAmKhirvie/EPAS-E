@@ -100,7 +100,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background-color: var(--light-gray);
+    background-color: #ffb902;
     border-radius: 9999px;
     padding: 0.5rem;
     backdrop-filter: blur(10px);
@@ -217,7 +217,7 @@
 .view-all-link-footer:hover {
     background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+    box-shadow: 0 4px 12px rgba(12, 59, 46, 0.3);
 }
 
 /* Enhanced Notification Items */
@@ -250,7 +250,7 @@
 }
 
 .notification-item.unread {
-    background: linear-gradient(135deg, rgba(13, 110, 253, 0.08) 0%, rgba(13, 110, 253, 0.03) 100%);
+    background: linear-gradient(135deg, rgba(109, 151, 115, 0.08) 0%, rgba(109, 151, 115, 0.03) 100%);
     border-left: 3px solid var(--primary);
 }
 
@@ -318,7 +318,7 @@
 
 .notification-status.unread {
     background: var(--primary);
-    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.3);
+    box-shadow: 0 0 0 3px rgba(109, 151, 115, 0.3);
 }
 
 .notification-status.read {
@@ -559,7 +559,7 @@
     text-align: center;
     padding: 2.5rem 1.5rem 1.25rem;
     min-height: 140px;
-    background: linear-gradient(160deg, var(--primary) 0%, #003d80 100%);
+    background: linear-gradient(160deg, #0c3a2d 0%, #082a20 100%);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -621,7 +621,7 @@
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: var(--bs-primary, #4f46e5);
+    background: var(--bs-primary, #6D9773);
     color: white;
     display: flex;
     align-items: center;
@@ -681,8 +681,8 @@ h3.user-card-subtitle {
 }
 
 .user-card-role-badge.role-instructor {
-    background-color: rgba(13, 202, 240, 0.35);
-    border: 1px solid rgba(13, 202, 240, 0.5);
+    background-color: rgba(109, 151, 115, 0.35);
+    border: 1px solid rgba(109, 151, 115, 0.5);
 }
 
 .user-card-role-badge.role-student {
@@ -1613,10 +1613,10 @@ h3.user-card-subtitle {
 /* Animation for new notifications */
 @keyframes highlightNew {
     0% {
-        background-color: rgba(13, 110, 253, 0.2);
+        background-color: rgba(109, 151, 115, 0.2);
     }
     100% {
-        background-color: rgba(13, 110, 253, 0.05);
+        background-color: rgba(109, 151, 115, 0.05);
     }
 }
 
@@ -1627,7 +1627,7 @@ h3.user-card-subtitle {
 /* Dark mode navbar styles — desktop only (mobile removes pill) */
 @media (min-width: 1033px) {
     .dark-mode .navbar-right {
-        background-color: var(--secondary);
+        background-color: #ffb902;
         border-color: var(--border);
     }
 }

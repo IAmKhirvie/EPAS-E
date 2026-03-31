@@ -121,7 +121,7 @@
                                 <tr>
                                     <td>{{ ($students->currentPage() - 1) * $students->perPage() + $index + 1 }}</td>
                                     <td>
-                                        <img src="{{ $student->profile_image_url }}" alt="User Avatar" class="rounded-circle" width="32" height="32" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($student->initials) }}&background=007fc9&color=fff&size=32'">
+                                        <img src="{{ $student->profile_image_url }}" alt="User Avatar" class="rounded-circle" width="32" height="32" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($student->initials) }}&background=6d9773&color=fff&size=32'">
                                     </td>
                                     <td>{{ $student->full_name }}</td>
                                     <td>{{ $student->student_id ?? 'N/A' }}</td>

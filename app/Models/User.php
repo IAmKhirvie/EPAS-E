@@ -293,7 +293,7 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         $initials = $this->initials;
-        return "https://ui-avatars.com/api/?name=" . urlencode($initials) . "&background=007fc9&color=fff&size=128";
+        return "https://ui-avatars.com/api/?name=" . urlencode($initials) . "&background=6d9773&color=fff&size=128";
     }
 
     /**

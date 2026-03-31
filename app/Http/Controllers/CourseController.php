@@ -56,7 +56,7 @@ class CourseController extends Controller
         $events = [];
 
         foreach ($courses as $course) {
-            $color = $course->category?->color ?? '#3b82f6';
+            $color = $course->category?->color ?? '#6d9773';
 
             // Course start date
             if ($course->start_date) {
@@ -238,7 +238,7 @@ class CourseController extends Controller
             '#14b8a6', // Teal
             '#06b6d4', // Cyan
             '#0ea5e9', // Sky
-            '#3b82f6', // Blue
+            '#6d9773', // Green (Theme)
             '#6366f1', // Indigo
             '#8b5cf6', // Violet
             '#a855f7', // Purple

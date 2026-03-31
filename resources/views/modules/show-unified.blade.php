@@ -5,8 +5,8 @@
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/pages/module-unified.css') }}">
 @php
-    $categoryColor = $course->category?->color ?? '#0d6efd';
-    $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darken($course->category->color, 15) : '#0056b3';
+    $categoryColor = $course->category?->color ?? '#6d9773';
+    $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darken($course->category->color, 15) : '#0c3a2d';
 @endphp
 <style>
 /* Category-specific colors */

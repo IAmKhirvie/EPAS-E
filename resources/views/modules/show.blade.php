@@ -304,7 +304,7 @@
                             <div class="position-relative progress-circle-container">
                                 <svg viewBox="0 0 100 100" class="progress-circle-svg">
                                     <circle cx="50" cy="50" r="40" fill="none" stroke="#e9ecef" stroke-width="8" />
-                                    <circle cx="50" cy="50" r="40" fill="none" stroke="#0d6efd" stroke-width="8"
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="#ffb902" stroke-width="8"
                                         stroke-dasharray="251.2" stroke-dashoffset="251.2" id="progressCircle" />
                                 </svg>
                                 <div class="position-absolute top-50 start-50 translate-middle text-center">

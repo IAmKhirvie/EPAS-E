@@ -30,7 +30,7 @@ class ForumCategorySeeder extends Seeder
                 'slug' => 'new-module-updates',
                 'description' => 'Notifications about new modules, lessons, and content updates',
                 'icon' => 'fas fa-book-open',
-                'color' => '#0d6efd',
+                'color' => '#6d9773',
                 'order' => 2,
                 'is_active' => true,
                 'is_announcement_category' => true,

@@ -211,8 +211,8 @@
 }
 
 .task-icon.assignment {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
+    background: rgba(255, 185, 2, 0.15);
+    color: #ffb902;
 }
 
 .task-icon.deadline {
@@ -442,8 +442,8 @@
             <div class="courses-container grid-view" id="coursesContainer">
                 @foreach($courses as $course)
                 @php
-                    $categoryColor = $course->category?->color ?? '#0d6efd';
-                    $categoryColorDark = $course->category?->darker_color ?? '#0056b3';
+                    $categoryColor = $course->category?->color ?? '#6d9773';
+                    $categoryColorDark = $course->category?->darker_color ?? '#0c3a2d';
                     $thumbnailUrl = $course->thumbnail ? asset('storage/' . $course->thumbnail) : '';
                 @endphp
                 <div class="course-card {{ $course->thumbnail ? 'has-thumbnail' : '' }}"

@@ -16,7 +16,7 @@ return new class extends Migration
                 $table->string('slug')->unique();
                 $table->text('description');
                 $table->string('icon')->nullable(); // Badge icon path
-                $table->string('color')->default('#3b82f6'); // Badge color
+                $table->string('color')->default('#6d9773'); // Badge color
                 $table->enum('type', ['achievement', 'milestone', 'streak', 'special'])->default('achievement');
                 $table->integer('points_required')->default(0);
                 $table->json('criteria')->nullable(); // JSON criteria for earning

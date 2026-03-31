@@ -1,8 +1,8 @@
 
 :root {
-    --primary: #0d6efd;
-    --primary-light: #3c8bff;
-    --primary-dark: #0056b3;
+    --primary: #ffb902;
+    --primary-light: #ffca28;
+    --primary-dark: #bb8954;
     --secondary: #7209b7;
     --success: #4cc9f0;
     --light: #f8f9fa;
@@ -385,7 +385,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .footer.footer a:hover {
-    color: #3b82f6 !important;
+    color: #ffb902 !important;
 }
 
 /* Dark mode footer overrides */

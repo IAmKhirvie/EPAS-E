@@ -46,7 +46,7 @@
                         <div class="d-flex">
                             <img src="{{ $thread->user->profile_image_url }}" alt="{{ $thread->user->full_name }}"
                                  class="rounded-circle me-3" width="48" height="48"
-                                 onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($thread->user->initials) }}&background=007fc9&color=fff&size=48'">
+                                 onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($thread->user->initials) }}&background=6d9773&color=fff&size=48'">
                             <div class="flex-grow-1">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>

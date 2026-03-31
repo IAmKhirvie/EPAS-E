@@ -75,7 +75,7 @@ if (!function_exists('getQuestionTypeBadgeColor')) {
 
                 <p class="mb-3">
                     @if($question->question_type === 'fill_blank')
-                        {!! preg_replace('/___+/', '<span style="display:inline-block;border-bottom:2px solid #007bff;min-width:80px;">________</span>', e($question->question_text)) !!}
+                        {!! preg_replace('/___+/', '<span style="display:inline-block;border-bottom:2px solid #ffb902;min-width:80px;">________</span>', e($question->question_text)) !!}
                     @else
                         {{ $question->question_text }}
                     @endif

@@ -67,7 +67,7 @@
                                 @csrf
                                 <div class="d-flex align-items-center gap-4">
                                     <div>
-                                        <img src="{{ $user->profile_image_url }}" alt="Profile" class="rounded-circle" width="100" height="100" id="profilePreview" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($user->initials) }}&background=007fc9&color=fff&size=120'">
+                                        <img src="{{ $user->profile_image_url }}" alt="Profile" class="rounded-circle" width="100" height="100" id="profilePreview" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($user->initials) }}&background=6d9773&color=fff&size=120'">
                                     </div>
                                     <div>
                                         <h6 class="mb-1">Profile Picture</h6>

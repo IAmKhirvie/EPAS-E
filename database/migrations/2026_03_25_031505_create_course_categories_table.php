@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('slug')->unique();
-            $table->string('color', 7)->default('#3b82f6'); // Hex color
+            $table->string('color', 7)->default('#6d9773'); // Hex color
             $table->string('icon')->nullable(); // FontAwesome icon class
             $table->text('description')->nullable();
             $table->integer('order')->default(0);
@@ -40,7 +40,7 @@ return new class extends Migration
             [
                 'name' => 'Electronics',
                 'slug' => 'electronics',
-                'color' => '#3b82f6', // Blue
+                'color' => '#ffb902', // Yellow (Theme)
                 'icon' => 'fas fa-bolt',
                 'description' => 'Electronics and electrical courses',
                 'order' => 2,

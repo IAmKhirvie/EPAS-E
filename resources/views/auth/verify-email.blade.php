@@ -79,7 +79,7 @@
 
     .verification-icon {
         font-size: 4rem;
-        color: #007bff;
+        color: #ffb902;
         margin-bottom: 1rem;
         animation: bounce 2s ease infinite;
     }
@@ -104,7 +104,7 @@
         background: #f8f9fa;
         padding: 10px 15px;
         border-radius: 8px;
-        color: #007bff;
+        color: #0c3a2d;
         font-size: 1.1rem;
         margin: 10px 0;
     }
@@ -136,8 +136,8 @@
     .btn-primary {
         display: inline-block;
         padding: 12px 28px;
-        background: #007bff;
-        color: white;
+        background: #ffb902;
+        color: #0c3a2d;
         text-decoration: none;
         border-radius: 8px;
         font-weight: 500;
@@ -148,9 +148,9 @@
     }
 
     .btn-primary:hover {
-        background: #0056b3;
+        background: #e5a702;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+        box-shadow: 0 4px 12px rgba(255,185,2,0.3);
     }
 
     .btn-primary:disabled {
@@ -174,7 +174,7 @@
     }
 
     .btn-link:hover {
-        color: #007bff;
+        color: #ffb902;
     }
 
     .divider {

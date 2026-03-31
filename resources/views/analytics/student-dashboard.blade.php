@@ -97,7 +97,7 @@
     margin-bottom: 0.75rem;
     font-size: 1.25rem;
 }
-.stat-card-icon.blue { background: #e3f2fd; color: #1976d2; }
+.stat-card-icon.blue { background: #fff8e1; color: #ffb902; }
 .stat-card-icon.green { background: #e8f5e9; color: #388e3c; }
 .stat-card-icon.purple { background: #f3e5f5; color: #7b1fa2; }
 .stat-card-icon.orange { background: #fff3e0; color: #f57c00; }
@@ -191,7 +191,7 @@
     font-weight: 600;
 }
 .grade-pill.outstanding { background: #c8e6c9; color: #2e7d32; }
-.grade-pill.very-satisfactory { background: #bbdefb; color: #1565c0; }
+.grade-pill.very-satisfactory { background: #fff8e1; color: #bb8954; }
 .grade-pill.satisfactory { background: #fff9c4; color: #f57f17; }
 .grade-pill.fairly-satisfactory { background: #ffe0b2; color: #ef6c00; }
 .grade-pill.dnm { background: #ffcdd2; color: #c62828; }

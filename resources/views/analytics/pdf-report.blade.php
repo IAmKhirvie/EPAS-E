@@ -15,12 +15,12 @@
         .header {
             text-align: center;
             margin-bottom: 25px;
-            border-bottom: 3px solid #0d6efd;
+            border-bottom: 3px solid #6d9773;
             padding-bottom: 15px;
         }
         .header h1 {
             margin: 0;
-            color: #0d6efd;
+            color: #6d9773;
             font-size: 22px;
         }
         .header p {
@@ -36,7 +36,7 @@
             background: #f8f9fa;
             padding: 8px 12px;
             margin-bottom: 12px;
-            border-left: 4px solid #0d6efd;
+            border-left: 4px solid #6d9773;
             font-weight: bold;
             font-size: 13px;
             color: #333;
@@ -55,7 +55,7 @@
         .stat-value {
             font-size: 18px;
             font-weight: bold;
-            color: #0d6efd;
+            color: #6d9773;
         }
         .stat-value.success { color: #198754; }
         .stat-value.danger { color: #dc3545; }
@@ -96,7 +96,7 @@
         .badge-success { background: #d1e7dd; color: #0f5132; }
         .badge-danger { background: #f8d7da; color: #842029; }
         .badge-warning { background: #fff3cd; color: #664d03; }
-        .badge-primary { background: #cfe2ff; color: #084298; }
+        .badge-primary { background: #fff8e1; color: #bb8954; }
         .progress-bar {
             background: #e9ecef;
             height: 8px;

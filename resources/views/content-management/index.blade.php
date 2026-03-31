@@ -531,8 +531,8 @@
     }
 
     .accordion-button:not(.collapsed) {
-        background-color: #e7f1ff;
-        color: #0c63e4;
+        background-color: #fff8e1;
+        color: #bb8954;
         box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .125);
     }
 
@@ -552,7 +552,7 @@
     }
 
     .list-group-item:hover {
-        border-left-color: #0d6efd;
+        border-left-color: #ffb902;
         background-color: var(--cb-surface-alt);
         box-shadow: var(--cb-shadow-card);
     }

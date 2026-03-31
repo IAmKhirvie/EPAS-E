@@ -49,12 +49,12 @@
         margin-bottom: 1rem;
     }
     .da-panel__instructions {
-        background: #e3f2fd;
-        border-left: 3px solid #2196f3;
+        background: #fff8e1;
+        border-left: 3px solid #ffb902;
         border-radius: 4px;
         padding: 0.75rem;
         font-size: 0.85rem;
-        color: #1565c0;
+        color: #bb8954;
         margin-bottom: 1rem;
     }
     .da-panel__divider {
@@ -101,8 +101,8 @@
         color: var(--card-text);
     }
     .dark-mode .da-panel__instructions {
-        background: rgba(33, 150, 243, 0.1);
-        color: #90caf9;
+        background: rgba(255, 185, 2, 0.1);
+        color: #ffca28;
     }
 
     /* Responsive */

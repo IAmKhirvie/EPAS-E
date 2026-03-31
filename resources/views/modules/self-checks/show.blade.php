@@ -135,7 +135,7 @@
 
                             <p class="fs-5 mb-3">
                                 @if($question->question_type === 'fill_blank')
-                                    {!! preg_replace('/___+/', '<span style="display:inline-block;border-bottom:2px solid #007bff;min-width:100px;color:#007bff;">________</span>', e($question->question_text)) !!}
+                                    {!! preg_replace('/___+/', '<span style="display:inline-block;border-bottom:2px solid #ffb902;min-width:100px;color:#ffb902;">________</span>', e($question->question_text)) !!}
                                 @else
                                     {{ $question->question_text }}
                                 @endif
@@ -416,11 +416,11 @@
     overflow: hidden;
 }
 .sc-instructions {
-    background: #e3f2fd;
-    border-left: 4px solid #2196f3;
+    background: #fff8e1;
+    border-left: 4px solid #ffb902;
     border-radius: 6px;
     padding: 0.85rem 1rem;
-    color: #1565c0;
+    color: #bb8954;
     font-size: 0.9rem;
     margin-bottom: 1rem;
 }

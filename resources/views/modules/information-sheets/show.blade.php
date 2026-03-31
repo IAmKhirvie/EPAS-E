@@ -212,7 +212,7 @@
 @push('styles')
 <style>
 :root {
-    --primary: #0d6efd;
+    --primary: #ffb902;
     --secondary: #6c757d;
     --success: #198754;
     --info: #0dcaf0;
@@ -224,7 +224,7 @@
 }
 
 .module-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #6d9773 0%, #0c3a2d 100%);
     color: white;
     padding: 2rem;
     margin: -1rem -1rem 2rem -1rem;

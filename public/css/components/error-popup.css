@@ -26,7 +26,7 @@
   overflow: hidden;
 }
 .dark-mode .error-popup {
-  background: #1e293b;
+  background: #1a1a1a;
   color: #e2e8f0;
 }
 .error-popup-header {
@@ -47,10 +47,10 @@
 }
 .error-popup-icon.error { background: #fee2e2; color: #dc2626; }
 .error-popup-icon.warning { background: #fef3c7; color: #d97706; }
-.error-popup-icon.info { background: #dbeafe; color: #2563eb; }
+.error-popup-icon.info { background: #dcf5e7; color: #0c3a2d; }
 .dark-mode .error-popup-icon.error { background: #451a1a; }
 .dark-mode .error-popup-icon.warning { background: #451a00; }
-.dark-mode .error-popup-icon.info { background: #1e3a5f; }
+.dark-mode .error-popup-icon.info { background: #0c3a2d; }
 .error-popup-title {
   font-size: 18px;
   font-weight: 600;
@@ -81,10 +81,10 @@
   transition: all 0.15s ease;
 }
 .error-popup-btn-primary {
-  background: #2563eb;
+  background: #0c3a2d;
   color: #fff;
 }
-.error-popup-btn-primary:hover { background: #1d4ed8; }
+.error-popup-btn-primary:hover { background: #6D9773; }
 .error-popup-btn-secondary {
   background: #f1f5f9;
   color: #475569;

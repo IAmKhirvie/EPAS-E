@@ -8,7 +8,7 @@
     padding: 1rem;
     background: #f8f9fa;
     border-radius: 0.5rem;
-    border-left: 4px solid #0d6efd;
+    border-left: 4px solid #ffb902;
 }
 
 .part-image-wrapper {
@@ -36,7 +36,7 @@
     justify-content: center;
     width: 24px;
     height: 24px;
-    background: #0d6efd;
+    background: #ffb902;
     color: white;
     border-radius: 50%;
     font-size: 0.75rem;

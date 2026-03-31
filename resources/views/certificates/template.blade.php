@@ -17,7 +17,7 @@
             width: 100%;
             height: 100%;
             padding: 40px;
-            border: 15px solid #1e40af;
+            border: 15px solid #0c3a2d;
             position: relative;
         }
         .certificate::before {
@@ -27,7 +27,7 @@
             left: 10px;
             right: 10px;
             bottom: 10px;
-            border: 2px solid #3b82f6;
+            border: 2px solid #6d9773;
         }
         .header {
             text-align: center;
@@ -36,12 +36,12 @@
         .logo {
             font-size: 24px;
             font-weight: bold;
-            color: #1e40af;
+            color: #0c3a2d;
             margin-bottom: 10px;
         }
         .title {
             font-size: 42px;
-            color: #1e40af;
+            color: #0c3a2d;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 3px;
@@ -63,9 +63,9 @@
         }
         .recipient-name {
             font-size: 36px;
-            color: #1e3a5f;
+            color: #0c3a2d;
             font-style: italic;
-            border-bottom: 2px solid #3b82f6;
+            border-bottom: 2px solid #ffb902;
             display: inline-block;
             padding: 0 40px 10px;
             margin-bottom: 20px;
@@ -79,7 +79,7 @@
         }
         .course-name {
             font-size: 24px;
-            color: #1e40af;
+            color: #0c3a2d;
             font-weight: bold;
             margin: 20px 0;
         }
@@ -97,7 +97,7 @@
             width: 200px;
         }
         .signature-line {
-            border-top: 1px solid #1e40af;
+            border-top: 1px solid #0c3a2d;
             padding-top: 5px;
             font-size: 12px;
             color: #64748b;
@@ -117,13 +117,13 @@
         .seal {
             width: 80px;
             height: 80px;
-            border: 3px solid #1e40af;
+            border: 3px solid #0c3a2d;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 10px;
-            color: #1e40af;
+            color: #0c3a2d;
             text-align: center;
             font-weight: bold;
         }

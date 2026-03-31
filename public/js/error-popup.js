@@ -30,7 +30,7 @@
     // Always log to console for developer debugging
     var logMethod = type === 'error' ? 'error' : (type === 'warning' ? 'warn' : 'info');
     console.groupCollapsed('%c[JOMS ' + (c.title) + ']%c ' + message,
-      'color: ' + (type === 'error' ? '#dc3545' : type === 'warning' ? '#ffc107' : '#0d6efd') + '; font-weight: bold;',
+      'color: ' + (type === 'error' ? '#dc3545' : type === 'warning' ? '#ffc107' : '#ffb902') + '; font-weight: bold;',
       'color: inherit;'
     );
     console.log('Type:', type);

@@ -52,14 +52,14 @@ document.addEventListener('DOMContentLoaded', function() {
         multiple_choice: {
             name: 'Multiple Choice',
             icon: 'fa-list-ul',
-            color: '#1976d2',
-            bgColor: '#e3f2fd'
+            color: '#bb8954',
+            bgColor: '#fff8e1'
         },
         multiple_select: {
             name: 'Multiple Select',
             icon: 'fa-check-double',
-            color: '#3f51b5',
-            bgColor: '#e8eaf6'
+            color: '#0c3a2d',
+            bgColor: '#e8f5e9'
         },
         true_false: {
             name: 'True / False',

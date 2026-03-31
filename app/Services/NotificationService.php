@@ -416,7 +416,7 @@ class NotificationService
             <style>
                 body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
                 .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { background: #007fc9; color: white; padding: 20px; text-align: center; }
+                .header { background: #6d9773; color: white; padding: 20px; text-align: center; }
                 .content { padding: 20px; background: #f9f9f9; }
                 .footer { padding: 20px; text-align: center; color: #666; font-size: 12px; }
             </style>

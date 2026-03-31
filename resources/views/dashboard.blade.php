@@ -222,7 +222,7 @@
                         $feedItems->push([
                         'type' => 'announcement',
                         'icon' => 'fas fa-bullhorn',
-                        'color' => '#0d6efd',
+                        'color' => '#0c3a2d',
                         'title' => $announcement->title,
                         'content' => Str::limit(strip_tags($announcement->content ?? ''), 120),
                         'user_name' => $announcement->user->full_name ?? 'System',
@@ -466,7 +466,7 @@
                             @foreach($pendingRegistrations as $registration)
                             <div class="list-group-item py-2 pending-item" data-type="registration" data-date="{{ $registration->email_verified_at }}">
                                 <div class="d-flex align-items-center mb-2">
-                                    <div class="activity-icon-sm me-2" style="background-color: #0d6efd20; color: #0d6efd">
+                                    <div class="activity-icon-sm me-2" style="background-color: #ffb90220; color: #ffb902">
                                         <i class="fas fa-user-plus"></i>
                                     </div>
                                     <div class="flex-grow-1 min-width-0">

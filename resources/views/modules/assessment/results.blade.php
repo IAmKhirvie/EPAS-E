@@ -102,7 +102,7 @@
 }
 
 .grade-badge.A { background: #10b981; color: white; }
-.grade-badge.B { background: #3b82f6; color: white; }
+.grade-badge.B { background: #6d9773; color: white; }
 .grade-badge.C { background: #f59e0b; color: white; }
 .grade-badge.D { background: #f97316; color: white; }
 .grade-badge.F { background: #ef4444; color: white; }

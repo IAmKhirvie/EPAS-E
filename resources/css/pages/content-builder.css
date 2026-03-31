@@ -202,13 +202,13 @@
 }
 
 /* Icon color variants */
-.cb-sidebar__item-icon--blue   { background: #e3f2fd; color: #1976d2; }
+.cb-sidebar__item-icon--blue   { background: #fff8e1; color: #ffb902; }
 .cb-sidebar__item-icon--green  { background: #e8f5e9; color: #388e3c; }
 .cb-sidebar__item-icon--purple { background: #f3e5f5; color: #7b1fa2; }
 .cb-sidebar__item-icon--orange { background: #fff3e0; color: #f57c00; }
 .cb-sidebar__item-icon--red    { background: #fce4ec; color: #c2185b; }
 .cb-sidebar__item-icon--teal   { background: #e0f2f1; color: #00695c; }
-.cb-sidebar__item-icon--indigo { background: #e8eaf6; color: #3f51b5; }
+.cb-sidebar__item-icon--indigo { background: #e8f5e9; color: #0c3a2d; }
 
 .cb-sidebar__item-text {
     flex: 1;
@@ -294,7 +294,7 @@
 .cb-header--module     { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
 .cb-header--info-sheet { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
 .cb-header--topic      { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-.cb-header--self-check { background: linear-gradient(135deg, #3c8bff 0%, #0056b3 100%); }
+.cb-header--self-check { background: linear-gradient(135deg, #6d9773 0%, #0c3a2d 100%); }
 
 /* ── Body ──────────────────────────────────────────────────────────────── */
 .cb-body {
@@ -798,13 +798,13 @@
     font-size: 0.7rem;
 }
 
-.cb-meta-chip--blue    { background: #e3f2fd; color: #1565c0; border-color: #bbdefb; }
+.cb-meta-chip--blue    { background: #fff8e1; color: #bb8954; border-color: #ffe0b2; }
 .cb-meta-chip--green   { background: #e8f5e9; color: #2e7d32; border-color: #c8e6c9; }
 .cb-meta-chip--orange  { background: #fff3e0; color: #e65100; border-color: #ffe0b2; }
 .cb-meta-chip--red     { background: #ffebee; color: #c62828; border-color: #ffcdd2; }
 .cb-meta-chip--purple  { background: #f3e5f5; color: #6a1b9a; border-color: #e1bee7; }
 .cb-meta-chip--teal    { background: #e0f2f1; color: #00695c; border-color: #b2dfdb; }
-.cb-meta-chip--info    { background: #e1f5fe; color: #0277bd; border-color: #b3e5fc; }
+.cb-meta-chip--info    { background: #fff8e1; color: #bb8954; border-color: #ffe0b2; }
 .cb-meta-chip--danger  { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
 .cb-meta-chip--warning { background: #fff8e1; color: #f57f17; border-color: #fff176; }
 .cb-meta-chip--success { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }

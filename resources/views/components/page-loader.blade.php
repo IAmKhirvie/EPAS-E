@@ -14,14 +14,14 @@
     align-items: center;
     justify-content: center;
     z-index: 99999;
-    background: #011880;
+    background: #0c3a2d;
     animation: pulseBg 1.6s ease-in-out infinite;
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 @keyframes pulseBg {
-    0%, 100% { background: #011880; }
-    50% { background: #1e40af; }
+    0%, 100% { background: #0c3a2d; }
+    50% { background: #6d9773; }
 }
 
 .page-loader.hidden {
@@ -49,8 +49,8 @@
     canvas.style.width = '150px';
     canvas.style.height = '150px';
 
-    // Blue color scheme
-    var traceColor = '#2dace3';
+    // Yellow/green color scheme
+    var traceColor = '#ffb902';
     var traceFill = '#fff';
 
     ctx.strokeStyle = traceColor;

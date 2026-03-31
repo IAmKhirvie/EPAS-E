@@ -120,7 +120,7 @@
     }
 
     .footer-links a:hover {
-        color: #3b82f6 !important;
+        color: #ffb902 !important;
         transform: translateX(5px);
     }
 
@@ -132,7 +132,7 @@
     }
 
     .footer-contact li i {
-        color: #3b82f6;
+        color: #ffb902;
         margin-top: 4px;
         min-width: 20px;
     }
@@ -144,7 +144,7 @@
     }
 
     .footer-contact a:hover {
-        color: #3b82f6 !important;
+        color: #ffb902 !important;
     }
 
     .social-links a {
@@ -159,7 +159,7 @@
     }
 
     .social-links a:hover {
-        background: #3b82f6;
+        background: #ffb902;
         transform: translateY(-3px);
     }
 

@@ -507,7 +507,7 @@
                             @endswitch
 
                             @if($result['question']->explanation)
-                            <div class="mt-3 p-2 rounded" style="background: #e3f2fd; color: #1565c0; font-size: 0.85rem;">
+                            <div class="mt-3 p-2 rounded" style="background: #fff8e1; color: #bb8954; font-size: 0.85rem;">
                                 <i class="fas fa-lightbulb me-1"></i>
                                 <strong>Explanation:</strong> {{ $result['question']->explanation }}
                             </div>

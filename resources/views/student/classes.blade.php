@@ -62,7 +62,7 @@
     margin: 0 auto 0.75rem;
     font-size: 1.25rem;
 }
-.stat-card-icon.blue { background: #e3f2fd; color: #1976d2; }
+.stat-card-icon.blue { background: #fff8e1; color: #ffb902; }
 .stat-card-icon.green { background: #e8f5e9; color: #388e3c; }
 .stat-card-icon.purple { background: #f3e5f5; color: #7b1fa2; }
 
@@ -83,7 +83,7 @@
     gap: 0.5rem;
 }
 .section-title i {
-    color: #4facfe;
+    color: #ffb902;
 }
 
 .instructor-card {

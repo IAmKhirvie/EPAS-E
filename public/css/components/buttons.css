@@ -1,18 +1,37 @@
 /* Button styles */
 .btn-primary {
-  background-color: var(--primary);
-  border-color: var(--primary);
-  color: white;
+  background-color: #ffb902 !important;
+  border-color: #ffb902 !important;
+  color: #0c3a2d !important;
 }
 
-.btn-primary:hover {
-  background-color: var(--primary-light);
-  border-color: var(--primary-dark);
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active {
+  background-color: #e5a702 !important;
+  border-color: #cc9400 !important;
+  color: #0c3a2d !important;
+  box-shadow: 0 0 0 0.2rem rgba(255, 185, 2, 0.5) !important;
 }
 
-.btn-outline-primary:hover {
-  background-color: var(--primary);
-  border-color: var(--primary-dark);
+.btn-check:checked + .btn-primary,
+.btn-check:active + .btn-primary {
+  background-color: #cc9400 !important;
+  border-color: #cc9400 !important;
+}
+
+.btn-outline-primary {
+  color: #ffb902 !important;
+  border-color: #ffb902 !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+  background-color: #ffb902 !important;
+  border-color: #ffb902 !important;
+  color: #0c3a2d !important;
 }
 
 .action-buttons .btn {
@@ -24,18 +43,30 @@
 }
 
 .badge.bg-primary {
-  background-color: var(--primary) !important;
+  background-color: #ffb902 !important;
+  color: #0c3a2d !important;
 }
 
 /* Dark mode button styles */
+.dark-mode .btn-primary {
+  background-color: #ffb902;
+  border-color: #ffb902;
+  color: #0c3a2d;
+}
+
+.dark-mode .btn-primary:hover {
+  background-color: #e5a702;
+  border-color: #cc9400;
+}
+
 .dark-mode .btn-outline-primary {
-  color: var(--primary);
-  border-color: var(--primary);
+  color: #ffb902;
+  border-color: #ffb902;
 }
 
 .dark-mode .btn-outline-primary:hover {
-  background-color: var(--primary);
-  color: white;
+  background-color: #ffb902;
+  color: #0c3a2d;
 }
 
 /* ===== MOBILE BUTTON ENHANCEMENTS ===== */

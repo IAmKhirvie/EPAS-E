@@ -93,7 +93,7 @@
     position: absolute;
     top: -12px;
     left: 15px;
-    background: #0d6efd;
+    background: #ffb902;
     color: white;
     padding: 2px 12px;
     border-radius: 12px;
@@ -122,8 +122,8 @@
 }
 
 .parts-input-component .image-preview-container:hover {
-    border-color: #0d6efd;
-    background: #e7f1ff;
+    border-color: #ffb902;
+    background: #fff8e1;
 }
 
 .parts-input-component .image-preview-container img {

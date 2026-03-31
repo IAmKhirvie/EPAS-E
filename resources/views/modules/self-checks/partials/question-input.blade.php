@@ -887,12 +887,12 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .option-item:hover {
-    border-color: #007bff !important;
+    border-color: #ffb902 !important;
     background-color: #f8f9fa;
 }
 
 .option-item.selected {
-    border-color: #007bff !important;
+    border-color: #ffb902 !important;
     background-color: #e7f1ff !important;
 }
 
@@ -911,12 +911,12 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .matching-item:hover:not(.matched) {
-    border-color: #007bff;
+    border-color: #ffb902;
     background-color: #f8f9fa;
 }
 
 .matching-item.selected {
-    border-color: #007bff;
+    border-color: #ffb902;
     background-color: #e7f1ff;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
@@ -947,7 +947,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .ordering-item.dragging {
     opacity: 0.5;
-    border-color: #007bff;
+    border-color: #ffb902;
     background-color: #e7f1ff;
 }
 
@@ -1018,7 +1018,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .draggable-item:hover {
-    border-color: #007bff;
+    border-color: #ffb902;
     background: #f8f9fa;
 }
 
@@ -1028,7 +1028,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .draggable-item.dragging {
     opacity: 0.5;
-    border-color: #007bff;
+    border-color: #ffb902;
 }
 
 .draggable-item.dropped {
@@ -1049,7 +1049,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .dropzone.drag-over {
-    border-color: #007bff;
+    border-color: #ffb902;
     background: #e7f1ff;
     border-style: solid;
 }
@@ -1087,7 +1087,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .slider-value {
-    color: #007bff;
+    color: #ffb902;
 }
 
 /* Classification Styles */
@@ -1101,7 +1101,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* Checkbox Item (Multiple Select) */
 .checkbox-item.selected {
-    border-color: #007bff !important;
+    border-color: #ffb902 !important;
     background-color: #e7f1ff !important;
 }
 
@@ -1128,12 +1128,12 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .image-choice-item:hover {
-    border-color: #007bff;
+    border-color: #ffb902;
     transform: translateY(-2px);
 }
 
 .image-choice-item.selected {
-    border-color: #007bff;
+    border-color: #ffb902;
     background: #e7f1ff;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }

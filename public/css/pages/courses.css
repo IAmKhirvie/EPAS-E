@@ -280,7 +280,7 @@
     display: flex;
     flex-direction: column;
     min-height: 320px;
-    background: linear-gradient(135deg, var(--category-color, #3b82f6), var(--category-color-dark, #1e40af));
+    background: linear-gradient(135deg, var(--category-color, #6D9773), var(--category-color-dark, #0c3a2d));
 }
 
 .course-card.has-thumbnail {
@@ -361,7 +361,7 @@
 
 .course-badge.category-badge {
     background: rgba(255, 255, 255, 0.95);
-    color: var(--category-color, #3b82f6);
+    color: var(--category-color, #0c3a2d);
 }
 
 .course-badge.module-badge {

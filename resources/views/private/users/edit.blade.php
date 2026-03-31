@@ -402,8 +402,8 @@
 }
 
 .form-control:focus, .form-select:focus {
-    border-color: #007fc9;
-    box-shadow: 0 0 0 0.2rem rgba(0, 127, 201, 0.25);
+    border-color: #ffb902;
+    box-shadow: 0 0 0 0.2rem rgba(255, 185, 2, 0.25);
 }
 
 .btn {

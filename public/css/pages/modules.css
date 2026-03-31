@@ -209,7 +209,7 @@
 }
 
 .toc-link.active {
-    background: linear-gradient(135deg, var(--primary) 0%, #0056b3 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, #0c3a2d 100%);
     color: white;
     font-weight: 500;
 }
@@ -250,19 +250,19 @@
 }
 
 .btn-primary {
-    background: var(--primary);
-    color: white;
+    background: #ffb902;
+    color: #0c3a2d;
 }
 
 .btn-primary:hover {
-    background: var(--primary);
+    background: #e5a702;
     transform: translateY(-2px);
 }
 
 .btn-outline {
     background: transparent;
-    color: var(--primary);
-    border: 1px solid var(--primary);
+    color: #ffb902;
+    border: 1px solid #ffb902;
 }
 
 .btn-outline:hover {
@@ -454,7 +454,7 @@
 
 /* Active States */
 .toc-link.active {
-    background: linear-gradient(135deg, var(--primary) 0%, #0056b3 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, #0c3a2d 100%);
     color: white;
     border-radius: 8px 8px 0px 0px;
 }
@@ -778,14 +778,14 @@
 
 /* Button styles for dark mode */
 .dark-mode .btn-primary {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: white;
+    background: #ffb902;
+    border-color: #ffb902;
+    color: #0c3a2d;
 }
 
 .dark-mode .btn-primary:hover {
-    background: var(--primary-dark);
-    border-color: var(--primary-dark);
+    background: #e5a702;
+    border-color: #cc9400;
 }
 
 .dark-mode .btn-outline-primary {
@@ -1092,7 +1092,7 @@ body.edit-mode .editable-textarea {
 }
 
 .dark-mode .toc-link.active {
-    background: linear-gradient(135deg, var(--primary) 0%, #0056b3 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, #0c3a2d 100%);
     color: white;
     border-radius: 8px 8px 0px 0px;
 }
@@ -1186,9 +1186,9 @@ body.edit-mode .editable-textarea {
 }
 
 .dark-mode {
-    --bg-primary: #1a1a2e;
-    --bg-secondary: #16213e;
-    --bg-tertiary: #0f3460;
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #242424;
+    --bg-tertiary: #2d2d2d;
     --text-primary: #e9ecef;
     --text-secondary: #adb5bd;
     --text-muted: #6c757d;

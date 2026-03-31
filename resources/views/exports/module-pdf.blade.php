@@ -20,12 +20,12 @@
         }
         .header {
             text-align: center;
-            border-bottom: 3px solid #0d6efd;
+            border-bottom: 3px solid #ffb902;
             padding-bottom: 20px;
             margin-bottom: 30px;
         }
         .header h1 {
-            color: #0d6efd;
+            color: #0c3a2d;
             font-size: 24px;
             margin-bottom: 10px;
         }
@@ -44,14 +44,14 @@
             font-size: 14px;
         }
         .meta-info strong {
-            color: #0d6efd;
+            color: #ffb902;
         }
         .section {
             margin-bottom: 40px;
             page-break-inside: avoid;
         }
         .section-title {
-            background: #0d6efd;
+            background: #ffb902;
             color: white;
             padding: 10px 15px;
             font-size: 18px;
@@ -64,7 +64,7 @@
             border-left: 3px solid #dee2e6;
         }
         .subsection-title {
-            color: #0d6efd;
+            color: #ffb902;
             font-size: 16px;
             margin-bottom: 10px;
         }

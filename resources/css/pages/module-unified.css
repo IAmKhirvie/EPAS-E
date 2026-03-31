@@ -40,8 +40,8 @@
 
 .toc-sublink:hover,
 .toc-sublink.active {
-    border-left-color: #0d6efd !important;
-    background-color: #e7f1ff !important;
+    border-left-color: #ffb902 !important;
+    background-color: #fff8e1 !important;
 }
 
 .toc-assessment-link {
@@ -117,8 +117,8 @@
     align-items: center;
     justify-content: center;
     border-radius: 8px;
-    background: #e7f1ff;
-    color: #0d6efd;
+    background: #fff8e1;
+    color: #ffb902;
     font-size: 1rem;
     flex-shrink: 0;
 }
@@ -148,7 +148,7 @@
 .topic-content-area h3,
 .topic-content-area h4 {
     margin: 1.5rem 0 0.75rem;
-    color: #0d6efd;
+    color: #ffb902;
 }
 
 .topic-content-area ul,
@@ -490,7 +490,7 @@ body.focus-mode-active .main-content-section {
 
 .dark-mode .toc-sublink:hover,
 .dark-mode .toc-sublink.active {
-    background-color: #1e3a5f !important;
+    background-color: #0c3a2d !important;
 }
 
 .dark-mode #dynamicContent .assessment-inline-container {

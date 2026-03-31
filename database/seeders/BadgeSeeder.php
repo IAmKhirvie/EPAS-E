@@ -15,7 +15,7 @@ class BadgeSeeder extends Seeder
                 'slug' => 'first-steps',
                 'description' => 'Awarded for your first login to the system.',
                 'icon' => 'star',
-                'color' => '#3b82f6',
+                'color' => '#6d9773',
                 'type' => 'achievement',
                 'points_required' => 0,
                 'criteria' => ['type' => 'first_login'],

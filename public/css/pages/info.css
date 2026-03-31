@@ -7,7 +7,7 @@
     position: relative;
     padding: 9rem 2rem 4rem;
     text-align: center;
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    background: linear-gradient(135deg, #0c3a2d 0%, #082a20 100%);
     color: white;
     overflow: hidden;
 }
@@ -105,7 +105,7 @@
     width: 48px;
     height: 48px;
     border-radius: 12px;
-    background: linear-gradient(135deg, var(--primary, #0d6efd), var(--primary-dark, #0056b3));
+    background: linear-gradient(135deg, var(--primary, #0c3a2d), var(--primary-dark, #082a20));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -169,7 +169,7 @@
     left: 0;
     width: 4px;
     height: 100%;
-    background: linear-gradient(to bottom, var(--primary, #0d6efd), var(--primary-dark, #0056b3));
+    background: linear-gradient(to bottom, var(--primary, #0c3a2d), var(--primary-dark, #082a20));
     border-radius: 4px 0 0 4px;
 }
 
@@ -206,12 +206,12 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--primary, #0d6efd);
+    background: var(--primary, #0c3a2d);
 }
 
 /* ── TESDA / Gradient Card ── */
 .tesda-card {
-    background: linear-gradient(135deg, var(--primary, #0d6efd) 0%, #003d80 100%);
+    background: linear-gradient(135deg, var(--primary, #0c3a2d) 0%, #061a14 100%);
     color: white;
     padding: 2rem;
     border-radius: 16px;
@@ -276,11 +276,11 @@
 
 .competency-list li:hover {
     transform: translateX(4px);
-    border-color: var(--primary, #0d6efd);
+    border-color: var(--primary, #0c3a2d);
 }
 
 .competency-list li i {
-    color: var(--primary, #0d6efd);
+    color: var(--primary, #0c3a2d);
     font-size: 0.875rem;
     flex-shrink: 0;
 }
@@ -305,7 +305,7 @@
     width: 64px;
     height: 64px;
     border-radius: 16px;
-    background: linear-gradient(135deg, var(--primary, #0d6efd), var(--primary-dark, #0056b3));
+    background: linear-gradient(135deg, var(--primary, #0c3a2d), var(--primary-dark, #082a20));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -350,7 +350,7 @@
     top: 0;
     bottom: 0;
     width: 2px;
-    background: linear-gradient(to bottom, var(--primary, #0d6efd), var(--primary-dark, #0056b3));
+    background: linear-gradient(to bottom, var(--primary, #0c3a2d), var(--primary-dark, #082a20));
     border-radius: 2px;
 }
 
@@ -378,9 +378,9 @@
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: var(--primary, #0d6efd);
+    background: var(--primary, #0c3a2d);
     border: 3px solid var(--background, #f0f0f0);
-    box-shadow: 0 0 0 2px var(--primary, #0d6efd);
+    box-shadow: 0 0 0 2px var(--primary, #0c3a2d);
     z-index: 1;
 }
 
@@ -389,7 +389,7 @@
 }
 
 .timeline-item h5 {
-    color: var(--primary, #0d6efd);
+    color: var(--primary, #0c3a2d);
     font-weight: 600;
     margin-bottom: 0.5rem;
     font-size: 1rem;
@@ -428,7 +428,7 @@
 }
 
 .accordion-button:not(.collapsed) {
-    background: var(--primary, #0d6efd);
+    background: var(--primary, #0c3a2d);
     color: white;
 }
 
@@ -462,7 +462,7 @@
     width: 64px;
     height: 64px;
     border-radius: 16px;
-    background: linear-gradient(135deg, var(--primary, #0d6efd), var(--primary-dark, #0056b3));
+    background: linear-gradient(135deg, var(--primary, #0c3a2d), var(--primary-dark, #082a20));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -491,7 +491,7 @@
 }
 
 .contact-card a {
-    color: var(--primary, #0d6efd);
+    color: var(--primary, #0c3a2d);
     text-decoration: none;
     transition: color 0.2s ease;
 }
@@ -540,8 +540,8 @@
 
 .contact-card .form-control:focus,
 .contact-card .form-select:focus {
-    border-color: var(--primary, #0d6efd);
-    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+    border-color: var(--primary, #0c3a2d);
+    box-shadow: 0 0 0 3px rgba(109, 151, 115, 0.1);
     background: var(--card-bg, #f8f9fa);
 }
 
@@ -555,6 +555,14 @@
     border-radius: 10px;
     padding: 0.75rem 1.5rem;
     font-weight: 600;
+    background: #ffb902;
+    border-color: #ffb902;
+    color: #0c3a2d;
+}
+
+.contact-card .btn-primary:hover {
+    background: #e5a702;
+    border-color: #cc9400;
 }
 
 /* ── Other Campus Section ── */
@@ -597,7 +605,7 @@
     width: 64px;
     height: 64px;
     border-radius: 16px;
-    background: linear-gradient(135deg, var(--primary, #0d6efd), var(--primary-dark, #0056b3));
+    background: linear-gradient(135deg, var(--primary, #0c3a2d), var(--primary-dark, #082a20));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -635,8 +643,8 @@
     padding: 0.3rem 0.65rem;
     border-radius: 9999px;
     background: transparent;
-    color: var(--primary, #0d6efd) !important;
-    border: 1px solid var(--primary, #0d6efd);
+    color: var(--primary, #0c3a2d) !important;
+    border: 1px solid var(--primary, #0c3a2d);
     white-space: nowrap;
 }
 
@@ -671,7 +679,7 @@
 
 .tool-item i {
     font-size: 1.1rem;
-    color: var(--primary, #0d6efd) !important;
+    color: var(--primary, #0c3a2d) !important;
     width: 1.25rem;
     text-align: center;
     flex-shrink: 0;
@@ -679,7 +687,7 @@
 
 /* ── CTA Section ── */
 .cta-section {
-    background: linear-gradient(135deg, var(--primary, #0d6efd) 0%, #003d80 100%);
+    background: linear-gradient(135deg, var(--primary, #0c3a2d) 0%, #061a14 100%);
     border-radius: 20px;
     padding: 3rem;
     text-align: center;
@@ -731,14 +739,14 @@
 
 .cta-section .btn-light {
     background: white;
-    color: var(--primary, #0d6efd);
+    color: var(--primary, #0c3a2d);
     font-weight: 600;
     border: none;
 }
 
 .cta-section .btn-light:hover {
     background: rgba(255, 255, 255, 0.9);
-    color: var(--primary-dark, #0056b3);
+    color: var(--primary-dark, #082a20);
 }
 
 .cta-section .btn-outline-light {
@@ -753,18 +761,18 @@
 
 /* ── Button Styles ── */
 .btn-outline-primary {
-    color: var(--primary, #0d6efd);
-    border-color: var(--primary, #0d6efd);
+    color: var(--primary, #0c3a2d);
+    border-color: var(--primary, #0c3a2d);
 }
 
 .btn-outline-primary:hover {
-    background-color: var(--primary, #0d6efd);
+    background-color: var(--primary, #0c3a2d);
     color: white;
 }
 
 /* ── Footer (info pages) ── */
 .footer.footer {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+    background: linear-gradient(135deg, #0c3a2d 0%, #082a20 100%) !important;
     color: #f8f9fa !important;
     margin-top: 0;
 }
@@ -779,7 +787,7 @@
 }
 
 .footer.footer a:hover {
-    color: #3b82f6 !important;
+    color: #6D9773 !important;
 }
 
 
@@ -788,7 +796,7 @@
    ═══════════════════════════════════════════════ */
 
 .dark-mode .page-hero {
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
 }
 
 .dark-mode .info-page {
@@ -800,7 +808,7 @@
 }
 
 .dark-mode .section-icon {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    background: linear-gradient(135deg, #6D9773, #0c3a2d);
 }
 
 .dark-mode .info-card,
@@ -861,7 +869,7 @@
 }
 
 .dark-mode .accordion-button:not(.collapsed) {
-    background: var(--primary, #3b82f6);
+    background: var(--primary, #0c3a2d);
     color: white;
 }
 
@@ -888,7 +896,7 @@
 }
 
 .dark-mode .contact-card a {
-    color: #60a5fa;
+    color: #ffb902;
 }
 
 .dark-mode .tool-item {
@@ -898,8 +906,8 @@
 }
 
 .dark-mode .dev-role-badge {
-    color: #60a5fa !important;
-    border-color: #60a5fa;
+    color: #ffb902 !important;
+    border-color: #ffb902;
 }
 
 .dark-mode .contact-detail-item {
@@ -911,7 +919,7 @@
 }
 
 .dark-mode .cta-section {
-    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a5f 100%);
+    background: linear-gradient(135deg, #0c3a2d 0%, #082a20 100%);
 }
 
 .dark-mode .footer.footer {

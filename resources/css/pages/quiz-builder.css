@@ -15,8 +15,8 @@
 }
 
 /* Type-specific badge colors */
-.badge-multiple_choice { background: #e3f2fd; color: #1976d2; }
-.badge-multiple_select { background: #e8eaf6; color: #3f51b5; }
+.badge-multiple_choice { background: #fff8e1; color: #bb8954; }
+.badge-multiple_select { background: #e8f5e9; color: #0c3a2d; }
 .badge-true_false { background: #e0f7fa; color: #00838f; }
 .badge-fill_blank { background: #f3e5f5; color: #7b1fa2; }
 .badge-short_answer { background: #fff3e0; color: #ef6c00; }
@@ -58,7 +58,7 @@
     transition: all 0.2s;
 }
 .image-upload-mini:hover {
-    border-color: var(--primary, #007bff);
+    border-color: var(--primary, #ffb902);
     background: #f8f9ff;
 }
 
@@ -79,7 +79,7 @@
     border-radius: 6px;
     transition: all 0.2s ease;
 }
-.option-item:hover { border-color: var(--primary, #007bff); }
+.option-item:hover { border-color: var(--primary, #ffb902); }
 .option-item.correct { border-color: #28a745; background: #f8fff9; }
 .option-letter {
     width: 24px;
@@ -135,7 +135,7 @@
 .pair-number {
     width: 24px;
     height: 24px;
-    background: var(--primary, #007bff);
+    background: var(--primary, #ffb902);
     color: #fff;
     border-radius: 50%;
     display: flex;

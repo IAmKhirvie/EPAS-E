@@ -405,7 +405,7 @@ class PendingActivitiesService
             ->map(fn($item) => [
                 'type' => 'self_check',
                 'icon' => 'fas fa-clipboard-check',
-                'color' => '#0d6efd',
+                'color' => '#ffb902',
                 'title' => $item->title,
                 'subtitle' => $item->informationSheet?->module?->module_name ?? 'Unknown Module',
                 'url' => route('self-checks.show', $item),
@@ -507,7 +507,7 @@ class PendingActivitiesService
         return [
             'type' => 'self_check',
             'icon' => 'fas fa-clipboard-check',
-            'color' => '#0d6efd',
+            'color' => '#ffb902',
             'title' => $submission->selfCheck?->title ?? 'Unknown',
             'subtitle' => $submission->selfCheck?->informationSheet?->module?->module_name ?? 'Unknown Module',
             'score' => $submission->percentage . '%',

@@ -1,13 +1,13 @@
 /* ==================== THEME VARIABLES ==================== */
 :root {
-    --theme-primary: #0d6efd;
-    --theme-primary-light: #6ea8fe;
-    --theme-primary-dark: #0056b3;
-    --theme-secondary: #6c757d;
-    --theme-secondary-dark: #495057;
-    --theme-gradient-start: #0d6efd;
-    --theme-gradient-end: #0056b3;
-    --theme-accent: #0dcaf0;
+    --theme-primary: #0c3a2d;
+    --theme-primary-light: #6D9773;
+    --theme-primary-dark: #082a20;
+    --theme-secondary: #bb8954;
+    --theme-secondary-dark: #9a7042;
+    --theme-gradient-start: #6D9773;
+    --theme-gradient-end: #0c3a2d;
+    --theme-accent: #ffb902;
 }
 
 /* ==================== SCALED DOWN UI ==================== */
@@ -374,7 +374,7 @@
 
 /* Dark mode for content cards */
 .dark-mode .content-card {
-    background: var(--bs-dark, #1a1a2e);
+    background: var(--bs-dark, #1a1a1a);
     border-color: #3a3a5a;
 }
 
@@ -383,7 +383,7 @@
 }
 
 .dark-mode .content-card-header .icon {
-    background: rgba(13, 110, 253, 0.2);
+    background: rgba(109, 151, 115, 0.2);
 }
 
 .dark-mode .content-card-header h3 {
@@ -515,7 +515,7 @@ body.focus-mode-active .main-content-section {
 
 .focus-image-panel {
     width: 40%;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #242424 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -655,7 +655,7 @@ body.focus-mode-active .main-content-section {
 
 /* Dark Mode */
 .dark-mode .focus-content-panel {
-    background: #1a1a2e;
+    background: #1a1a1a;
 }
 
 .dark-mode .focus-content-panel h2 {
@@ -672,7 +672,7 @@ body.focus-mode-active .main-content-section {
 
 .dark-mode .toc-sublink:hover,
 .dark-mode .toc-sublink.active {
-    background-color: #1e3a5f !important;
+    background-color: #0c3a2d !important;
 }
 
 .dark-mode #dynamicContent .assessment-inline-container {
@@ -797,7 +797,7 @@ body.focus-mode-active .main-content-section {
 }
 
 .assessment-icon.available {
-    background: rgba(13, 110, 253, 0.15);
+    background: rgba(109, 151, 115, 0.15);
     color: var(--theme-primary, #198754);
 }
 
@@ -813,12 +813,12 @@ body.focus-mode-active .main-content-section {
 
 /* Dark mode */
 .dark-mode .assessment-card-section {
-    background: var(--bs-dark, #1a1a2e);
+    background: var(--bs-dark, #1a1a1a);
     border-color: #3a3a5a;
 }
 
 .dark-mode .assessment-icon.available {
-    background: rgba(13, 110, 253, 0.25);
+    background: rgba(109, 151, 115, 0.25);
 }
 
 .dark-mode .assessment-icon.passed {
@@ -831,7 +831,7 @@ body.focus-mode-active .main-content-section {
 
 /* ==================== DARK MODE - TOC SIDEBAR ==================== */
 .dark-mode .toc-sidebar {
-    background: #1a1a2e;
+    background: #1a1a1a;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
@@ -887,7 +887,7 @@ body.focus-mode-active .main-content-section {
 }
 
 .dark-mode .sidebar-topic-item.active {
-    background: rgba(13, 110, 253, 0.2);
+    background: rgba(109, 151, 115, 0.2);
     color: #6ea8fe;
 }
 
@@ -915,7 +915,7 @@ body.focus-mode-active .main-content-section {
 /* Mobile sidebar dark mode */
 @media (max-width: 991.98px) {
     .dark-mode .sidebar-section {
-        background: #1a1a2e;
+        background: #1a1a1a;
     }
 }
 
@@ -1027,7 +1027,7 @@ body.focus-mode-active .main-content-section {
 
 /* Focus mode - tables in side panel */
 .focus-mode-body.has-tables .focus-image-panel {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #242424 100%);
     justify-content: flex-start;
     padding-top: 40px;
 }
