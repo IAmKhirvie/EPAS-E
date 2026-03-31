@@ -182,7 +182,11 @@
                     <p class="mb-2"><strong>{{ $question->question_text }}</strong></p>
 
                     @if($question->question_type === 'multiple_choice' || $question->question_type === 'image_choice')
-                        @php $options = array_filter($question->options ?? [], fn($v, $k) => is_int($k), ARRAY_FILTER_USE_BOTH); @endphp
+                        @php
+                            $rawOptions = $question->options ?? [];
+                            $rawOptions = is_array($rawOptions) ? $rawOptions : (is_string($rawOptions) ? json_decode($rawOptions, true) ?? [] : []);
+                            $options = array_filter($rawOptions, fn($v, $k) => is_int($k), ARRAY_FILTER_USE_BOTH);
+                        @endphp
                         <div class="ms-3">
                             @foreach($options as $optIndex => $option)
                             <div class="answer-option {{ $question->correct_answer == $optIndex ? 'correct-answer' : '' }}" style="padding: 0.25rem 0;">
