@@ -124,7 +124,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .tesda-card {
-    background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+    background: var(--primary);
     color: white;
     padding: 2rem;
     border-radius: var(--border-radius);
@@ -324,7 +324,7 @@ h1, h2, h3, h4, h5, h6 {
     width: 70px;
     height: 70px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+    background: var(--primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -370,7 +370,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Footer styles - use specific class to avoid conflicts */
 .footer.footer {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+    background: #1e293b !important;
     color: #f8f9fa !important;
     margin-top: 3rem;
 }
@@ -390,7 +390,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Dark mode footer overrides */
 .dark-mode .footer.footer {
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%) !important;
+    background: #0a0a0a !important;
 }
 
 /* Remove the problematic global color rules and replace with proper inheritance */

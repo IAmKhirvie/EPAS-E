@@ -285,16 +285,16 @@
 }
 
 /* Gradient variants */
-.cb-header--task       { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-.cb-header--job        { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
-.cb-header--homework   { background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%); }
-.cb-header--checklist  { background: linear-gradient(135deg, #8e2de2 0%, #ff6a88 100%); }
-.cb-header--criteria   { background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%); }
-.cb-header--course     { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-.cb-header--module     { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-.cb-header--info-sheet { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-.cb-header--topic      { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-.cb-header--self-check { background: linear-gradient(135deg, #6d9773 0%, #0c3a2d 100%); }
+.cb-header--task       { background: #667eea; }
+.cb-header--job        { background: #11998e; }
+.cb-header--homework   { background: #2193b0; }
+.cb-header--checklist  { background: #8e2de2; }
+.cb-header--criteria   { background: #0f2027; }
+.cb-header--course     { background: #f093fb; }
+.cb-header--module     { background: #4facfe; }
+.cb-header--info-sheet { background: #43e97b; }
+.cb-header--topic      { background: #fa709a; }
+.cb-header--self-check { background: #6d9773; }
 
 /* ── Body ──────────────────────────────────────────────────────────────── */
 .cb-body {

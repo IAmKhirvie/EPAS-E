@@ -1,6 +1,6 @@
 /* Footer styles - Refined */
 footer {
-  background: linear-gradient(135deg, #1f1f1f 0%, #2d2d2d 100%);
+  background: #1f1f1f;
   color: #e0e0e0;
   text-align: center;
   padding: 2rem 1rem;
@@ -20,7 +20,7 @@ footer::before {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  background: var(--primary);
 }
 
 footer:hover {
@@ -64,12 +64,12 @@ footer:hover {
 
 /* Dark mode footer */
 .dark-mode footer {
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  background: #0a0a0a;
   border-top-color: var(--border);
 }
 
 .dark-mode footer::before {
-  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  background: var(--primary);
 }
 
 /* Mobile responsiveness */

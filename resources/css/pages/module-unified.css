@@ -310,7 +310,7 @@ body.focus-mode-active .main-content-section {
     left: 0;
     right: 0;
     height: 60px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #667eea;
     color: white;
     display: flex;
     align-items: center;
@@ -333,7 +333,7 @@ body.focus-mode-active .main-content-section {
 
 .focus-image-panel {
     width: 40%;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: #1a1a2e;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -439,7 +439,7 @@ body.focus-mode-active .main-content-section {
 
 .focus-nav .btn-prev,
 .focus-nav .btn-next {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #667eea;
     color: white;
 }
 

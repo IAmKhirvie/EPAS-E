@@ -355,7 +355,7 @@ body {
 
 /* Add content section */
 .dark-mode .add-content-section {
-    background: linear-gradient(135deg, var(--light-gray) 0%, var(--card-header-bg) 100%) !important;
+    background: var(--card-header-bg) !important;
     border-color: var(--border) !important;
 }
 

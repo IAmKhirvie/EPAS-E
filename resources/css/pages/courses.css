@@ -157,7 +157,7 @@
 
 /* Course Card Header */
 .course-card-header {
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    background: var(--primary);
     padding: 1.5rem;
     position: relative;
     min-height: 120px;
@@ -248,7 +248,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    background: var(--primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -360,7 +360,7 @@
     width: 100px;
     height: 100px;
     margin: 0 auto 1.5rem;
-    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    background: var(--primary);
     border-radius: 50%;
     display: flex;
     align-items: center;
