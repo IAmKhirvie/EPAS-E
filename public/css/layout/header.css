@@ -76,6 +76,7 @@
     height: calc(55px);
     width: auto;
     flex-shrink: 0;
+    mix-blend-mode: multiply;
 }
 
 .navbar-title-container {
