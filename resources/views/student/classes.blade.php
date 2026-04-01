@@ -5,7 +5,7 @@
 @push('styles')
 <style>
 .class-header {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: #4facfe;
     color: white;
     padding: 2rem;
     border-radius: 12px;

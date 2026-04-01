@@ -290,7 +290,7 @@
 }
 
 .confirm-header {
-    background: linear-gradient(135deg, #6d9773, #0c3a2d);
+    background: #6d9773;
     color: white;
     padding: 20px;
     text-align: center;

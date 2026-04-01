@@ -17,7 +17,7 @@
 .doc-viewer__nav-btn:hover:not(:disabled) { background: #e9ecef; border-color: #adb5bd; }
 .doc-viewer__nav-btn:disabled { opacity: 0.35; cursor: default; }
 .doc-viewer__page-info { font-size: 0.85rem; color: #6c757d; min-width: 90px; text-align: center; }
-.doc-viewer__fade-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 40px; background: linear-gradient(transparent, #fff); pointer-events: none; border-radius: 0 0 4px 4px; }
+.doc-viewer__fade-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 40px; background: rgba(255,255,255,0.9); pointer-events: none; border-radius: 0 0 4px 4px; }
 .doc-viewer__logical-page { padding: 0.5rem 0; }
 .doc-viewer__logical-page table { width: 100%; border-collapse: collapse; }
 .doc-viewer__logical-page table th, .doc-viewer__logical-page table td { border: 1px solid #dee2e6; padding: 0.4rem 0.6rem; font-size: 0.85rem; }
