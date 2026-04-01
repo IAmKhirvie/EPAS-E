@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             DepartmentSeeder::class,
             ModuleSeeder::class,
+            PerformanceCriteriaSeeder::class,
         ]);
     }
 }
