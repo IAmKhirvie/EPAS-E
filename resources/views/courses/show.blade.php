@@ -22,7 +22,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, var(--category-color, #6d9773), var(--category-color-dark, #0c3a2d));
+    background: var(--category-color, #6d9773);
     z-index: 0;
 }
 

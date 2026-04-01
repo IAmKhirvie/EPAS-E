@@ -158,7 +158,7 @@
 .popover-header {
     padding: 1rem 1.25rem;
     border-bottom: 1px solid var(--border);
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    background: var(--primary);
     color: var(--light);
     display: flex;
     justify-content: space-between;
@@ -205,7 +205,7 @@
     justify-content: center;
     gap: 0.5rem;
     padding: 0.75rem 1rem;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    background: var(--primary);
     color: var(--light);
     text-decoration: none;
     border-radius: 8px;
@@ -215,7 +215,7 @@
 }
 
 .view-all-link-footer:hover {
-    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    background: var(--primary);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(12, 59, 46, 0.3);
 }
@@ -250,7 +250,7 @@
 }
 
 .notification-item.unread {
-    background: linear-gradient(135deg, rgba(109, 151, 115, 0.08) 0%, rgba(109, 151, 115, 0.03) 100%);
+    background: rgba(109, 151, 115, 0.05);
     border-left: 3px solid var(--primary);
 }
 
@@ -259,12 +259,12 @@
 }
 
 .notification-item.urgent {
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(220, 53, 69, 0.05) 100%);
+    background: rgba(220, 53, 69, 0.08);
     border-left: 3px solid var(--danger);
 }
 
 .notification-item.urgent.unread {
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(220, 53, 69, 0.08) 100%);
+    background: rgba(220, 53, 69, 0.12);
 }
 
 /* Notification Dismiss Button */
@@ -559,7 +559,7 @@
     text-align: center;
     padding: 2.5rem 1.5rem 1.25rem;
     min-height: 140px;
-    background: linear-gradient(160deg, #0c3a2d 0%, #082a20 100%);
+    background: #0c3a2d;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -573,7 +573,7 @@
 .user-card-header-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.05) 100%);
+    background: rgba(0,0,0,0.4);
     z-index: 1;
 }
 

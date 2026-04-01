@@ -224,7 +224,7 @@
 }
 
 .module-header {
-    background: linear-gradient(135deg, #6d9773 0%, #0c3a2d 100%);
+    background: #6d9773;
     color: white;
     padding: 2rem;
     margin: -1rem -1rem 2rem -1rem;

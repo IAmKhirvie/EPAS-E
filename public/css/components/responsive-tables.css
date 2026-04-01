@@ -102,12 +102,12 @@
 
 .table-scroll-shadow::before {
     left: 0;
-    background: linear-gradient(to right, rgba(0,0,0,0.1), transparent);
+    background: rgba(0,0,0,0.05);
 }
 
 .table-scroll-shadow::after {
     right: 0;
-    background: linear-gradient(to left, rgba(0,0,0,0.1), transparent);
+    background: rgba(0,0,0,0.05);
 }
 
 .table-scroll-shadow.scroll-left::before,

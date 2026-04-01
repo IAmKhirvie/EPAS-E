@@ -7,7 +7,7 @@
     position: relative;
     padding: 9rem 2rem 4rem;
     text-align: center;
-    background: linear-gradient(135deg, #0c3a2d 0%, #082a20 100%);
+    background: #0c3a2d;
     color: white;
     overflow: hidden;
 }
@@ -105,7 +105,7 @@
     width: 48px;
     height: 48px;
     border-radius: 12px;
-    background: linear-gradient(135deg, var(--primary, #0c3a2d), var(--primary-dark, #082a20));
+    background: var(--primary, #0c3a2d);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -305,7 +305,7 @@
     width: 64px;
     height: 64px;
     border-radius: 16px;
-    background: linear-gradient(135deg, var(--primary, #0c3a2d), var(--primary-dark, #082a20));
+    background: var(--primary, #0c3a2d);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -462,7 +462,7 @@
     width: 64px;
     height: 64px;
     border-radius: 16px;
-    background: linear-gradient(135deg, var(--primary, #0c3a2d), var(--primary-dark, #082a20));
+    background: var(--primary, #0c3a2d);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -605,7 +605,7 @@
     width: 64px;
     height: 64px;
     border-radius: 16px;
-    background: linear-gradient(135deg, var(--primary, #0c3a2d), var(--primary-dark, #082a20));
+    background: var(--primary, #0c3a2d);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -919,7 +919,7 @@
 }
 
 .dark-mode .cta-section {
-    background: linear-gradient(135deg, #0c3a2d 0%, #082a20 100%);
+    background: #0c3a2d;
 }
 
 .dark-mode .footer.footer {
