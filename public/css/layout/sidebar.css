@@ -489,12 +489,25 @@ html, body {
     top: 87%;
     transform: translateY(-50%) scale(0.95);
 }
+.sidebar.collapsed .flyout-menu {
+    /* Fixed position: right of sidebar, vertically centered */
+    left: calc(var(--sidebar-width) + var(--pill-margin) - 200px);
+    top: 87%;
+    transform: translateY(-50%) scale(0.95);
+}
 
 .flyout-menu::before {
     display: none;
 }
 
 .nav-item-flyout.open .flyout-menu {
+    transform: translateY(-50%) scale(1);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.sidebar.collapsed .nav-item-flyout.open .flyout-menu {
     transform: translateY(-50%) scale(1);
     opacity: 1;
     visibility: visible;
