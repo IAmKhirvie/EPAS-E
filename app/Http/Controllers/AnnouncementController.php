@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 
@@ -31,6 +32,11 @@ class AnnouncementController extends Controller
         $validated = $request->validated();
 
         try {
+            $targetRoles = $request->target_roles;
+            if (empty($targetRoles)) {
+                $targetRoles = 'all';
+            }
+
             $announcement = Announcement::create([
                 'title' => $this->stripHtml($request->title),
                 'content' => $this->sanitizeContent($request->content),
@@ -39,7 +45,7 @@ class AnnouncementController extends Controller
                 'is_urgent' => $request->is_urgent ?? false,
                 'publish_at' => $request->publish_at,
                 'deadline' => $request->deadline,
-                'target_roles' => $request->target_roles,
+                'target_roles' => $targetRoles,
                 'target_sections' => $request->target_sections,
             ]);
 
@@ -130,7 +136,7 @@ class AnnouncementController extends Controller
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()
-            ->map(function($announcement) {
+            ->map(function ($announcement) {
                 return [
                     'id' => $announcement->id,
                     'title' => $announcement->title,

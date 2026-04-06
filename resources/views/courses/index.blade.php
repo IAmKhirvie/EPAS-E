@@ -5,380 +5,380 @@
 @push('styles')
 <link rel="stylesheet" href="{{ dynamic_asset('css/pages/courses.css') }}">
 <style>
-/* Courses Page Layout */
-.courses-page-wrapper {
-    display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 1.5rem;
-    min-height: calc(100vh - 200px);
-}
-
-/* Right Sidebar */
-.courses-sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-}
-
-.sidebar-widget {
-    background: var(--surface);
-    border-radius: var(--border-radius);
-    border: 1px solid var(--border);
-    overflow: hidden;
-}
-
-.sidebar-widget-header {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.sidebar-widget-header h3 {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.sidebar-widget-header h3 i {
-    color: var(--primary);
-}
-
-.sidebar-widget-body {
-    padding: 1rem 1.25rem;
-}
-
-/* Mini Calendar */
-.mini-calendar {
-    width: 100%;
-}
-
-.calendar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.calendar-header h4 {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
-}
-
-.calendar-nav {
-    display: flex;
-    gap: 0.25rem;
-}
-
-.calendar-nav button {
-    width: 28px;
-    height: 28px;
-    border: none;
-    background: transparent;
-    color: var(--text-muted);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.calendar-nav button:hover {
-    background: var(--primary);
-    color: white;
-}
-
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 2px;
-    text-align: center;
-}
-
-.calendar-day-label {
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    padding: 0.5rem 0;
-}
-
-.calendar-day {
-    position: relative;
-    padding: 0.4rem;
-    padding-bottom: 0.6rem;
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.calendar-day:hover {
-    background: var(--primary-light);
-    color: white;
-}
-
-.calendar-day.today {
-    background: var(--primary);
-    color: white;
-    font-weight: 700;
-}
-
-.calendar-day.other-month {
-    color: var(--text-muted);
-    opacity: 0.5;
-}
-
-/* Calendar event dots */
-.calendar-day.has-events {
-    cursor: pointer;
-}
-
-.calendar-event-dots {
-    position: absolute;
-    bottom: 2px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 2px;
-    justify-content: center;
-}
-
-.event-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.calendar-day.today .event-dot {
-    box-shadow: 0 0 0 1px white;
-}
-
-/* Upcoming Tasks */
-.upcoming-tasks-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.upcoming-task-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    background: var(--background);
-    border-radius: calc(var(--border-radius) / 2);
-    transition: all 0.2s ease;
-}
-
-.upcoming-task-item:hover {
-    background: var(--primary);
-    color: white;
-}
-
-.upcoming-task-item:hover .task-course,
-.upcoming-task-item:hover .task-due {
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.task-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 0.85rem;
-}
-
-.task-icon.quiz {
-    background: rgba(139, 92, 246, 0.15);
-    color: #8b5cf6;
-}
-
-.task-icon.assignment {
-    background: rgba(255, 185, 2, 0.15);
-    color: #ffb902;
-}
-
-.task-icon.deadline {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-}
-
-.task-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.task-title {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.15rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.task-course {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-}
-
-.task-due {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    white-space: nowrap;
-}
-
-.upcoming-task-item:hover .task-title {
-    color: white;
-}
-
-.no-tasks {
-    text-align: center;
-    padding: 1.5rem;
-    color: var(--text-muted);
-}
-
-.no-tasks i {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    opacity: 0.5;
-}
-
-.no-tasks p {
-    margin: 0;
-    font-size: 0.85rem;
-}
-
-/* Category Stats Widget */
-.category-stats {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.category-stat-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-radius: calc(var(--border-radius) / 2);
-}
-
-.category-stat-item:hover {
-    padding-left: 0.5rem;
-    background: var(--background);
-}
-
-.category-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.category-name {
-    flex: 1;
-    font-size: 0.85rem;
-    color: var(--text-primary);
-}
-
-.category-count {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    font-weight: 500;
-}
-
-/* Main Content Area */
-.courses-main {
-    display: flex;
-    flex-direction: column;
-}
-
-/* Responsive */
-@media (max-width: 1200px) {
+    /* Courses Page Layout */
     .courses-page-wrapper {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 1.5rem;
+        min-height: calc(100vh - 200px);
     }
 
+    /* Right Sidebar */
     .courses-sidebar {
-        display: none;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
     }
-}
 
-/* Dark mode */
-.dark-mode .sidebar-widget {
-    background: var(--surface);
-    border-color: var(--border);
-}
+    .sidebar-widget {
+        background: var(--surface);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border);
+        overflow: hidden;
+    }
 
-.dark-mode .upcoming-task-item {
-    background: rgba(255, 255, 255, 0.05);
-}
+    .sidebar-widget-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-.dark-mode .calendar-day:hover {
-    background: var(--primary);
-}
+    .sidebar-widget-header h3 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
 
-/* Category Filter Tabs */
-.category-tabs {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
+    .sidebar-widget-header h3 i {
+        color: var(--primary);
+    }
 
-.category-tab {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text-secondary);
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-}
+    .sidebar-widget-body {
+        padding: 1rem 1.25rem;
+    }
 
-.category-tab:hover {
-    border-color: var(--tab-color, var(--primary));
-    color: var(--tab-color, var(--primary));
-}
-
-.category-tab.active {
-    background: var(--tab-color, var(--primary));
-    border-color: var(--tab-color, var(--primary));
-    color: white;
-}
-
-@media (max-width: 768px) {
-    .category-tabs {
-        order: 3;
+    /* Mini Calendar */
+    .mini-calendar {
         width: 100%;
-        justify-content: flex-start;
-        overflow-x: auto;
-        padding-bottom: 0.5rem;
     }
-}
+
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .calendar-header h4 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .calendar-nav {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    .calendar-nav button {
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .calendar-nav button:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+        text-align: center;
+    }
+
+    .calendar-day-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        padding: 0.5rem 0;
+    }
+
+    .calendar-day {
+        position: relative;
+        padding: 0.4rem;
+        padding-bottom: 0.6rem;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .calendar-day:hover {
+        background: var(--primary-light);
+        color: white;
+    }
+
+    .calendar-day.today {
+        background: var(--primary);
+        color: white;
+        font-weight: 700;
+    }
+
+    .calendar-day.other-month {
+        color: var(--text-muted);
+        opacity: 0.5;
+    }
+
+    /* Calendar event dots */
+    .calendar-day.has-events {
+        cursor: pointer;
+    }
+
+    .calendar-event-dots {
+        position: absolute;
+        bottom: 2px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 2px;
+        justify-content: center;
+    }
+
+    .event-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .calendar-day.today .event-dot {
+        box-shadow: 0 0 0 1px white;
+    }
+
+    /* Upcoming Tasks */
+    .upcoming-tasks-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .upcoming-task-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: var(--background);
+        border-radius: calc(var(--border-radius) / 2);
+        transition: all 0.2s ease;
+    }
+
+    .upcoming-task-item:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .upcoming-task-item:hover .task-course,
+    .upcoming-task-item:hover .task-due {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .task-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 0.85rem;
+    }
+
+    .task-icon.quiz {
+        background: rgba(139, 92, 246, 0.15);
+        color: #8b5cf6;
+    }
+
+    .task-icon.assignment {
+        background: rgba(255, 185, 2, 0.15);
+        color: #ffb902;
+    }
+
+    .task-icon.deadline {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+
+    .task-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .task-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.15rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .task-course {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .task-due {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+    }
+
+    .upcoming-task-item:hover .task-title {
+        color: white;
+    }
+
+    .no-tasks {
+        text-align: center;
+        padding: 1.5rem;
+        color: var(--text-muted);
+    }
+
+    .no-tasks i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.5;
+    }
+
+    .no-tasks p {
+        margin: 0;
+        font-size: 0.85rem;
+    }
+
+    /* Category Stats Widget */
+    .category-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .category-stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: calc(var(--border-radius) / 2);
+    }
+
+    .category-stat-item:hover {
+        padding-left: 0.5rem;
+        background: var(--background);
+    }
+
+    .category-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .category-name {
+        flex: 1;
+        font-size: 0.85rem;
+        color: var(--text-primary);
+    }
+
+    .category-count {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    /* Main Content Area */
+    .courses-main {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .courses-page-wrapper {
+            grid-template-columns: 1fr;
+        }
+
+        .courses-sidebar {
+            display: none;
+        }
+    }
+
+    /* Dark mode */
+    .dark-mode .sidebar-widget {
+        background: var(--surface);
+        border-color: var(--border);
+    }
+
+    .dark-mode .upcoming-task-item {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .dark-mode .calendar-day:hover {
+        background: var(--primary);
+    }
+
+    /* Category Filter Tabs */
+    .category-tabs {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .category-tab {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-secondary);
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .category-tab:hover {
+        border-color: var(--tab-color, var(--primary));
+        color: var(--tab-color, var(--primary));
+    }
+
+    .category-tab.active {
+        background: var(--tab-color, var(--primary));
+        border-color: var(--tab-color, var(--primary));
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .category-tabs {
+            order: 3;
+            width: 100%;
+            justify-content: flex-start;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+    }
 </style>
 @endpush
 
@@ -442,15 +442,15 @@
             <div class="courses-container grid-view" id="coursesContainer">
                 @foreach($courses as $course)
                 @php
-                    $categoryColor = $course->category?->color ?? '#6d9773';
-                    $categoryColorDark = $course->category?->darker_color ?? '#0c3a2d';
-                    $thumbnailUrl = $course->thumbnail ? asset('storage/' . $course->thumbnail) : '';
+                $categoryColor = $course->category?->color ?? '#6d9773';
+                $categoryColorDark = $course->category?->darker_color ?? '#0c3a2d';
+                $thumbnailUrl = $course->thumbnail ? asset('storage/' . $course->thumbnail) : '';
                 @endphp
                 <div class="course-card {{ $course->thumbnail ? 'has-thumbnail' : '' }}"
-                     data-course-name="{{ strtolower($course->course_name) }}"
-                     data-course-code="{{ strtolower($course->course_code) }}"
-                     data-category="{{ $course->category_id ?? '' }}"
-                     style="--category-color: {{ $categoryColor }}; --category-color-dark: {{ $categoryColorDark }}; {{ $thumbnailUrl ? '--bg-image: url(' . $thumbnailUrl . ');' : '' }}">
+                    data-course-name="{{ strtolower($course->course_name) }}"
+                    data-course-code="{{ strtolower($course->course_code) }}"
+                    data-category="{{ $course->category_id ?? '' }}"
+                    style="--category-color: {{ $categoryColor }}; --category-color-dark: {{ $categoryColorDark }}; {{ $thumbnailUrl ? '--bg-image: url(' . $thumbnailUrl . ');' : '' }}">
 
                     {{-- Background Overlay --}}
                     <div class="course-card-bg"></div>
@@ -489,13 +489,15 @@
                                             <i class="fas fa-plus me-2"></i>Add Module
                                         </a>
                                     </li>
-                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
                                     <li>
                                         <form action="{{ route('courses.destroy', $course) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="dropdown-item text-danger"
-                                                    onclick="return confirm('Are you sure you want to delete this course?')">
+                                                onclick="return confirm('Are you sure you want to delete this course?')">
                                                 <i class="fas fa-trash me-2"></i>Delete
                                             </button>
                                         </form>
@@ -519,9 +521,9 @@
                         <div class="course-instructor-line">
                             <div class="instructor-avatar-sm">
                                 @if($course->instructor->profile_photo)
-                                    <img src="{{ asset('storage/' . $course->instructor->profile_photo) }}" alt="{{ $course->instructor->full_name }}">
+                                <img src="{{ asset('storage/' . $course->instructor->profile_photo) }}" alt="{{ $course->instructor->full_name }}">
                                 @else
-                                    {{ strtoupper(substr($course->instructor->first_name, 0, 1)) }}{{ strtoupper(substr($course->instructor->last_name, 0, 1)) }}
+                                {{ strtoupper(substr($course->instructor->first_name, 0, 1)) }}{{ strtoupper(substr($course->instructor->last_name, 0, 1)) }}
                                 @endif
                             </div>
                             <span>{{ $course->instructor->full_name }}</span>
@@ -645,7 +647,7 @@
                     <div class="category-stats">
                         @foreach($categories as $category)
                         @php
-                            $courseCount = $courses->where('category_id', $category->id)->count();
+                        $courseCount = $courses->where('category_id', $category->id)->count();
                         @endphp
                         @if($courseCount > 0)
                         <div class="category-stat-item" data-category="{{ $category->id }}">
@@ -666,221 +668,224 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const gridViewBtn = document.getElementById('gridViewBtn');
-    const listViewBtn = document.getElementById('listViewBtn');
-    const coursesContainer = document.getElementById('coursesContainer');
-    const courseSearch = document.getElementById('courseSearch');
-    const noResults = document.getElementById('noResults');
-    const categoryStatItems = document.querySelectorAll('.category-stat-item');
-    const categoryTabs = document.querySelectorAll('.category-tab');
+    document.addEventListener('DOMContentLoaded', function() {
+        const gridViewBtn = document.getElementById('gridViewBtn');
+        const listViewBtn = document.getElementById('listViewBtn');
+        const coursesContainer = document.getElementById('coursesContainer');
+        const courseSearch = document.getElementById('courseSearch');
+        const noResults = document.getElementById('noResults');
+        const categoryStatItems = document.querySelectorAll('.category-stat-item');
+        const categoryTabs = document.querySelectorAll('.category-tab');
 
-    let activeCategory = 'all';
+        let activeCategory = 'all';
 
-    // View Toggle
-    function setView(view) {
-        if (!coursesContainer) return;
+        // View Toggle
+        function setView(view) {
+            if (!coursesContainer) return;
 
-        if (view === 'grid') {
-            coursesContainer.classList.remove('list-view');
-            coursesContainer.classList.add('grid-view');
-            gridViewBtn.classList.add('active');
-            listViewBtn.classList.remove('active');
-        } else {
-            coursesContainer.classList.remove('grid-view');
-            coursesContainer.classList.add('list-view');
-            listViewBtn.classList.add('active');
-            gridViewBtn.classList.remove('active');
-        }
-        localStorage.setItem('coursesViewPreference', view);
-    }
-
-    const savedView = localStorage.getItem('coursesViewPreference') || 'grid';
-    setView(savedView);
-
-    if (gridViewBtn) gridViewBtn.addEventListener('click', () => setView('grid'));
-    if (listViewBtn) listViewBtn.addEventListener('click', () => setView('list'));
-
-    // Filter and Search
-    function filterCourses() {
-        const searchTerm = courseSearch ? courseSearch.value.toLowerCase().trim() : '';
-        const courseCards = document.querySelectorAll('.course-card');
-        let visibleCount = 0;
-
-        courseCards.forEach(function(card) {
-            const name = card.dataset.courseName || '';
-            const code = card.dataset.courseCode || '';
-            const category = card.dataset.category || '';
-            const text = card.textContent.toLowerCase();
-
-            const matchesSearch = !searchTerm ||
-                name.includes(searchTerm) ||
-                code.includes(searchTerm) ||
-                text.includes(searchTerm);
-
-            const matchesCategory = activeCategory === 'all' || category === activeCategory;
-
-            if (matchesSearch && matchesCategory) {
-                card.style.display = '';
-                visibleCount++;
+            if (view === 'grid') {
+                coursesContainer.classList.remove('list-view');
+                coursesContainer.classList.add('grid-view');
+                gridViewBtn.classList.add('active');
+                listViewBtn.classList.remove('active');
             } else {
-                card.style.display = 'none';
+                coursesContainer.classList.remove('grid-view');
+                coursesContainer.classList.add('list-view');
+                listViewBtn.classList.add('active');
+                gridViewBtn.classList.remove('active');
             }
-        });
-
-        if (noResults) {
-            noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+            localStorage.setItem('coursesViewPreference', view);
         }
-        if (coursesContainer) {
-            coursesContainer.style.display = visibleCount === 0 ? 'none' : '';
-        }
-    }
 
-    if (courseSearch) {
-        courseSearch.addEventListener('input', filterCourses);
-    }
+        const savedView = localStorage.getItem('coursesViewPreference') || 'grid';
+        setView(savedView);
 
-    // Category tabs (toolbar)
-    categoryTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            const categoryId = this.dataset.category;
-            activeCategory = categoryId;
+        if (gridViewBtn) gridViewBtn.addEventListener('click', () => setView('grid'));
+        if (listViewBtn) listViewBtn.addEventListener('click', () => setView('list'));
 
-            // Update active state on tabs
-            categoryTabs.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
+        // Filter and Search
+        function filterCourses() {
+            const searchTerm = courseSearch ? courseSearch.value.toLowerCase().trim() : '';
+            const courseCards = document.querySelectorAll('.course-card');
+            let visibleCount = 0;
 
-            // Also update sidebar items
-            categoryStatItems.forEach(i => i.classList.remove('active'));
-            if (categoryId !== 'all') {
-                const sidebarItem = document.querySelector(`.category-stat-item[data-category="${categoryId}"]`);
-                if (sidebarItem) sidebarItem.classList.add('active');
+            courseCards.forEach(function(card) {
+                const name = card.dataset.courseName || '';
+                const code = card.dataset.courseCode || '';
+                const category = card.dataset.category || '';
+                const text = card.textContent.toLowerCase();
+
+                const matchesSearch = !searchTerm ||
+                    name.includes(searchTerm) ||
+                    code.includes(searchTerm) ||
+                    text.includes(searchTerm);
+
+                const matchesCategory = activeCategory === 'all' || category === activeCategory;
+
+                if (matchesSearch && matchesCategory) {
+                    card.style.display = '';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (noResults) {
+                noResults.style.display = visibleCount === 0 ? 'block' : 'none';
             }
+            if (coursesContainer) {
+                coursesContainer.style.display = visibleCount === 0 ? 'none' : '';
+            }
+        }
 
-            filterCourses();
-        });
-    });
+        if (courseSearch) {
+            courseSearch.addEventListener('input', filterCourses);
+        }
 
-    // Category stat items (sidebar)
-    categoryStatItems.forEach(item => {
-        item.addEventListener('click', function() {
-            const categoryId = this.dataset.category;
-
-            // Toggle: if clicking the same category, show all
-            if (activeCategory === categoryId) {
-                activeCategory = 'all';
-                categoryStatItems.forEach(i => i.classList.remove('active'));
-                categoryTabs.forEach(t => {
-                    t.classList.toggle('active', t.dataset.category === 'all');
-                });
-            } else {
+        // Category tabs (toolbar)
+        categoryTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const categoryId = this.dataset.category;
                 activeCategory = categoryId;
-                categoryStatItems.forEach(i => i.classList.remove('active'));
+
+                // Update active state on tabs
+                categoryTabs.forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
-                categoryTabs.forEach(t => {
-                    t.classList.toggle('active', t.dataset.category === categoryId);
-                });
+
+                // Also update sidebar items
+                categoryStatItems.forEach(i => i.classList.remove('active'));
+                if (categoryId !== 'all') {
+                    const sidebarItem = document.querySelector(`.category-stat-item[data-category="${categoryId}"]`);
+                    if (sidebarItem) sidebarItem.classList.add('active');
+                }
+
+                filterCourses();
+            });
+        });
+
+        // Category stat items (sidebar)
+        categoryStatItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const categoryId = this.dataset.category;
+
+                // Toggle: if clicking the same category, show all
+                if (activeCategory === categoryId) {
+                    activeCategory = 'all';
+                    categoryStatItems.forEach(i => i.classList.remove('active'));
+                    categoryTabs.forEach(t => {
+                        t.classList.toggle('active', t.dataset.category === 'all');
+                    });
+                } else {
+                    activeCategory = categoryId;
+                    categoryStatItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    categoryTabs.forEach(t => {
+                        t.classList.toggle('active', t.dataset.category === categoryId);
+                    });
+                }
+
+                filterCourses();
+            });
+        });
+
+        // Mini Calendar with Events
+        const calendarGrid = document.getElementById('calendarGrid');
+        const calendarMonth = document.getElementById('calendarMonth');
+        const prevMonthBtn = document.getElementById('prevMonth');
+        const nextMonthBtn = document.getElementById('nextMonth');
+
+        // Calendar events from server
+        const calendarEvents = @json($calendarEvents ?? []);
+
+        let currentDate = new Date();
+
+        // Group events by date
+        function getEventsForDate(dateStr) {
+            return calendarEvents.filter(event => event.date === dateStr);
+        }
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            calendarMonth.textContent = currentDate.toLocaleDateString('en-US', {
+                month: 'long',
+                year: 'numeric'
+            });
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDay = firstDay.getDay();
+            const daysInMonth = lastDay.getDate();
+
+            const today = new Date();
+            const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
+
+            let html = '';
+
+            // Day labels
+            const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+            days.forEach(day => {
+                html += `<div class="calendar-day-label">${day}</div>`;
+            });
+
+            // Previous month days
+            const prevMonthDays = new Date(year, month, 0).getDate();
+            for (let i = startDay - 1; i >= 0; i--) {
+                html += `<div class="calendar-day other-month">${prevMonthDays - i}</div>`;
             }
 
-            filterCourses();
-        });
+            // Current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const isToday = isCurrentMonth && day === today.getDate();
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayEvents = getEventsForDate(dateStr);
+                const hasEvents = dayEvents.length > 0;
+
+                // Generate event dots (max 3 visible)
+                let dotsHtml = '';
+                if (hasEvents) {
+                    const uniqueColors = [...new Set(dayEvents.map(e => e.color))];
+                    const visibleColors = uniqueColors.slice(0, 3);
+                    dotsHtml = '<div class="calendar-event-dots">';
+                    visibleColors.forEach(color => {
+                        dotsHtml += `<span class="event-dot" style="background: ${color}"></span>`;
+                    });
+                    dotsHtml += '</div>';
+                }
+
+                // Generate tooltip
+                let tooltipAttr = '';
+                if (hasEvents) {
+                    const eventTitles = dayEvents.map(e => e.title).join('\\n');
+                    tooltipAttr = ` title="${eventTitles}" data-events='${JSON.stringify(dayEvents)}'`;
+                }
+
+                html += `<div class="calendar-day${isToday ? ' today' : ''}${hasEvents ? ' has-events' : ''}"${tooltipAttr}>${day}${dotsHtml}</div>`;
+            }
+
+            // Next month days
+            const remaining = 42 - (startDay + daysInMonth);
+            for (let i = 1; i <= remaining; i++) {
+                html += `<div class="calendar-day other-month">${i}</div>`;
+            }
+
+            calendarGrid.innerHTML = html;
+        }
+
+        if (calendarGrid) {
+            renderCalendar();
+
+            prevMonthBtn.addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            });
+
+            nextMonthBtn.addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            });
+        }
     });
-
-    // Mini Calendar with Events
-    const calendarGrid = document.getElementById('calendarGrid');
-    const calendarMonth = document.getElementById('calendarMonth');
-    const prevMonthBtn = document.getElementById('prevMonth');
-    const nextMonthBtn = document.getElementById('nextMonth');
-
-    // Calendar events from server
-    const calendarEvents = @json($calendarEvents ?? []);
-
-    let currentDate = new Date();
-
-    // Group events by date
-    function getEventsForDate(dateStr) {
-        return calendarEvents.filter(event => event.date === dateStr);
-    }
-
-    function renderCalendar() {
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
-
-        calendarMonth.textContent = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        const startDay = firstDay.getDay();
-        const daysInMonth = lastDay.getDate();
-
-        const today = new Date();
-        const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
-
-        let html = '';
-
-        // Day labels
-        const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-        days.forEach(day => {
-            html += `<div class="calendar-day-label">${day}</div>`;
-        });
-
-        // Previous month days
-        const prevMonthDays = new Date(year, month, 0).getDate();
-        for (let i = startDay - 1; i >= 0; i--) {
-            html += `<div class="calendar-day other-month">${prevMonthDays - i}</div>`;
-        }
-
-        // Current month days
-        for (let day = 1; day <= daysInMonth; day++) {
-            const isToday = isCurrentMonth && day === today.getDate();
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const dayEvents = getEventsForDate(dateStr);
-            const hasEvents = dayEvents.length > 0;
-
-            // Generate event dots (max 3 visible)
-            let dotsHtml = '';
-            if (hasEvents) {
-                const uniqueColors = [...new Set(dayEvents.map(e => e.color))];
-                const visibleColors = uniqueColors.slice(0, 3);
-                dotsHtml = '<div class="calendar-event-dots">';
-                visibleColors.forEach(color => {
-                    dotsHtml += `<span class="event-dot" style="background: ${color}"></span>`;
-                });
-                dotsHtml += '</div>';
-            }
-
-            // Generate tooltip
-            let tooltipAttr = '';
-            if (hasEvents) {
-                const eventTitles = dayEvents.map(e => e.title).join('\\n');
-                tooltipAttr = ` title="${eventTitles}" data-events='${JSON.stringify(dayEvents)}'`;
-            }
-
-            html += `<div class="calendar-day${isToday ? ' today' : ''}${hasEvents ? ' has-events' : ''}"${tooltipAttr}>${day}${dotsHtml}</div>`;
-        }
-
-        // Next month days
-        const remaining = 42 - (startDay + daysInMonth);
-        for (let i = 1; i <= remaining; i++) {
-            html += `<div class="calendar-day other-month">${i}</div>`;
-        }
-
-        calendarGrid.innerHTML = html;
-    }
-
-    if (calendarGrid) {
-        renderCalendar();
-
-        prevMonthBtn.addEventListener('click', function() {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
-        });
-
-        nextMonthBtn.addEventListener('click', function() {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
-        });
-    }
-});
 </script>
 @endpush

@@ -15,7 +15,7 @@ class StoreAnnouncementRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:255',
-            'content' => 'required|string',
+            'content' => 'required|string|max:5000',
             'is_pinned' => 'boolean',
             'is_urgent' => 'boolean',
             'publish_at' => 'nullable|date',

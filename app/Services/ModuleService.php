@@ -84,13 +84,14 @@ class ModuleService
     {
         $progress = $this->progressService->getModuleProgress($module->id, $userId);
 
+        // Provide defaults for missing keys to avoid "undefined array key" errors
         return [
-            'percentage' => $progress['percentage'],
-            'completed' => $progress['completed_sheets'],
-            'total' => $progress['total_sheets'],
-            'completed_items' => $progress['completed_items'],
-            'total_items' => $progress['total_items'],
-            'status' => $progress['status'],
+            'percentage'      => $progress['percentage'] ?? 0,
+            'completed'       => $progress['completed_sheets'] ?? 0,
+            'total'           => $progress['total_sheets'] ?? 0,
+            'completed_items' => $progress['completed_items'] ?? 0,
+            'total_items'     => $progress['total_items'] ?? 0,
+            'status'          => $progress['status'] ?? 'not_started',
         ];
     }
 

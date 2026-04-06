@@ -4,465 +4,465 @@
 
 @push('styles')
 <style>
-/* Course Show Page */
-.course-hero {
-    position: relative;
-    padding: 2rem;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    margin-bottom: 2rem;
-    min-height: 200px;
-    display: flex;
-    align-items: flex-end;
-}
-
-.course-hero-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--category-color, #6d9773);
-    z-index: 0;
-}
-
-.course-hero-bg.has-thumbnail {
-    background-size: cover;
-    background-position: center;
-}
-
-.course-hero-bg::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2));
-}
-
-.course-hero-bg::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    z-index: 1;
-}
-
-.course-hero-content {
-    position: relative;
-    z-index: 2;
-    color: white;
-    width: 100%;
-}
-
-.course-hero-badges {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-}
-
-.course-hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    padding: 0.4rem 0.75rem;
-    border-radius: 50px;
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-.course-hero-title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.course-hero-code {
-    font-size: 1rem;
-    opacity: 0.9;
-    margin-bottom: 0.75rem;
-}
-
-.course-hero-meta {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.course-hero-meta-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    opacity: 0.9;
-}
-
-.course-hero-actions {
-    position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
-    z-index: 3;
-    display: flex;
-    gap: 0.5rem;
-}
-
-.course-hero-actions .btn {
-    backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white;
-}
-
-.course-hero-actions .btn:hover {
-    background: white;
-    color: var(--text-primary);
-}
-
-/* Course Info Cards */
-.course-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.course-info-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--border-radius);
-    padding: 1.5rem;
-}
-
-.course-info-card-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-}
-
-.course-info-card-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    background: color-mix(in srgb, var(--category-color) 15%, transparent);
-    color: var(--category-color);
-}
-
-.course-info-card-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
-}
-
-.course-info-card-body {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.info-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-}
-
-.info-row i {
-    width: 18px;
-    color: var(--category-color);
-    font-size: 0.85rem;
-}
-
-.info-row strong {
-    color: var(--text-primary);
-    margin-right: 0.25rem;
-}
-
-/* Instructor Card */
-.instructor-profile {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.instructor-avatar {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--category-color), var(--category-color-dark));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 700;
-    font-size: 1.1rem;
-    flex-shrink: 0;
-    overflow: hidden;
-}
-
-.instructor-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.instructor-info h4 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 0.25rem 0;
-}
-
-.instructor-info p {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin: 0;
-}
-
-/* Modules Section */
-.modules-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--border-radius);
-    overflow: hidden;
-}
-
-.modules-section-header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modules-section-header h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.modules-section-header h3 i {
-    color: var(--category-color);
-}
-
-.module-count-badge {
-    background: var(--category-color);
-    color: white;
-    padding: 0.25rem 0.6rem;
-    border-radius: 50px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.modules-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-    padding: 1.5rem;
-}
-
-.module-card {
-    background: var(--background);
-    border: 1px solid var(--border);
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.module-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-.module-card-header {
-    background: linear-gradient(135deg, var(--category-color, #64748b), var(--category-color-dark, #475569));
-    padding: 1rem 1.25rem;
-    color: white;
-}
-
-.module-card-number {
-    font-size: 0.75rem;
-    font-weight: 600;
-    opacity: 0.9;
-    margin-bottom: 0.25rem;
-}
-
-.module-card-name {
-    font-size: 1rem;
-    font-weight: 700;
-    margin: 0;
-}
-
-.module-card-body {
-    padding: 1.25rem;
-}
-
-.module-card-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.75rem;
-}
-
-.module-card-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-bottom: 1rem;
-}
-
-.module-card-stat {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    background: var(--surface);
-    border-radius: calc(var(--border-radius) / 2);
-}
-
-.module-card-stat i {
-    color: var(--category-color);
-}
-
-.module-card-footer {
-    padding: 1rem 1.25rem;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.module-card-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.module-card-actions .btn {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.8rem;
-}
-
-/* Empty State */
-.modules-empty {
-    text-align: center;
-    padding: 4rem 2rem;
-}
-
-.modules-empty-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 1.5rem;
-    background: var(--background);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.modules-empty-icon i {
-    font-size: 2rem;
-    color: var(--category-color);
-}
-
-.modules-empty h4 {
-    font-size: 1.1rem;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-}
-
-.modules-empty p {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    margin-bottom: 1.5rem;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
+    /* Course Show Page */
     .course-hero {
-        padding: 1.5rem;
+        position: relative;
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        margin-bottom: 2rem;
+        min-height: 200px;
+        display: flex;
+        align-items: flex-end;
+    }
+
+    .course-hero-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--category-color, #6d9773);
+        z-index: 0;
+    }
+
+    .course-hero-bg.has-thumbnail {
+        background-size: cover;
+        background-position: center;
+    }
+
+    .course-hero-bg::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.2));
+    }
+
+    .course-hero-bg::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        z-index: 1;
+    }
+
+    .course-hero-content {
+        position: relative;
+        z-index: 2;
+        color: white;
+        width: 100%;
+    }
+
+    .course-hero-badges {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .course-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 0.4rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
     }
 
     .course-hero-title {
-        font-size: 1.5rem;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
-    .course-hero-actions {
-        position: static;
-        margin-top: 1rem;
+    .course-hero-code {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-bottom: 0.75rem;
     }
 
     .course-hero-meta {
-        flex-direction: column;
-        align-items: flex-start;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .course-hero-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .course-hero-actions {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        z-index: 3;
+        display: flex;
         gap: 0.5rem;
     }
 
-    .modules-grid {
-        grid-template-columns: 1fr;
+    .course-hero-actions .btn {
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
     }
-}
 
-/* Dark mode */
-.dark-mode .course-info-card {
-    background: var(--surface);
-    border-color: var(--border);
-}
+    .course-hero-actions .btn:hover {
+        background: white;
+        color: var(--text-primary);
+    }
 
-.dark-mode .module-card {
-    background: var(--surface);
-    border-color: var(--border);
-}
+    /* Course Info Cards */
+    .course-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
 
-.dark-mode .module-card-stat {
-    background: rgba(255, 255, 255, 0.05);
-}
+    .course-info-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+    }
 
-.dark-mode .modules-section {
-    background: var(--surface);
-    border-color: var(--border);
-}
+    .course-info-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
 
-/* Category-colored buttons */
-.btn-category {
-    background: var(--category-color);
-    border-color: var(--category-color);
-    color: white;
-}
+    .course-info-card-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        background: color-mix(in srgb, var(--category-color) 15%, transparent);
+        color: var(--category-color);
+    }
 
-.btn-category:hover,
-.btn-category:focus {
-    background: var(--category-color-dark);
-    border-color: var(--category-color-dark);
-    color: white;
-}
+    .course-info-card-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .course-info-card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .info-row i {
+        width: 18px;
+        color: var(--category-color);
+        font-size: 0.85rem;
+    }
+
+    .info-row strong {
+        color: var(--text-primary);
+        margin-right: 0.25rem;
+    }
+
+    /* Instructor Card */
+    .instructor-profile {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .instructor-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--category-color), var(--category-color-dark));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    .instructor-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .instructor-info h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0 0 0.25rem 0;
+    }
+
+    .instructor-info p {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    /* Modules Section */
+    .modules-section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+    }
+
+    .modules-section-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modules-section-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .modules-section-header h3 i {
+        color: var(--category-color);
+    }
+
+    .module-count-badge {
+        background: var(--category-color);
+        color: white;
+        padding: 0.25rem 0.6rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .modules-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+
+    .module-card {
+        background: var(--background);
+        border: 1px solid var(--border);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .module-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .module-card-header {
+        background: linear-gradient(135deg, var(--category-color, #64748b), var(--category-color-dark, #475569));
+        padding: 1rem 1.25rem;
+        color: white;
+    }
+
+    .module-card-number {
+        font-size: 0.75rem;
+        font-weight: 600;
+        opacity: 0.9;
+        margin-bottom: 0.25rem;
+    }
+
+    .module-card-name {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .module-card-body {
+        padding: 1.25rem;
+    }
+
+    .module-card-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+    }
+
+    .module-card-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+    }
+
+    .module-card-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        background: var(--surface);
+        border-radius: calc(var(--border-radius) / 2);
+    }
+
+    .module-card-stat i {
+        color: var(--category-color);
+    }
+
+    .module-card-footer {
+        padding: 1rem 1.25rem;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .module-card-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .module-card-actions .btn {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    /* Empty State */
+    .modules-empty {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .modules-empty-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: var(--background);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modules-empty-icon i {
+        font-size: 2rem;
+        color: var(--category-color);
+    }
+
+    .modules-empty h4 {
+        font-size: 1.1rem;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .modules-empty p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .course-hero {
+            padding: 1.5rem;
+        }
+
+        .course-hero-title {
+            font-size: 1.5rem;
+        }
+
+        .course-hero-actions {
+            position: static;
+            margin-top: 1rem;
+        }
+
+        .course-hero-meta {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .modules-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Dark mode */
+    .dark-mode .course-info-card {
+        background: var(--surface);
+        border-color: var(--border);
+    }
+
+    .dark-mode .module-card {
+        background: var(--surface);
+        border-color: var(--border);
+    }
+
+    .dark-mode .module-card-stat {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .dark-mode .modules-section {
+        background: var(--surface);
+        border-color: var(--border);
+    }
+
+    /* Category-colored buttons */
+    .btn-category {
+        background: var(--category-color);
+        border-color: var(--category-color);
+        color: white;
+    }
+
+    .btn-category:hover,
+    .btn-category:focus {
+        background: var(--category-color-dark);
+        border-color: var(--category-color-dark);
+        color: white;
+    }
 </style>
 @endpush
 
 @section('content')
 @php
-    $categoryColor = $course->category?->color ?? '#6d9773';
-    $categoryColorDark = $course->category?->darker_color ?? '#0c3a2d';
+$categoryColor = $course->category?->color ?? '#6d9773';
+$categoryColorDark = $course->category?->darker_color ?? '#0c3a2d';
 @endphp
 
 <div class="container-fluid py-4" style="--category-color: {{ $categoryColor }}; --category-color-dark: {{ $categoryColorDark }}">
@@ -471,7 +471,7 @@
     {{-- Course Hero --}}
     <div class="course-hero">
         <div class="course-hero-bg {{ $course->thumbnail ? 'has-thumbnail' : '' }}"
-             style="{{ $course->thumbnail ? 'background-image: url(' . asset('storage/' . $course->thumbnail) . ');' : '' }}"></div>
+            style="{{ $course->thumbnail ? 'background-image: url(' . asset('storage/' . $course->thumbnail) . ');' : '' }}"></div>
 
         @if(isset($canEdit) && $canEdit)
         <div class="course-hero-actions">
@@ -575,9 +575,9 @@
                 <div class="instructor-profile">
                     <div class="instructor-avatar">
                         @if($course->instructor->profile_photo)
-                            <img src="{{ asset('storage/' . $course->instructor->profile_photo) }}" alt="{{ $course->instructor->full_name }}">
+                        <img src="{{ asset('storage/' . $course->instructor->profile_photo) }}" alt="{{ $course->instructor->full_name }}">
                         @else
-                            {{ strtoupper(substr($course->instructor->first_name, 0, 1)) }}{{ strtoupper(substr($course->instructor->last_name, 0, 1)) }}
+                        {{ strtoupper(substr($course->instructor->first_name, 0, 1)) }}{{ strtoupper(substr($course->instructor->last_name, 0, 1)) }}
                         @endif
                     </div>
                     <div class="instructor-info">
@@ -669,13 +669,15 @@
                                     <i class="fas fa-file-alt me-2"></i>Add Content
                                 </a>
                             </li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li>
                                 <form action="{{ route('courses.modules.destroy', [$course, $module]) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="dropdown-item text-danger"
-                                            onclick="return confirm('Are you sure? This will delete all associated content.')">
+                                        onclick="return confirm('Are you sure? This will delete all associated content.')">
                                         <i class="fas fa-trash me-2"></i>Delete
                                     </button>
                                 </form>

@@ -275,23 +275,23 @@
                                     </div>
                                     @endif
                                 </div>
-                                <div class="flex-grow-1 min-width-0">
+                                <div class="flex-grow-1 min-width-0" style="overflow-wrap: break-word; word-break: break-word;">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
                                             <span class="badge bg-{{ $item['type'] === 'announcement' ? 'primary' : 'success' }} text-white mb-1">
                                                 <i class="{{ $item['icon'] }} me-1"></i>{{ ucfirst($item['type']) }}
                                             </span>
                                             <h6 class="mb-1">
-                                                <a href="{{ $item['url'] }}" class="text-decoration-none text-dark">
+                                                <a href="{{ $item['url'] }}" class="text-decoration-none text-dark text-break">
                                                     {{ $item['title'] }}
                                                 </a>
                                             </h6>
                                         </div>
-                                        <small class="text-muted text-nowrap ms-2">
+                                        <small class="text-muted text-nowrap ms-2 flex-shrink-0">
                                             {{ \Carbon\Carbon::parse($item['date'])->diffForHumans() }}
                                         </small>
                                     </div>
-                                    <p class="text-muted small mb-1">{{ $item['content'] }}</p>
+                                    <p class="text-muted small mb-1 text-break">{{ $item['content'] }}</p>
                                     <small class="text-muted">
                                         <i class="fas fa-user me-1"></i>{{ $item['user_name'] }}
                                         @if($item['module'])
@@ -339,18 +339,18 @@
                     <div class="card-header bg-warning bg-opacity-10 d-flex justify-content-between align-items-center py-2">
                         <h6 class="mb-0">
                             @if(Auth::user()->role === \App\Constants\Roles::STUDENT)
-                                <i class="fas fa-tasks text-warning me-2"></i>My Tasks
+                            <i class="fas fa-tasks text-warning me-2"></i>My Tasks
                             @elseif(Auth::user()->role === \App\Constants\Roles::ADMIN)
-                                <i class="fas fa-clock text-warning me-2"></i>Pending Requests
+                            <i class="fas fa-clock text-warning me-2"></i>Pending Requests
                             @else
-                                <i class="fas fa-calendar-check text-warning me-2"></i>Upcoming Deadlines
+                            <i class="fas fa-calendar-check text-warning me-2"></i>Upcoming Deadlines
                             @endif
                             @php
                             $pendingCount = Auth::user()->role === \App\Constants\Roles::STUDENT
                             ? ((isset($pendingActivities) ? $pendingActivities->count() : 0) + ($upcomingDeadlinesCount ?? 0))
                             : (Auth::user()->role === \App\Constants\Roles::ADMIN
-                                ? (($pendingEvaluations ?? 0) + ($pendingRegistrationsCount ?? 0))
-                                : (($upcomingDeadlinesCount ?? 0) + ($pendingEvaluations ?? 0))); // Instructor only
+                            ? (($pendingEvaluations ?? 0) + ($pendingRegistrationsCount ?? 0))
+                            : (($upcomingDeadlinesCount ?? 0) + ($pendingEvaluations ?? 0))); // Instructor only
                             @endphp
                             @if($pendingCount > 0)
                             <span class="badge bg-warning text-dark">{{ $pendingCount }}</span>
@@ -516,9 +516,9 @@
                             <i class="fas fa-check-circle text-success mb-2"></i>
                             <p class="mb-0 small">
                                 @if(Auth::user()->role === \App\Constants\Roles::INSTRUCTOR)
-                                    No upcoming deadlines or pending evaluations
+                                No upcoming deadlines or pending evaluations
                                 @else
-                                    No pending requests
+                                No pending requests
                                 @endif
                             </p>
                         </div>

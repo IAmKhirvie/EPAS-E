@@ -1,15 +1,15 @@
 /* Reset and base styles */
 :root {
-    --primary: #0c3a2d;
+    --primary: #006f0e;
     --primary-light: #6D9773;
-    --primary-dark: #082a20;
+    --primary-dark: #0c3a2d;
     --primary-foreground: #0c3a2d29;
 
     /* Bootstrap overrides */
     --bs-primary: #ffb902;
     --bs-primary-rgb: 255, 185, 2;
     --bs-link-color: #0c3a2d;
-    --bs-link-hover-color: #6D9773;
+    --bs-link-hover-color: #006f0e;
     --bs-btn-bg: #ffb902;
     --bs-btn-border-color: #ffb902;
     --bs-btn-hover-bg: #e5a702;
@@ -69,8 +69,8 @@
     --foreground: #f8f9fa;
     --card: #242424;
     --card-foreground: #f8f9fa;
-    --primary: #6D9773;
-    --primary-light: #8fb896;
+    --primary: #006f0e;
+    --primary-light: #6D9773;
     --primary-dark: #0c3a2d;
     --primary-foreground: #6D977340;
 
@@ -89,7 +89,7 @@
     --sidebar-bg: #0c3a2d;
     --sidebar-foreground: #f8f9fa;
     --sidebar-border: #1a5c47;
-    --light-gray: #2a2a2a;
+    --light-gray: #dbdbdb;
     --text-primary: #f8f9fa;
     --light: #f8f9fa;
     --dark: #1a1a1a;
@@ -197,6 +197,11 @@ body {
   border-top: 1px solid var(--card-border);
 }
 
+.text-primary {
+    --bs-text-opacity: 1;
+    color: rgb(2 81 255) !important;
+}
+
 /* Text colors for dark mode */
 .dark-mode .text-muted {
   color: var(--muted-foreground) !important;
@@ -207,7 +212,7 @@ body {
 }
 
 .dark-mode .text-light {
-  color: var(--dark) !important;
+  color: var(--light) !important;
 }
 
 /* Badge colors for dark mode */
@@ -330,7 +335,7 @@ body {
 }
 
 .dark-mode .accordion-body.bg-light {
-    background-color: var(--light-gray) !important;
+    background-color: var(--background) !important;
 }
 
 .dark-mode .accordion-button.bg-white {
@@ -397,7 +402,7 @@ body {
 }
 
 .dark-mode .text-primary {
-    color: var(--primary) !important;
+    /* color: var(--primary) !important; */
 }
 
 .dark-mode .text-info {

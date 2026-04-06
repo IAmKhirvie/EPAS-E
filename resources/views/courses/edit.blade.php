@@ -95,10 +95,10 @@
                                     <div class="thumbnail-upload-wrapper">
                                         <div class="thumbnail-preview {{ $course->thumbnail ? 'has-image' : '' }}" id="thumbnailPreview">
                                             @if($course->thumbnail)
-                                                <img src="{{ asset('storage/' . $course->thumbnail) }}" alt="Current thumbnail">
+                                            <img src="{{ dynamic_route('private.thumbnail', $course->thumbnail) }}" alt="Current thumbnail">
                                             @else
-                                                <i class="fas fa-image"></i>
-                                                <span>Click to upload image</span>
+                                            <i class="fas fa-image"></i>
+                                            <span>Click to upload image</span>
                                             @endif
                                         </div>
                                         <input type="file" class="form-control d-none @error('thumbnail') is-invalid @enderror"
@@ -191,8 +191,8 @@
                                     <label class="cb-field-label">Schedule Days <span class="optional">(optional)</span></label>
                                     <div class="schedule-days-wrapper">
                                         @php
-                                            $days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                                            $selectedDays = old('schedule_days', $course->schedule_days) ? explode(',', old('schedule_days', $course->schedule_days)) : [];
+                                        $days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                                        $selectedDays = old('schedule_days', $course->schedule_days) ? explode(',', old('schedule_days', $course->schedule_days)) : [];
                                         @endphp
                                         <div class="d-flex flex-wrap gap-2">
                                             @foreach($days as $day)

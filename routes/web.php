@@ -283,6 +283,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/two-factor/verify', [TwoFactorController::class, 'verify'])->name('two-factor.verify');
 });
 
+Route::get('/private/thumbnail/{path}', function ($path) {
+    $fullPath = storage_path('app/public/' . $path);
+    if (!file_exists($fullPath) || !is_readable($fullPath)) {
+        abort(404);
+    }
+    return response()->file($fullPath);
+})->where('path', '.*')->name('private.thumbnail');
 /*
 |--------------------------------------------------------------------------
 | Protected Routes (Requires Authentication)
@@ -987,6 +994,4 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
     Route::get('/trash', [TrashController::class, 'index'])
         ->name('trash.index')
         ->middleware('check.role:admin,instructor');
-
 });
-

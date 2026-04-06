@@ -825,7 +825,7 @@ body.dark-mode .input {
 
 body.dark-mode .input label {
     color: #a0aec0;
-    background: var(--primary-dark)
+    background: #242424;
 }
 
 body.dark-mode .input input {
