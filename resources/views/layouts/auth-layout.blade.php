@@ -82,6 +82,9 @@
   </style>
 </head>
 <body class="auth-page-body">
+  {{-- Page Loader for auth transitions --}}
+  @include('components.page-loader')
+
   @include('partials.header')
 
     <!-- In auth-layout.blade.php -->
@@ -126,6 +129,54 @@
 
   <!-- Initialize dark mode for auth pages -->
   <script>if (window.initDarkMode) window.initDarkMode();</script>
+
+  <!-- Page Loader Logic for Auth Pages -->
+  <script>
+  (function() {
+    var loader = document.getElementById('page-loader');
+
+    // Hide loader when auth page loads (we're already on the page)
+    // But show it when navigating away (form submit)
+    function hideLoaderNow() {
+      if (loader && !loader.classList.contains('hidden')) {
+        loader.classList.add('hidden');
+        setTimeout(function() {
+          if (window._circuitAnimation) {
+            cancelAnimationFrame(window._circuitAnimation);
+          }
+        }, 300);
+      }
+    }
+
+    // Hide loader after page loads
+    if (document.readyState === 'complete') {
+      hideLoaderNow();
+    } else {
+      window.addEventListener('load', hideLoaderNow);
+    }
+
+    // Show loader when login/register form is submitted
+    document.querySelectorAll('form').forEach(function(form) {
+      form.addEventListener('submit', function() {
+        if (loader) {
+          loader.classList.remove('hidden');
+        }
+      });
+    });
+
+    // Show loader when navigating to other pages via links
+    document.querySelectorAll('a[href]:not([href^="#"]):not([href^="javascript"])').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        // Only show loader for internal navigation
+        if (link.hostname === window.location.hostname && !link.hasAttribute('target')) {
+          if (loader) {
+            loader.classList.remove('hidden');
+          }
+        }
+      });
+    });
+  })();
+  </script>
 
   <!-- Global Error Popup Handler -->
   <div class="error-popup-overlay" id="errorPopupOverlay">

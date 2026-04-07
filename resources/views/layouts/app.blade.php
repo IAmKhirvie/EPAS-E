@@ -93,10 +93,8 @@
 </head>
 <body class="modern-layout" data-user-role="{{ auth()->user()->role ?? '' }}">
 
-  {{-- Page Loader - Only show if view requests it via @section('showLoader', true) --}}
-  @if(View::hasSection('showLoader'))
-    @include('components.page-loader')
-  @endif
+  {{-- Page Loader - Shows during page transitions --}}
+  @include('components.page-loader')
 
   {{-- Header --}}
   @include('partials.navbar')
