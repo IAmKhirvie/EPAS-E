@@ -65,13 +65,14 @@
                             <!-- Profile Picture -->
                             <form action="{{ route('settings.profile-picture') }}" method="POST" enctype="multipart/form-data" class="mb-4" id="profilePictureForm">
                                 @csrf
+                                <input type="hidden" name="cropped_image" id="croppedImageData">
                                 <div class="d-flex align-items-center gap-4">
                                     <div>
                                         <img src="{{ $user->profile_image_url }}" alt="Profile" class="rounded-circle" width="100" height="100" id="profilePreview" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($user->initials) }}&background=6d9773&color=fff&size=120'">
                                     </div>
                                     <div>
                                         <h6 class="mb-1">Profile Picture</h6>
-                                        <p class="text-muted small mb-2">JPG, PNG or GIF. Max 2MB.</p>
+                                        <p class="text-muted small mb-2">JPG, PNG or GIF. Max 2MB. You can crop and adjust after selecting.</p>
                                         <input type="file" name="profile_image" class="d-none" accept="image/jpeg,image/png,image/gif" id="profileImageInput">
                                         <label for="profileImageInput" class="btn btn-sm btn-outline-primary mb-0" style="cursor: pointer;" id="uploadPhotoBtn">
                                             <span class="btn-text"><i class="fas fa-upload me-1"></i>Upload Photo</span>
@@ -420,15 +421,90 @@
     </div>
 </div>
 
+<!-- Image Cropper Modal -->
+<div class="modal fade" id="cropperModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-crop-alt me-2"></i>Adjust Your Photo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" id="cropperCloseBtn"></button>
+            </div>
+            <div class="modal-body">
+                <div class="cropper-container-wrapper" style="max-height: 400px; overflow: hidden;">
+                    <img id="cropperImage" src="" alt="Crop Image" style="max-width: 100%; display: block;">
+                </div>
+                <div class="mt-3">
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" class="btn btn-outline-secondary" id="cropperZoomIn" title="Zoom In">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="cropperZoomOut" title="Zoom Out">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="cropperRotateLeft" title="Rotate Left">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="cropperRotateRight" title="Rotate Right">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="cropperReset" title="Reset">
+                            <i class="fas fa-sync"></i>
+                        </button>
+                    </div>
+                    <p class="text-muted small mt-2 mb-0 text-center">
+                        <i class="fas fa-info-circle me-1"></i>Drag to move, scroll to zoom, or use buttons above
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cropperCancelBtn">Cancel</button>
+                <button type="button" class="btn btn-primary" id="cropperSaveBtn">
+                    <i class="fas fa-check me-1"></i>Save Photo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cropper.js CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<style>
+    .cropper-container {
+        max-height: 400px;
+    }
+    .cropper-view-box,
+    .cropper-face {
+        border-radius: 50%;
+    }
+    /* Ensure the cropper preview is circular */
+    .cropper-view-box {
+        box-shadow: 0 0 0 1px #39f;
+        outline: 0;
+    }
+</style>
+
+<!-- Cropper.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Profile image preview and auto-submit
+    // Profile image cropper
     const profileImageInput = document.getElementById('profileImageInput');
     const profilePreview = document.getElementById('profilePreview');
     const profilePictureForm = document.getElementById('profilePictureForm');
     const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
+    const croppedImageData = document.getElementById('croppedImageData');
 
-    if (profileImageInput && profilePictureForm) {
+    // Cropper elements
+    const cropperModal = document.getElementById('cropperModal');
+    const cropperImage = document.getElementById('cropperImage');
+    const cropperSaveBtn = document.getElementById('cropperSaveBtn');
+    const cropperCancelBtn = document.getElementById('cropperCancelBtn');
+    const cropperCloseBtn = document.getElementById('cropperCloseBtn');
+
+    let cropper = null;
+    let originalFile = null;
+
+    if (profileImageInput && profilePictureForm && cropperModal) {
         profileImageInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -447,22 +523,112 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
 
-                // Preview the image
+                originalFile = file;
+
+                // Load image into cropper
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    profilePreview.src = e.target.result;
+                    cropperImage.src = e.target.result;
+
+                    // Show modal
+                    const modal = new bootstrap.Modal(cropperModal);
+                    modal.show();
+
+                    // Initialize cropper after modal is shown
+                    cropperModal.addEventListener('shown.bs.modal', function initCropper() {
+                        if (cropper) {
+                            cropper.destroy();
+                        }
+                        cropper = new Cropper(cropperImage, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            dragMode: 'move',
+                            autoCropArea: 1,
+                            cropBoxMovable: false,
+                            cropBoxResizable: false,
+                            guides: false,
+                            center: true,
+                            highlight: false,
+                            background: false,
+                            responsive: true,
+                            restore: false,
+                        });
+                        cropperModal.removeEventListener('shown.bs.modal', initCropper);
+                    }, { once: true });
                 };
                 reader.readAsDataURL(file);
+            }
+        });
 
-                // Show loading state and auto-submit
+        // Cropper controls
+        document.getElementById('cropperZoomIn').addEventListener('click', function() {
+            if (cropper) cropper.zoom(0.1);
+        });
+
+        document.getElementById('cropperZoomOut').addEventListener('click', function() {
+            if (cropper) cropper.zoom(-0.1);
+        });
+
+        document.getElementById('cropperRotateLeft').addEventListener('click', function() {
+            if (cropper) cropper.rotate(-45);
+        });
+
+        document.getElementById('cropperRotateRight').addEventListener('click', function() {
+            if (cropper) cropper.rotate(45);
+        });
+
+        document.getElementById('cropperReset').addEventListener('click', function() {
+            if (cropper) cropper.reset();
+        });
+
+        // Save cropped image
+        cropperSaveBtn.addEventListener('click', function() {
+            if (cropper) {
+                // Get cropped canvas
+                const canvas = cropper.getCroppedCanvas({
+                    width: 400,
+                    height: 400,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high',
+                });
+
+                // Convert to base64
+                const croppedData = canvas.toDataURL('image/jpeg', 0.9);
+                croppedImageData.value = croppedData;
+
+                // Update preview
+                profilePreview.src = croppedData;
+
+                // Show loading state
                 if (uploadPhotoBtn) {
                     uploadPhotoBtn.querySelector('.btn-text').classList.add('d-none');
                     uploadPhotoBtn.querySelector('.btn-loading').classList.remove('d-none');
                     uploadPhotoBtn.disabled = true;
                 }
+
+                // Close modal and submit form
+                bootstrap.Modal.getInstance(cropperModal).hide();
+
+                // Clear file input (we're using base64 now)
+                profileImageInput.value = '';
+
+                // Submit form
                 profilePictureForm.submit();
             }
         });
+
+        // Cancel/close handlers
+        function handleCropperClose() {
+            profileImageInput.value = '';
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        }
+
+        cropperCancelBtn.addEventListener('click', handleCropperClose);
+        cropperCloseBtn.addEventListener('click', handleCropperClose);
+        cropperModal.addEventListener('hidden.bs.modal', handleCropperClose);
     }
 
     // Hash navigation for tabs

@@ -41,9 +41,19 @@
                     </ul>
                 </div>
                 @endif
+                @php
+                    $moduleForBack = $taskSheet->informationSheet->module ?? null;
+                    $courseForBack = $moduleForBack?->course ?? null;
+                @endphp
+                @if($moduleForBack && $courseForBack)
+                <a href="{{ route('courses.modules.show', [$courseForBack, $moduleForBack, $moduleForBack->slug]) }}" class="btn btn-sm btn-success">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Module
+                </a>
+                @else
                 <a href="{{ route('information-sheets.show', ['module' => $taskSheet->informationSheet->module_id, 'informationSheet' => $taskSheet->informationSheet->id]) }}" class="btn btn-sm btn-light">
                     <i class="fas fa-arrow-left me-1"></i>Back
                 </a>
+                @endif
             </div>
         </div>
 

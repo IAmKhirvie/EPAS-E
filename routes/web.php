@@ -803,7 +803,16 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::get('/manual-release', [CertificateController::class, 'manualReleaseForm'])->name('manual-release');
         Route::post('/manual-release', [CertificateController::class, 'manualRelease'])->name('manual-release.store');
         Route::post('/bulk-release', [CertificateController::class, 'bulkRelease'])->name('bulk-release');
-        Route::get('/{certificate}', [CertificateController::class, 'show'])->name('show');
+
+        // Certificate CRUD
+        Route::get('/{certificate}', [CertificateController::class, 'adminShow'])->name('show');
+        Route::get('/{certificate}/edit', [CertificateController::class, 'edit'])->name('edit');
+        Route::put('/{certificate}', [CertificateController::class, 'update'])->name('update');
+        Route::delete('/{certificate}', [CertificateController::class, 'destroy'])->name('destroy');
+
+        // Certificate actions
+        Route::post('/{certificate}/resend-email', [CertificateController::class, 'resendEmail'])->name('resend-email');
+        Route::post('/{certificate}/regenerate-pdf', [CertificateController::class, 'regeneratePdf'])->name('regenerate-pdf');
         Route::post('/{certificate}/instructor-approve', [CertificateController::class, 'instructorApprove'])->name('instructor-approve');
         Route::post('/{certificate}/admin-approve', [CertificateController::class, 'adminApprove'])->name('admin-approve');
         Route::post('/{certificate}/reject', [CertificateController::class, 'reject'])->name('reject');

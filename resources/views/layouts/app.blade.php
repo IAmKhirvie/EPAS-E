@@ -92,8 +92,10 @@
 </head>
 <body class="modern-layout" data-user-role="{{ auth()->user()->role ?? '' }}">
 
-  {{-- Page Loader --}}
-  @include('components.page-loader')
+  {{-- Page Loader - Only show if view requests it via @section('showLoader', true) --}}
+  @if(View::hasSection('showLoader'))
+    @include('components.page-loader')
+  @endif
 
   {{-- Header --}}
   @include('partials.navbar')
@@ -192,6 +194,7 @@
             </div>
         </div>
         <!-- Create Module Sidebar -->
+        @php $courses = $courses ?? \App\Models\Course::withCount('modules')->orderBy('course_name')->get(); @endphp
         <div class="slide-sidebar" id="createModuleSidebar">
             <div class="slide-sidebar-header">
                 <h5>Create New Module</h5>
@@ -202,59 +205,83 @@
             <div class="slide-sidebar-content">
                 <form method="POST" action="{{ route('modules.store') }}" id="createModuleForm">
                     @csrf
-                    
+
+                    <div class="mb-3">
+                        <label for="fab_course_id" class="form-label required-field">Course</label>
+                        <select name="course_id" id="fab_course_id" class="form-select" required>
+                            <option value="" disabled selected>Select a Course</option>
+                            @foreach($courses as $course)
+                                <option value="{{ $course->id }}" data-module-count="{{ $course->modules_count ?? $course->modules->count() }}">
+                                    {{ $course->course_code }} - {{ $course->course_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="fab_module_order" class="form-label required-field">Order</label>
+                                <input type="number" name="order" id="fab_module_order"
+                                       class="form-control" value="{{ old('order', 1) }}" min="1" required>
+                                <small class="text-muted">Position in course</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="module_number" class="form-label required-field">Module Number</label>
+                                <input type="text" name="module_number" id="module_number"
+                                       class="form-control" value="{{ old('module_number') }}" placeholder="e.g., Module 1" required>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <label for="qualification_title" class="form-label required-field">Qualification Title</label>
-                        <input type="text" name="qualification_title" id="qualification_title" 
+                        <input type="text" name="qualification_title" id="qualification_title"
                                class="form-control" value="{{ old('qualification_title', 'Electronic Products Assembly And Servicing NCII') }}" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="unit_of_competency" class="form-label required-field">Unit of Competency</label>
-                        <input type="text" name="unit_of_competency" id="unit_of_competency" 
+                        <input type="text" name="unit_of_competency" id="unit_of_competency"
                                class="form-control" value="{{ old('unit_of_competency', 'Assemble Electronic Products') }}" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="module_title" class="form-label required-field">Module Title</label>
-                        <input type="text" name="module_title" id="module_title" 
+                        <input type="text" name="module_title" id="module_title"
                                class="form-control" value="{{ old('module_title', 'Assembling Electronic Products') }}" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="module_number" class="form-label required-field">Module Number</label>
-                        <input type="text" name="module_number" id="module_number" 
-                               class="form-control" value="{{ old('module_number') }}" placeholder="e.g., Module 1" required>
-                    </div>
-
-                    <div class="mb-3">
                         <label for="module_name" class="form-label required-field">Module Name</label>
-                        <input type="text" name="module_name" id="module_name" 
+                        <input type="text" name="module_name" id="module_name"
                                class="form-control" value="{{ old('module_name', 'Competency based learning material') }}" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="table_of_contents" class="form-label">Table of Contents</label>
-                        <textarea name="table_of_contents" id="table_of_contents" 
-                                  class="form-control" rows="4" placeholder="Enter the table of contents with page numbers...">{{ old('table_of_contents') }}</textarea>
+                        <textarea name="table_of_contents" id="table_of_contents"
+                                  class="form-control" rows="3" placeholder="Enter the table of contents with page numbers...">{{ old('table_of_contents') }}</textarea>
                     </div>
 
                     <div class="mb-3">
                         <label for="how_to_use_cblm" class="form-label">How to Use CBLM</label>
-                        <textarea name="how_to_use_cblm" id="how_to_use_cblm" 
-                                  class="form-control" rows="3">{{ old('how_to_use_cblm') }}</textarea>
+                        <textarea name="how_to_use_cblm" id="how_to_use_cblm"
+                                  class="form-control" rows="2">{{ old('how_to_use_cblm') }}</textarea>
                     </div>
 
                     <div class="mb-3">
                         <label for="introduction" class="form-label">Introduction</label>
-                        <textarea name="introduction" id="introduction" 
-                                  class="form-control" rows="3">{{ old('introduction') }}</textarea>
+                        <textarea name="introduction" id="introduction"
+                                  class="form-control" rows="2">{{ old('introduction') }}</textarea>
                     </div>
 
                     <div class="mb-3">
                         <label for="learning_outcomes" class="form-label">Learning Outcomes</label>
-                        <textarea name="learning_outcomes" id="learning_outcomes" 
-                                  class="form-control" rows="3">{{ old('learning_outcomes') }}</textarea>
+                        <textarea name="learning_outcomes" id="learning_outcomes"
+                                  class="form-control" rows="2">{{ old('learning_outcomes') }}</textarea>
                     </div>
 
                     <div class="d-grid">

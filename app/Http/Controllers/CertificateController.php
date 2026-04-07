@@ -316,4 +316,139 @@ class CertificateController extends Controller
             return back()->with('error', 'Bulk release failed: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Show a certificate (admin view).
+     */
+    public function adminShow(Certificate $certificate)
+    {
+        $certificate->load(['user', 'course', 'module', 'instructorApprovedBy', 'adminApprovedBy']);
+        return view('admin.certificates.show', compact('certificate'));
+    }
+
+    /**
+     * Show edit form for a certificate.
+     */
+    public function edit(Certificate $certificate)
+    {
+        $certificate->load(['user', 'course', 'module']);
+        $templates = $this->certificateService->getAvailableTemplates();
+        $users = User::where('role', 'student')->where('stat', 1)->orderBy('last_name')->get();
+        $modules = Module::with('course')->where('is_active', true)->orderBy('module_title')->get();
+
+        return view('admin.certificates.edit', compact('certificate', 'templates', 'users', 'modules'));
+    }
+
+    /**
+     * Update a certificate.
+     */
+    public function update(Request $request, Certificate $certificate)
+    {
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string|max:1000',
+                'user_id' => 'required|exists:users,id',
+                'module_id' => 'required|exists:modules,id',
+                'issue_date' => 'nullable|date',
+                'template_used' => 'required|string|in:' . implode(',', array_keys($this->certificateService->getAvailableTemplates())),
+                'status' => 'required|string|in:pending_instructor,pending_admin,issued,revoked,rejected',
+            ]);
+
+            $module = Module::findOrFail($validated['module_id']);
+
+            $certificate->update([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'user_id' => $validated['user_id'],
+                'module_id' => $validated['module_id'],
+                'course_id' => $module->course_id,
+                'issue_date' => $validated['issue_date'] ? \Carbon\Carbon::parse($validated['issue_date']) : $certificate->issue_date,
+                'template_used' => $validated['template_used'],
+                'status' => $validated['status'],
+            ]);
+
+            // Regenerate PDF if issued
+            if ($certificate->status === 'issued') {
+                $this->certificateService->generatePdf($certificate);
+            }
+
+            return redirect()->route('admin.certificates.index')
+                ->with('success', 'Certificate updated successfully!');
+        } catch (\Exception $e) {
+            Log::error('CertificateController::update failed', [
+                'error' => $e->getMessage(),
+                'certificate_id' => $certificate->id,
+            ]);
+            return back()->with('error', 'Update failed: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Delete a certificate.
+     */
+    public function destroy(Certificate $certificate)
+    {
+        try {
+            // Delete PDF file if exists
+            if ($certificate->pdf_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($certificate->pdf_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($certificate->pdf_path);
+            }
+
+            $certificate->delete();
+
+            return redirect()->route('admin.certificates.index')
+                ->with('success', 'Certificate deleted successfully!');
+        } catch (\Exception $e) {
+            Log::error('CertificateController::destroy failed', [
+                'error' => $e->getMessage(),
+                'certificate_id' => $certificate->id,
+            ]);
+            return back()->with('error', 'Delete failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Resend certificate email to user.
+     */
+    public function resendEmail(Certificate $certificate)
+    {
+        try {
+            if ($certificate->status !== 'issued') {
+                return back()->with('error', 'Can only send email for issued certificates.');
+            }
+
+            $sent = $this->certificateService->sendCertificateEmail($certificate, true);
+
+            if ($sent) {
+                return back()->with('success', 'Certificate email sent successfully!');
+            }
+
+            return back()->with('error', 'Failed to send email. Please check the user has a valid email address.');
+        } catch (\Exception $e) {
+            Log::error('CertificateController::resendEmail failed', [
+                'error' => $e->getMessage(),
+                'certificate_id' => $certificate->id,
+            ]);
+            return back()->with('error', 'Failed to send email: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Regenerate certificate PDF.
+     */
+    public function regeneratePdf(Certificate $certificate)
+    {
+        try {
+            $this->certificateService->generatePdf($certificate);
+
+            return back()->with('success', 'Certificate PDF regenerated successfully!');
+        } catch (\Exception $e) {
+            Log::error('CertificateController::regeneratePdf failed', [
+                'error' => $e->getMessage(),
+                'certificate_id' => $certificate->id,
+            ]);
+            return back()->with('error', 'PDF regeneration failed: ' . $e->getMessage());
+        }
+    }
 }

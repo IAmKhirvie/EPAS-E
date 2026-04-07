@@ -40,6 +40,7 @@ class ModuleController extends Controller
             'module_title' => 'required|string|max:255',
             'module_number' => 'required|string|max:50',
             'module_name' => 'required|string|max:255',
+            'order' => 'nullable|integer|min:1',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'table_of_contents' => 'nullable|string',
             'how_to_use_cblm' => 'nullable|string',
@@ -70,6 +71,16 @@ class ModuleController extends Controller
                     $thumbnailPath = $request->file('thumbnail')->store('modules/thumbnails', 'public');
                 }
 
+                // Determine order: use provided value or auto-increment
+                $order = $validated['order'] ?? (Module::where('course_id', $course->id)->max('order') + 1);
+
+                // If order is specified and conflicts, shift existing modules
+                if (isset($validated['order'])) {
+                    Module::where('course_id', $course->id)
+                        ->where('order', '>=', $order)
+                        ->increment('order');
+                }
+
                 return Module::create([
                     'course_id' => $course->id,
                     'qualification_title' => $validated['qualification_title'],
@@ -83,7 +94,7 @@ class ModuleController extends Controller
                     'introduction' => $validated['introduction'],
                     'learning_outcomes' => $validated['learning_outcomes'],
                     'is_active' => true,
-                    'order' => Module::where('course_id', $course->id)->max('order') + 1,
+                    'order' => $order,
                     // Final Assessment fields
                     'require_final_assessment' => $validated['require_final_assessment'],
                     'assessment_question_mode' => $validated['assessment_question_mode'] ?? 'all',

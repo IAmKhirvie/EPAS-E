@@ -352,29 +352,90 @@ document.addEventListener('DOMContentLoaded', function () {
         const nextBtn = document.getElementById('focusNextBtn');
         if (!nextBtn) return;
 
+        const content = focusModeData[currentFocusIndex];
         const isLastSection = currentFocusIndex >= focusModeData.length - 1;
+        const isSelfCheck = content && content.type === 'self_check';
+        const isActivity = content && ['task_sheet', 'job_sheet'].includes(content.type);
         const canProceed = canProceedToNext();
 
-        nextBtn.disabled = isLastSection || !canProceed;
-
-        if (!isLastSection && !canProceed) {
+        // Self-check handling
+        if (isSelfCheck) {
+            if (selfCheckState.passed) {
+                // Passed - can proceed
+                nextBtn.disabled = false;
+                nextBtn.innerHTML = isLastSection
+                    ? '<i class="fas fa-check me-2"></i>Complete Module'
+                    : 'Continue<i class="fas fa-arrow-right ms-2"></i>';
+                nextBtn.classList.remove('btn-locked');
+            } else if (selfCheckState.submitted && !selfCheckState.passed) {
+                // Failed - must retry
+                nextBtn.disabled = true;
+                nextBtn.innerHTML = '<i class="fas fa-redo me-2"></i>Retry Required';
+                nextBtn.classList.add('btn-locked');
+            } else {
+                // Not started or in progress
+                nextBtn.disabled = true;
+                nextBtn.innerHTML = '<i class="fas fa-clipboard-check me-2"></i>Complete Self-Check First';
+                nextBtn.classList.add('btn-locked');
+            }
+        } else if (isActivity) {
+            // For task/job sheets, the Next button says "Complete Activity First"
+            nextBtn.disabled = true;
+            nextBtn.innerHTML = '<i class="fas fa-clipboard-check me-2"></i>Complete Activity First';
+            nextBtn.classList.add('btn-locked');
+        } else if (!isLastSection && !canProceed) {
+            nextBtn.disabled = true;
             nextBtn.innerHTML = '<i class="fas fa-lock me-2"></i>Scroll to Continue';
             nextBtn.classList.add('btn-locked');
         } else if (isLastSection) {
+            nextBtn.disabled = false;
             nextBtn.innerHTML = '<i class="fas fa-check me-2"></i>Complete';
             nextBtn.classList.remove('btn-locked');
         } else {
+            nextBtn.disabled = false;
             nextBtn.innerHTML = 'Next<i class="fas fa-arrow-right ms-2"></i>';
             nextBtn.classList.remove('btn-locked');
         }
+    }
+
+    // Track self-check state
+    let selfCheckState = {
+        active: false,
+        started: false,
+        currentQuestion: 0,
+        answers: {},
+        submitted: false,
+        passed: false,
+        results: null
+    };
+
+    function resetSelfCheckState() {
+        selfCheckState = {
+            active: false,
+            started: false,
+            currentQuestion: 0,
+            answers: {},
+            submitted: false,
+            passed: false,
+            results: null
+        };
     }
 
     function updateFocusContent() {
         const content = focusModeData[currentFocusIndex];
         if (!content) return;
 
+        // Check if this is an activity (self_check, task_sheet, job_sheet)
+        const isActivity = ['self_check', 'task_sheet', 'job_sheet'].includes(content.type);
+        const isSelfCheck = content.type === 'self_check';
+
+        // Reset self-check state when moving to a new section
+        if (!isSelfCheck || !selfCheckState.active) {
+            resetSelfCheckState();
+        }
+
         // Reset scroll state for new section (unless already completed)
-        currentSectionScrolled = completedSections.has(currentFocusIndex);
+        currentSectionScrolled = completedSections.has(currentFocusIndex) || isActivity;
 
         document.getElementById('focusModeTitle').textContent = content.title;
         document.getElementById('focusContentTitle').textContent = content.title;
@@ -383,32 +444,70 @@ document.addEventListener('DOMContentLoaded', function () {
         let bodyHtml = '';
         let extractedTables = [];
 
-        if (content.content) {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = content.content;
+        if (isSelfCheck && content.questions && content.questions.length > 0) {
+            // Render self-check quiz inside focus mode
+            selfCheckState.active = true;
 
-            const tables = tempDiv.querySelectorAll('table');
-            tables.forEach(function(table) {
-                extractedTables.push(table.outerHTML);
-                table.remove();
-            });
+            if (selfCheckState.submitted && selfCheckState.results) {
+                // Show results
+                bodyHtml = renderSelfCheckResults(content, selfCheckState.results);
+            } else if (selfCheckState.started) {
+                // Show quiz questions
+                bodyHtml = renderSelfCheckQuiz(content);
+            } else {
+                // Show intro with start button
+                bodyHtml = renderSelfCheckIntro(content);
+            }
+        } else if (isActivity) {
+            // Show activity intro card for task/job sheets
+            const iconColor = content.color || '#6d9773';
+            const icon = content.icon || 'clipboard-check';
 
-            bodyHtml += '<div class="mb-4">' + tempDiv.innerHTML.replace(/\n/g, '<br>') + '</div>';
+            bodyHtml = `
+                <div class="activity-intro-card">
+                    <div class="activity-intro-icon" style="background: ${iconColor}20; color: ${iconColor};">
+                        <i class="fas fa-${icon}"></i>
+                    </div>
+                    <h3 class="activity-intro-title">${content.title}</h3>
+                    <p class="activity-intro-sheet">From: ${content.sheetTitle || 'Information Sheet'}</p>
+                    <p class="activity-intro-description">${content.description || ''}</p>
+                    <a href="${content.url}" class="btn btn-lg activity-start-btn" style="background: ${iconColor}; border-color: ${iconColor}; color: white;">
+                        <i class="fas fa-play me-2"></i>Start ${content.type === 'task_sheet' ? 'Task Sheet' : 'Job Sheet'}
+                    </a>
+                    <p class="activity-intro-hint">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Click the button above to begin, or use the navigation to continue exploring.
+                    </p>
+                </div>
+            `;
+        } else {
+            if (content.content) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = content.content;
+
+                const tables = tempDiv.querySelectorAll('table');
+                tables.forEach(function(table) {
+                    extractedTables.push(table.outerHTML);
+                    table.remove();
+                });
+
+                bodyHtml += '<div class="mb-4">' + tempDiv.innerHTML.replace(/\n/g, '<br>') + '</div>';
+            }
+
+            if (content.parts && content.parts.length > 0) {
+                content.parts.forEach(function (part, idx) {
+                    bodyHtml += '<div class="part-section mb-4 p-3 bg-light rounded">' +
+                        '<h5><span class="badge bg-primary me-2">' + (idx + 1) + '</span>' + (part.title || '') + '</h5>' +
+                        '<p>' + (part.explanation || '').replace(/\n/g, '<br>') + '</p>' +
+                        '</div>';
+                });
+            }
+
+            // Add scroll indicator at the bottom
+            bodyHtml += '<div class="scroll-end-marker" id="scrollEndMarker">' +
+                '<i class="fas fa-check-circle"></i> End of section' +
+                '</div>';
         }
-
-        if (content.parts && content.parts.length > 0) {
-            content.parts.forEach(function (part, idx) {
-                bodyHtml += '<div class="part-section mb-4 p-3 bg-light rounded">' +
-                    '<h5><span class="badge bg-primary me-2">' + (idx + 1) + '</span>' + (part.title || '') + '</h5>' +
-                    '<p>' + (part.explanation || '').replace(/\n/g, '<br>') + '</p>' +
-                    '</div>';
-            });
-        }
-
-        // Add scroll indicator at the bottom
-        bodyHtml += '<div class="scroll-end-marker" id="scrollEndMarker">' +
-            '<i class="fas fa-check-circle"></i> End of section' +
-            '</div>';
 
         document.getElementById('focusContentBody').innerHTML = bodyHtml || '<p class="text-muted">No content available for this section.</p>';
 
@@ -417,11 +516,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (contentPanel) {
             contentPanel.scrollTop = 0;
 
-            // Check if content fits without scrolling
+            // Check if content fits without scrolling (or is an activity)
             setTimeout(() => {
-                if (contentPanel.scrollHeight <= contentPanel.clientHeight + 50) {
+                if (isActivity || contentPanel.scrollHeight <= contentPanel.clientHeight + 50) {
                     currentSectionScrolled = true;
-                    markCurrentSectionComplete();
+                    if (!isActivity) markCurrentSectionComplete();
                 }
                 updateNextButtonState();
             }, 100);
@@ -435,7 +534,9 @@ document.addEventListener('DOMContentLoaded', function () {
         updateNextButtonState();
 
         // Re-setup scroll tracking for new content
-        setupScrollTracking();
+        if (!isActivity) {
+            setupScrollTracking();
+        }
     }
 
     function updateFocusImage(content) {
@@ -451,7 +552,19 @@ document.addEventListener('DOMContentLoaded', function () {
         const imageCounter = document.getElementById('imageCounter');
         const focusModeBody = document.querySelector('.focus-mode-body');
 
-        focusModeBody.classList.remove('no-images', 'has-tables');
+        focusModeBody.classList.remove('no-images', 'has-tables', 'quiz-mode');
+
+        // For self-checks, always hide image panel and use full width
+        const isSelfCheck = content && content.type === 'self_check';
+        if (isSelfCheck) {
+            focusModeBody.classList.add('no-images', 'quiz-mode');
+            noImage.style.display = 'none';
+            focusImage.style.display = 'none';
+            imageNav.style.display = 'none';
+            imageCaption.textContent = '';
+            imageCounter.textContent = '';
+            return;
+        }
 
         const hasImages = images.length > 0;
         const hasTables = extractedTables && extractedTables.length > 0;
@@ -493,12 +606,29 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function nextFocusContent() {
-        if (currentFocusIndex < focusModeData.length - 1 && canProceedToNext()) {
+        const content = focusModeData[currentFocusIndex];
+        const isSelfCheck = content && content.type === 'self_check';
+
+        // For self-checks, only proceed if passed
+        if (isSelfCheck && !selfCheckState.passed) {
+            return; // Can't proceed until passed
+        }
+
+        const canProceedNow = isSelfCheck ? selfCheckState.passed : canProceedToNext();
+
+        if (currentFocusIndex < focusModeData.length - 1 && canProceedNow) {
             currentFocusIndex++;
+            resetSelfCheckState();
             updateFocusContent();
-        } else if (currentFocusIndex >= focusModeData.length - 1) {
-            // Last section completed - show completion message
-            showNotification('Section completed! Great work!', 'success');
+        } else if (currentFocusIndex >= focusModeData.length - 1 && canProceedNow) {
+            // Last section completed - exit focus mode and go back to module
+            showNotification('All sections completed! Great work!', 'success');
+            exitFocusMode();
+
+            // Scroll to overview
+            document.getElementById('overviewSection').style.display = 'block';
+            document.getElementById('dynamicContent').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }
 
@@ -532,6 +662,404 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('focusNextBtn').addEventListener('click', nextFocusContent);
     document.getElementById('prevImage').addEventListener('click', prevImage);
     document.getElementById('nextImage').addEventListener('click', nextImage);
+
+    // ==================== SELF-CHECK IN FOCUS MODE ====================
+
+    function renderSelfCheckIntro(content) {
+        const iconColor = content.color || '#ffc107';
+        return `
+            <div class="activity-intro-card">
+                <div class="activity-intro-icon" style="background: ${iconColor}20; color: ${iconColor};">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <h3 class="activity-intro-title">${content.title}</h3>
+                <p class="activity-intro-sheet">From: ${content.sheetTitle || 'Information Sheet'}</p>
+                <p class="activity-intro-description">${content.description || ''}</p>
+                <div class="activity-intro-meta"><i class="fas fa-question-circle me-1"></i>${content.questionCount} Questions</div>
+                <div class="activity-intro-meta"><i class="fas fa-chart-line me-1"></i>${content.passingScore}% Passing Score</div>
+                <button onclick="window.startSelfCheckInFocus()" class="btn btn-lg activity-start-btn" style="background: ${iconColor}; border-color: ${iconColor}; color: #000;">
+                    <i class="fas fa-play me-2"></i>Start Self-Check
+                </button>
+                <p class="activity-intro-hint">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Answer all questions to test your understanding
+                </p>
+            </div>
+        `;
+    }
+
+    function renderSelfCheckQuiz(content) {
+        let questions = content.questions || [];
+
+        // Randomize if enabled
+        if (content.randomizeQuestions) {
+            questions = shuffleArray([...questions]);
+        }
+
+        let html = `
+            <div class="selfcheck-quiz-container">
+                <div class="selfcheck-quiz-header">
+                    <h4><i class="fas fa-clipboard-check me-2"></i>${content.title}</h4>
+                    <div class="selfcheck-progress">
+                        <span class="selfcheck-progress-text">Question <span id="currentQNum">1</span> of ${questions.length}</span>
+                        <div class="selfcheck-progress-bar">
+                            <div class="selfcheck-progress-fill" id="quizProgressFill" style="width: ${(1/questions.length)*100}%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="selfcheck-questions">
+        `;
+
+        questions.forEach((q, idx) => {
+            html += renderQuestion(q, idx, content.randomizeOptions);
+        });
+
+        html += `
+                </div>
+                <div class="selfcheck-quiz-footer">
+                    <button type="button" class="btn btn-secondary" onclick="window.prevQuestion()">
+                        <i class="fas fa-arrow-left me-1"></i>Previous
+                    </button>
+                    <button type="button" class="btn btn-primary" id="nextQBtn" onclick="window.nextQuestion()">
+                        Next<i class="fas fa-arrow-right ms-1"></i>
+                    </button>
+                    <button type="button" class="btn btn-success d-none" id="submitQuizBtn" onclick="window.submitSelfCheck()">
+                        <i class="fas fa-check me-1"></i>Submit Answers
+                    </button>
+                </div>
+            </div>
+        `;
+
+        return html;
+    }
+
+    function renderQuestion(q, idx, randomizeOptions) {
+        let options = q.options || [];
+        if (randomizeOptions && Array.isArray(options) && ['multiple_choice', 'multiple_select'].includes(q.type)) {
+            options = shuffleArray([...options]);
+        }
+
+        let html = `<div class="selfcheck-question ${idx === 0 ? 'active' : ''}" data-question-index="${idx}" data-question-id="${q.id}">`;
+        html += `<div class="selfcheck-question-number">Question ${idx + 1}</div>`;
+        html += `<div class="selfcheck-question-text">${q.text}</div>`;
+
+        if (q.image) {
+            html += `<div class="selfcheck-question-media"><img src="${q.image}" alt="Question image"></div>`;
+        }
+        if (q.audio) {
+            html += `<div class="selfcheck-question-media"><audio controls src="${q.audio}"></audio></div>`;
+        }
+        if (q.video) {
+            html += `<div class="selfcheck-question-media"><iframe src="${q.video}" allowfullscreen></iframe></div>`;
+        }
+
+        html += `<div class="selfcheck-options">`;
+
+        switch(q.type) {
+            case 'multiple_choice':
+            case 'image_choice':
+                options.forEach((opt, optIdx) => {
+                    const optLabel = typeof opt === 'object' ? (opt.label || opt.text || opt) : opt;
+                    const optImage = typeof opt === 'object' ? opt.image : null;
+                    html += `
+                        <label class="selfcheck-option">
+                            <input type="radio" name="q_${q.id}" value="${optIdx}" onchange="window.saveAnswer(${q.id}, ${optIdx})">
+                            <span class="selfcheck-option-marker">${String.fromCharCode(65 + optIdx)}</span>
+                            ${optImage ? `<img src="${optImage}" class="selfcheck-option-image">` : ''}
+                            <span class="selfcheck-option-text">${optLabel}</span>
+                        </label>
+                    `;
+                });
+                break;
+
+            case 'multiple_select':
+                options.forEach((opt, optIdx) => {
+                    const optLabel = typeof opt === 'object' ? (opt.label || opt.text || opt) : opt;
+                    html += `
+                        <label class="selfcheck-option">
+                            <input type="checkbox" name="q_${q.id}" value="${optIdx}" onchange="window.saveMultiAnswer(${q.id})">
+                            <span class="selfcheck-option-marker">${String.fromCharCode(65 + optIdx)}</span>
+                            <span class="selfcheck-option-text">${optLabel}</span>
+                        </label>
+                    `;
+                });
+                break;
+
+            case 'true_false':
+                html += `
+                    <label class="selfcheck-option">
+                        <input type="radio" name="q_${q.id}" value="true" onchange="window.saveAnswer(${q.id}, 'true')">
+                        <span class="selfcheck-option-marker">T</span>
+                        <span class="selfcheck-option-text">True</span>
+                    </label>
+                    <label class="selfcheck-option">
+                        <input type="radio" name="q_${q.id}" value="false" onchange="window.saveAnswer(${q.id}, 'false')">
+                        <span class="selfcheck-option-marker">F</span>
+                        <span class="selfcheck-option-text">False</span>
+                    </label>
+                `;
+                break;
+
+            case 'fill_blank':
+            case 'short_answer':
+                html += `
+                    <input type="text" class="form-control selfcheck-text-input"
+                           placeholder="Type your answer here..."
+                           onchange="window.saveAnswer(${q.id}, this.value)"
+                           oninput="window.saveAnswer(${q.id}, this.value)">
+                `;
+                break;
+
+            case 'numeric':
+            case 'slider':
+                const min = q.options?.min || 0;
+                const max = q.options?.max || 100;
+                const step = q.options?.step || 1;
+                const unit = q.options?.unit || '';
+                html += `
+                    <div class="selfcheck-numeric-input">
+                        <input type="number" class="form-control" min="${min}" max="${max}" step="${step}"
+                               placeholder="Enter a number"
+                               onchange="window.saveAnswer(${q.id}, this.value)">
+                        ${unit ? `<span class="selfcheck-unit">${unit}</span>` : ''}
+                    </div>
+                `;
+                break;
+
+            case 'essay':
+                html += `
+                    <textarea class="form-control selfcheck-textarea" rows="5"
+                              placeholder="Write your answer here..."
+                              onchange="window.saveAnswer(${q.id}, this.value)"
+                              oninput="window.saveAnswer(${q.id}, this.value)"></textarea>
+                `;
+                break;
+
+            default:
+                html += `<p class="text-muted">Question type "${q.type}" - please answer on the full quiz page.</p>`;
+                html += `<input type="text" class="form-control" placeholder="Your answer" onchange="window.saveAnswer(${q.id}, this.value)">`;
+        }
+
+        html += `</div></div>`;
+        return html;
+    }
+
+    function renderSelfCheckResults(content, results) {
+        const passed = results.passed;
+        const percentage = results.percentage;
+        const score = results.score;
+        const total = results.total;
+
+        let html = `
+            <div class="selfcheck-results">
+                <div class="selfcheck-results-header ${passed ? 'passed' : 'failed'}">
+                    <i class="fas ${passed ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                    <h3>${passed ? 'Congratulations!' : 'Keep Trying!'}</h3>
+                    <p>${passed ? 'You passed the self-check!' : "You didn't pass this time."}</p>
+                </div>
+                <div class="selfcheck-results-score">
+                    <div class="score-circle ${passed ? 'passed' : 'failed'}">
+                        <span class="score-value">${percentage.toFixed(1)}%</span>
+                    </div>
+                    <div class="score-details">
+                        <p><strong>${score}</strong> out of <strong>${total}</strong> points</p>
+                        <p class="text-muted">Passing score: ${content.passingScore}%</p>
+                    </div>
+                </div>
+        `;
+
+        if (passed) {
+            html += `
+                <div class="selfcheck-results-actions">
+                    <button class="btn btn-success btn-lg" onclick="window.continueFocusMode()">
+                        <i class="fas fa-arrow-right me-2"></i>Continue to Next Section
+                    </button>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="selfcheck-results-actions">
+                    <button class="btn btn-primary" onclick="window.retrySelfCheck()">
+                        <i class="fas fa-redo me-2"></i>Try Again
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="window.reviewSelfCheck()">
+                        <i class="fas fa-eye me-2"></i>Review Answers
+                    </button>
+                </div>
+            `;
+        }
+
+        html += `</div>`;
+        return html;
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    // Global functions for quiz interaction
+    window.startSelfCheckInFocus = function() {
+        selfCheckState.started = true;
+        selfCheckState.currentQuestion = 0;
+        selfCheckState.answers = {};
+        updateFocusContent();
+    };
+
+    window.saveAnswer = function(questionId, value) {
+        selfCheckState.answers[questionId] = value;
+        updateQuizProgress();
+    };
+
+    window.saveMultiAnswer = function(questionId) {
+        const checkboxes = document.querySelectorAll(`input[name="q_${questionId}"]:checked`);
+        const values = Array.from(checkboxes).map(cb => parseInt(cb.value));
+        selfCheckState.answers[questionId] = values;
+        updateQuizProgress();
+    };
+
+    window.nextQuestion = function() {
+        const content = focusModeData[currentFocusIndex];
+        const questions = content.questions || [];
+        const allQuestions = document.querySelectorAll('.selfcheck-question');
+
+        if (selfCheckState.currentQuestion < questions.length - 1) {
+            allQuestions[selfCheckState.currentQuestion].classList.remove('active');
+            selfCheckState.currentQuestion++;
+            allQuestions[selfCheckState.currentQuestion].classList.add('active');
+            updateQuizNavButtons();
+            updateQuizProgress();
+        }
+    };
+
+    window.prevQuestion = function() {
+        const allQuestions = document.querySelectorAll('.selfcheck-question');
+
+        if (selfCheckState.currentQuestion > 0) {
+            allQuestions[selfCheckState.currentQuestion].classList.remove('active');
+            selfCheckState.currentQuestion--;
+            allQuestions[selfCheckState.currentQuestion].classList.add('active');
+            updateQuizNavButtons();
+            updateQuizProgress();
+        }
+    };
+
+    function updateQuizNavButtons() {
+        const content = focusModeData[currentFocusIndex];
+        const questions = content.questions || [];
+        const isLastQuestion = selfCheckState.currentQuestion >= questions.length - 1;
+
+        const nextBtn = document.getElementById('nextQBtn');
+        const submitBtn = document.getElementById('submitQuizBtn');
+
+        if (isLastQuestion) {
+            nextBtn.classList.add('d-none');
+            submitBtn.classList.remove('d-none');
+        } else {
+            nextBtn.classList.remove('d-none');
+            submitBtn.classList.add('d-none');
+        }
+    }
+
+    function updateQuizProgress() {
+        const content = focusModeData[currentFocusIndex];
+        const questions = content.questions || [];
+
+        const currentNum = document.getElementById('currentQNum');
+        const progressFill = document.getElementById('quizProgressFill');
+
+        if (currentNum) currentNum.textContent = selfCheckState.currentQuestion + 1;
+        if (progressFill) progressFill.style.width = ((selfCheckState.currentQuestion + 1) / questions.length * 100) + '%';
+    }
+
+    window.submitSelfCheck = function() {
+        const content = focusModeData[currentFocusIndex];
+
+        // Build answers payload
+        const answersPayload = {};
+        Object.keys(selfCheckState.answers).forEach(qId => {
+            answersPayload[qId] = selfCheckState.answers[qId];
+        });
+
+        // Show loading state
+        const submitBtn = document.getElementById('submitQuizBtn');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Submitting...';
+        }
+
+        // Submit via AJAX
+        fetch(content.submitUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ answers: answersPayload, focus_mode: true })
+        })
+        .then(response => response.json())
+        .then(data => {
+            selfCheckState.submitted = true;
+            selfCheckState.results = {
+                passed: data.passed,
+                percentage: data.percentage,
+                score: data.score,
+                total: data.total_points,
+                details: data.results
+            };
+            selfCheckState.passed = data.passed;
+
+            // Mark as completed if passed
+            if (data.passed) {
+                completedSections.add(currentFocusIndex);
+                try {
+                    localStorage.setItem(storageKey, JSON.stringify([...completedSections]));
+                } catch (e) {}
+            }
+
+            updateFocusContent();
+            fetchProgress();
+        })
+        .catch(error => {
+            console.error('Submit error:', error);
+            showNotification('Failed to submit. Please try again.', 'error');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>Submit Answers';
+            }
+        });
+    };
+
+    window.retrySelfCheck = function() {
+        resetSelfCheckState();
+        selfCheckState.active = true;
+        updateFocusContent();
+    };
+
+    window.reviewSelfCheck = function() {
+        // For now, just go to the full self-check page
+        const content = focusModeData[currentFocusIndex];
+        if (content.url) {
+            window.location.href = content.url;
+        }
+    };
+
+    window.continueFocusMode = function() {
+        // Move to next section
+        if (currentFocusIndex < focusModeData.length - 1) {
+            currentFocusIndex++;
+            resetSelfCheckState();
+            updateFocusContent();
+        } else {
+            showNotification('All sections completed!', 'success');
+            exitFocusMode();
+        }
+    };
 
     // ==================== OFFLINE SAVE ====================
 

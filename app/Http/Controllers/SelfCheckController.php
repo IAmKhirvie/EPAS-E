@@ -702,6 +702,25 @@ class SelfCheckController extends Controller
             $selfCheck->loadMissing('informationSheet.module.course.instructor');
             app(NotificationService::class)->notifySubmissionReceived(auth()->user(), 'self-check', $selfCheck);
 
+            // Check if this is an AJAX request (focus mode)
+            if ($request->expectsJson() || $request->input('focus_mode')) {
+                return response()->json([
+                    'success' => true,
+                    'submission_id' => $submission->id,
+                    'score' => $score,
+                    'total_points' => $totalPoints,
+                    'percentage' => $percentage,
+                    'passed' => $passed,
+                    'results' => collect($results)->map(function($r) {
+                        return [
+                            'question_id' => $r['question']->id,
+                            'is_correct' => $r['is_correct'],
+                            'points_earned' => $r['points_earned'],
+                        ];
+                    })->toArray(),
+                ]);
+            }
+
             // Store results in session and redirect (Post-Redirect-Get)
             session()->flash('sc_results', [
                 'submission_id' => $submission->id,
@@ -718,6 +737,14 @@ class SelfCheckController extends Controller
                 'error' => $e->getMessage(),
                 'user_id' => auth()->id(),
             ]);
+
+            if ($request->expectsJson() || $request->input('focus_mode')) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Failed to submit self-check. Please try again.',
+                ], 500);
+            }
+
             return back()->withInput()->with('error', 'Failed to submit self-check. Please try again.');
         }
     }

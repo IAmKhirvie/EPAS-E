@@ -5,10 +5,11 @@
         @php $user = Auth::user(); @endphp
         <form id="avatar-form" action="{{ dynamic_route('profile.avatar.update') }}" method="POST" enctype="multipart/form-data" style="display: none;">
             @csrf
-            <input type="file" id="avatar-upload" name="avatar" accept="image/png, image/jpeg">
+            <input type="hidden" name="cropped_image" id="sidebar-cropped-image">
+            <input type="file" id="avatar-upload" name="avatar" accept="image/png, image/jpeg, image/gif">
         </form>
 
-        <div class="sidebar-profile" onclick="document.getElementById('avatar-upload').click()" style="cursor: pointer;"
+        <div class="sidebar-profile" onclick="openProfilePhotoModal()" style="cursor: pointer;"
              data-tooltip="Change Photo">
             <div class="sidebar-profile__bg"
                  style="{{ $user->profile_image ? 'background-image: url(' . $user->profile_image_url . ');' : '' }}">
@@ -209,6 +210,323 @@
     </div>
 </aside>
 <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+<!-- Profile Photo Modal -->
+<div class="modal fade" id="profilePhotoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-user-circle me-2"></i>Profile Photo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Mode Selection -->
+                <div id="photoModeSelect" class="text-center py-4">
+                    @if($user->profile_image)
+                    <p class="text-muted mb-4">What would you like to do?</p>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <button type="button" class="btn btn-outline-primary btn-lg" onclick="showRepositionMode()">
+                            <i class="fas fa-arrows-alt d-block mb-2" style="font-size: 2rem;"></i>
+                            Reposition Current Photo
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-lg" onclick="showUploadMode()">
+                            <i class="fas fa-upload d-block mb-2" style="font-size: 2rem;"></i>
+                            Upload New Photo
+                        </button>
+                    </div>
+                    @else
+                    <p class="text-muted mb-4">Upload a profile photo</p>
+                    <button type="button" class="btn btn-primary btn-lg" onclick="showUploadMode()">
+                        <i class="fas fa-upload me-2"></i>Upload Photo
+                    </button>
+                    @endif
+                </div>
+
+                <!-- Reposition Mode (for existing photo) -->
+                <div id="repositionMode" style="display: none;">
+                    <div class="cropper-wrapper" style="max-height: 400px; overflow: hidden;">
+                        <img id="repositionImage" src="{{ $user->profile_image_url }}" alt="Reposition" style="max-width: 100%; display: block;">
+                    </div>
+                    <div class="mt-3">
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-outline-secondary" onclick="sidebarCropperZoom(0.1)" title="Zoom In">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="sidebarCropperZoom(-0.1)" title="Zoom Out">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="sidebarCropperRotate(-45)" title="Rotate Left">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="sidebarCropperRotate(45)" title="Rotate Right">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="sidebarCropperReset()" title="Reset">
+                                <i class="fas fa-sync"></i>
+                            </button>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0 text-center">
+                            <i class="fas fa-info-circle me-1"></i>Drag to move, scroll to zoom
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Upload Mode (for new photo) -->
+                <div id="uploadMode" style="display: none;">
+                    <div id="uploadDropzone" class="border-2 border-dashed rounded p-5 text-center" style="border-color: #dee2e6; cursor: pointer;">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                        <p class="mb-2">Drag & drop your photo here</p>
+                        <p class="text-muted small mb-3">or click to browse</p>
+                        <input type="file" id="uploadModeInput" accept="image/jpeg,image/png,image/gif" style="display: none;">
+                        <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('uploadModeInput').click()">
+                            <i class="fas fa-folder-open me-1"></i>Browse Files
+                        </button>
+                        <p class="text-muted small mt-3 mb-0">JPG, PNG or GIF. Max 2MB.</p>
+                    </div>
+                </div>
+
+                <!-- Cropper Mode (after selecting new photo) -->
+                <div id="cropperMode" style="display: none;">
+                    <div class="cropper-wrapper" style="max-height: 400px; overflow: hidden;">
+                        <img id="cropperImage" src="" alt="Crop" style="max-width: 100%; display: block;">
+                    </div>
+                    <div class="mt-3">
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-outline-secondary" onclick="sidebarCropperZoom(0.1)" title="Zoom In">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="sidebarCropperZoom(-0.1)" title="Zoom Out">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="sidebarCropperRotate(-45)" title="Rotate Left">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="sidebarCropperRotate(45)" title="Rotate Right">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="sidebarCropperReset()" title="Reset">
+                                <i class="fas fa-sync"></i>
+                            </button>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0 text-center">
+                            <i class="fas fa-info-circle me-1"></i>Drag to move, scroll to zoom
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="photoModalBack" style="display: none;" onclick="showModeSelect()">
+                    <i class="fas fa-arrow-left me-1"></i>Back
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="photoModalSave" style="display: none;" onclick="saveCroppedPhoto()">
+                    <i class="fas fa-check me-1"></i>Save Photo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cropper.js -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<style>
+    .cropper-view-box, .cropper-face { border-radius: 50%; }
+    .cropper-view-box { box-shadow: 0 0 0 1px #39f; outline: 0; }
+    #uploadDropzone.dragover { border-color: #0d6efd !important; background-color: rgba(13, 110, 253, 0.05); }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+<script>
+let sidebarCropper = null;
+let currentMode = 'select';
+
+function openProfilePhotoModal() {
+    showModeSelect();
+    const modal = new bootstrap.Modal(document.getElementById('profilePhotoModal'));
+    modal.show();
+}
+
+function showModeSelect() {
+    currentMode = 'select';
+    document.getElementById('photoModeSelect').style.display = 'block';
+    document.getElementById('repositionMode').style.display = 'none';
+    document.getElementById('uploadMode').style.display = 'none';
+    document.getElementById('cropperMode').style.display = 'none';
+    document.getElementById('photoModalBack').style.display = 'none';
+    document.getElementById('photoModalSave').style.display = 'none';
+    if (sidebarCropper) {
+        sidebarCropper.destroy();
+        sidebarCropper = null;
+    }
+}
+
+function showRepositionMode() {
+    currentMode = 'reposition';
+    document.getElementById('photoModeSelect').style.display = 'none';
+    document.getElementById('repositionMode').style.display = 'block';
+    document.getElementById('uploadMode').style.display = 'none';
+    document.getElementById('cropperMode').style.display = 'none';
+    document.getElementById('photoModalBack').style.display = 'inline-block';
+    document.getElementById('photoModalSave').style.display = 'inline-block';
+
+    // Initialize cropper on existing image
+    setTimeout(function() {
+        const img = document.getElementById('repositionImage');
+        if (sidebarCropper) sidebarCropper.destroy();
+        sidebarCropper = new Cropper(img, {
+            aspectRatio: 1,
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 1,
+            cropBoxMovable: false,
+            cropBoxResizable: false,
+            guides: false,
+            center: true,
+            highlight: false,
+            background: false,
+            responsive: true,
+        });
+    }, 100);
+}
+
+function showUploadMode() {
+    currentMode = 'upload';
+    document.getElementById('photoModeSelect').style.display = 'none';
+    document.getElementById('repositionMode').style.display = 'none';
+    document.getElementById('uploadMode').style.display = 'block';
+    document.getElementById('cropperMode').style.display = 'none';
+    document.getElementById('photoModalBack').style.display = 'inline-block';
+    document.getElementById('photoModalSave').style.display = 'none';
+}
+
+function showCropperMode(imageSrc) {
+    currentMode = 'cropper';
+    document.getElementById('photoModeSelect').style.display = 'none';
+    document.getElementById('repositionMode').style.display = 'none';
+    document.getElementById('uploadMode').style.display = 'none';
+    document.getElementById('cropperMode').style.display = 'block';
+    document.getElementById('photoModalBack').style.display = 'inline-block';
+    document.getElementById('photoModalSave').style.display = 'inline-block';
+
+    const img = document.getElementById('cropperImage');
+    img.src = imageSrc;
+
+    setTimeout(function() {
+        if (sidebarCropper) sidebarCropper.destroy();
+        sidebarCropper = new Cropper(img, {
+            aspectRatio: 1,
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 1,
+            cropBoxMovable: false,
+            cropBoxResizable: false,
+            guides: false,
+            center: true,
+            highlight: false,
+            background: false,
+            responsive: true,
+        });
+    }, 100);
+}
+
+function sidebarCropperZoom(ratio) {
+    if (sidebarCropper) sidebarCropper.zoom(ratio);
+}
+
+function sidebarCropperRotate(degree) {
+    if (sidebarCropper) sidebarCropper.rotate(degree);
+}
+
+function sidebarCropperReset() {
+    if (sidebarCropper) sidebarCropper.reset();
+}
+
+function saveCroppedPhoto() {
+    if (!sidebarCropper) return;
+
+    const canvas = sidebarCropper.getCroppedCanvas({
+        width: 400,
+        height: 400,
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high',
+    });
+
+    const croppedData = canvas.toDataURL('image/jpeg', 0.9);
+    document.getElementById('sidebar-cropped-image').value = croppedData;
+
+    // Close modal and submit form
+    bootstrap.Modal.getInstance(document.getElementById('profilePhotoModal')).hide();
+    document.getElementById('avatar-form').submit();
+}
+
+// File upload handling
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadInput = document.getElementById('uploadModeInput');
+    const dropzone = document.getElementById('uploadDropzone');
+
+    if (uploadInput) {
+        uploadInput.addEventListener('change', function(e) {
+            handleFileSelect(e.target.files[0]);
+        });
+    }
+
+    if (dropzone) {
+        dropzone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+
+        dropzone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+
+        dropzone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            handleFileSelect(file);
+        });
+
+        dropzone.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
+                document.getElementById('uploadModeInput').click();
+            }
+        });
+    }
+
+    function handleFileSelect(file) {
+        if (!file) return;
+
+        // Validate
+        if (file.size > 2 * 1024 * 1024) {
+            alert('File size must be less than 2MB');
+            return;
+        }
+
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!validTypes.includes(file.type)) {
+            alert('Please select a valid image file (JPG, PNG, or GIF)');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            showCropperMode(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Clean up when modal closes
+    document.getElementById('profilePhotoModal').addEventListener('hidden.bs.modal', function() {
+        if (sidebarCropper) {
+            sidebarCropper.destroy();
+            sidebarCropper = null;
+        }
+        document.getElementById('uploadModeInput').value = '';
+    });
+});
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

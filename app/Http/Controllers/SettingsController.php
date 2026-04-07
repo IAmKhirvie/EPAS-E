@@ -144,6 +144,47 @@ class SettingsController extends Controller
      */
     public function updateProfilePicture(Request $request)
     {
+        $user = Auth::user();
+
+        // Handle cropped image (base64)
+        if ($request->filled('cropped_image')) {
+            try {
+                $croppedData = $request->input('cropped_image');
+
+                // Validate base64 format
+                if (!preg_match('/^data:image\/(jpeg|png|gif);base64,/', $croppedData, $matches)) {
+                    return redirect()->back()->withErrors(['cropped_image' => 'Invalid image format.']);
+                }
+
+                $extension = $matches[1] === 'jpeg' ? 'jpg' : $matches[1];
+
+                // Decode base64
+                $imageData = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $croppedData));
+
+                // Validate size (2MB max for base64 decoded)
+                if (strlen($imageData) > 2 * 1024 * 1024) {
+                    return redirect()->back()->withErrors(['cropped_image' => 'Image size must be less than 2MB.']);
+                }
+
+                // Delete old image if exists
+                if ($user->profile_image) {
+                    Storage::disk('public')->delete('profile-images/' . $user->profile_image);
+                }
+
+                // Store new cropped image
+                $imageName = Str::uuid() . '.' . $extension;
+                Storage::disk('public')->put('profile-images/' . $imageName, $imageData);
+
+                $user->update(['profile_image' => $imageName]);
+
+                return redirect()->back()->with('success', 'Profile picture updated successfully!');
+            } catch (\Exception $e) {
+                Log::error('Failed to process cropped image', ['error' => $e->getMessage(), 'user_id' => $user->id]);
+                return redirect()->back()->withErrors(['cropped_image' => 'Failed to process image. Please try again.']);
+            }
+        }
+
+        // Handle regular file upload (fallback)
         $request->validate([
             'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif|mimetypes:image/jpeg,image/png,image/gif|max:' . config('joms.uploads.max_image_size', 5120),
         ], [
@@ -153,8 +194,6 @@ class SettingsController extends Controller
             'profile_image.mimetypes' => 'The file content does not match an allowed image type (JPEG, PNG, GIF).',
             'profile_image.max' => 'Image size must be less than ' . (config('joms.uploads.max_image_size', 5120) / 1024) . 'MB.',
         ]);
-
-        $user = Auth::user();
 
         // Delete old image if exists
         if ($user->profile_image) {

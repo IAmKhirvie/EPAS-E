@@ -509,6 +509,83 @@
                 ];
             }
         }
+
+        // Add Self-Checks as activities after topics
+        if ($sheet->selfChecks && $sheet->selfChecks->count() > 0) {
+            foreach($sheet->selfChecks as $scIndex => $sc) {
+                // Prepare questions for focus mode
+                $questions = [];
+                if ($sc->questions) {
+                    foreach($sc->questions as $qIndex => $q) {
+                        $questionData = [
+                            'id' => $q->id,
+                            'index' => $qIndex,
+                            'type' => $q->question_type,
+                            'text' => $q->question_text,
+                            'points' => $q->points ?? 1,
+                            'options' => $q->options ?? [],
+                            'image' => $q->image_path ? Storage::url($q->image_path) : null,
+                            'audio' => $q->audio_path ? Storage::url($q->audio_path) : null,
+                            'video' => $q->video_url ?? null,
+                        ];
+                        $questions[] = $questionData;
+                    }
+                }
+
+                $focusContent[] = [
+                    'type' => 'self_check',
+                    'id' => $sc->id,
+                    'sheetId' => $sheet->id,
+                    'sheetTitle' => $sheet->title,
+                    'title' => 'Self-Check: ' . $sc->title,
+                    'description' => $sc->description ?? 'Test your understanding of the concepts covered in this information sheet.',
+                    'url' => route('self-checks.show', $sc),
+                    'submitUrl' => route('self-checks.submit', $sc),
+                    'questions' => $questions,
+                    'questionCount' => count($questions),
+                    'passingScore' => $sc->passing_score ?? 70,
+                    'revealAnswers' => $sc->reveal_answers ?? true,
+                    'randomizeQuestions' => $sc->randomize_questions ?? false,
+                    'randomizeOptions' => $sc->randomize_options ?? false,
+                    'icon' => 'clipboard-check',
+                    'color' => '#ffc107'
+                ];
+            }
+        }
+
+        // Add Task Sheets as activities
+        if ($sheet->taskSheets && $sheet->taskSheets->count() > 0) {
+            foreach($sheet->taskSheets as $tsIndex => $ts) {
+                $focusContent[] = [
+                    'type' => 'task_sheet',
+                    'id' => $ts->id,
+                    'sheetId' => $sheet->id,
+                    'sheetTitle' => $sheet->title,
+                    'title' => 'Task Sheet: ' . ($ts->title ?? 'Task Sheet ' . ($tsIndex + 1)),
+                    'description' => $ts->description ?? 'Complete the tasks to practice what you have learned.',
+                    'url' => route('task-sheets.show', $ts),
+                    'icon' => 'clipboard-list',
+                    'color' => '#0dcaf0'
+                ];
+            }
+        }
+
+        // Add Job Sheets as activities
+        if ($sheet->jobSheets && $sheet->jobSheets->count() > 0) {
+            foreach($sheet->jobSheets as $jsIndex => $js) {
+                $focusContent[] = [
+                    'type' => 'job_sheet',
+                    'id' => $js->id,
+                    'sheetId' => $sheet->id,
+                    'sheetTitle' => $sheet->title,
+                    'title' => 'Job Sheet: ' . ($js->title ?? 'Job Sheet ' . ($jsIndex + 1)),
+                    'description' => $js->description ?? 'Apply your knowledge by completing this practical job sheet.',
+                    'url' => route('job-sheets.show', $js),
+                    'icon' => 'hard-hat',
+                    'color' => '#198754'
+                ];
+            }
+        }
     }
     @endphp
     @json($focusContent)

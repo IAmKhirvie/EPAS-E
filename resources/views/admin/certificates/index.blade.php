@@ -98,17 +98,32 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if($certificate->status === 'issued')
-                                            <a href="{{ route('certificates.download', $certificate) }}" class="btn btn-sm btn-outline-primary" title="Download">
-                                                <i class="fas fa-download"></i>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ route('admin.certificates.show', $certificate) }}" class="btn btn-outline-secondary" title="View">
+                                                <i class="fas fa-eye"></i>
                                             </a>
-                                            <form action="{{ route('admin.certificates.revoke', $certificate) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to revoke this certificate?')">
+                                            <a href="{{ route('admin.certificates.edit', $certificate) }}" class="btn btn-outline-primary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            @if($certificate->status === 'issued')
+                                                <a href="{{ route('certificates.download', $certificate) }}" class="btn btn-outline-success" title="Download PDF">
+                                                    <i class="fas fa-download"></i>
+                                                </a>
+                                                <form action="{{ route('admin.certificates.resend-email', $certificate) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-outline-info" title="Send Email">
+                                                        <i class="fas fa-envelope"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                            <form action="{{ route('admin.certificates.destroy', $certificate) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this certificate? This cannot be undone.')">
                                                 @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Revoke">
-                                                    <i class="fas fa-ban"></i>
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-outline-danger" title="Delete">
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
-                                        @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

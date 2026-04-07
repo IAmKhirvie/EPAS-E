@@ -6,9 +6,11 @@ use App\Models\User;
 use App\Models\Course;
 use App\Models\Module;
 use App\Models\Certificate;
+use App\Mail\CertificateIssued;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class CertificateService
 {
@@ -293,9 +295,58 @@ class CertificateService
         // Generate the PDF
         $this->generatePdf($certificate);
 
+        // Send email notification
+        $this->sendCertificateEmail($certificate);
+
         Log::info("Certificate {$certificate->id} approved by admin {$admin->id} and issued");
 
         return true;
+    }
+
+    /**
+     * Send certificate email notification to user.
+     */
+    public function sendCertificateEmail(Certificate $certificate, bool $force = false): bool
+    {
+        try {
+            $certificate->load(['user', 'module', 'course']);
+
+            if (!$certificate->user || !$certificate->user->email) {
+                Log::warning("Cannot send certificate email - user has no email", [
+                    'certificate_id' => $certificate->id,
+                ]);
+                return false;
+            }
+
+            // Check if already sent (unless forced)
+            if (!$force && ($certificate->metadata['email_sent'] ?? false)) {
+                Log::info("Certificate email already sent", ['certificate_id' => $certificate->id]);
+                return true;
+            }
+
+            Mail::to($certificate->user->email)->send(new CertificateIssued($certificate));
+
+            // Update metadata to track that email was sent
+            $certificate->update([
+                'metadata' => array_merge($certificate->metadata ?? [], [
+                    'email_sent' => true,
+                    'email_sent_at' => now()->toDateTimeString(),
+                ]),
+            ]);
+
+            Log::info("Certificate email sent", [
+                'certificate_id' => $certificate->id,
+                'user_email' => $certificate->user->email,
+            ]);
+
+            return true;
+        } catch (\Exception $e) {
+            Log::error("Failed to send certificate email", [
+                'certificate_id' => $certificate->id,
+                'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
     }
 
     /**
@@ -367,6 +418,9 @@ class CertificateService
 
         // Generate the PDF
         $this->generatePdf($certificate);
+
+        // Send email notification
+        $this->sendCertificateEmail($certificate);
 
         Log::info("Certificate manually released for user {$user->id}, module {$module->id} by {$issuedBy->id}", [
             'certificate_id' => $certificate->id,

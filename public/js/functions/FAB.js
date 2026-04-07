@@ -262,6 +262,18 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
+        // Auto-set module order when course is selected
+        const fabCourseSelect = document.getElementById('fab_course_id');
+        const fabModuleOrder = document.getElementById('fab_module_order');
+
+        if (fabCourseSelect && fabModuleOrder) {
+            fabCourseSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const moduleCount = parseInt(selectedOption.getAttribute('data-module-count') || 0);
+                fabModuleOrder.value = moduleCount + 1;
+            });
+        }
+
         // Role-based field display in add user form
         const roleSelect = document.getElementById('role');
         const studentFields = document.getElementById('student-fields');

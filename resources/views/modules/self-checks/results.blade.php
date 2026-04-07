@@ -97,15 +97,20 @@
 
             {{-- Actions --}}
             <div class="cb-sidebar__group" style="margin-top: auto;">
-                @if(!$passed)
-                <a href="{{ route('self-checks.show', $selfCheck) }}" class="btn btn-primary w-100 btn-sm mb-2">
-                    <i class="fas fa-redo me-1"></i>Try Again
-                </a>
-                @endif
                 @php
                     $backModule = $selfCheck->informationSheet->module ?? null;
                     $backCourse = $backModule?->course ?? null;
                 @endphp
+                @if($passed && $backModule && $backCourse)
+                <a href="{{ route('courses.modules.show', [$backCourse, $backModule, $backModule->slug]) }}"
+                   class="btn btn-success w-100 mb-2">
+                    <i class="fas fa-arrow-right me-1"></i>Continue to Module
+                </a>
+                @elseif(!$passed)
+                <a href="{{ route('self-checks.show', $selfCheck) }}" class="btn btn-primary w-100 btn-sm mb-2">
+                    <i class="fas fa-redo me-1"></i>Try Again
+                </a>
+                @endif
                 @if($backModule && $backCourse)
                 <a href="{{ route('courses.modules.show', [$backCourse, $backModule, $backModule->slug]) }}"
                    class="btn btn-outline-secondary w-100 btn-sm">
