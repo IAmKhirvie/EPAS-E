@@ -131,8 +131,21 @@
     }
 }
 
-/* Dark mode form mobile */
+/* Dark mode form styles */
 .dark-mode .form-control,
 .dark-mode .form-select {
     border-color: var(--border);
+}
+
+.dark-mode .form-control:focus,
+.dark-mode .form-select:focus {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(109, 151, 115, 0.25);
+}
+
+.dark-mode .form-control:hover,
+.dark-mode .form-select:hover {
+    border-color: var(--primary);
 }

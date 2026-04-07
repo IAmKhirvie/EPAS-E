@@ -50,14 +50,14 @@
                         @endif
                         @if($pendingItems['pending_registrations']->count() > 0)
                             <li>
-                                <a href="{{ route('private.registrations.index') }}">
+                                <a href="{{ route('private.users.index', ['status' => 'pending']) }}">
                                     {{ $pendingItems['pending_registrations']->count() }} pending registration(s)
                                 </a>
                             </li>
                         @endif
                         @if($pendingItems['pending_enrollments']->count() > 0)
                             <li>
-                                <a href="{{ route('private.enrollments.index') }}">
+                                <a href="{{ route('enrollment-requests.index') }}">
                                     {{ $pendingItems['pending_enrollments']->count() }} pending enrollment request(s)
                                 </a>
                             </li>

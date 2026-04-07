@@ -76,6 +76,10 @@
                     <i class="fas fa-users"></i>
                     <span>My Class</span>
                 </a>
+                <a href="{{ route('certificates.index') }}" class="nav-item {{ Request::is('certificates*') ? 'active' : '' }}" data-tooltip="My Certificates">
+                    <i class="fas fa-certificate"></i>
+                    <span>My Certificates</span>
+                </a>
                 @endif
             </nav>
         </div>
@@ -152,6 +156,12 @@
                         </a>
                     </div>
                 </div>
+
+                <!-- Certificates -->
+                <a href="{{ route('admin.certificates.index') }}" class="nav-item {{ Request::is('admin/certificates*') ? 'active' : '' }}" data-tooltip="Certificates">
+                    <i class="fas fa-certificate"></i>
+                    <span>Certificates</span>
+                </a>
 
             </nav>
         </div>
