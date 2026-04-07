@@ -58,14 +58,14 @@
                     <div class="cb-section">
                         <div class="cb-section__title"><i class="fas fa-align-left"></i> Introduction Content</div>
                         <div>
-                            <textarea class="form-control preserve-whitespace @error('content') is-invalid @enderror"
-                                      name="content" rows="6"
-                                      placeholder="Enter introductory content for this topic (optional if using parts below)...">{{ old('content') }}</textarea>
-                            @error('content')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            <div class="cb-field-hint">
-                                <strong>Formatting tips:</strong> Use empty lines to separate paragraphs.
-                                Basic formatting: &lt;b&gt; &lt;i&gt; &lt;u&gt; &lt;strong&gt; &lt;em&gt; &lt;br&gt;
-                            </div>
+                            <x-rich-editor
+                                name="content"
+                                placeholder="Enter introductory content for this topic (optional if using parts below)..."
+                                :value="old('content')"
+                                toolbar="full"
+                                :height="200"
+                            />
+                            @error('content')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
                     </div>
 

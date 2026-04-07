@@ -7,7 +7,8 @@
   <title>@yield('title', 'EPAS-E LMS')</title>
 
   <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="{{ dynamic_asset('favicon.ico') }}">
+  <link rel="icon" type="image/png" href="{{ dynamic_asset('favicon.png') }}">
+  <link rel="apple-touch-icon" href="{{ dynamic_asset('favicon.png') }}">
 
   <!-- Google Fonts - Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">

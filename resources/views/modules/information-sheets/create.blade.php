@@ -71,11 +71,15 @@
                     <div class="cb-section">
                         <div class="cb-section__title"><i class="fas fa-align-left"></i> Content</div>
                         <div class="mb-3">
-                            <label class="cb-field-label">Content <span class="optional">(optional)</span></label>
-                            <textarea class="form-control @error('content') is-invalid @enderror"
-                                      name="content" rows="10"
-                                      placeholder="Enter the main content for this information sheet...">{{ old('content') }}</textarea>
-                            @error('content')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            <x-rich-editor
+                                name="content"
+                                label="Content"
+                                placeholder="Enter the main content for this information sheet..."
+                                :value="old('content')"
+                                toolbar="full"
+                                :height="300"
+                            />
+                            @error('content')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
                     </div>
 

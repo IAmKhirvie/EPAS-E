@@ -74,10 +74,15 @@
                     <div class="cb-section">
                         <div class="cb-section__title"><i class="fas fa-align-left"></i> Content</div>
                         <div>
-                            <label class="cb-field-label">Content <span class="optional">(optional)</span></label>
-                            <textarea class="form-control @error('content') is-invalid @enderror"
-                                      name="content" rows="12">{{ old('content', $informationSheet->content) }}</textarea>
-                            @error('content')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            <x-rich-editor
+                                name="content"
+                                label="Content"
+                                placeholder="Enter the main content for this information sheet..."
+                                :value="old('content', $informationSheet->content)"
+                                toolbar="full"
+                                :height="300"
+                            />
+                            @error('content')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
                     </div>
                 </div>
@@ -148,7 +153,7 @@
                             <i class="fas fa-briefcase me-1"></i>Add Job Sheet
                         </button>
                         <button type="button" class="btn btn-outline-secondary btn-sm">
-                            <i class="fas fa-homework me-1"></i>Add Homework
+                            <i class="fas fa-pencil-alt me-1"></i>Add Homework
                         </button>
                         <button type="button" class="btn btn-outline-dark btn-sm">
                             <i class="fas fa-star me-1"></i>Add Performance Criteria

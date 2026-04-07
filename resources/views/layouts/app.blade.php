@@ -10,7 +10,8 @@
     <title>@yield('title','EPAS-E - Electronic Products Assembly and Servicing')</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ dynamic_asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ dynamic_asset('favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ dynamic_asset('favicon.png') }}">
 
     <!-- Google Fonts - Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -261,27 +262,44 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="table_of_contents" class="form-label">Table of Contents</label>
-                        <textarea name="table_of_contents" id="table_of_contents"
-                                  class="form-control" rows="3" placeholder="Enter the table of contents with page numbers...">{{ old('table_of_contents') }}</textarea>
+                        <x-rich-editor
+                            name="table_of_contents"
+                            label="Table of Contents"
+                            placeholder="Enter the table of contents..."
+                            :value="old('table_of_contents')"
+                            toolbar="standard"
+                            :height="100"
+                        />
                     </div>
 
                     <div class="mb-3">
-                        <label for="how_to_use_cblm" class="form-label">How to Use CBLM</label>
-                        <textarea name="how_to_use_cblm" id="how_to_use_cblm"
-                                  class="form-control" rows="2">{{ old('how_to_use_cblm') }}</textarea>
+                        <x-rich-editor
+                            name="how_to_use_cblm"
+                            label="How to Use CBLM"
+                            :value="old('how_to_use_cblm')"
+                            toolbar="standard"
+                            :height="80"
+                        />
                     </div>
 
                     <div class="mb-3">
-                        <label for="introduction" class="form-label">Introduction</label>
-                        <textarea name="introduction" id="introduction"
-                                  class="form-control" rows="2">{{ old('introduction') }}</textarea>
+                        <x-rich-editor
+                            name="introduction"
+                            label="Introduction"
+                            :value="old('introduction')"
+                            toolbar="standard"
+                            :height="80"
+                        />
                     </div>
 
                     <div class="mb-3">
-                        <label for="learning_outcomes" class="form-label">Learning Outcomes</label>
-                        <textarea name="learning_outcomes" id="learning_outcomes"
-                                  class="form-control" rows="2">{{ old('learning_outcomes') }}</textarea>
+                        <x-rich-editor
+                            name="learning_outcomes"
+                            label="Learning Outcomes"
+                            :value="old('learning_outcomes')"
+                            toolbar="standard"
+                            :height="80"
+                        />
                     </div>
 
                     <div class="d-grid">
@@ -310,9 +328,16 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="fab_content" class="form-label required-field">Content</label>
-                        <textarea name="content" id="fab_content" class="form-control" rows="5"
-                                  placeholder="Write your announcement..." required>{{ old('content') }}</textarea>
+                        <x-rich-editor
+                            name="content"
+                            id="fab_content"
+                            label="Content"
+                            placeholder="Write your announcement..."
+                            :value="old('content')"
+                            toolbar="standard"
+                            :height="150"
+                            :required="true"
+                        />
                     </div>
 
                     <div class="mb-3">

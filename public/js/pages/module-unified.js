@@ -491,14 +491,32 @@ document.addEventListener('DOMContentLoaded', function () {
                     table.remove();
                 });
 
-                bodyHtml += '<div class="mb-4">' + tempDiv.innerHTML.replace(/\n/g, '<br>') + '</div>';
+                // Preserve HTML formatting - only add line breaks if no HTML tags present
+                let contentHtml = tempDiv.innerHTML;
+                if (!/<[a-z][\s\S]*>/i.test(contentHtml)) {
+                    contentHtml = contentHtml.replace(/\n/g, '<br>');
+                }
+                bodyHtml += '<div class="mb-4 rich-content">' + contentHtml + '</div>';
             }
 
             if (content.parts && content.parts.length > 0) {
                 content.parts.forEach(function (part, idx) {
+                    let partImageHtml = '';
+                    if (part.image) {
+                        partImageHtml = '<div class="part-image mb-3">' +
+                            '<img src="' + part.image + '" alt="' + (part.title || 'Part ' + (idx + 1)) + '" class="img-fluid rounded" style="max-height: 300px;">' +
+                            '</div>';
+                    }
+                    // Preserve HTML formatting in explanation (bold, italic, etc.)
+                    let explanationHtml = part.explanation || '';
+                    // Only add line breaks if content doesn't contain HTML tags
+                    if (!/<[a-z][\s\S]*>/i.test(explanationHtml)) {
+                        explanationHtml = explanationHtml.replace(/\n/g, '<br>');
+                    }
                     bodyHtml += '<div class="part-section mb-4 p-3 bg-light rounded">' +
                         '<h5><span class="badge bg-primary me-2">' + (idx + 1) + '</span>' + (part.title || '') + '</h5>' +
-                        '<p>' + (part.explanation || '').replace(/\n/g, '<br>') + '</p>' +
+                        partImageHtml +
+                        '<div class="part-explanation">' + explanationHtml + '</div>' +
                         '</div>';
                 });
             }

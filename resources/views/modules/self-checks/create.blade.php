@@ -652,9 +652,15 @@
                             </div>
                             <div class="col-12">
                                 <div class="mb-0">
-                                    <label class="cb-field-label">Description <span class="optional">(optional)</span></label>
-                                    <textarea class="form-control" name="description" rows="2"
-                                              placeholder="Brief description of this quiz..."></textarea>
+                                    <x-rich-editor
+                                        name="description"
+                                        label="Description"
+                                        placeholder="Brief description of this quiz..."
+                                        :value="old('description')"
+                                        toolbar="standard"
+                                        :height="80"
+                                    />
+                                    @error('description')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                                 </div>
                             </div>
                         </div>

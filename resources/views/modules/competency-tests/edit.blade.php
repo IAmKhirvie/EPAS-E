@@ -42,13 +42,27 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="3">{{ old('description', $test->description) }}</textarea>
+                            <x-rich-editor
+                                name="description"
+                                label="Description"
+                                placeholder="Test description..."
+                                :value="old('description', $test->description)"
+                                toolbar="standard"
+                                :height="100"
+                            />
+                            @error('description')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
 
                         <div class="mb-3">
-                            <label for="instructions" class="form-label">Instructions</label>
-                            <textarea class="form-control" id="instructions" name="instructions" rows="3">{{ old('instructions', $test->instructions) }}</textarea>
+                            <x-rich-editor
+                                name="instructions"
+                                label="Instructions"
+                                placeholder="Instructions shown to students before starting the test"
+                                :value="old('instructions', $test->instructions)"
+                                toolbar="standard"
+                                :height="100"
+                            />
+                            @error('instructions')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
 
                         <div class="form-check mb-3">

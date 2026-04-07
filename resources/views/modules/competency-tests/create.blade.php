@@ -34,22 +34,27 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control @error('description') is-invalid @enderror"
-                                      id="description" name="description" rows="3">{{ old('description') }}</textarea>
-                            @error('description')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <x-rich-editor
+                                name="description"
+                                label="Description"
+                                placeholder="Test description..."
+                                :value="old('description')"
+                                toolbar="standard"
+                                :height="100"
+                            />
+                            @error('description')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
 
                         <div class="mb-3">
-                            <label for="instructions" class="form-label">Instructions</label>
-                            <textarea class="form-control @error('instructions') is-invalid @enderror"
-                                      id="instructions" name="instructions" rows="3"
-                                      placeholder="Instructions shown to students before starting the test">{{ old('instructions') }}</textarea>
-                            @error('instructions')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <x-rich-editor
+                                name="instructions"
+                                label="Instructions"
+                                placeholder="Instructions shown to students before starting the test"
+                                :value="old('instructions')"
+                                toolbar="standard"
+                                :height="100"
+                            />
+                            @error('instructions')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
                     </div>
                 </div>

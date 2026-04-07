@@ -338,16 +338,29 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-0">
-                                    <label class="cb-field-label">Description <span class="optional">(optional)</span></label>
-                                    <textarea class="form-control @error('description') is-invalid @enderror" name="description" rows="2">{{ old('description', $selfCheck->description) }}</textarea>
-                                    @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    <x-rich-editor
+                                        name="description"
+                                        label="Description"
+                                        placeholder="Brief description of this quiz..."
+                                        :value="old('description', $selfCheck->description)"
+                                        toolbar="standard"
+                                        :height="80"
+                                    />
+                                    @error('description')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-0">
-                                    <label class="cb-field-label">Instructions <span class="required">*</span></label>
-                                    <textarea class="form-control @error('instructions') is-invalid @enderror" name="instructions" rows="2" required>{{ old('instructions', $selfCheck->instructions) }}</textarea>
-                                    @error('instructions')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    <x-rich-editor
+                                        name="instructions"
+                                        label="Instructions"
+                                        placeholder="Instructions for this quiz..."
+                                        :value="old('instructions', $selfCheck->instructions)"
+                                        toolbar="standard"
+                                        :height="80"
+                                        :required="true"
+                                    />
+                                    @error('instructions')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                                 </div>
                             </div>
                         </div>

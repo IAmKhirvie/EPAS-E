@@ -996,6 +996,60 @@ body.focus-mode-active .main-content-section {
     color: #adb5bd;
 }
 
+/* Part images in focus mode */
+.focus-content-panel .part-image {
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.focus-content-panel .part-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Rich content formatting in focus mode */
+.focus-content-panel .rich-content,
+.focus-content-panel .part-explanation {
+    line-height: 1.7;
+}
+
+.focus-content-panel .rich-content strong,
+.focus-content-panel .rich-content b,
+.focus-content-panel .part-explanation strong,
+.focus-content-panel .part-explanation b {
+    font-weight: 700;
+    color: #333;
+}
+
+.focus-content-panel .rich-content em,
+.focus-content-panel .rich-content i:not(.fas):not(.far):not(.fab),
+.focus-content-panel .part-explanation em,
+.focus-content-panel .part-explanation i:not(.fas):not(.far):not(.fab) {
+    font-style: italic;
+}
+
+.focus-content-panel .rich-content u,
+.focus-content-panel .part-explanation u {
+    text-decoration: underline;
+}
+
+.focus-content-panel .rich-content ul,
+.focus-content-panel .rich-content ol,
+.focus-content-panel .part-explanation ul,
+.focus-content-panel .part-explanation ol {
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
+}
+
+.dark-mode .focus-content-panel .rich-content strong,
+.dark-mode .focus-content-panel .rich-content b,
+.dark-mode .focus-content-panel .part-explanation strong,
+.dark-mode .focus-content-panel .part-explanation b {
+    color: #f8f9fa;
+}
+
 /* Focus nav positioning fix */
 .focus-nav {
     bottom: 20px;

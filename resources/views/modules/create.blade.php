@@ -91,28 +91,48 @@
                     <div class="cb-section">
                         <div class="cb-section__title"><i class="fas fa-file-alt"></i> Module Content</div>
                         <div class="mb-3">
-                            <label class="cb-field-label">Table of Contents <span class="optional">(optional)</span></label>
-                            <textarea class="form-control @error('table_of_contents') is-invalid @enderror"
-                                      name="table_of_contents" rows="6" placeholder="Enter the table of contents with page numbers...">{{ old('table_of_contents') }}</textarea>
-                            @error('table_of_contents')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            <x-rich-editor
+                                name="table_of_contents"
+                                label="Table of Contents"
+                                placeholder="Enter the table of contents..."
+                                :value="old('table_of_contents')"
+                                toolbar="standard"
+                                :height="150"
+                            />
+                            @error('table_of_contents')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
                         <div class="mb-3">
-                            <label class="cb-field-label">How to Use CBLM <span class="optional">(optional)</span></label>
-                            <textarea class="form-control @error('how_to_use_cblm') is-invalid @enderror"
-                                      name="how_to_use_cblm" rows="4">{{ old('how_to_use_cblm') }}</textarea>
-                            @error('how_to_use_cblm')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            <x-rich-editor
+                                name="how_to_use_cblm"
+                                label="How to Use CBLM"
+                                placeholder="Instructions on how to use this CBLM..."
+                                :value="old('how_to_use_cblm')"
+                                toolbar="standard"
+                                :height="120"
+                            />
+                            @error('how_to_use_cblm')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
                         <div class="mb-3">
-                            <label class="cb-field-label">Introduction <span class="optional">(optional)</span></label>
-                            <textarea class="form-control @error('introduction') is-invalid @enderror"
-                                      name="introduction" rows="4">{{ old('introduction') }}</textarea>
-                            @error('introduction')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            <x-rich-editor
+                                name="introduction"
+                                label="Introduction"
+                                placeholder="Module introduction..."
+                                :value="old('introduction')"
+                                toolbar="standard"
+                                :height="120"
+                            />
+                            @error('introduction')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
-                        <div>
-                            <label class="cb-field-label">Learning Outcomes <span class="optional">(optional)</span></label>
-                            <textarea class="form-control @error('learning_outcomes') is-invalid @enderror"
-                                      name="learning_outcomes" rows="4">{{ old('learning_outcomes') }}</textarea>
-                            @error('learning_outcomes')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <div class="mb-3">
+                            <x-rich-editor
+                                name="learning_outcomes"
+                                label="Learning Outcomes"
+                                placeholder="What students will learn..."
+                                :value="old('learning_outcomes')"
+                                toolbar="standard"
+                                :height="120"
+                            />
+                            @error('learning_outcomes')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
                     </div>
 
