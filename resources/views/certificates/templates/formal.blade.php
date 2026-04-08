@@ -4,40 +4,82 @@
     <meta charset="utf-8">
     <title>Certificate of Completion</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Times New Roman', serif; background: #fff; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+
+        html, body {
+            width: 297mm;
+            height: 210mm;
+            margin: 0;
+            padding: 0;
+            background: white;
+        }
+
         .certificate {
-            width: 100%; height: 100%; padding: 35px; position: relative;
-            background: #fffef7;
-            border: 2px solid #1a365d;
+            width: 100%;
+            height: 100%;
+            padding: 15mm 20mm;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+            position: relative;
         }
-        .inner-border {
-            position: absolute; top: 15px; left: 15px; right: 15px; bottom: 15px;
-            border: 1px solid #2c5282;
+
+        .header, .footer {
+            flex-shrink: 0;
         }
-        .inner-border-2 {
-            position: absolute; top: 20px; left: 20px; right: 20px; bottom: 20px;
-            border: 3px double #1a365d;
+
+        .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
-        .header { text-align: center; padding-top: 30px; margin-bottom: 20px; }
-        .republic { font-size: 12px; color: #4a5568; letter-spacing: 2px; margin-bottom: 5px; }
-        .dept { font-size: 14px; color: #2d3748; font-weight: bold; letter-spacing: 1px; margin-bottom: 3px; }
-        .school { font-size: 20px; color: #1a365d; font-weight: bold; margin-bottom: 15px; }
-        .title { font-size: 36px; color: #1a365d; font-weight: bold; text-transform: uppercase; letter-spacing: 5px; border-bottom: 2px solid #2c5282; border-top: 2px solid #2c5282; padding: 10px 0; margin: 0 100px; }
-        .content { text-align: center; margin: 25px 0; }
-        .presented-to { font-size: 14px; color: #4a5568; margin-bottom: 10px; font-style: italic; }
-        .recipient-name { font-size: 32px; color: #1a365d; font-weight: bold; font-family: 'Brush Script MT', cursive; margin-bottom: 15px; }
-        .description { font-size: 13px; color: #2d3748; max-width: 450px; margin: 0 auto 10px; line-height: 1.7; text-align: justify; text-align-last: center; }
-        .course-name { font-size: 18px; color: #1a365d; font-weight: bold; margin: 15px 0; text-transform: uppercase; letter-spacing: 1px; }
-        .given-text { font-size: 12px; color: #4a5568; margin-top: 20px; }
-        .footer { position: absolute; bottom: 40px; left: 50px; right: 50px; }
-        .signatures { display: flex; justify-content: space-between; margin-bottom: 20px; }
-        .signature-block { text-align: center; width: 180px; }
-        .signature-name { font-size: 14px; color: #1a365d; font-weight: bold; border-top: 1px solid #1a365d; padding-top: 5px; }
-        .signature-title { font-size: 10px; color: #4a5568; }
+
+        /* Keep your decorative borders – but they must use absolute positioning */
+        .certificate::before {
+            content: '';
+            position: absolute;
+            top: 8mm;
+            left: 8mm;
+            right: 8mm;
+            bottom: 8mm;
+            border: 2px solid #c7a252;  /* change color to match your design */
+            pointer-events: none;
+        }
+
+        /* All other existing styles (fonts, colors, etc.) can stay as they were */
+
+        .header { text-align: center; padding-top: 15px; margin-bottom: 10px; }
+        .republic { font-size: 10px; color: #4a5568; letter-spacing: 2px; margin-bottom: 4px; }
+        .dept { font-size: 12px; color: #2d3748; font-weight: bold; letter-spacing: 1px; margin-bottom: 2px; }
+        .school { font-size: 16px; color: #1a365d; font-weight: bold; margin-bottom: 10px; }
+        .title { font-size: 28px; color: #1a365d; font-weight: bold; text-transform: uppercase; letter-spacing: 4px; border-bottom: 2px solid #2c5282; border-top: 2px solid #2c5282; padding: 8px 0; margin: 0 80px; }
+
+        .content { text-align: center; margin: 15px 0; }
+        .presented-to { font-size: 11px; color: #4a5568; margin-bottom: 6px; font-style: italic; }
+        .recipient-name { font-size: 28px; color: #1a365d; font-weight: bold; font-family: 'Brush Script MT', cursive; margin-bottom: 10px; }
+        .description { font-size: 11px; color: #2d3748; max-width: 400px; margin: 0 auto 6px; line-height: 1.5; text-align: justify; text-align-last: center; }
+        .course-name { font-size: 16px; color: #1a365d; font-weight: bold; margin: 10px 0; text-transform: uppercase; letter-spacing: 1px; }
+        .given-text { font-size: 10px; color: #4a5568; margin-top: 12px; }
+
+        .footer { position: absolute; bottom: 25px; left: 40px; right: 40px; }
+        .signatures { display: flex; justify-content: space-between; margin-bottom: 12px; }
+        .signature-block { text-align: center; width: 150px; }
+        .signature-name { font-size: 12px; color: #1a365d; font-weight: bold; border-top: 1px solid #1a365d; padding-top: 4px; }
+        .signature-title { font-size: 9px; color: #4a5568; }
         .center-seal { text-align: center; }
-        .seal-circle { width: 70px; height: 70px; border: 2px solid #1a365d; border-radius: 50%; margin: 0 auto 5px; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #1a365d; text-align: center; font-weight: bold; line-height: 1.2; }
-        .meta-row { display: flex; justify-content: space-between; font-size: 10px; color: #718096; margin-top: 15px; padding-top: 10px; border-top: 1px solid #e2e8f0; }
+        .seal-circle { width: 55px; height: 55px; border: 2px solid #1a365d; border-radius: 50%; margin: 0 auto 4px; display: flex; align-items: center; justify-content: center; font-size: 7px; color: #1a365d; text-align: center; font-weight: bold; line-height: 1.2; }
+        .meta-row { display: flex; justify-content: space-between; font-size: 8px; color: #718096; margin-top: 10px; padding-top: 8px; border-top: 1px solid #e2e8f0; }
     </style>
 </head>
 <body>

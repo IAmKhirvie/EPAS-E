@@ -74,46 +74,58 @@ class CertificateService
         return $certificate;
     }
 
-    public function generatePdf(Certificate $certificate, ?string $template = null): string
+
+    /**
+     * Generate and save the PDF – ALWAYS overwrites old file.
+     */
+    public function generatePdf(Certificate $certificate)
     {
-        $certificate->load(['user', 'course']);
-
-        // Determine which template to use
-        $template = $template ?? $certificate->template_used ?? $certificate->course->certificate_template ?? 'default';
-
-        // Get certificate config from course
-        $config = $certificate->course->certificate_config ?? [];
-
         $data = [
-            'certificate' => $certificate,
             'user' => $certificate->user,
             'course' => $certificate->course,
-            'issue_date' => $certificate->issue_date->format('F d, Y'),
             'certificate_number' => $certificate->certificate_number,
-            'config' => $config,
+            'issue_date' => $certificate->issued_at ? $certificate->issued_at->format('F d, Y') : now()->format('F d, Y'),
+            'config' => [
+                'organization' => 'EPAS-E Learning Management System',
+                'signatory_left_title' => 'Program Director',
+                'signatory_right_title' => 'Lead Instructor',
+            ],
         ];
 
-        // Use template-specific view or fallback to default
-        $viewName = "certificates.templates.{$template}";
-        if (!view()->exists($viewName)) {
-            $viewName = 'certificates.templates.default';
+        $template = $certificate->template_used ?? 'default';
+        // Check if view exists in certificates.templates.*
+        if (!view()->exists("certificates.templates.{$template}")) {
+            Log::warning("Template '{$template}' not found, falling back to 'default'");
+            $template = 'default';
+        }
+        $pdf = Pdf::loadView("certificates.templates.{$template}", $data);
+
+        // Force A4 landscape and remove all margins
+        $pdf->setPaper('a4', 'landscape');
+        $pdf->setOptions([
+            'defaultFont' => 'sans-serif',
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => false,
+            'margin_top' => 0,
+            'margin_right' => 0,
+            'margin_bottom' => 0,
+            'margin_left' => 0,
+        ]);
+
+        $pdfContent = $pdf->output();
+
+        // Ensure a storage path exists
+        $path = $certificate->pdf_path;
+        if (!$path) {
+            $path = 'certificates/' . uniqid() . '.pdf';
+            $certificate->pdf_path = $path;
+            $certificate->save();
         }
 
-        $pdf = Pdf::loadView($viewName, $data)
-            ->setPaper('a4', 'landscape')
-            ->setOptions(['isRemoteEnabled' => true]);
+        // Overwrite the existing file (or create new)
+        Storage::disk('public')->put($path, $pdfContent);
 
-        // If course has custom background, we could apply it here
-        // (requires additional implementation for background images)
-
-        // Save to storage
-        $filename = "certificates/{$certificate->certificate_number}.pdf";
-        Storage::disk('public')->put($filename, $pdf->output());
-
-        // Update certificate record
-        $certificate->update(['pdf_path' => $filename]);
-
-        return $filename;
+        return $pdfContent;
     }
 
     /**
@@ -142,15 +154,26 @@ class CertificateService
             ->setOptions(['isRemoteEnabled' => true]);
     }
 
+    /**
+     * Download – always delete old and regenerate fresh.
+     */
     public function downloadPdf(Certificate $certificate)
     {
-        if (!$certificate->pdf_path || !Storage::disk('public')->exists($certificate->pdf_path)) {
-            $this->generatePdf($certificate);
+        // Delete old PDF if it exists
+        if ($certificate->pdf_path && Storage::disk('public')->exists($certificate->pdf_path)) {
+            Storage::disk('public')->delete($certificate->pdf_path);
         }
 
-        return Storage::disk('public')->download(
-            $certificate->pdf_path,
-            "Certificate-{$certificate->certificate_number}.pdf"
+        // Generate a brand new PDF
+        $this->generatePdf($certificate);
+
+        // Force browser to download with unique name (prevents caching)
+        $filename = 'certificate_' . $certificate->id . '_' . time() . '.pdf';
+
+        return response()->download(
+            Storage::disk('public')->path($certificate->pdf_path),
+            $filename,
+            ['Content-Type' => 'application/pdf']
         );
     }
 

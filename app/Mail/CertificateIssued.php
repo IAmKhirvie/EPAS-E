@@ -9,6 +9,8 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Mail\Mailables\Attachment;
+use Illuminate\Support\Facades\Storage;
 
 class CertificateIssued extends Mailable implements ShouldQueue
 {
@@ -59,6 +61,19 @@ class CertificateIssued extends Mailable implements ShouldQueue
      */
     public function attachments(): array
     {
+        // Force regeneration before attaching
+        app(\App\Services\CertificateService::class)->generatePdf($this->certificate);
+
+        $pdfPath = $this->certificate->refresh()->pdf_path;
+
+        if ($pdfPath && Storage::disk('public')->exists($pdfPath)) {
+            return [
+                Attachment::fromPath(Storage::disk('public')->path($pdfPath))
+                    ->as("Certificate-{$this->certificate->certificate_number}.pdf")
+                    ->withMime('application/pdf'),
+            ];
+        }
+
         return [];
     }
 }

@@ -4,70 +4,197 @@
     <meta charset="utf-8">
     <title>Certificate of Completion</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Georgia', serif; background: #fff; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+
+        html, body {
+            width: 297mm;
+            height: 210mm;
+            margin: 0;
+            padding: 0;
+            background: white;
+        }
+
         .certificate {
-            width: 100%; height: 100%; padding: 40px;
-            border: 15px solid #0c3a2d; position: relative;
-            background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+            width: 100vw;
+            height: 100vh;
+            padding: 12mm 18mm;
+            background: white;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
         }
+
+        /* Decorative border */
         .certificate::before {
-            content: ''; position: absolute;
-            top: 10px; left: 10px; right: 10px; bottom: 10px;
-            border: 2px solid #6d9773;
+            content: '';
+            position: absolute;
+            top: 6mm;
+            left: 6mm;
+            right: 6mm;
+            bottom: 6mm;
+            border: 2px solid #c7a252;
+            pointer-events: none;
         }
-        .corner { position: absolute; width: 50px; height: 50px; border: 3px solid #0c3a2d; }
-        .corner-tl { top: 18px; left: 18px; border-right: none; border-bottom: none; }
-        .corner-tr { top: 18px; right: 18px; border-left: none; border-bottom: none; }
-        .corner-bl { bottom: 18px; left: 18px; border-right: none; border-top: none; }
-        .corner-br { bottom: 18px; right: 18px; border-left: none; border-top: none; }
-        .header { text-align: center; margin-bottom: 25px; padding-top: 15px; }
-        .logo { font-size: 20px; font-weight: bold; color: #0c3a2d; margin-bottom: 8px; letter-spacing: 2px; }
-        .title { font-size: 42px; color: #0c3a2d; font-weight: bold; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 5px; }
-        .subtitle { font-size: 16px; color: #64748b; letter-spacing: 2px; }
-        .content { text-align: center; margin: 25px 0; }
-        .presented-to { font-size: 14px; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; }
-        .recipient-name { font-size: 36px; color: #0c3a2d; font-style: italic; border-bottom: 2px solid #ffb902; display: inline-block; padding: 0 40px 10px; margin-bottom: 15px; }
-        .description { font-size: 14px; color: #475569; max-width: 500px; margin: 0 auto; line-height: 1.6; }
-        .course-name { font-size: 22px; color: #0c3a2d; font-weight: bold; margin: 15px 0; padding: 8px 25px; display: inline-block; border: 2px solid #6d9773; border-radius: 5px; background: #e8f5e9; }
-        .footer { position: absolute; bottom: 50px; left: 60px; right: 60px; display: flex; justify-content: space-between; align-items: flex-end; }
-        .signature-block { text-align: center; width: 160px; }
-        .signature-line { border-top: 2px solid #0c3a2d; padding-top: 8px; font-size: 11px; color: #475569; font-weight: 600; }
-        .center-block { text-align: center; }
-        .seal { width: 80px; height: 80px; border: 3px solid #0c3a2d; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #0c3a2d; text-align: center; font-weight: bold; margin: 0 auto 8px; background: #e8f5e9; }
-        .date { font-size: 13px; color: #475569; }
-        .certificate-number { font-size: 9px; color: #94a3b8; margin-top: 4px; font-family: monospace; }
+
+        /* Header */
+        .header {
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .org-name {
+            font-size: 13px;
+            letter-spacing: 3px;
+            color: #5a4a2a;
+            font-weight: 500;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .cert-title {
+            font-size: 30px;
+            font-weight: 700;
+            color: #2c3e2f;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-family: 'Georgia', serif;
+            margin-bottom: 4px;
+        }
+        .cert-sub {
+            font-size: 11px;
+            color: #7f8c8d;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #ddd;
+            display: inline-block;
+            padding-bottom: 4px;
+        }
+
+        /* Content – using gap for even spacing */
+        .content {
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 12px;
+        }
+        .recipient {
+            font-size: 32px;
+            font-weight: 600;
+            color: #2c3e2f;
+            font-family: 'Georgia', serif;
+            border-bottom: 2px solid #c7a252;
+            display: inline-block;
+            padding: 0 25px 6px;
+            margin: 0 auto;
+        }
+        .description {
+            font-size: 11px;
+            color: #4a5568;
+            max-width: 80%;
+            margin: 0 auto;
+            line-height: 1.4;
+        }
+        .course {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e2f;
+            background: #f5efe6;
+            display: inline-block;
+            padding: 5px 25px;
+            margin: 0 auto;
+            border-radius: 40px;
+        }
+
+        /* Footer – balanced signatures */
+        .footer {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-top: 1px dashed #ddd;
+            padding-top: 10px;
+            width: 100%;
+        }
+        .signature {
+            text-align: center;
+            width: 140px;
+        }
+        .sign-line {
+            width: 100%;
+            border-top: 1.5px solid #2c3e2f;
+            margin-bottom: 5px;
+        }
+        .sign-title {
+            font-size: 10px;
+            color: #5a4a2a;
+            font-weight: 600;
+        }
+        .seal-area {
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .seal {
+            width: 55px;
+            height: 55px;
+            border: 2px solid #c7a252;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            color: #c7a252;
+            font-weight: bold;
+            margin: 0 auto 5px;
+            background: #fff9ef;
+        }
+        .date {
+            font-size: 10px;
+            color: #5a4a2a;
+        }
+        .cert-no {
+            font-size: 9px;
+            color: #4a5568;
+            font-family: monospace;
+            margin-top: 3px;
+        }
     </style>
 </head>
 <body>
     <div class="certificate">
-        <div class="corner corner-tl"></div>
-        <div class="corner corner-tr"></div>
-        <div class="corner corner-bl"></div>
-        <div class="corner corner-br"></div>
         <div class="header">
-            <div class="logo">{{ $config['organization'] ?? 'EPAS-E LEARNING MANAGEMENT SYSTEM' }}</div>
-            <div class="title">Certificate</div>
-            <div class="subtitle">OF COMPLETION</div>
+            <div class="org-name">{{ $config['organization'] ?? 'EPAS-E LEARNING MANAGEMENT SYSTEM' }}</div>
+            <div class="cert-title">Certificate of Completion</div>
+            <div class="cert-sub">Awarded to</div>
         </div>
         <div class="content">
-            <div class="presented-to">This is to certify that</div>
-            <div class="recipient-name">{{ $user->full_name }}</div>
-            <div class="description">has successfully completed all requirements and demonstrated competency in</div>
-            <div class="course-name">{{ $course->course_name }}</div>
-            <div class="description">as prescribed by the {{ $config['organization'] ?? 'EPAS-E Learning Management System' }} curriculum.</div>
+            <div class="recipient">{{ $user->full_name }}</div>
+            <div class="description">for successfully completing the prescribed course of study and demonstrating proficiency in</div>
+            <div class="course">{{ $course->course_name }}</div>
+            <div class="description">with all the rights and privileges pertaining thereto.</div>
         </div>
         <div class="footer">
-            <div class="signature-block">
-                <div class="signature-line">{{ $config['signatory_left_title'] ?? 'Administrator' }}</div>
+            <div class="signature">
+                <div class="sign-line"></div>
+                <div class="sign-title">{{ $config['signatory_left_title'] ?? 'Program Director' }}</div>
             </div>
-            <div class="center-block">
+            <div class="seal-area">
                 <div class="seal">OFFICIAL<br>SEAL</div>
                 <div class="date">{{ $issue_date }}</div>
-                <div class="certificate-number">Certificate No: {{ $certificate_number }}</div>
+                <div class="cert-no">Certificate No: {{ $certificate_number }}</div>
             </div>
-            <div class="signature-block">
-                <div class="signature-line">{{ $config['signatory_right_title'] ?? 'Instructor' }}</div>
+            <div class="signature">
+                <div class="sign-line"></div>
+                <div class="sign-title">{{ $config['signatory_right_title'] ?? 'Lead Instructor' }}</div>
             </div>
         </div>
     </div>

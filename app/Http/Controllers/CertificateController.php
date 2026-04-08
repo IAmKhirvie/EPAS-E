@@ -10,6 +10,8 @@ use App\Services\CertificateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class CertificateController extends Controller
 {
@@ -39,7 +41,22 @@ class CertificateController extends Controller
         try {
             $this->authorize('view', $certificate);
 
-            return $this->certificateService->downloadPdf($certificate);
+            // Delete old PDF if exists
+            if ($certificate->pdf_path && Storage::disk('public')->exists($certificate->pdf_path)) {
+                Storage::disk('public')->delete($certificate->pdf_path);
+            }
+
+            // Generate fresh PDF
+            $this->generatePdf($certificate);
+
+            // Force browser to download fresh copy with unique filename
+            $filename = 'certificate_' . $certificate->id . '_' . time() . '.pdf';
+
+            return response()->download(
+                Storage::disk('public')->path($certificate->pdf_path),
+                $filename,
+                ['Content-Type' => 'application/pdf']
+            );
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             throw $e;
         } catch (\Exception $e) {
@@ -466,18 +483,78 @@ class CertificateController extends Controller
     /**
      * Regenerate certificate PDF.
      */
-    public function regeneratePdf(Certificate $certificate)
+    /**
+     * Generate and save the PDF – ALWAYS overwrites old file.
+     */
+    public function generatePdf(Certificate $certificate)
     {
-        try {
-            $this->certificateService->generatePdf($certificate);
+        $data = [
+            'user' => $certificate->user,
+            'course' => $certificate->course,
+            'certificate_number' => $certificate->certificate_number,
+            'issue_date' => $certificate->issued_at ? $certificate->issued_at->format('F d, Y') : now()->format('F d, Y'),
+            'config' => [
+                'organization' => 'EPAS-E Learning Management System',
+                'signatory_left_title' => 'Program Director',
+                'signatory_right_title' => 'Lead Instructor',
+            ],
+        ];
 
-            return back()->with('success', 'Certificate PDF regenerated successfully!');
-        } catch (\Exception $e) {
-            Log::error('CertificateController::regeneratePdf failed', [
-                'error' => $e->getMessage(),
-                'certificate_id' => $certificate->id,
-            ]);
-            return back()->with('error', 'PDF regeneration failed: ' . $e->getMessage());
+        $template = $certificate->template_used ?? 'default';
+
+        // Check if view exists in certificates.templates.* (fix for your folder structure)
+        if (!view()->exists("certificates.templates.{$template}")) {
+            \Log::warning("Template '{$template}' not found, falling back to 'default'");
+            $template = 'default';
         }
+
+        $pdf = Pdf::loadView("certificates.templates.{$template}", $data);
+
+        // Force A4 landscape and remove all margins
+        $pdf->setPaper('a4', 'landscape');
+        $pdf->setOptions([
+            'defaultFont' => 'sans-serif',
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => false,
+            'margin_top' => 0,
+            'margin_right' => 0,
+            'margin_bottom' => 0,
+            'margin_left' => 0,
+        ]);
+
+        $pdfContent = $pdf->output();
+
+        // Ensure a storage path exists
+        $path = $certificate->pdf_path;
+        if (!$path) {
+            $path = 'certificates/' . uniqid() . '.pdf';
+            $certificate->pdf_path = $path;
+            $certificate->save();
+        }
+
+        // Overwrite the existing file (or create new)
+        Storage::disk('public')->put($path, $pdfContent);
+
+        return $pdfContent;
+    }
+
+    public function downloadPdf(Certificate $certificate)
+    {
+        // Delete old PDF if exists (ensures fresh generation)
+        if ($certificate->pdf_path && Storage::disk('public')->exists($certificate->pdf_path)) {
+            Storage::disk('public')->delete($certificate->pdf_path);
+        }
+
+        // Force regenerate with latest template & CSS
+        $this->generatePdf($certificate);
+
+        // Add a timestamp to the filename to prevent browser caching
+        $filename = 'certificate_' . $certificate->id . '_' . time() . '.pdf';
+
+        return response()->download(
+            Storage::disk('public')->path($certificate->pdf_path),
+            $filename,
+            ['Content-Type' => 'application/pdf']
+        );
     }
 }

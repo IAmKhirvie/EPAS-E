@@ -19,6 +19,8 @@ use App\Policies\ModulePolicy;
 use App\Policies\HomeworkPolicy;
 use App\Policies\AnnouncementPolicy;
 use App\Policies\ForumThreadPolicy;
+use App\Models\Certificate;
+use App\Policies\CertificatePolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -63,5 +65,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Homework::class, HomeworkPolicy::class);
         Gate::policy(Announcement::class, AnnouncementPolicy::class);
         Gate::policy(ForumThread::class, ForumThreadPolicy::class);
+        Gate::policy(Certificate::class, CertificatePolicy::class);
     }
 }

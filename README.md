@@ -6,20 +6,21 @@ A comprehensive Learning Management System built with Laravel 12 for Philippine 
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Backend | Laravel 12, PHP 8.2+ |
+| Layer    | Technology                                       |
+| -------- | ------------------------------------------------ |
+| Backend  | Laravel 12, PHP 8.2+                             |
 | Frontend | Blade + Livewire + Tailwind CSS v4 + Bootstrap 5 |
-| Build | Vite |
-| Database | MySQL / MariaDB (SQLite for testing) |
-| Auth | Laravel Sanctum + Session + 2FA (TOTP) |
-| Mail | PHPMailer (SMTP) |
-| PDF | DomPDF |
-| Excel | Maatwebsite/Excel |
+| Build    | Vite                                             |
+| Database | MySQL / MariaDB (SQLite for testing)             |
+| Auth     | Laravel Sanctum + Session + 2FA (TOTP)           |
+| Mail     | PHPMailer (SMTP)                                 |
+| PDF      | DomPDF                                           |
+| Excel    | Maatwebsite/Excel                                |
 
 ## Features
 
 ### Learning & Assessment
+
 - **Course hierarchy**: Course > Module > Information Sheet > Topic
 - **4 assessment types**: Self-Check (auto-graded, 14+ question types), Homework (manual grading), Task Sheet (practical tasks), Job Sheet (step-by-step procedures)
 - **Competency checklists** with item-level ratings
@@ -27,28 +28,32 @@ A comprehensive Learning Management System built with Laravel 12 for Philippine 
 - **Certificate generation** with PDF export and public verification
 
 ### Grading (Philippine K-12 Scale)
+
 - Weighted module grades: Self-checks 20%, Homeworks 30%, Task sheets 25%, Job sheets 25%
 - Scale: Outstanding (90-100), Very Satisfactory (85-89), Satisfactory (80-84), Fairly Satisfactory (75-79), Did Not Meet (0-74)
 - GPA calculation (4.0 scale)
 - Grade export to CSV/Excel
 
 ### Gamification
+
 - Activity-based points (daily login, submissions, completions, perfect scores)
 - Badge system with multiple criteria types (points, streaks, milestones)
 - Leaderboards and streak tracking
 
 ### Communication
+
 - Role-targeted announcements with comments
-- Discussion forums with threads, voting, best answers, and subscriptions
 - Email notifications via queued jobs
 
 ### User Management
+
 - 3 roles: Admin, Instructor, Student
 - Multi-stage registration (email verification + admin approval)
 - Bulk operations (import, activate, deactivate, assign sections)
 - Instructor-scoped class/section management
 
 ### Security
+
 - Two-factor authentication (TOTP with backup codes)
 - Rate limiting (login, registration, password reset)
 - Comprehensive audit logging
@@ -58,6 +63,7 @@ A comprehensive Learning Management System built with Laravel 12 for Philippine 
 - Password policy enforcement
 
 ### Performance
+
 - 100% server-side search, pagination, sorting, and filtering (Livewire components)
 - N+1 query prevention with batch prefetching and aggregate queries
 - Multi-tier caching (dashboard 10 min, grades 5 min, analytics 1 hr)
@@ -100,13 +106,13 @@ The app will be available at `http://127.0.0.1:8000`.
 
 After running `php artisan db:seed`, the following test accounts are available:
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | `Juswa@gmail.com` | `Password123` |
-| Instructor | `karl142412@gmail.com` | `Password@123` |
-| Instructor | `KebinSy2121252@gmail.com` | `Password@123` |
-| Student | `Sheila1112421152@gmail.com` | `Password@123` |
-| Student | `mikaellayap23@gmail.com` | `Password123` |
+| Role       | Email                        | Password       |
+| ---------- | ---------------------------- | -------------- |
+| Admin      | `Juswa@gmail.com`            | `Password123`  |
+| Instructor | `karl142412@gmail.com`       | `Password@123` |
+| Instructor | `KebinSy2121252@gmail.com`   | `Password@123` |
+| Student    | `Sheila1112421152@gmail.com` | `Password@123` |
+| Student    | `mikaellayap23@gmail.com`    | `Password123`  |
 
 > **Note:** These accounts are created by the `UserSeeder`. Make sure to run `php artisan db:seed` after migrations.
 
@@ -133,31 +139,34 @@ app/
 
 ### Key Services
 
-| Service | Purpose |
-|---------|---------|
-| `GradingService` | Philippine K-12 grade calculation, GPA, rankings |
-| `SelfCheckGradingService` | Auto-grading for 14+ question types |
-| `GamificationService` | Points, badges, streaks with race condition prevention |
-| `NotificationService` | Multi-channel notification orchestration |
-| `AnalyticsService` | Dashboard metrics, progress tracking |
-| `DashboardStatisticsService` | Role-based dashboard data aggregation |
-| `CertificateService` | PDF certificate generation and verification |
-| `PrerequisiteService` | Module access gating and dependency checking |
-| `ContentSanitizationService` | XSS/injection protection |
-| `AuditLogService` | System action logging |
+| Service                      | Purpose                                                |
+| ---------------------------- | ------------------------------------------------------ |
+| `GradingService`             | Philippine K-12 grade calculation, GPA, rankings       |
+| `SelfCheckGradingService`    | Auto-grading for 14+ question types                    |
+| `GamificationService`        | Points, badges, streaks with race condition prevention |
+| `NotificationService`        | Multi-channel notification orchestration               |
+| `AnalyticsService`           | Dashboard metrics, progress tracking                   |
+| `DashboardStatisticsService` | Role-based dashboard data aggregation                  |
+| `CertificateService`         | PDF certificate generation and verification            |
+| `PrerequisiteService`        | Module access gating and dependency checking           |
+| `ContentSanitizationService` | XSS/injection protection                               |
+| `AuditLogService`            | System action logging                                  |
 
 ## Code Quality Fixes & Updates
 
 ### Critical Bug Fixes
+
 - **User::isActive()**: Fixed boolean comparison — `$this->stat === true` changed to `(int) $this->stat === 1` (tinyInteger column requires integer comparison)
 - **NotificationService**: Fixed incorrect method name `sendMail()` → `sendNotificationEmail()`, added division-by-zero guard
 - **PHPMailerService**: Replaced all `env()` calls with `config()` (prevents null values when running `php artisan config:cache`)
 - **GamificationService**: Fixed `increment()` + `save()` overwrite bug — switched to direct assignment with `DB::transaction()` and `lockForUpdate()` for concurrent safety
 
 ### Model Relationship Fixes
+
 - Fixed 6 models with incorrect `belongsTo` foreign key inference — added explicit FK parameters where column name differs from Eloquent's convention
 
 ### Database Normalization (1NF-4NF)
+
 - `users.stat`: Changed from string to tinyInteger (0/1)
 - Dropped redundant announcement tables
 - Fixed `certificates.status` enum
@@ -166,17 +175,19 @@ app/
 - Updated all `'stat', true/false` comparisons to `'stat', 1/0` across ~20 files
 
 ### Performance Optimizations
+
 - **GradesController**: Eliminated N+1 queries via `prefetchStudentSubmissions()` batch method
 - **GradingService**: Simplified nested `whereHas` with pre-fetched `sheetIds`
 - **AnalyticsService**:
-  - `calculateAverageProgress`: N+1 → single aggregate query
-  - `getModuleMetrics`: 4N queries → 1 batched GROUP BY query
-  - `getDailyActiveUsers`: loop → single GROUP BY
+    - `calculateAverageProgress`: N+1 → single aggregate query
+    - `getModuleMetrics`: 4N queries → 1 batched GROUP BY query
+    - `getDailyActiveUsers`: loop → single GROUP BY
 - **GradeTable (Livewire)**: 3 aggregate queries for entire paginated page instead of N per-student
 - Added DB transactions to `SelfCheckController::store`, `JobSheetController::store`, `TaskSheetController::store`
 - Added 16+ composite database indexes across 11+ tables
 
 ### Other Fixes
+
 - **Media::boot()**: Changed `deleting` → `forceDeleting` event (prevents file loss on soft-delete)
 - **Homework**: Added null `due_date` guards on `is_past_due`/`days_until_due` accessors
 - **SelfCheck**: `completion_rate` now counts active students instead of ALL users
@@ -196,6 +207,7 @@ php artisan test
 ## Configuration
 
 Centralized in `config/joms.php`:
+
 - Grading thresholds and scale
 - Password policy and rate limits
 - Gamification point values

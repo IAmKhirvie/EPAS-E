@@ -79,6 +79,52 @@ use App\Http\Controllers\BadgeController;
 | and unauthenticated users to the lobby page.
 |
 */
+use App\Models\User;
+use App\Models\Course;
+use App\Models\Certificate;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+Route::get('/preview-certificate/{template?}', function ($template = 'default') {
+    // Fetch a real certificate or use dummy data
+    $certificate = Certificate::with(['user', 'course'])->first();
+
+    if (!$certificate) {
+        // Fallback dummy data
+        $user = User::first() ?? new User(['full_name' => 'John M. Sample']);
+        $course = Course::first() ?? new Course(['course_name' => 'Sample Course']);
+        $issue_date = now()->format('F d, Y');
+        $certificate_number = 'CERT-PREVIEW-00001';
+        $config = [];
+    } else {
+        $user = $certificate->user;
+        $course = $certificate->course;
+        $issue_date = $certificate->issue_date?->format('F d, Y') ?? now()->format('F d, Y');
+        $certificate_number = $certificate->certificate_number;
+        $config = $certificate->course->certificate_config ?? [];
+    }
+
+    // Check if the view exists
+    $viewName = "certificates.templates.{$template}";
+    if (!view()->exists($viewName)) {
+        $viewName = 'certificates.templates.default';
+    }
+
+    // Generate PDF instead of returning HTML view
+    $pdf = Pdf::loadView($viewName, compact('user', 'course', 'issue_date', 'certificate_number', 'config'));
+    $pdf->setPaper('a4', 'landscape');
+    $pdf->setOptions([
+        'defaultFont' => 'sans-serif',
+        'isHtml5ParserEnabled' => true,
+        'isRemoteEnabled' => false,
+        'margin_top' => 0,
+        'margin_right' => 0,
+        'margin_bottom' => 0,
+        'margin_left' => 0,
+    ]);
+
+    // Stream PDF directly in browser (live preview)
+    return $pdf->stream("certificate_preview_{$template}.pdf");
+})->name('preview.certificate');
 
 Route::get('/', function () {
     if (Auth::check()) {
