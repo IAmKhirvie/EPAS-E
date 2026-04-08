@@ -435,6 +435,35 @@ class CertificateController extends Controller
     }
 
     /**
+     * Issue a certificate to a user from user management page.
+     */
+    public function issueCertificateForUser(Request $request, User $user)
+    {
+        try {
+            $request->validate([
+                'module_id' => 'required|exists:modules,id',
+            ]);
+
+            $module = Module::findOrFail($request->module_id);
+
+            $certificate = $this->certificateService->manualRelease(
+                $user,
+                $module,
+                auth()->user()
+            );
+
+            return back()->with('success', "Certificate issued to {$user->full_name} for {$module->module_title}!");
+        } catch (\Exception $e) {
+            Log::error('CertificateController::issueCertificateForUser failed', [
+                'error' => $e->getMessage(),
+                'user' => auth()->id(),
+                'target_user' => $user->id,
+            ]);
+            return back()->with('error', 'Certificate issuance failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Regenerate certificate PDF.
      */
     public function regeneratePdf(Certificate $certificate)

@@ -38,6 +38,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Idle Session Timeout
+    |--------------------------------------------------------------------------
+    |
+    | The number of minutes a session can remain idle (no requests) before
+    | the user is automatically logged out. This is separate from the
+    | session lifetime and absolute timeout.
+    |
+    */
+
+    'idle_timeout' => (int) env('SESSION_IDLE_TIMEOUT', 30),
+
+    /*
+    |--------------------------------------------------------------------------
     | Session Encryption
     |--------------------------------------------------------------------------
     |

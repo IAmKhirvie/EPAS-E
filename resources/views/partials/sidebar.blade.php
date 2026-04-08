@@ -76,9 +76,9 @@
                     <i class="fas fa-users"></i>
                     <span>My Class</span>
                 </a>
-                <a href="{{ route('certificates.index') }}" class="nav-item {{ Request::is('certificates*') ? 'active' : '' }}" data-tooltip="My Certificates">
-                    <i class="fas fa-certificate"></i>
-                    <span>My Certificates</span>
+                <a href="{{ route('credentials.index') }}" class="nav-item {{ Request::is('credentials*') || Request::is('certificates*') ? 'active' : '' }}" data-tooltip="My Credentials">
+                    <i class="fas fa-award"></i>
+                    <span>My Credentials</span>
                 </a>
                 @endif
             </nav>
@@ -161,6 +161,12 @@
                 <a href="{{ route('admin.certificates.index') }}" class="nav-item {{ Request::is('admin/certificates*') ? 'active' : '' }}" data-tooltip="Certificates">
                     <i class="fas fa-certificate"></i>
                     <span>Certificates</span>
+                </a>
+
+                <!-- Badges -->
+                <a href="{{ route('admin.badges.index') }}" class="nav-item {{ Request::is('admin/badges*') ? 'active' : '' }}" data-tooltip="Badges">
+                    <i class="fas fa-award"></i>
+                    <span>Badges</span>
                 </a>
 
             </nav>

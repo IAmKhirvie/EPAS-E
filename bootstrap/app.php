@@ -31,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
             App\Http\Middleware\TrustProxies::class,
             App\Http\Middleware\SecurityHeaders::class,
             App\Http\Middleware\AbsoluteSessionTimeout::class,
+            App\Http\Middleware\IdleSessionTimeout::class,
         ]);
         $middleware->alias([
             'check.role' => \App\Http\Middleware\CheckRole::class,

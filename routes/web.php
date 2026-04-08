@@ -67,6 +67,8 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ForumController;
 use App\Http\Controllers\TrashController;
+use App\Http\Controllers\CredentialsController;
+use App\Http\Controllers\BadgeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -371,6 +373,11 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::get('/private/instructors', [UserController::class, 'instructors'])->name('private.instructors.index');
         Route::get('/private/admins', [UserController::class, 'admins'])->name('private.admins.index');
         Route::post('/private/students/{student}/remove-from-class', [UserController::class, 'removeFromClass'])->name('private.students.remove-from-class');
+
+        // Credential issuance from user management
+        Route::post('/private/users/{user}/award-badge', [BadgeController::class, 'awardToUser'])->name('private.users.award-badge');
+        Route::delete('/private/users/{user}/revoke-badge/{badge}', [BadgeController::class, 'revokeFromUser'])->name('private.users.revoke-badge');
+        Route::post('/private/users/{user}/issue-certificate', [CertificateController::class, 'issueCertificateForUser'])->name('private.users.issue-certificate');
 
         // Registration Management (approve/reject pending registrations)
         Route::prefix('admin/registrations')->name('admin.registrations.')->group(function () {
@@ -788,12 +795,23 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::get('/{student}', [GradesController::class, 'show'])->name('show')->where('student', '[0-9]+');
     });
 
+    // Student Credentials (unified badges + certificates view)
+    Route::get('/credentials', [CredentialsController::class, 'index'])->name('credentials.index');
+
     // Certificates
     Route::prefix('certificates')->name('certificates.')->group(function () {
         Route::get('/', [CertificateController::class, 'index'])->name('index');
         Route::get('/{certificate}', [CertificateController::class, 'show'])->name('show');
         Route::get('/{certificate}/download', [CertificateController::class, 'download'])->name('download');
         Route::post('/course/{course}/generate', [CertificateController::class, 'generate'])->name('generate');
+    });
+
+    // Admin Badge Management
+    Route::prefix('admin/badges')->name('admin.badges.')->middleware('check.role:admin')->group(function () {
+        Route::get('/', [BadgeController::class, 'index'])->name('index');
+        Route::post('/', [BadgeController::class, 'store'])->name('store');
+        Route::put('/{badge}', [BadgeController::class, 'update'])->name('update');
+        Route::delete('/{badge}', [BadgeController::class, 'destroy'])->name('destroy');
     });
 
     // Admin Certificate Management

@@ -292,6 +292,148 @@
                 </form>
             </div>
         </div>
+
+        {{-- Credentials Section (for students only) --}}
+        @if($user->role === 'student')
+        <div class="card mt-4">
+            <div class="card-header bg-primary bg-opacity-10 border-primary">
+                <h6 class="mb-0">
+                    <i class="fas fa-award me-2"></i>Credentials
+                    <small class="text-muted ms-2">Badges & Certificates for {{ $user->full_name }}</small>
+                </h6>
+            </div>
+            <div class="card-body">
+                {{-- Issue Badge --}}
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <h6 class="border-bottom pb-2 mb-3 text-primary">
+                            <i class="fas fa-award me-2"></i>Award Badge
+                        </h6>
+                        @php $availableBadges = \App\Models\Badge::active()->orderBy('name')->get(); @endphp
+                        @if($availableBadges->isEmpty())
+                            <p class="text-muted small">No badges available. <a href="{{ route('admin.badges.index') }}">Create badges first.</a></p>
+                        @else
+                            <form action="{{ route('private.users.award-badge', $user) }}" method="POST">
+                                @csrf
+                                <div class="mb-3">
+                                    <select name="badge_id" class="form-select" required>
+                                        <option value="">-- Select Badge --</option>
+                                        @foreach($availableBadges as $badge)
+                                            @php $alreadyEarned = $user->badges->contains($badge->id); @endphp
+                                            <option value="{{ $badge->id }}" {{ $alreadyEarned ? 'disabled' : '' }}>
+                                                {{ $badge->name }} ({{ ucfirst($badge->type) }}){{ $alreadyEarned ? ' - Already Earned' : '' }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-award me-1"></i> Award Badge
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <h6 class="border-bottom pb-2 mb-3 text-primary">
+                            <i class="fas fa-certificate me-2"></i>Issue Certificate
+                        </h6>
+                        @php $modules = \App\Models\Module::with('course')->where('is_active', true)->orderBy('module_title')->get(); @endphp
+                        @if($modules->isEmpty())
+                            <p class="text-muted small">No active modules available.</p>
+                        @else
+                            <form action="{{ route('private.users.issue-certificate', $user) }}" method="POST">
+                                @csrf
+                                <div class="mb-3">
+                                    <select name="module_id" class="form-select" required>
+                                        <option value="">-- Select Module --</option>
+                                        @foreach($modules as $module)
+                                            <option value="{{ $module->id }}">
+                                                {{ $module->module_title }} ({{ $module->course->course_name ?? 'N/A' }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-certificate me-1"></i> Issue Certificate
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Earned Badges --}}
+                @php $earnedBadges = $user->badges()->orderByPivot('earned_at', 'desc')->get(); @endphp
+                @if($earnedBadges->isNotEmpty())
+                    <h6 class="border-bottom pb-2 mb-3">
+                        <i class="fas fa-check-circle text-success me-1"></i> Earned Badges ({{ $earnedBadges->count() }})
+                    </h6>
+                    <div class="row mb-4">
+                        @foreach($earnedBadges as $badge)
+                            <div class="col-6 col-md-4 col-lg-3 mb-2">
+                                <div class="card border shadow-sm h-100">
+                                    <div class="card-body text-center py-3">
+                                        <div style="color: {{ $badge->color ?? '#ffc107' }};" class="mb-2">
+                                            <i class="{{ $badge->icon ?? 'fas fa-medal' }} fa-2x"></i>
+                                        </div>
+                                        <small class="fw-bold d-block">{{ $badge->name }}</small>
+                                        <small class="text-muted">{{ $badge->pivot->earned_at ? $badge->pivot->earned_at->format('M d, Y') : '' }}</small>
+                                        <div class="mt-2">
+                                            <form action="{{ route('private.users.revoke-badge', [$user, $badge]) }}" method="POST"
+                                                  onsubmit="return confirm('Revoke this badge?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1" title="Revoke">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
+                {{-- Certificates --}}
+                @php $certificates = \App\Models\Certificate::where('user_id', $user->id)->with('course', 'module')->latest()->get(); @endphp
+                @if($certificates->isNotEmpty())
+                    <h6 class="border-bottom pb-2 mb-3">
+                        <i class="fas fa-certificate text-warning me-1"></i> Certificates ({{ $certificates->count() }})
+                    </h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Certificate</th>
+                                    <th>Module / Course</th>
+                                    <th>Status</th>
+                                    <th>Issued</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($certificates as $cert)
+                                    <tr>
+                                        <td>
+                                            <a href="{{ route('admin.certificates.show', $cert) }}">
+                                                {{ $cert->certificate_number }}
+                                            </a>
+                                        </td>
+                                        <td>{{ $cert->module->module_title ?? '' }} / {{ $cert->course->course_name ?? '' }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ $cert->status === 'issued' ? 'success' : ($cert->status === 'revoked' ? 'danger' : 'warning') }}">
+                                                {{ ucfirst(str_replace('_', ' ', $cert->status)) }}
+                                            </span>
+                                        </td>
+                                        <td>{{ $cert->issue_date ? $cert->issue_date->format('M d, Y') : '-' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
+        </div>
+        @endif
     </div>
 @endsection
 
