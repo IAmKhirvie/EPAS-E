@@ -1448,7 +1448,7 @@ h3.user-card-subtitle {
 /* ===== Dark mode ===== */
 @media (min-width: 1033px) {
     .dark-mode .navbar-right {
-        background-color: var(--secondary);
+        background-color: var(--primary-dark);
         border-color: var(--border);
     }
 }
@@ -1458,6 +1458,6 @@ h3.user-card-subtitle {
 }
 
 .dark-mode .user-button--mobile {
-    background: var(--secondary);
+    background: var(--primary-dark);
 }
 

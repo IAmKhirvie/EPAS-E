@@ -123,7 +123,7 @@
     }
 
     .course-hero-actions .btn:hover {
-        background: white;
+        background: var(--accent-dark);
         color: var(--text-primary);
     }
 

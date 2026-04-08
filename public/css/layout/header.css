@@ -1629,7 +1629,7 @@ h3.user-card-subtitle {
 /* Dark mode navbar styles — desktop only (mobile removes pill) */
 @media (min-width: 1033px) {
     .dark-mode .navbar-right {
-        background-color: var(--background);
+        background-color: var(--primary-dark);
         border-color: var(--border);
     }
 }
@@ -1639,7 +1639,7 @@ h3.user-card-subtitle {
 }
 
 .dark-mode .user-button--mobile {
-    background: var(--secondary);
+    background: var(--primary-dark);
 }
 
 .dark-mode .navbar-brand h2 {
