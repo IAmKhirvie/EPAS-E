@@ -105,11 +105,14 @@
   // ── Intercept fetch errors globally ──
   var originalFetch = window.fetch;
   window.fetch = function() {
+    var url = arguments[0];
+    if (typeof url === 'object' && url.url) url = url.url;
     return originalFetch.apply(this, arguments).then(function(response) {
       if (!response.ok && response.headers.get('content-type') && response.headers.get('content-type').includes('application/json')) {
         var cloned = response.clone();
         cloned.json().then(function(data) {
           if (data.error || data.message) {
+            console.error('[JOMS Fetch Error]', response.status, data.message || data.error, 'URL:', url);
             window.showErrorPopup(data.message || 'An error occurred.', 'Error ' + response.status, 'error');
           }
         }).catch(function() {});
@@ -117,6 +120,7 @@
       return response;
     }).catch(function(error) {
       if (error.name !== 'AbortError') {
+        console.error('[JOMS Fetch Network Error]', 'URL:', url, 'Error:', error.message);
         window.showErrorPopup('Network error. Please check your connection and try again.', 'Connection Error', 'warning');
       }
       throw error;
@@ -133,7 +137,10 @@
           if (error.response.data && error.response.data.message) {
             msg = error.response.data.message;
           }
-          window.showErrorPopup(msg, 'Error ' + error.response.status, 'error');
+          var url = error.config ? error.config.url : 'unknown';
+          // Log detailed info to console
+          console.error('[JOMS Axios Error]', error.response.status, msg, 'URL:', url);
+          window.showErrorPopup(msg + ' (URL: ' + url + ')', 'Error ' + error.response.status, 'error');
         } else if (error.request) {
           window.showErrorPopup('Network error. Please check your connection.', 'Connection Error', 'warning');
         }

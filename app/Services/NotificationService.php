@@ -7,7 +7,6 @@ use App\Models\Announcement;
 use App\Models\User;
 use App\Models\Notification;
 use App\Models\Homework;
-use App\Models\ForumThread;
 use App\Models\Conversation;
 use App\Jobs\SendNotificationEmail;
 use Illuminate\Support\Facades\Log;
@@ -77,28 +76,6 @@ class NotificationService
         if ($student->getNotificationPreference('email_deadline_reminder', true)) {
             $this->sendEmail($student, 'Deadline Reminder',
                 "This is a reminder that your {$itemType} \"{$itemTitle}\" is due on {$dueDate}.\n\nPlease make sure to submit it before the deadline.");
-        }
-    }
-
-    /**
-     * Send notification for forum reply.
-     */
-    public function notifyForumReply(User $user, ForumThread $thread, User $replier): void
-    {
-        if ($user->id === $replier->id) {
-            return; // Don't notify user of their own reply
-        }
-
-        $this->createNotification($user, 'forum_reply', [
-            'title' => 'New Forum Reply',
-            'message' => "{$replier->full_name} replied to your thread: {$thread->title}",
-            'thread_id' => $thread->id,
-            'replier_id' => $replier->id,
-        ]);
-
-        if ($user->getNotificationPreference('email_forum_reply', true)) {
-            $this->sendEmail($user, 'New Reply to Your Thread',
-                "{$replier->full_name} has replied to your forum thread: \"{$thread->title}\".\n\nCheck it out to see what they said!");
         }
     }
 

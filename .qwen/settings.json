@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(powershell *)"
+      "Bash(powershell *)",
+      "Bash(del *)",
+      "Bash(python *)",
+      "Bash(dir *)",
+      "Bash(type *)",
+      "Bash(copy *)",
+      "Bash(php *)",
+      "Bash(git add *)"
     ]
-  }
+  },
+  "$version": 3
 }

@@ -514,26 +514,27 @@
     // Add module overview
     $focusContent[] = [
         'type' => 'overview',
-        'title' => 'Module Overview: '.$module->module_name,
-        'content' => $module->introduction ?? $module->learning_outcomes ?? 'Welcome to '.$module->module_name,
-        'images' => $module->images ?? []
+        'title' => 'Module Overview: '.$module - > module_name,
+        'content' => $module - > introduction ?? $module - > learning_outcomes ?? 'Welcome to '.$module - > module_name,
+        'images' => $module - > images ?? []
     ];
 
     // Add information sheets and their topics
-    foreach($module->informationSheets as $sheet) {
+    foreach($module - > informationSheets as $sheet) {
         $focusContent[] = [
             'type' => 'sheet',
-            'id' => $sheet->id,
-            'title' => 'Info Sheet '.$sheet->sheet_number.': '.$sheet->title,
-            'content' => $sheet->content ?? '',
-            'images' => $sheet->parts ? collect($sheet->parts)->pluck('image')->filter()->values()->toArray() : []
+            'id' => $sheet - > id,
+            'title' => 'Info Sheet '.$sheet - > sheet_number.
+            ': '.$sheet - > title,
+            'content' => $sheet - > content ?? '',
+            'images' => $sheet - > parts ? collect($sheet - > parts) - > pluck('image') - > filter() - > values() - > toArray() : []
         ];
 
-        if ($sheet->topics) {
-            foreach($sheet->topics as $topic) {
+        if ($sheet - > topics) {
+            foreach($sheet - > topics as $topic) {
                 $topicImages = [];
-                if ($topic->parts) {
-                    foreach($topic->parts as $part) {
+                if ($topic - > parts) {
+                    foreach($topic - > parts as $part) {
                         if (!empty($part['image'])) {
                             $topicImages[] = [
                                 'url' => $part['image'],
@@ -545,11 +546,11 @@
 
                 $focusContent[] = [
                     'type' => 'topic',
-                    'id' => $topic->id,
-                    'sheetId' => $sheet->id,
-                    'title' => $topic->title,
-                    'content' => $topic->content ?? '',
-                    'parts' => $topic->parts ?? [],
+                    'id' => $topic - > id,
+                    'sheetId' => $sheet - > id,
+                    'title' => $topic - > title,
+                    'content' => $topic - > content ?? '',
+                    'parts' => $topic - > parts ?? [],
                     'images' => $topicImages
                 ];
             }

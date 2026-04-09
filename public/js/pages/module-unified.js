@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const csrfToken = moduleData.dataset.csrf;
     const baseUrl = moduleData.dataset.baseUrl;
     const moduleId = moduleData.dataset.moduleId;
+    const moduleSlug = moduleData.dataset.moduleSlug;
     const courseId = moduleData.dataset.courseId;
 
     // ==================== TOC NAVIGATION ====================
@@ -152,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==================== PROGRESS ====================
 
     function fetchProgress() {
-        fetch(`/courses/${courseId}/module-${moduleId}/progress`, {
+        fetch(`/courses/${courseId}/module-${moduleSlug}/progress`, {
             headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
         })
         .then(r => r.json())

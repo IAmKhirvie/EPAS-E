@@ -15,6 +15,59 @@ use Illuminate\Support\Facades\Storage;
 class ContentSanitizationService
 {
     /**
+     * Remove MS Word HTML bloat (XML, conditional comments, MSO styles).
+     * Preserves table attributes and legitimate HTML formatting.
+     */
+    public function stripWordBloat($content): string
+    {
+        if (!$content) return '';
+
+        // Remove all MSO conditional comments: <!--[if gte mso 9]>...<![endif]-->
+        $content = preg_replace('/<!--\[if\s+gte\s+mso\s+\d+\]>.*?<!\[endif\]-->/is', '', $content);
+
+        // Remove all XML blocks: <xml>...</xml>
+        $content = preg_replace('/<xml[^>]*>.*?<\/xml>/is', '', $content);
+
+        // Remove <o:p> tags (MS Word paragraph markers)
+        $content = preg_replace('/<\/?o:p[^>]*>/i', '', $content);
+
+        // Remove StartFragment/EndFragment comments
+        $content = str_replace(['<!--StartFragment-->', '<!--EndFragment-->'], '', $content);
+
+        // Remove page-break <br> tags
+        $content = preg_replace('/<br[^>]*clear="all"[^>]*>/i', '', $content);
+
+        // Clean MSO-specific style properties but preserve other styles
+        $content = preg_replace_callback('/style="([^"]*)"/i', function($matches) {
+            $style = $matches[1];
+            // Remove MSO-specific properties
+            $style = preg_replace('/\s*mso-[^;:]+:[^;]+;?/i', '', $style);
+            // Remove font references to MS fonts
+            $style = preg_replace('/\s*font-family:\s*(ＭＳ\s*明朝|MS\s*Gothic|Times\s*New\s*Roman)[^;]*;?/i', '', $style);
+            // Remove font-size in pt
+            $style = preg_replace('/\s*font-size:\s*\d+\.?\d*pt;?/i', '', $style);
+            $style = trim($style);
+            return $style ? "style=\"{$style}\"" : '';
+        }, $content);
+
+        // Remove empty style attributes
+        $content = preg_replace('/\s*style="\s*"/', '', $content);
+
+        // Remove MS Word class names only (preserve other classes)
+        $content = preg_replace('/\s*class="Mso[A-Za-z0-9\s]*"/i', '', $content);
+        $content = preg_replace('/\s*class=""/', '', $content);
+
+        // Remove empty paragraphs (but preserve those with &nbsp; or content)
+        $content = preg_replace('/<p[^>]*>\s*<o:p>\s*<\/o:p>\s*<\/p>/i', '', $content);
+        $content = preg_replace('/<p[^>]*>\s*&nbsp;\s*<\/p>/i', '', $content);
+
+        // Clean up multiple consecutive line breaks
+        $content = preg_replace('/(<br\s*\/?>\s*){3,}/i', '<br><br>', $content);
+
+        return trim($content);
+    }
+
+    /**
      * Most Secure: Using HTML Purifier
      * Protects against all known XSS attacks while allowing basic formatting
      */

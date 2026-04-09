@@ -124,7 +124,7 @@
 
     .course-hero-actions .btn:hover {
         background: var(--accent-dark);
-        color: var(--text-primary);
+        color: var(--light);
     }
 
     /* Course Info Cards */

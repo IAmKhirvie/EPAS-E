@@ -255,7 +255,6 @@ class SettingsController extends Controller
             'email_grade_posted' => $request->has('email_grade_posted'),
             'email_reminders' => $request->has('email_reminders'),
             'email_deadline_reminder' => $request->has('email_deadline_reminder'),
-            'email_forum_reply' => $request->has('email_forum_reply'),
             'push_enabled' => $request->has('push_enabled'),
         ];
 

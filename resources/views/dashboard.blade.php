@@ -334,8 +334,8 @@
 
         <!-- Pending Activities - Right Side (20%) Sticky -->
         <div class="col-lg-3 col-md-4 mb-4">
-            <div class="sticky-sidebar">
-                <div class="card border-0 shadow-sm">
+            <div class="sticky-sidebar h-100">
+                <div class="card border-0 shadow-sm h-100">
                     <div class="card-header bg-warning bg-opacity-10 d-flex justify-content-between align-items-center py-2">
                         <h6 class="mb-0">
                             @if(Auth::user()->role === \App\Constants\Roles::STUDENT)

@@ -576,7 +576,7 @@
         'error'
       );
     @endif
-    @if(session('error'))
+    @if(session('error') && !session('success'))
       window.showErrorPopup(@json(session('error')), 'Error', 'error');
     @endif
     @if(session('success'))

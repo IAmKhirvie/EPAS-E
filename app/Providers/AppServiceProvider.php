@@ -13,12 +13,10 @@ use App\Models\Course;
 use App\Models\Module;
 use App\Models\Homework;
 use App\Models\Announcement;
-use App\Models\ForumThread;
 use App\Policies\CoursePolicy;
 use App\Policies\ModulePolicy;
 use App\Policies\HomeworkPolicy;
 use App\Policies\AnnouncementPolicy;
-use App\Policies\ForumThreadPolicy;
 use App\Models\Certificate;
 use App\Policies\CertificatePolicy;
 
@@ -64,7 +62,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Module::class, ModulePolicy::class);
         Gate::policy(Homework::class, HomeworkPolicy::class);
         Gate::policy(Announcement::class, AnnouncementPolicy::class);
-        Gate::policy(ForumThread::class, ForumThreadPolicy::class);
         Gate::policy(Certificate::class, CertificatePolicy::class);
     }
 }

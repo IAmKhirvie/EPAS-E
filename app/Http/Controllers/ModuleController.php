@@ -59,10 +59,19 @@ class ModuleController extends Controller
         ]);
 
         // Handle boolean checkboxes (they're not sent when unchecked)
+        $validated['is_active'] = $request->has('is_active');
         $validated['require_final_assessment'] = $request->has('require_final_assessment');
         $validated['assessment_randomize_questions'] = $request->has('assessment_randomize_questions');
         $validated['assessment_show_answers'] = $request->has('assessment_show_answers');
         $validated['assessment_require_completion'] = $request->has('assessment_require_completion');
+
+        // Strip MS Word HTML bloat from rich text fields
+        $sanitizer = app(\App\Services\ContentSanitizationService::class);
+        foreach (['introduction', 'how_to_use_cblm', 'learning_outcomes', 'table_of_contents'] as $field) {
+            if (!empty($validated[$field])) {
+                $validated[$field] = $sanitizer->stripWordBloat($validated[$field]);
+            }
+        }
 
         try {
             $module = DB::transaction(function () use ($validated, $course, $request) {
@@ -346,7 +355,6 @@ class ModuleController extends Controller
         $this->authorize('update', $module);
 
         $validated = $request->validate([
-            'course_id' => 'required|exists:courses,id',
             'qualification_title' => 'required|string|max:255',
             'unit_of_competency' => 'required|string|max:255',
             'module_title' => 'required|string|max:255',
@@ -358,7 +366,7 @@ class ModuleController extends Controller
             'how_to_use_cblm' => 'nullable|string',
             'introduction' => 'nullable|string',
             'learning_outcomes' => 'nullable|string',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable|boolean',
             'prerequisites' => 'nullable|array',
             'prerequisites.*' => 'exists:modules,id',
             // Assessment fields
@@ -374,10 +382,19 @@ class ModuleController extends Controller
         ]);
 
         // Handle boolean checkboxes (they're not sent when unchecked)
+        $validated['is_active'] = $request->has('is_active');
         $validated['require_final_assessment'] = $request->has('require_final_assessment');
         $validated['assessment_randomize_questions'] = $request->has('assessment_randomize_questions');
         $validated['assessment_show_answers'] = $request->has('assessment_show_answers');
         $validated['assessment_require_completion'] = $request->has('assessment_require_completion');
+
+        // Strip MS Word HTML bloat from rich text fields
+        $sanitizer = app(\App\Services\ContentSanitizationService::class);
+        foreach (['introduction', 'how_to_use_cblm', 'learning_outcomes', 'table_of_contents'] as $field) {
+            if (!empty($validated[$field])) {
+                $validated[$field] = $sanitizer->stripWordBloat($validated[$field]);
+            }
+        }
 
         try {
             DB::transaction(function () use ($validated, $module, $request) {
@@ -419,7 +436,7 @@ class ModuleController extends Controller
                 ->with('error', $e->getMessage());
 
         } catch (\Exception $e) {
-            Log::error('Module update failed: ' . $e->getMessage());
+            Log::error('Module update failed: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
 
             return back()->withInput()
                 ->with('error', 'Failed to update module. Please try again.');

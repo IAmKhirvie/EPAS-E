@@ -5,43 +5,56 @@
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/pages/module-unified.css') }}">
 @php
-    $categoryColor = $course->category?->color ?? '#6d9773';
-    $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darken($course->category->color, 15) : '#0c3a2d';
+$categoryColor = $course->category?->color ?? '#6d9773';
+$categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darken($course->category->color, 15) : '#0c3a2d';
 @endphp
 <style>
-/* Category-specific colors */
-:root {
-    --category-color: {{ $categoryColor }};
-    --category-color-dark: {{ $categoryColorDark }};
-}
+    /* Category-specific colors */
+    :root {
+        --category-color: {
+                {
+                $categoryColor
+            }
+        }
 
-.module-category-accent {
-    color: var(--category-color) !important;
-}
+        ;
 
-.btn-category {
-    background: var(--category-color);
-    border-color: var(--category-color);
-    color: white;
-}
+        --category-color-dark: {
+                {
+                $categoryColorDark
+            }
+        }
 
-.btn-category:hover,
-.btn-category:focus {
-    background: var(--category-color-dark);
-    border-color: var(--category-color-dark);
-    color: white;
-}
+        ;
+    }
 
-.progress-circle-fill {
-    stroke: var(--category-color);
-}
+    .module-category-accent {
+        color: var(--category-color) !important;
+    }
 
-.card-header .fa-bullseye,
-.card-header .fa-book-open,
-.card-header .fa-list-ol,
-.card-header .fa-info-circle {
-    color: var(--category-color) !important;
-}
+    .btn-category {
+        background: var(--category-color);
+        border-color: var(--category-color);
+        color: white;
+    }
+
+    .btn-category:hover,
+    .btn-category:focus {
+        background: var(--category-color-dark);
+        border-color: var(--category-color-dark);
+        color: white;
+    }
+
+    .progress-circle-fill {
+        stroke: var(--category-color);
+    }
+
+    .card-header .fa-bullseye,
+    .card-header .fa-book-open,
+    .card-header .fa-list-ol,
+    .card-header .fa-info-circle {
+        color: var(--category-color) !important;
+    }
 </style>
 @endpush
 
@@ -49,16 +62,22 @@
 {{-- Module Header --}}
 <div class="container-fluid py-3 bg-white border-bottom mb-4 module-header-section">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <div>
-            <nav aria-label="breadcrumb" class="mb-1">
-                <ol class="breadcrumb mb-0 small">
-                    <li class="breadcrumb-item"><a href="{{ route('courses.index') }}">Courses</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('courses.show', $course) }}">{{ $course->course_name }}</a></li>
-                    <li class="breadcrumb-item active">{{ $module->module_number }}</li>
-                </ol>
-            </nav>
-            <h4 class="mb-1">{{ $module->module_number }}: {{ $module->module_name }}</h4>
-            <p class="text-muted mb-0 small">{{ $module->qualification_title }}</p>
+        <div class="d-flex align-items-center gap-3">
+            @if($module->thumbnail)
+            <img src="{{ asset('storage/' . $module->thumbnail) }}" alt="Module thumbnail"
+                 class="rounded shadow-sm" style="width: 120px; height: 68px; object-fit: cover;">
+            @endif
+            <div>
+                <nav aria-label="breadcrumb" class="mb-1">
+                    <ol class="breadcrumb mb-0 small">
+                        <li class="breadcrumb-item"><a href="{{ route('courses.index') }}">Courses</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('courses.show', $course) }}">{{ $course->course_name }}</a></li>
+                        <li class="breadcrumb-item active">{{ $module->module_number }}</li>
+                    </ol>
+                </nav>
+                <h4 class="mb-1">{{ $module->module_number }}: {{ $module->module_name }}</h4>
+                <p class="text-muted mb-0 small">{{ $module->qualification_title }}</p>
+            </div>
         </div>
         <div class="d-flex gap-2">
             <button class="btn btn-outline-info btn-sm" id="enterFocusMode">
@@ -95,9 +114,9 @@
                     <div class="row align-items-center">
                         <div class="col-auto">
                             @php
-                                $percentage = $progress ? ($progress['percentage'] ?? 0) : 0;
-                                $circumference = 251.2;
-                                $offset = $circumference - ($percentage / 100) * $circumference;
+                            $percentage = $progress ? ($progress['percentage'] ?? 0) : 0;
+                            $circumference = 251.2;
+                            $offset = $circumference - ($percentage / 100) * $circumference;
                             @endphp
                             <div class="position-relative progress-circle-container">
                                 <svg viewBox="0 0 100 100" class="progress-circle-svg">
@@ -137,12 +156,12 @@
             {{-- Final Assessment Card --}}
             @if($module->require_final_assessment)
             @php
-                $user = Auth::user();
-                $hasPassed = $module->hasPassedAssessment($user);
-                $canTake = $module->canTakeAssessment($user);
-                $latestAttempt = $module->getLatestAssessmentFor($user);
-                $attemptCount = $module->getAssessmentAttemptCount($user);
-                $maxAttempts = $module->assessment_max_attempts;
+            $user = Auth::user();
+            $hasPassed = $module->hasPassedAssessment($user);
+            $canTake = $module->canTakeAssessment($user);
+            $latestAttempt = $module->getLatestAssessmentFor($user);
+            $attemptCount = $module->getAssessmentAttemptCount($user);
+            $maxAttempts = $module->assessment_max_attempts;
             @endphp
             <div class="card border-0 shadow-sm mb-4 assessment-card-section">
                 <div class="card-body">
@@ -150,25 +169,25 @@
                         <div class="d-flex align-items-center gap-3">
                             <div class="assessment-icon {{ $hasPassed ? 'passed' : ($canTake ? 'available' : 'locked') }}">
                                 @if($hasPassed)
-                                    <i class="fas fa-check-circle"></i>
+                                <i class="fas fa-check-circle"></i>
                                 @elseif($canTake)
-                                    <i class="fas fa-clipboard-check"></i>
+                                <i class="fas fa-clipboard-check"></i>
                                 @else
-                                    <i class="fas fa-lock"></i>
+                                <i class="fas fa-lock"></i>
                                 @endif
                             </div>
                             <div>
                                 <h6 class="mb-1 fw-bold">Final Assessment</h6>
                                 <div class="text-muted small">
                                     @if($hasPassed)
-                                        <span class="text-success"><i class="fas fa-check me-1"></i>Passed with {{ number_format($latestAttempt->percentage ?? 0, 1) }}%</span>
+                                    <span class="text-success"><i class="fas fa-check me-1"></i>Passed with {{ number_format($latestAttempt->percentage ?? 0, 1) }}%</span>
                                     @elseif($canTake)
-                                        <span>{{ $module->assessment_passing_score }}% required to pass</span>
-                                        @if($module->assessment_time_limit)
-                                            <span class="ms-2"><i class="fas fa-clock me-1"></i>{{ $module->assessment_time_limit }} min</span>
-                                        @endif
+                                    <span>{{ $module->assessment_passing_score }}% required to pass</span>
+                                    @if($module->assessment_time_limit)
+                                    <span class="ms-2"><i class="fas fa-clock me-1"></i>{{ $module->assessment_time_limit }} min</span>
+                                    @endif
                                     @else
-                                        <span class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Complete all activities first</span>
+                                    <span class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Complete all activities first</span>
                                     @endif
                                 </div>
                                 @if($attemptCount > 0 && !$hasPassed)
@@ -180,17 +199,17 @@
                         </div>
                         <div>
                             @if($hasPassed)
-                                <a href="{{ route('courses.modules.assessment.results', [$course, $module, $latestAttempt]) }}" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-eye me-1"></i>View Results
-                                </a>
+                            <a href="{{ route('courses.modules.assessment.results', [$course, $module, $latestAttempt]) }}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-eye me-1"></i>View Results
+                            </a>
                             @elseif($canTake)
-                                <a href="{{ route('courses.modules.assessment.show', [$course, $module]) }}" class="btn btn-category btn-sm">
-                                    <i class="fas fa-play me-1"></i>{{ $attemptCount > 0 ? 'Retake' : 'Start' }} Assessment
-                                </a>
+                            <a href="{{ route('courses.modules.assessment.show', [$course, $module]) }}" class="btn btn-category btn-sm">
+                                <i class="fas fa-play me-1"></i>{{ $attemptCount > 0 ? 'Retake' : 'Start' }} Assessment
+                            </a>
                             @else
-                                <a href="{{ route('courses.modules.assessment.show', [$course, $module]) }}" class="btn btn-outline-secondary btn-sm disabled">
-                                    <i class="fas fa-lock me-1"></i>Locked
-                                </a>
+                            <a href="{{ route('courses.modules.assessment.show', [$course, $module]) }}" class="btn btn-outline-secondary btn-sm disabled">
+                                <i class="fas fa-lock me-1"></i>Locked
+                            </a>
                             @endif
                         </div>
                     </div>
@@ -202,39 +221,6 @@
             <div id="contentArea">
                 {{-- Overview (Default) --}}
                 <div class="content-section" id="overviewSection">
-                    @if($module->learning_outcomes)
-                    <div class="card border-0 shadow-sm mb-3">
-                        <div class="card-header bg-white">
-                            <h6 class="mb-0"><i class="fas fa-bullseye module-category-accent me-2"></i>Learning Outcomes</h6>
-                        </div>
-                        <div class="card-body">
-                            {!! nl2br(e($module->learning_outcomes)) !!}
-                        </div>
-                    </div>
-                    @endif
-
-                    @if($module->introduction)
-                    <div class="card border-0 shadow-sm mb-3">
-                        <div class="card-header bg-white">
-                            <h6 class="mb-0"><i class="fas fa-book-open module-category-accent me-2"></i>Introduction</h6>
-                        </div>
-                        <div class="card-body">
-                            {!! nl2br(e($module->introduction)) !!}
-                        </div>
-                    </div>
-                    @endif
-
-                    @if($module->how_to_use_cblm)
-                    <div class="card border-0 shadow-sm mb-3">
-                        <div class="card-header bg-white">
-                            <h6 class="mb-0"><i class="fas fa-info-circle module-category-accent me-2"></i>How to Use This CBLM</h6>
-                        </div>
-                        <div class="card-body">
-                            {!! nl2br(e($module->how_to_use_cblm)) !!}
-                        </div>
-                    </div>
-                    @endif
-
                     {{-- Module Details --}}
                     <div class="card border-0 shadow-sm mb-3">
                         <div class="card-header bg-white">
@@ -261,6 +247,50 @@
                             </div>
                         </div>
                     </div>
+
+                    @if($module->introduction)
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0"><i class="fas fa-book-open module-category-accent me-2"></i>Introduction</h6>
+                        </div>
+                        <div class="card-body">
+                            {!! $module->introduction !!}
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($module->how_to_use_cblm)
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0"><i class="fas fa-info-circle module-category-accent me-2"></i>How to Use This CBLM</h6>
+                        </div>
+                        <div class="card-body">
+                            {!! $module->how_to_use_cblm !!}
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($module->table_of_contents)
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0"><i class="fas fa-list module-category-accent me-2"></i>Table of Contents</h6>
+                        </div>
+                        <div class="card-body">
+                            {!! $module->table_of_contents !!}
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($module->learning_outcomes)
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0"><i class="fas fa-bullseye module-category-accent me-2"></i>Learning Outcomes</h6>
+                        </div>
+                        <div class="card-body">
+                            {!! $module->learning_outcomes !!}
+                        </div>
+                    </div>
+                    @endif
                 </div>
 
                 {{-- Dynamic Content (loaded via AJAX) --}}
@@ -458,16 +488,16 @@
 {{-- Data for JS --}}
 <div id="moduleData"
     data-module-id="{{ $module->id }}"
+    data-module-slug="{{ $module->slug }}"
     data-course-id="{{ $course->id }}"
     data-csrf="{{ csrf_token() }}"
-    data-base-url="{{ url('/courses/' . $course->id . '/module-' . $module->id) }}"
+    data-base-url="{{ url('/courses/' . $course->id . '/module-' . $module->slug) }}"
     style="display: none;"></div>
 
 {{-- Focus Mode Content Data --}}
 <script type="application/json" id="focusModeData">
     @php
     $focusContent = [];
-
     $focusContent[] = [
         'type' => 'overview',
         'title' => 'Module Overview: '.$module->module_name,
@@ -490,99 +520,74 @@
                 if ($topic->parts) {
                     foreach($topic->parts as $part) {
                         if (!empty($part['image'])) {
-                            $topicImages[] = [
-                                'url' => $part['image'],
-                                'caption' => $part['title'] ?? ''
-                            ];
+                            $topicImages[] = ['url' => $part['image'], 'caption' => $part['title'] ?? ''];
                         }
                     }
                 }
-
                 $focusContent[] = [
-                    'type' => 'topic',
-                    'id' => $topic->id,
-                    'sheetId' => $sheet->id,
-                    'title' => $topic->title,
-                    'content' => $topic->content ?? '',
-                    'parts' => $topic->parts ?? [],
-                    'images' => $topicImages
+                    'type' => 'topic', 'id' => $topic->id, 'sheetId' => $sheet->id,
+                    'title' => $topic->title, 'content' => $topic->content ?? '',
+                    'parts' => $topic->parts ?? [], 'images' => $topicImages
                 ];
             }
         }
 
-        // Add Self-Checks as activities after topics
+        // Self-Checks
         if ($sheet->selfChecks && $sheet->selfChecks->count() > 0) {
             foreach($sheet->selfChecks as $scIndex => $sc) {
-                // Prepare questions for focus mode
                 $questions = [];
                 if ($sc->questions) {
                     foreach($sc->questions as $qIndex => $q) {
-                        $questionData = [
-                            'id' => $q->id,
-                            'index' => $qIndex,
-                            'type' => $q->question_type,
-                            'text' => $q->question_text,
-                            'points' => $q->points ?? 1,
+                        $questions[] = [
+                            'id' => $q->id, 'index' => $qIndex, 'type' => $q->question_type,
+                            'text' => $q->question_text, 'points' => $q->points ?? 1,
                             'options' => $q->options ?? [],
                             'image' => $q->image_path ? Storage::url($q->image_path) : null,
                             'audio' => $q->audio_path ? Storage::url($q->audio_path) : null,
                             'video' => $q->video_url ?? null,
                         ];
-                        $questions[] = $questionData;
                     }
                 }
-
                 $focusContent[] = [
-                    'type' => 'self_check',
-                    'id' => $sc->id,
-                    'sheetId' => $sheet->id,
-                    'sheetTitle' => $sheet->title,
-                    'title' => 'Self-Check: ' . $sc->title,
-                    'description' => $sc->description ?? 'Test your understanding of the concepts covered in this information sheet.',
+                    'type' => 'self_check', 'id' => $sc->id, 'sheetId' => $sheet->id,
+                    'sheetTitle' => $sheet->title, 'title' => 'Self-Check: '.$sc->title,
+                    'description' => $sc->description ?? 'Test your understanding.',
                     'url' => route('self-checks.show', $sc),
                     'submitUrl' => route('self-checks.submit', $sc),
-                    'questions' => $questions,
-                    'questionCount' => count($questions),
+                    'questions' => $questions, 'questionCount' => count($questions),
                     'passingScore' => $sc->passing_score ?? 70,
                     'revealAnswers' => $sc->reveal_answers ?? true,
                     'randomizeQuestions' => $sc->randomize_questions ?? false,
                     'randomizeOptions' => $sc->randomize_options ?? false,
-                    'icon' => 'clipboard-check',
-                    'color' => '#ffc107'
+                    'icon' => 'clipboard-check', 'color' => '#ffc107'
                 ];
             }
         }
 
-        // Add Task Sheets as activities
+        // Task Sheets
         if ($sheet->taskSheets && $sheet->taskSheets->count() > 0) {
             foreach($sheet->taskSheets as $tsIndex => $ts) {
                 $focusContent[] = [
-                    'type' => 'task_sheet',
-                    'id' => $ts->id,
-                    'sheetId' => $sheet->id,
+                    'type' => 'task_sheet', 'id' => $ts->id, 'sheetId' => $sheet->id,
                     'sheetTitle' => $sheet->title,
-                    'title' => 'Task Sheet: ' . ($ts->title ?? 'Task Sheet ' . ($tsIndex + 1)),
-                    'description' => $ts->description ?? 'Complete the tasks to practice what you have learned.',
+                    'title' => 'Task Sheet: '.($ts->title ?? 'Task Sheet '.($tsIndex + 1)),
+                    'description' => $ts->description ?? 'Complete the tasks to practice.',
                     'url' => route('task-sheets.show', $ts),
-                    'icon' => 'clipboard-list',
-                    'color' => '#0dcaf0'
+                    'icon' => 'clipboard-list', 'color' => '#0dcaf0'
                 ];
             }
         }
 
-        // Add Job Sheets as activities
+        // Job Sheets
         if ($sheet->jobSheets && $sheet->jobSheets->count() > 0) {
             foreach($sheet->jobSheets as $jsIndex => $js) {
                 $focusContent[] = [
-                    'type' => 'job_sheet',
-                    'id' => $js->id,
-                    'sheetId' => $sheet->id,
+                    'type' => 'job_sheet', 'id' => $js->id, 'sheetId' => $sheet->id,
                     'sheetTitle' => $sheet->title,
-                    'title' => 'Job Sheet: ' . ($js->title ?? 'Job Sheet ' . ($jsIndex + 1)),
-                    'description' => $js->description ?? 'Apply your knowledge by completing this practical job sheet.',
+                    'title' => 'Job Sheet: '.($js->title ?? 'Job Sheet '.($jsIndex + 1)),
+                    'description' => $js->description ?? 'Apply your knowledge.',
                     'url' => route('job-sheets.show', $js),
-                    'icon' => 'hard-hat',
-                    'color' => '#198754'
+                    'icon' => 'hard-hat', 'color' => '#198754'
                 ];
             }
         }

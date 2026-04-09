@@ -150,22 +150,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(AuditLog::class);
     }
 
-    public function forumThreads(): HasMany
-    {
-        return $this->hasMany(ForumThread::class);
-    }
-
-    public function forumPosts(): HasMany
-    {
-        return $this->hasMany(ForumPost::class);
-    }
-
-    public function subscribedThreads(): BelongsToMany
-    {
-        return $this->belongsToMany(ForumThread::class, 'forum_thread_subscriptions')
-            ->withTimestamps();
-    }
-
     public function completedModules(): HasMany
     {
         return $this->hasMany(UserProgress::class)->where('completed', true);
@@ -463,7 +447,6 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_homework_submitted' => true,
             'email_grade_posted' => true,
             'email_deadline_reminder' => true,
-            'email_forum_reply' => true,
             'email_new_message' => true,
             'email_announcement' => true,
         ];
