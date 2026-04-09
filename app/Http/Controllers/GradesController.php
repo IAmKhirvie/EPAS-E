@@ -623,7 +623,7 @@ class GradesController extends Controller
         // Use pre-fetched data if available, otherwise query per-student
         $selfCheckAvg = $prefetchedSelfCheckAvg ?? (SelfCheckSubmission::where('user_id', $student->id)
             ->whereNotNull('percentage')
-            ->avg('percentage') ?? 0);
+            ->max('percentage') ?? 0);
 
         $homeworkAvg = $prefetchedHomeworkAvg ?? (HomeworkSubmission::where('user_id', $student->id)
             ->whereNotNull('score')

@@ -12,6 +12,16 @@ class Module extends Model
 {
     use SoftDeletes;
 
+    /**
+     * Use the slug field for route model binding
+     * so URLs show meaningful identifiers (e.g., module-1-assembling-electronic-products)
+     * instead of database IDs.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     protected static function boot()
     {
         parent::boot();

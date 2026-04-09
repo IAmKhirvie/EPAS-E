@@ -175,14 +175,16 @@ class GradingService
         // Get all information sheet IDs for this module (single query)
         $sheetIds = $module->informationSheets()->pluck('id');
 
-        // Self Checks (Quizzes) — use sheetIds to avoid nested whereHas
+        // Self Checks (Quizzes) — get highest score per self-check
         $selfCheckScores = SelfCheckSubmission::where('user_id', $user->id)
             ->whereHas('selfCheck', function ($q) use ($sheetIds) {
                 $q->whereIn('information_sheet_id', $sheetIds);
             })
+            ->selectRaw('self_check_id, MAX(percentage) as highest_percentage, COUNT(*) as attempts')
+            ->groupBy('self_check_id')
             ->get();
 
-        $components['self_checks'] = $this->calculateComponentStats($selfCheckScores, 'percentage');
+        $components['self_checks'] = $this->calculateSelfCheckStats($selfCheckScores);
         $totalSubmissions += $components['self_checks']['count'];
 
         // Homeworks
@@ -264,6 +266,35 @@ class GradingService
         if ($percentage >= 70) return 1.3;
         if ($percentage >= 67) return 1.0;
         return 0.0;
+    }
+
+    /**
+     * Calculate self-check statistics using highest score per self-check.
+     *
+     * Each self-check can have multiple attempts, but only the highest score counts.
+     */
+    protected function calculateSelfCheckStats(Collection $highestScores): array
+    {
+        if ($highestScores->isEmpty()) {
+            return [
+                'count' => 0,
+                'total_score' => 0,
+                'max_score' => 0,
+                'percentage' => 0,
+                'average' => 0,
+            ];
+        }
+
+        $totalPercentage = $highestScores->sum('highest_percentage');
+        $count = $highestScores->count();
+
+        return [
+            'count' => $count,
+            'total_score' => $totalPercentage,
+            'max_score' => $count * 100,
+            'percentage' => $count > 0 ? round($totalPercentage / $count, 2) : 0,
+            'average' => $count > 0 ? round($totalPercentage / $count, 2) : 0,
+        ];
     }
 
     /**

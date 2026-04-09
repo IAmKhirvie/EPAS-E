@@ -7,7 +7,7 @@
     <nav aria-label="breadcrumb" class="mb-2">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$informationSheet->module->course_id, $informationSheet->module, $informationSheet->module->slug]) }}">{{ $informationSheet->module->module_name }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$informationSheet->module->course_id, $informationSheet->module]) }}">{{ $informationSheet->module->module_name }}</a></li>
             <li class="breadcrumb-item active">Create Job Sheet</li>
         </ol>
     </nav>

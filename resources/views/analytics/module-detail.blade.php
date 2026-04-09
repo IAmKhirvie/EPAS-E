@@ -134,7 +134,7 @@
         <a href="{{ route('student.analytics') }}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-1"></i> Back to Analytics
         </a>
-        <a href="{{ route('courses.modules.show', [$module->course_id, $module, $module->slug]) }}" class="btn btn-primary">
+        <a href="{{ route('courses.modules.show', [$module->course_id, $module]) }}" class="btn btn-primary">
             <i class="fas fa-book-open me-1"></i> View Module
         </a>
     </div>

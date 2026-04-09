@@ -31,7 +31,7 @@
                     @endif
 
                     <div class="mt-4">
-                        <a href="{{ route('courses.modules.show', [$course, $module, $module->slug]) }}" class="btn btn-primary">
+                        <a href="{{ route('courses.modules.show', [$course, $module]) }}" class="btn btn-primary">
                             <i class="fas fa-arrow-left me-1"></i> Back to Module
                         </a>
                     </div>

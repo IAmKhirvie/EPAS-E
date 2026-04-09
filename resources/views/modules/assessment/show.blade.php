@@ -295,7 +295,7 @@ textarea.answer-input {
                     <h1><i class="fas fa-clipboard-check me-2 text-primary"></i>Final Assessment</h1>
                     <p class="mb-2 text-muted">{{ $module->module_number }}: {{ $module->module_title }}</p>
                 </div>
-                <a href="{{ route('courses.modules.show', [$course, $module, $module->slug]) }}" class="btn btn-outline-secondary btn-sm">
+                <a href="{{ route('courses.modules.show', [$course, $module]) }}" class="btn btn-outline-secondary btn-sm">
                     <i class="fas fa-times me-1"></i>Exit
                 </a>
             </div>

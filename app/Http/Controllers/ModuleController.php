@@ -131,14 +131,9 @@ class ModuleController extends Controller
         }
     }
 
-    public function show(Course $course, Module $module, ?string $slug = null)
+    public function show(Course $course, Module $module)
     {
         $this->verifyModuleBelongsToCourse($course, $module);
-
-        // Redirect to canonical URL with slug if missing
-        if ($slug === null && $module->slug) {
-            return redirect()->route('courses.modules.show', [$course, $module, $module->slug]);
-        }
 
         $user = Auth::user();
 
@@ -177,7 +172,7 @@ class ModuleController extends Controller
     public function showInformationSheet(Course $course, Module $module, InformationSheet $informationSheet)
     {
         // Redirect to the unified module page
-        return redirect()->route('courses.modules.show', [$course, $module, $module->slug]);
+        return redirect()->route('courses.modules.show', [$course, $module]);
     }
 
     public function getContent(Course $course, Module $module, $contentType)

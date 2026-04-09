@@ -7,7 +7,7 @@
     <nav aria-label="breadcrumb" class="mb-2">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$jobSheet->informationSheet->module->course_id, $jobSheet->informationSheet->module, $jobSheet->informationSheet->module->slug]) }}">{{ $jobSheet->informationSheet->module->module_name }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$jobSheet->informationSheet->module->course_id, $jobSheet->informationSheet->module]) }}">{{ $jobSheet->informationSheet->module->module_name }}</a></li>
             <li class="breadcrumb-item active">{{ $jobSheet->title }}</li>
         </ol>
     </nav>
@@ -46,7 +46,7 @@
                     $courseForBack = $moduleForBack?->course ?? null;
                 @endphp
                 @if($moduleForBack && $courseForBack)
-                <a href="{{ route('courses.modules.show', [$courseForBack, $moduleForBack, $moduleForBack->slug]) }}" class="btn btn-sm btn-success">
+                <a href="{{ route('courses.modules.show', [$courseForBack, $moduleForBack]) }}" class="btn btn-sm btn-success">
                     <i class="fas fa-arrow-left me-1"></i>Back to Module
                 </a>
                 @else

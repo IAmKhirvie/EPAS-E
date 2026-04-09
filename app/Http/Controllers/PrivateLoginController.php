@@ -100,6 +100,7 @@ class PrivateLoginController extends Controller
 
                 $request->session()->regenerate();
                 $request->session()->put('login_at', now());
+                $request->session()->flash('show_login_loader', true); // Flash data - only available on next request
                 $request->session()->forget('url.intended');
 
                 return redirect('/dashboard');

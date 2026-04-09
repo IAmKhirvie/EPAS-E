@@ -538,8 +538,8 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::get('/module-{module}/information-sheets/{informationSheet}', [ModuleController::class, 'showInformationSheet'])->name('information-sheet');
         Route::get('/module-{module}/information-sheets/{informationSheet}/topics/{topic}', [ModuleController::class, 'showTopic'])->name('topic');
 
-        // Unified module show (catch-all slug — MUST be last)
-        Route::get('/module-{module}/{slug?}', [ModuleController::class, 'show'])->name('show');
+        // Unified module show (uses slug for binding)
+        Route::get('/module-{module}', [ModuleController::class, 'show'])->name('show');
     });
 
     // Backward Compatibility Redirects

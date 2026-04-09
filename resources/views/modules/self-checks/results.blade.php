@@ -17,7 +17,7 @@
             <li class="breadcrumb-item"><a href="{{ route('courses.show', $bcCourse) }}">{{ $bcCourse->course_code }}</a></li>
             @endif
             @if($bcModule)
-            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$bcCourse, $bcModule, $bcModule->slug]) }}">{{ $bcModule->title }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$bcCourse, $bcModule]) }}">{{ $bcModule->title }}</a></li>
             @endif
             @endif
             <li class="breadcrumb-item"><a href="{{ route('self-checks.show', $selfCheck) }}">{{ $selfCheck->title }}</a></li>
@@ -102,7 +102,7 @@
                     $backCourse = $backModule?->course ?? null;
                 @endphp
                 @if($passed && $backModule && $backCourse)
-                <a href="{{ route('courses.modules.show', [$backCourse, $backModule, $backModule->slug]) }}"
+                <a href="{{ route('courses.modules.show', [$backCourse, $backModule]) }}"
                    class="btn btn-success w-100 mb-2">
                     <i class="fas fa-arrow-right me-1"></i>Continue to Module
                 </a>
@@ -112,7 +112,7 @@
                 </a>
                 @endif
                 @if($backModule && $backCourse)
-                <a href="{{ route('courses.modules.show', [$backCourse, $backModule, $backModule->slug]) }}"
+                <a href="{{ route('courses.modules.show', [$backCourse, $backModule]) }}"
                    class="btn btn-outline-secondary w-100 btn-sm">
                     <i class="fas fa-arrow-left me-1"></i>Back to Module
                 </a>

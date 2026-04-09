@@ -13,7 +13,7 @@
                     <p class="text-muted mb-0">{{ $module->module_title }}</p>
                 </div>
                 <div class="col-md-4 text-md-end">
-                    <a href="{{ route('courses.modules.show', [$course, $module, $module->slug]) }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('courses.modules.show', [$course, $module]) }}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left me-1"></i> Back to Module
                     </a>
                 </div>

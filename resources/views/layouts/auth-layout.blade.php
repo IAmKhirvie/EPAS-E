@@ -135,46 +135,26 @@
   (function() {
     var loader = document.getElementById('page-loader');
 
-    // Hide loader when auth page loads (we're already on the page)
-    // But show it when navigating away (form submit)
+    // Hide loader immediately when DOM is ready
     function hideLoaderNow() {
       if (loader && !loader.classList.contains('hidden')) {
         loader.classList.add('hidden');
         setTimeout(function() {
           if (window._circuitAnimation) {
             cancelAnimationFrame(window._circuitAnimation);
+            delete window._circuitAnimation;
           }
+          if (loader.parentNode) loader.remove();
         }, 300);
       }
     }
 
-    // Hide loader after page loads
-    if (document.readyState === 'complete') {
+    // Hide as soon as DOM is interactive (don't wait for images)
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
       hideLoaderNow();
     } else {
-      window.addEventListener('load', hideLoaderNow);
+      document.addEventListener('DOMContentLoaded', hideLoaderNow);
     }
-
-    // Show loader when login/register form is submitted
-    document.querySelectorAll('form').forEach(function(form) {
-      form.addEventListener('submit', function() {
-        if (loader) {
-          loader.classList.remove('hidden');
-        }
-      });
-    });
-
-    // Show loader when navigating to other pages via links
-    document.querySelectorAll('a[href]:not([href^="#"]):not([href^="javascript"])').forEach(function(link) {
-      link.addEventListener('click', function(e) {
-        // Only show loader for internal navigation
-        if (link.hostname === window.location.hostname && !link.hasAttribute('target')) {
-          if (loader) {
-            loader.classList.remove('hidden');
-          }
-        }
-      });
-    });
   })();
   </script>
 

@@ -241,6 +241,59 @@ class GradingServiceTest extends TestCase
     // calculateComponentStats() tests
     // ---------------------------------------------------------------
 
+    public function test_self_check_stats_uses_highest_score_per_self_check(): void
+    {
+        // Simulates 2 self-checks with multiple attempts each
+        // Self-check 1: attempts of 80%, 90%, 70% → highest = 90%
+        // Self-check 2: attempts of 60%, 85% → highest = 85%
+        // Expected: (90 + 85) / 2 = 87.5%
+        $highestScores = collect([
+            (object) ['self_check_id' => 1, 'highest_percentage' => 90, 'attempts' => 3],
+            (object) ['self_check_id' => 2, 'highest_percentage' => 85, 'attempts' => 2],
+        ]);
+
+        $result = $this->callProtected('calculateSelfCheckStats', [
+            $highestScores,
+        ]);
+
+        $this->assertEquals(2, $result['count']);
+        $this->assertEquals(175, $result['total_score']);
+        $this->assertEquals(200, $result['max_score']);
+        $this->assertEquals(87.5, $result['percentage']);
+        $this->assertEquals(87.5, $result['average']);
+    }
+
+    public function test_self_check_stats_with_empty_collection(): void
+    {
+        $result = $this->callProtected('calculateSelfCheckStats', [
+            collect([]),
+        ]);
+
+        $this->assertEquals(0, $result['count']);
+        $this->assertEquals(0, $result['total_score']);
+        $this->assertEquals(0, $result['max_score']);
+        $this->assertEquals(0, $result['percentage']);
+        $this->assertEquals(0, $result['average']);
+    }
+
+    public function test_self_check_stats_single_quiz_multiple_attempts(): void
+    {
+        // Student took one self-check 3 times: 60%, 75%, 95%
+        // Only the highest (95%) should count
+        $highestScores = collect([
+            (object) ['self_check_id' => 1, 'highest_percentage' => 95, 'attempts' => 3],
+        ]);
+
+        $result = $this->callProtected('calculateSelfCheckStats', [
+            $highestScores,
+        ]);
+
+        $this->assertEquals(1, $result['count']);
+        $this->assertEquals(95, $result['total_score']);
+        $this->assertEquals(100, $result['max_score']);
+        $this->assertEquals(95.0, $result['percentage']);
+    }
+
     public function test_component_stats_with_empty_collection(): void
     {
         $result = $this->callProtected('calculateComponentStats', [

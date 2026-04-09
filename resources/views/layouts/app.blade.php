@@ -666,6 +666,26 @@
             );
         });
     };
+
+    // Hide page loader after login redirect
+    @if(session('show_login_loader'))
+    (function() {
+        var loader = document.getElementById('page-loader');
+        if (loader) {
+            // Show loader briefly after login redirect, then hide
+            setTimeout(function() {
+                loader.classList.add('hidden');
+                setTimeout(function() {
+                    if (window._circuitAnimation) {
+                        cancelAnimationFrame(window._circuitAnimation);
+                        delete window._circuitAnimation;
+                    }
+                    if (loader.parentNode) loader.remove();
+                }, 300);
+            }, 800); // Show for 800ms to give transition feel
+        }
+    })();
+    @endif
   </script>
   @livewireScripts
 </body>

@@ -348,7 +348,7 @@
 
             {{-- Actions --}}
             <div class="results-actions">
-                <a href="{{ route('courses.modules.show', [$course, $module, $module->slug]) }}" class="btn btn-outline-secondary">
+                <a href="{{ route('courses.modules.show', [$course, $module]) }}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-1"></i>Back to Module
                 </a>
                 @if($canRetake)

@@ -124,7 +124,7 @@ class CompetencyTestController extends Controller
     {
         $competencyTest->delete();
 
-        return redirect()->route('courses.modules.show', [$course, $module, $module->slug])
+        return redirect()->route('courses.modules.show', [$course, $module])
             ->with('success', 'Competency Test deleted.');
     }
 

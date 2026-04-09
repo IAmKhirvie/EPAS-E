@@ -17,7 +17,7 @@
             <li class="breadcrumb-item"><a href="{{ route('courses.show', $course) }}">{{ $course->course_code }}</a></li>
             @endif
             @if($module)
-            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$course, $module, $module->slug]) }}">{{ $module->title }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$course, $module]) }}">{{ $module->title }}</a></li>
             @endif
             @endif
             <li class="breadcrumb-item active">{{ $selfCheck->title }}</li>
@@ -380,7 +380,7 @@
                 $backCourse = $backModule?->course ?? null;
             @endphp
             @if($backModule && $backCourse)
-            <a href="{{ route('courses.modules.show', [$backCourse, $backModule, $backModule->slug]) }}"
+            <a href="{{ route('courses.modules.show', [$backCourse, $backModule]) }}"
                class="btn btn-outline-secondary w-100 btn-sm mt-auto">
                 <i class="fas fa-arrow-left me-1"></i>Back to Module
             </a>

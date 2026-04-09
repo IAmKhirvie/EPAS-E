@@ -617,7 +617,7 @@ class SelfCheckController extends Controller
         $selfCheck = SelfCheck::where('information_sheet_id', $informationSheet->id)->first();
 
         if (!$selfCheck) {
-            return redirect()->route('courses.modules.show', [$module->course_id, $module, $module->slug])
+            return redirect()->route('courses.modules.show', [$module->course_id, $module])
                 ->with('info', 'No self-check available for this information sheet yet.');
         }
 

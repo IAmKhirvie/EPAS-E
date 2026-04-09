@@ -80,7 +80,7 @@ class ModuleAssessmentController extends Controller
         $submission = $module->getInProgressAssessmentFor($user);
 
         if (!$submission) {
-            return redirect()->route('courses.modules.show', [$course, $module, $module->slug])
+            return redirect()->route('courses.modules.show', [$course, $module])
                 ->with('error', 'No active assessment found.');
         }
 

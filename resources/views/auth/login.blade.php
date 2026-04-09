@@ -109,13 +109,6 @@
             localStorage.removeItem(STORAGE_KEY);
         }
     });
-
-    // Remove the page loader immediately on login page (don't show on errors)
-    var loader = document.getElementById('page-loader');
-    if (loader) {
-        loader.classList.add('hidden');
-        setTimeout(function() { loader.remove(); }, 100);
-    }
 })();
 </script>
 @endsection

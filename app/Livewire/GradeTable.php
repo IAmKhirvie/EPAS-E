@@ -110,9 +110,9 @@ class GradeTable extends Component
 
         $selfCheckAvgs = SelfCheckSubmission::whereIn('user_id', $studentIds)
             ->whereNotNull('percentage')
-            ->selectRaw('user_id, AVG(percentage) as avg_percentage')
+            ->selectRaw('user_id, MAX(percentage) as max_percentage')
             ->groupBy('user_id')
-            ->pluck('avg_percentage', 'user_id');
+            ->pluck('max_percentage', 'user_id');
 
         $homeworkAvgs = HomeworkSubmission::whereIn('homework_submissions.user_id', $studentIds)
             ->whereNotNull('homework_submissions.score')

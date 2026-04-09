@@ -42,7 +42,7 @@
 
                     <div class="list-group mb-4">
                         @foreach($unmetPrerequisites as $prereq)
-                            <a href="{{ route('courses.modules.show', [$course, $prereq, $prereq->slug]) }}"
+                            <a href="{{ route('courses.modules.show', [$course, $prereq]) }}"
                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                 <div class="text-start">
                                     <strong class="text-primary">{{ $prereq->module_number }}</strong>

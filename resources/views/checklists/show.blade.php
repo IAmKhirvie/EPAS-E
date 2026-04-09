@@ -7,7 +7,7 @@
     <nav aria-label="breadcrumb" class="mb-2">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$checklist->informationSheet->module->course_id, $checklist->informationSheet->module, $checklist->informationSheet->module->slug]) }}">{{ $checklist->informationSheet->module->module_name }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$checklist->informationSheet->module->course_id, $checklist->informationSheet->module]) }}">{{ $checklist->informationSheet->module->module_name }}</a></li>
             <li class="breadcrumb-item active">{{ $checklist->title }}</li>
         </ol>
     </nav>

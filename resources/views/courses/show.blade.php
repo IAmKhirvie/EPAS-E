@@ -642,7 +642,7 @@ $categoryColorDark = $course->category?->darker_color ?? '#0c3a2d';
                 </div>
                 <div class="module-card-footer">
                     <div class="module-card-actions">
-                        <a href="{{ route('courses.modules.show', [$course, $module, $module->slug]) }}" class="btn btn-category btn-sm">
+                        <a href="{{ route('courses.modules.show', [$course, $module]) }}" class="btn btn-category btn-sm">
                             <i class="fas fa-eye me-1"></i>View
                         </a>
                         <a href="{{ route('courses.modules.print', [$course, $module]) }}" class="btn btn-outline-secondary btn-sm" target="_blank" title="Print">
