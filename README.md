@@ -88,8 +88,9 @@ composer install
 npm install
 
 # Environment setup
-cp .env.example .env
+copy .env.example .env
 php artisan key:generate
+php artisan storage:link
 
 # Database setup
 php artisan migrate
