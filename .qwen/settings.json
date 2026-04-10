@@ -10,7 +10,8 @@
       "Bash(php *)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(taskkill *)"
     ]
   },
   "$version": 3

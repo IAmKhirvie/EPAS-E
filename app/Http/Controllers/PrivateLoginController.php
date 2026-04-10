@@ -103,7 +103,7 @@ class PrivateLoginController extends Controller
                 $request->session()->flash('show_login_loader', true); // Flash data - only available on next request
                 $request->session()->forget('url.intended');
 
-                return redirect('/dashboard');
+                return redirect('/admin/dashboard');
             }
 
             // Record failed attempt on both keys
@@ -139,7 +139,7 @@ class PrivateLoginController extends Controller
     {
         $user = Auth::user();
         if (Roles::canManageStudents($user->role)) {
-            return redirect('/dashboard');
+            return redirect('/admin/dashboard');
         }
         return redirect('/student/dashboard');
     }
