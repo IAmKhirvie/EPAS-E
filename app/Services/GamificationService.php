@@ -11,8 +11,28 @@ use Illuminate\Support\Facades\DB;
 class GamificationService
 {
     /**
-     * Hardcoded badge definitions.
-     * Keys are used in the user_badges table as badge_key.
+     * Badge tier constants (highest to lowest).
+     */
+    public const TIER_DIAMOND = 5;
+    public const TIER_PLATINUM = 4;
+    public const TIER_GOLD = 3;
+    public const TIER_SILVER = 2;
+    public const TIER_BRONZE = 1;
+
+    /**
+     * Tier display info.
+     */
+    public const TIERS = [
+        self::TIER_BRONZE    => ['name' => 'Bronze',    'class' => 'bronze',    'color' => '#cd7f32', 'icon' => 'fa-medal'],
+        self::TIER_SILVER    => ['name' => 'Silver',    'class' => 'silver',    'color' => '#c0c0c0', 'icon' => 'fa-medal'],
+        self::TIER_GOLD      => ['name' => 'Gold',      'class' => 'gold',      'color' => '#ffd700', 'icon' => 'fa-medal'],
+        self::TIER_PLATINUM  => ['name' => 'Platinum',  'class' => 'platinum',  'color' => '#e5e4e2', 'icon' => 'fa-gem'],
+        self::TIER_DIAMOND   => ['name' => 'Diamond',   'class' => 'diamond',   'color' => '#b9f2ff', 'icon' => 'fa-crown'],
+    ];
+
+    /**
+     * Hardcoded badge definitions with tiers.
+     * Higher tiers require more effort/achievement.
      */
     public const BADGES = [
         'first_steps' => [
@@ -20,60 +40,123 @@ class GamificationService
             'icon' => 'fa-shoe-prints',
             'description' => 'Log in to EPAS-E for the first time.',
             'type' => 'milestone',
+            'tiers' => [
+                self::TIER_BRONZE => [
+                    'criteria' => ['action' => 'login_count', 'value' => 1],
+                ],
+            ],
         ],
         'quick_starter' => [
             'name' => 'Quick Starter',
             'icon' => 'fa-rocket',
-            'description' => 'Complete your first module.',
+            'description' => 'Complete modules to show momentum.',
             'type' => 'milestone',
+            'tiers' => [
+                self::TIER_BRONZE   => ['criteria' => ['action' => 'modules_completed', 'value' => 1]],
+                self::TIER_SILVER   => ['criteria' => ['action' => 'modules_completed', 'value' => 5]],
+                self::TIER_GOLD     => ['criteria' => ['action' => 'modules_completed', 'value' => 10]],
+                self::TIER_PLATINUM => ['criteria' => ['action' => 'modules_completed', 'value' => 25]],
+                self::TIER_DIAMOND  => ['criteria' => ['action' => 'modules_completed', 'value' => 50]],
+            ],
         ],
         'quiz_ace' => [
             'name' => 'Quiz Ace',
             'icon' => 'fa-brain',
-            'description' => 'Score 100% on a self-check assessment.',
+            'description' => 'Score perfectly on self-check assessments.',
             'type' => 'academic',
-        ],
-        'perfect_streak' => [
-            'name' => 'Perfect Streak',
-            'icon' => 'fa-star',
-            'description' => 'Achieve 5 perfect quiz scores.',
-            'type' => 'academic',
+            'tiers' => [
+                self::TIER_BRONZE   => ['criteria' => ['action' => 'perfect_scores', 'value' => 1]],
+                self::TIER_SILVER   => ['criteria' => ['action' => 'perfect_scores', 'value' => 5]],
+                self::TIER_GOLD     => ['criteria' => ['action' => 'perfect_scores', 'value' => 15]],
+                self::TIER_PLATINUM => ['criteria' => ['action' => 'perfect_scores', 'value' => 30]],
+                self::TIER_DIAMOND  => ['criteria' => ['action' => 'perfect_scores', 'value' => 50]],
+            ],
         ],
         'homework_hero' => [
             'name' => 'Homework Hero',
             'icon' => 'fa-book-open',
-            'description' => 'Submit 10 homework assignments.',
+            'description' => 'Submit homework assignments consistently.',
             'type' => 'academic',
+            'tiers' => [
+                self::TIER_BRONZE   => ['criteria' => ['action' => 'homework_submitted', 'value' => 5]],
+                self::TIER_SILVER   => ['criteria' => ['action' => 'homework_submitted', 'value' => 15]],
+                self::TIER_GOLD     => ['criteria' => ['action' => 'homework_submitted', 'value' => 30]],
+                self::TIER_PLATINUM => ['criteria' => ['action' => 'homework_submitted', 'value' => 50]],
+                self::TIER_DIAMOND  => ['criteria' => ['action' => 'homework_submitted', 'value' => 100]],
+            ],
         ],
         'week_warrior' => [
             'name' => 'Week Warrior',
             'icon' => 'fa-fire',
-            'description' => 'Maintain a 7-day login streak.',
+            'description' => 'Maintain a daily login streak.',
             'type' => 'streak',
-        ],
-        'monthly_master' => [
-            'name' => 'Monthly Master',
-            'icon' => 'fa-crown',
-            'description' => 'Maintain a 30-day login streak.',
-            'type' => 'streak',
+            'tiers' => [
+                self::TIER_BRONZE   => ['criteria' => ['action' => 'login_streak', 'value' => 7]],
+                self::TIER_SILVER   => ['criteria' => ['action' => 'login_streak', 'value' => 14]],
+                self::TIER_GOLD     => ['criteria' => ['action' => 'login_streak', 'value' => 30]],
+                self::TIER_PLATINUM => ['criteria' => ['action' => 'login_streak', 'value' => 60]],
+                self::TIER_DIAMOND  => ['criteria' => ['action' => 'login_streak', 'value' => 100]],
+            ],
         ],
         'course_graduate' => [
             'name' => 'Course Graduate',
             'icon' => 'fa-graduation-cap',
-            'description' => 'Complete an entire course.',
+            'description' => 'Complete entire courses.',
             'type' => 'milestone',
+            'tiers' => [
+                self::TIER_BRONZE   => ['criteria' => ['action' => 'courses_completed', 'value' => 1]],
+                self::TIER_SILVER   => ['criteria' => ['action' => 'courses_completed', 'value' => 3]],
+                self::TIER_GOLD     => ['criteria' => ['action' => 'courses_completed', 'value' => 5]],
+                self::TIER_PLATINUM => ['criteria' => ['action' => 'courses_completed', 'value' => 10]],
+                self::TIER_DIAMOND  => ['criteria' => ['action' => 'courses_completed', 'value' => 20]],
+            ],
         ],
         'early_bird' => [
             'name' => 'Early Bird',
             'icon' => 'fa-dove',
-            'description' => 'Submit an assignment 3 days before the deadline.',
+            'description' => 'Submit homework well before the deadline.',
             'type' => 'milestone',
+            'tiers' => [
+                self::TIER_BRONZE   => ['criteria' => ['action' => 'hours_before_deadline', 'value' => 12]],
+                self::TIER_SILVER   => ['criteria' => ['action' => 'hours_before_deadline', 'value' => 24]],
+                self::TIER_GOLD     => ['criteria' => ['action' => 'hours_before_deadline', 'value' => 48]],
+                self::TIER_PLATINUM => ['criteria' => ['action' => 'hours_before_deadline', 'value' => 72]],
+                self::TIER_DIAMOND  => ['criteria' => ['action' => 'hours_before_deadline', 'value' => 120]],
+            ],
         ],
         'all_rounder' => [
             'name' => 'All-Rounder',
             'icon' => 'fa-gem',
-            'description' => 'Earn points in all 4 assessment types.',
+            'description' => 'Earn points across different assessment types.',
             'type' => 'academic',
+            'tiers' => [
+                self::TIER_BRONZE   => ['criteria' => ['action' => 'assessment_types', 'value' => 2]],
+                self::TIER_SILVER   => ['criteria' => ['action' => 'assessment_types', 'value' => 3]],
+                self::TIER_GOLD     => ['criteria' => ['action' => 'assessment_types', 'value' => 4]],
+            ],
+        ],
+        'speed_demon' => [
+            'name' => 'Speed Demon',
+            'icon' => 'fa-bolt',
+            'description' => 'Complete self-checks quickly with high scores.',
+            'type' => 'academic',
+            'tiers' => [
+                self::TIER_BRONZE   => ['criteria' => ['action' => 'fast_perfect_score', 'value' => 3]],
+                self::TIER_SILVER   => ['criteria' => ['action' => 'fast_perfect_score', 'value' => 10]],
+                self::TIER_GOLD     => ['criteria' => ['action' => 'fast_perfect_score', 'value' => 25]],
+            ],
+        ],
+        'consistency_king' => [
+            'name' => 'Consistency King',
+            'icon' => 'fa-chess-king',
+            'description' => 'Log in and complete activities every week.',
+            'type' => 'streak',
+            'tiers' => [
+                self::TIER_BRONZE   => ['criteria' => ['action' => 'weekly_active_weeks', 'value' => 4]],
+                self::TIER_SILVER   => ['criteria' => ['action' => 'weekly_active_weeks', 'value' => 12]],
+                self::TIER_GOLD     => ['criteria' => ['action' => 'weekly_active_weeks', 'value' => 26]],
+                self::TIER_PLATINUM => ['criteria' => ['action' => 'weekly_active_weeks', 'value' => 52]],
+            ],
         ],
     ];
 
@@ -104,6 +187,53 @@ class GamificationService
     public static function getBadge(string $key): ?array
     {
         return self::BADGES[$key] ?? null;
+    }
+
+    /**
+     * Get tier info for a tier level.
+     */
+    public static function getTierInfo(int $tier): array
+    {
+        return self::TIERS[$tier] ?? self::TIERS[self::TIER_BRONZE];
+    }
+
+    /**
+     * Get all tiers for a badge (from lowest to highest).
+     */
+    public static function getBadgeTiers(string $badgeKey): array
+    {
+        $badge = self::getBadge($badgeKey);
+        if (!$badge) return [];
+
+        $tiers = [];
+        foreach ($badge['tiers'] as $tier => $data) {
+            $tiers[$tier] = array_merge($data, self::getTierInfo($tier));
+        }
+        ksort($tiers);
+        return $tiers;
+    }
+
+    /**
+     * Format criteria for display.
+     */
+    public static function formatCriteria(array $criteria): string
+    {
+        $action = $criteria['action'] ?? '';
+        $value = $criteria['value'] ?? 0;
+
+        return match ($action) {
+            'login_count' => "Log in {$value} time(s)",
+            'modules_completed' => "Complete {$value} module(s)",
+            'perfect_scores' => "Score perfectly on {$value} quiz(s)",
+            'homework_submitted' => "Submit {$value} homework assignment(s)",
+            'login_streak' => "Maintain a {$value}-day login streak",
+            'courses_completed' => "Complete {$value} course(s)",
+            'hours_before_deadline' => "Submit {$value} hour(s) before deadline",
+            'assessment_types' => "Earn points in {$value} assessment type(s)",
+            'fast_perfect_score' => "Complete {$value} perfect quiz(es) in under half the time",
+            'weekly_active_weeks' => "Stay active for {$value} week(s)",
+            default => "Achieve the requirement",
+        };
     }
 
     public function awardPoints(User $user, int $points, string $reason, $pointable = null): UserPoint
@@ -173,7 +303,7 @@ class GamificationService
     }
 
     /**
-     * Check if user qualifies for any hardcoded badges.
+     * Check if user qualifies for any badge tiers.
      */
     public function checkBadgeUnlocks(User $user): array
     {
@@ -181,13 +311,16 @@ class GamificationService
         $earnedKeys = $user->earnedBadgeKeys();
 
         foreach (self::BADGES as $key => $definition) {
-            if (in_array($key, $earnedKeys)) {
-                continue;
-            }
+            foreach ($definition['tiers'] as $tier => $data) {
+                $badgeKey = "{$key}_tier_{$tier}";
+                if (in_array($badgeKey, $earnedKeys)) {
+                    continue;
+                }
 
-            if ($this->checkBadgeCriteria($user, $key)) {
-                $this->awardBadgeByKey($user, $key);
-                $earnedBadges[] = $key;
+                if ($this->checkBadgeCriteria($user, $key, $tier, $data['criteria'])) {
+                    $this->awardBadgeByKey($user, $badgeKey);
+                    $earnedBadges[] = $badgeKey;
+                }
             }
         }
 
@@ -195,61 +328,53 @@ class GamificationService
     }
 
     /**
-     * Check if user meets criteria for a specific badge key.
+     * Check if user meets criteria for a specific badge tier.
      */
-    protected function checkBadgeCriteria(User $user, string $badgeKey): bool
+    protected function checkBadgeCriteria(User $user, string $badgeKey, int $tier, array $criteria): bool
     {
-        switch ($badgeKey) {
-            case 'first_steps':
+        $action = $criteria['action'] ?? '';
+        $value = $criteria['value'] ?? 0;
+
+        switch ($action) {
+            case 'login_count':
                 return $user->last_login !== null;
 
-            case 'quick_starter':
-                return $user->progress()
+            case 'modules_completed':
+                $count = $user->progress()
                     ->where('status', 'completed')
                     ->where('progressable_type', 'App\Models\Module')
-                    ->count() >= 1;
+                    ->count();
+                return $count >= $value;
 
-            case 'quiz_ace':
-                return $user->progress()
+            case 'perfect_scores':
+                $count = $user->progress()
                     ->whereNotNull('score')
                     ->whereNotNull('max_score')
                     ->whereColumn('score', '>=', 'max_score')
                     ->where('progressable_type', 'App\Models\SelfCheck')
-                    ->count() >= 1;
+                    ->count();
+                return $count >= $value;
 
-            case 'perfect_streak':
-                return $user->progress()
-                    ->whereNotNull('score')
-                    ->whereNotNull('max_score')
-                    ->whereColumn('score', '>=', 'max_score')
-                    ->where('progressable_type', 'App\Models\SelfCheck')
-                    ->count() >= 5;
+            case 'homework_submitted':
+                return $user->homeworkSubmissions()->count() >= $value;
 
-            case 'homework_hero':
-                return $user->progress()
-                    ->where('progressable_type', 'App\Models\Homework')
-                    ->count() >= 10;
+            case 'login_streak':
+                return $user->current_streak >= $value;
 
-            case 'week_warrior':
-                return $user->current_streak >= 7;
-
-            case 'monthly_master':
-                return $user->current_streak >= 30;
-
-            case 'course_graduate':
-                return $user->progress()
+            case 'courses_completed':
+                $count = $user->progress()
                     ->where('status', 'completed')
                     ->where('progressable_type', 'App\Models\Course')
-                    ->count() >= 1;
+                    ->count();
+                return $count >= $value;
 
-            case 'early_bird':
-                // Check if any homework was submitted >= 3 days before due date
+            case 'hours_before_deadline':
                 return $user->homeworkSubmissions()
                     ->join('homeworks', 'homeworks.id', '=', 'homework_submissions.homework_id')
-                    ->whereRaw('submitted_at <= DATE_SUB(due_date, INTERVAL 3 DAY)')
+                    ->whereRaw('TIMESTAMPDIFF(HOUR, submitted_at, due_date) >= ?', [$value])
                     ->count() >= 1;
 
-            case 'all_rounder':
+            case 'assessment_types':
                 $types = [
                     'App\Models\SelfCheck',
                     'App\Models\Homework',
@@ -261,7 +386,26 @@ class GamificationService
                     ->distinct('progressable_type')
                     ->pluck('progressable_type')
                     ->toArray();
-                return count($completedTypes) >= 4;
+                return count($completedTypes) >= $value;
+
+            case 'fast_perfect_score':
+                // Perfect scores completed in under half the time limit
+                return $user->progress()
+                    ->whereNotNull('score')
+                    ->whereNotNull('max_score')
+                    ->whereColumn('score', '>=', 'max_score')
+                    ->where('progressable_type', 'App\Models\SelfCheck')
+                    ->whereNotNull('time_taken')
+                    ->whereRaw('time_taken < (expected_time * 0.5)')
+                    ->count() >= $value;
+
+            case 'weekly_active_weeks':
+                // Count distinct weeks where user was active
+                $weeks = $user->points()
+                    ->selectRaw('YEARWEEK(created_at) as week')
+                    ->distinct()
+                    ->count();
+                return $weeks >= $value;
 
             default:
                 return false;
@@ -289,12 +433,19 @@ class GamificationService
 
     protected function checkStreakBadges(User $user): void
     {
-        $streakKeys = ['week_warrior' => 7, 'monthly_master' => 30];
         $earnedKeys = $user->earnedBadgeKeys();
 
-        foreach ($streakKeys as $key => $days) {
-            if (!in_array($key, $earnedKeys) && $user->current_streak >= $days) {
-                $this->awardBadgeByKey($user, $key);
+        foreach (['week_warrior'] as $badgeKey) {
+            $badge = self::getBadge($badgeKey);
+            if (!$badge) continue;
+
+            foreach ($badge['tiers'] as $tier => $data) {
+                $fullKey = "{$badgeKey}_tier_{$tier}";
+                if (in_array($fullKey, $earnedKeys)) continue;
+
+                if ($user->current_streak >= ($data['criteria']['value'] ?? 0)) {
+                    $this->awardBadgeByKey($user, $fullKey);
+                }
             }
         }
     }
@@ -313,7 +464,7 @@ class GamificationService
         return [
             'total_points' => $user->total_points,
             'current_streak' => $user->current_streak,
-            'badges_earned' => $user->earnedBadgeKeys()->count(),
+            'badges_earned' => count($user->earnedBadgeKeys()),
             'rank' => $this->getUserRank($user),
         ];
     }

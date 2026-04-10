@@ -203,67 +203,80 @@
         <div class="tab-pane fade" id="badges" role="tabpanel">
             @php
                 $allBadges = \App\Services\GamificationService::getAllBadges();
+                $userBadges = $user->earnedBadges()->get();
+                $earnedByKey = [];
+                foreach ($userBadges as $ub) {
+                    $earnedByKey[$ub->badge_key] = $ub->badge_data;
+                }
             @endphp
 
-            {{-- Earned Badges --}}
-            @php
-                $earned = array_intersect_key($allBadges, array_flip($earnedBadgeKeys));
-            @endphp
-            @if(count($earned) > 0)
-            <h6 class="text-muted mb-3">
-                <i class="fas fa-check-circle text-success me-1"></i> Earned ({{ count($earned) }})
-            </h6>
-            <div class="row mb-4">
-                @foreach($earned as $key => $badge)
+            @foreach($allBadges as $badgeKey => $badgeDef)
                 @php
-                    $userBadge = $user->earnedBadges()->where('badge_key', $key)->first();
-                    $earnedDate = $userBadge ? $userBadge->earned_at->format('M d, Y') : 'Earned';
+                    $tiers = \App\Services\GamificationService::getBadgeTiers($badgeKey);
+                    $earnedTiers = [];
+                    foreach ($tiers as $tier => $tierData) {
+                        $fullKey = "{$badgeKey}_tier_{$tier}";
+                        if (isset($earnedByKey[$fullKey])) {
+                            $earnedTiers[$tier] = $earnedByKey[$fullKey];
+                        }
+                    }
+                    $nextTier = null;
+                    foreach ($tiers as $tier => $tierData) {
+                        if (!isset($earnedTiers[$tier])) {
+                            $nextTier = ['tier' => $tier] + $tierData;
+                            break;
+                        }
+                    }
                 @endphp
-                <div class="col-6 col-md-4 col-lg-3 mb-3">
-                    <div class="card h-100 border-0 shadow-sm badge-card badge-earned">
-                        <div class="card-body text-center py-4">
-                            <div class="badge-icon-wrapper mb-3" style="color: #ffc107;">
-                                <i class="{{ $badge['icon'] }} fa-3x"></i>
-                            </div>
-                            <h6 class="card-title mb-1">{{ $badge['name'] }}</h6>
-                            <p class="text-muted small mb-2">{{ $badge['description'] }}</p>
-                            <span class="badge bg-success">
-                                <i class="fas fa-check me-1"></i> {{ $earnedDate }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-            @endif
 
-            {{-- Locked Badges --}}
-            @php
-                $locked = array_diff_key($allBadges, array_flip($earnedBadgeKeys));
-            @endphp
-            @if(count($locked) > 0)
-            <h6 class="text-muted mb-3">
-                <i class="fas fa-lock text-secondary me-1"></i> Locked ({{ count($locked) }})
-            </h6>
-            <div class="row">
-                @foreach($locked as $key => $badge)
-                <div class="col-6 col-md-4 col-lg-3 mb-3">
-                    <div class="card h-100 border-0 shadow-sm badge-card badge-locked">
-                        <div class="card-body text-center py-4">
-                            <div class="badge-icon-wrapper mb-3 text-muted" style="opacity: 0.4;">
-                                <i class="{{ $badge['icon'] }} fa-3x"></i>
-                            </div>
-                            <h6 class="card-title mb-1 text-muted">{{ $badge['name'] }}</h6>
-                            <p class="text-muted small mb-2">{{ $badge['description'] }}</p>
-                            <span class="badge bg-secondary">
-                                <i class="fas fa-lock me-1"></i> Locked
-                            </span>
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <i class="{{ $badgeDef['icon'] }} fa-lg me-2" style="color: var(--primary);"></i>
+                            <h6 class="mb-0">{{ $badgeDef['name'] }}</h6>
                         </div>
+                        <small class="text-muted">{{ $badgeDef['description'] }}</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex gap-2 flex-wrap">
+                                @foreach($tiers as $tier => $tierData)
+                                    @php $isEarned = isset($earnedTiers[$tier]); @endphp
+                                    <span class="badge {{ $isEarned ? 'bg-success' : 'bg-secondary' }}" style="{{ $isEarned ? 'background-color: ' . $tierData['color'] . ' !important; color: #000;' : '' }}">
+                                        <i class="{{ $tierData['icon'] }} me-1"></i>
+                                        {{ $tierData['name'] }}
+                                        @if($isEarned)
+                                            <i class="fas fa-check ms-1"></i>
+                                        @else
+                                            <i class="fas fa-lock ms-1"></i>
+                                        @endif
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        @if(count($earnedTiers) > 0)
+                        <div class="earned-tiers mb-3">
+                            <small class="text-success"><i class="fas fa-check-circle me-1"></i> Earned:
+                                @foreach($earnedTiers as $tier => $data)
+                                    <span class="fw-bold" style="color: {{ $data['color'] }}">{{ $data['tier_name'] }}</span>@if(!$loop->last), @endif
+                                @endforeach
+                            </small>
+                        </div>
+                        @endif
+
+                        @if($nextTier)
+                        <div class="next-tier">
+                            <small class="text-muted">
+                                <i class="fas fa-bullseye me-1"></i> Next: 
+                                <strong style="color: {{ $nextTier['color'] }}">{{ $nextTier['name'] }}</strong> — 
+                                {{ \App\Services\GamificationService::formatCriteria($nextTier['criteria']) }}
+                            </small>
+                        </div>
+                        @endif
                     </div>
                 </div>
-                @endforeach
-            </div>
-            @endif
+            @endforeach
         </div>
     </div>
 </div>
@@ -279,10 +292,6 @@
     .badge-card.badge-earned:hover {
         transform: translateY(-4px);
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12) !important;
-    }
-
-    .badge-card.badge-locked {
-        background: #f8f9fa;
     }
 
     .badge-icon-wrapper {
@@ -303,5 +312,7 @@
     .nav-tabs .nav-link.active {
         border-color: #dee2e6 #dee2e6 #fff;
     }
+
+    .badge.bg-success { background-color: #198754 !important; }
 </style>
 @endsection
