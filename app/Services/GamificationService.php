@@ -4,14 +4,79 @@ namespace App\Services;
 
 use App\Constants\Roles;
 use App\Models\User;
-use App\Models\Badge;
 use App\Models\UserBadge;
 use App\Models\UserPoint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class GamificationService
 {
+    /**
+     * Hardcoded badge definitions.
+     * Keys are used in the user_badges table as badge_key.
+     */
+    public const BADGES = [
+        'first_steps' => [
+            'name' => 'First Steps',
+            'icon' => 'fa-shoe-prints',
+            'description' => 'Log in to EPAS-E for the first time.',
+            'type' => 'milestone',
+        ],
+        'quick_starter' => [
+            'name' => 'Quick Starter',
+            'icon' => 'fa-rocket',
+            'description' => 'Complete your first module.',
+            'type' => 'milestone',
+        ],
+        'quiz_ace' => [
+            'name' => 'Quiz Ace',
+            'icon' => 'fa-brain',
+            'description' => 'Score 100% on a self-check assessment.',
+            'type' => 'academic',
+        ],
+        'perfect_streak' => [
+            'name' => 'Perfect Streak',
+            'icon' => 'fa-star',
+            'description' => 'Achieve 5 perfect quiz scores.',
+            'type' => 'academic',
+        ],
+        'homework_hero' => [
+            'name' => 'Homework Hero',
+            'icon' => 'fa-book-open',
+            'description' => 'Submit 10 homework assignments.',
+            'type' => 'academic',
+        ],
+        'week_warrior' => [
+            'name' => 'Week Warrior',
+            'icon' => 'fa-fire',
+            'description' => 'Maintain a 7-day login streak.',
+            'type' => 'streak',
+        ],
+        'monthly_master' => [
+            'name' => 'Monthly Master',
+            'icon' => 'fa-crown',
+            'description' => 'Maintain a 30-day login streak.',
+            'type' => 'streak',
+        ],
+        'course_graduate' => [
+            'name' => 'Course Graduate',
+            'icon' => 'fa-graduation-cap',
+            'description' => 'Complete an entire course.',
+            'type' => 'milestone',
+        ],
+        'early_bird' => [
+            'name' => 'Early Bird',
+            'icon' => 'fa-dove',
+            'description' => 'Submit an assignment 3 days before the deadline.',
+            'type' => 'milestone',
+        ],
+        'all_rounder' => [
+            'name' => 'All-Rounder',
+            'icon' => 'fa-gem',
+            'description' => 'Earn points in all 4 assessment types.',
+            'type' => 'academic',
+        ],
+    ];
+
     public static function getPoints(): array
     {
         return config('joms.gamification.points', [
@@ -23,6 +88,22 @@ class GamificationService
             'module_complete' => 100,
             'course_complete' => 500,
         ]);
+    }
+
+    /**
+     * Get all badge definitions.
+     */
+    public static function getAllBadges(): array
+    {
+        return self::BADGES;
+    }
+
+    /**
+     * Get a single badge definition by key.
+     */
+    public static function getBadge(string $key): ?array
+    {
+        return self::BADGES[$key] ?? null;
     }
 
     public function awardPoints(User $user, int $points, string $reason, $pointable = null): UserPoint
@@ -68,10 +149,8 @@ class GamificationService
         }
 
         DB::transaction(function () use ($user, $today) {
-            // Lock the row to prevent race conditions from concurrent requests
             $user = User::lockForUpdate()->find($user->id);
 
-            // Re-check after acquiring lock
             if ($user->last_activity_date === $today) {
                 return;
             }
@@ -93,70 +172,111 @@ class GamificationService
         $this->checkStreakBadges($user);
     }
 
+    /**
+     * Check if user qualifies for any hardcoded badges.
+     */
     public function checkBadgeUnlocks(User $user): array
     {
         $earnedBadges = [];
-        $unlockedBadges = $user->badges()->pluck('badges.id')->toArray();
+        $earnedKeys = $user->earnedBadgeKeys();
 
-        $badges = Badge::active()
-            ->whereNotIn('id', $unlockedBadges)
-            ->get();
+        foreach (self::BADGES as $key => $definition) {
+            if (in_array($key, $earnedKeys)) {
+                continue;
+            }
 
-        foreach ($badges as $badge) {
-            if ($this->checkBadgeCriteria($user, $badge)) {
-                $this->awardBadge($user, $badge);
-                $earnedBadges[] = $badge;
+            if ($this->checkBadgeCriteria($user, $key)) {
+                $this->awardBadgeByKey($user, $key);
+                $earnedBadges[] = $key;
             }
         }
 
         return $earnedBadges;
     }
 
-    protected function checkBadgeCriteria(User $user, Badge $badge): bool
+    /**
+     * Check if user meets criteria for a specific badge key.
+     */
+    protected function checkBadgeCriteria(User $user, string $badgeKey): bool
     {
-        // Check points-based badges
-        if ($badge->points_required > 0 && $user->total_points >= $badge->points_required) {
-            return true;
-        }
-
-        // Check custom criteria
-        $criteria = $badge->criteria;
-        if (!$criteria) {
-            return false;
-        }
-
-        switch ($criteria['type'] ?? null) {
-            case 'first_login':
+        switch ($badgeKey) {
+            case 'first_steps':
                 return $user->last_login !== null;
 
-            case 'modules_completed':
-                $count = $user->progress()
+            case 'quick_starter':
+                return $user->progress()
                     ->where('status', 'completed')
-                    ->where('progressable_type', 'App\\Models\\Module')
-                    ->count();
-                return $count >= ($criteria['count'] ?? 1);
+                    ->where('progressable_type', 'App\Models\Module')
+                    ->count() >= 1;
 
-            case 'perfect_scores':
-                $count = $user->progress()
+            case 'quiz_ace':
+                return $user->progress()
                     ->whereNotNull('score')
-                    ->whereColumn('score', '=', 'max_score')
-                    ->count();
-                return $count >= ($criteria['count'] ?? 1);
+                    ->whereNotNull('max_score')
+                    ->whereColumn('score', '>=', 'max_score')
+                    ->where('progressable_type', 'App\Models\SelfCheck')
+                    ->count() >= 1;
 
-            case 'streak':
-                return $user->current_streak >= ($criteria['days'] ?? 7);
+            case 'perfect_streak':
+                return $user->progress()
+                    ->whereNotNull('score')
+                    ->whereNotNull('max_score')
+                    ->whereColumn('score', '>=', 'max_score')
+                    ->where('progressable_type', 'App\Models\SelfCheck')
+                    ->count() >= 5;
+
+            case 'homework_hero':
+                return $user->progress()
+                    ->where('progressable_type', 'App\Models\Homework')
+                    ->count() >= 10;
+
+            case 'week_warrior':
+                return $user->current_streak >= 7;
+
+            case 'monthly_master':
+                return $user->current_streak >= 30;
+
+            case 'course_graduate':
+                return $user->progress()
+                    ->where('status', 'completed')
+                    ->where('progressable_type', 'App\Models\Course')
+                    ->count() >= 1;
+
+            case 'early_bird':
+                // Check if any homework was submitted >= 3 days before due date
+                return $user->homeworkSubmissions()
+                    ->join('homeworks', 'homeworks.id', '=', 'homework_submissions.homework_id')
+                    ->whereRaw('submitted_at <= DATE_SUB(due_date, INTERVAL 3 DAY)')
+                    ->count() >= 1;
+
+            case 'all_rounder':
+                $types = [
+                    'App\Models\SelfCheck',
+                    'App\Models\Homework',
+                    'App\Models\TaskSheet',
+                    'App\Models\JobSheet',
+                ];
+                $completedTypes = $user->progress()
+                    ->whereIn('progressable_type', $types)
+                    ->distinct('progressable_type')
+                    ->pluck('progressable_type')
+                    ->toArray();
+                return count($completedTypes) >= 4;
 
             default:
                 return false;
         }
     }
 
-    public function awardBadge(User $user, Badge $badge): UserBadge
+    /**
+     * Award a badge to a user by hardcoded key.
+     */
+    public function awardBadgeByKey(User $user, string $badgeKey): UserBadge
     {
         return UserBadge::firstOrCreate(
             [
                 'user_id' => $user->id,
-                'badge_id' => $badge->id,
+                'badge_key' => $badgeKey,
             ],
             [
                 'earned_at' => now(),
@@ -169,15 +289,12 @@ class GamificationService
 
     protected function checkStreakBadges(User $user): void
     {
-        $streakBadges = Badge::active()
-            ->byType('streak')
-            ->whereNotIn('id', $user->badges()->pluck('badges.id'))
-            ->get();
+        $streakKeys = ['week_warrior' => 7, 'monthly_master' => 30];
+        $earnedKeys = $user->earnedBadgeKeys();
 
-        foreach ($streakBadges as $badge) {
-            $requiredDays = $badge->criteria['days'] ?? 0;
-            if ($user->current_streak >= $requiredDays) {
-                $this->awardBadge($user, $badge);
+        foreach ($streakKeys as $key => $days) {
+            if (!in_array($key, $earnedKeys) && $user->current_streak >= $days) {
+                $this->awardBadgeByKey($user, $key);
             }
         }
     }
@@ -196,7 +313,7 @@ class GamificationService
         return [
             'total_points' => $user->total_points,
             'current_streak' => $user->current_streak,
-            'badges_earned' => $user->badges()->count(),
+            'badges_earned' => $user->earnedBadgeKeys()->count(),
             'rank' => $this->getUserRank($user),
         ];
     }

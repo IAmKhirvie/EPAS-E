@@ -67,7 +67,6 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\TrashController;
 use App\Http\Controllers\CredentialsController;
-use App\Http\Controllers\BadgeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -420,8 +419,6 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::post('/private/students/{student}/remove-from-class', [UserController::class, 'removeFromClass'])->name('private.students.remove-from-class');
 
         // Credential issuance from user management
-        Route::post('/private/users/{user}/award-badge', [BadgeController::class, 'awardToUser'])->name('private.users.award-badge');
-        Route::delete('/private/users/{user}/revoke-badge/{badge}', [BadgeController::class, 'revokeFromUser'])->name('private.users.revoke-badge');
         Route::post('/private/users/{user}/issue-certificate', [CertificateController::class, 'issueCertificateForUser'])->name('private.users.issue-certificate');
 
         // Registration Management (approve/reject pending registrations)
@@ -849,14 +846,6 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::get('/{certificate}', [CertificateController::class, 'show'])->name('show');
         Route::get('/{certificate}/download', [CertificateController::class, 'download'])->name('download');
         Route::post('/course/{course}/generate', [CertificateController::class, 'generate'])->name('generate');
-    });
-
-    // Admin Badge Management
-    Route::prefix('admin/badges')->name('admin.badges.')->middleware('check.role:admin')->group(function () {
-        Route::get('/', [BadgeController::class, 'index'])->name('index');
-        Route::post('/', [BadgeController::class, 'store'])->name('store');
-        Route::put('/{badge}', [BadgeController::class, 'update'])->name('update');
-        Route::delete('/{badge}', [BadgeController::class, 'destroy'])->name('destroy');
     });
 
     // Admin Certificate Management

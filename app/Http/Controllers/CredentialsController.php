@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Badge;
 use App\Services\CertificateService;
 use App\Services\GamificationService;
 use Illuminate\Support\Facades\Auth;
@@ -22,17 +21,8 @@ class CredentialsController extends Controller
 
         $certificates = $this->certificateService->getUserCertificates($user);
 
-        $earnedBadges = $user->badges()
-            ->orderByPivot('earned_at', 'desc')
-            ->get();
-
-        $earnedBadgeIds = $earnedBadges->pluck('id')->toArray();
-
-        $unearnedBadges = Badge::active()
-            ->whereNotIn('id', $earnedBadgeIds)
-            ->orderBy('order')
-            ->orderBy('name')
-            ->get();
+        // Hardcoded badge system: just get earned keys
+        $earnedBadgeKeys = $user->earnedBadgeKeys();
 
         $gamificationService = app(GamificationService::class);
         $stats = $gamificationService->getUserStats($user);
@@ -40,8 +30,7 @@ class CredentialsController extends Controller
 
         return view('credentials.index', compact(
             'certificates',
-            'earnedBadges',
-            'unearnedBadges',
+            'earnedBadgeKeys',
             'stats',
             'leaderboard'
         ));

@@ -64,8 +64,8 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="badges-tab" data-bs-toggle="tab" data-bs-target="#badges" type="button" role="tab">
                 <i class="fas fa-award me-1"></i> Badges
-                @if($earnedBadges->count() > 0)
-                <span class="badge bg-primary ms-1">{{ $earnedBadges->count() }}</span>
+                @if(count($earnedBadgeKeys) > 0)
+                <span class="badge bg-primary ms-1">{{ count($earnedBadgeKeys) }}</span>
                 @endif
             </button>
         </li>
@@ -98,40 +98,25 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center mb-3">
                                 <div class="certificate-icon me-3">
-                                    <i class="fas fa-award fa-2x text-warning"></i>
+                                    <i class="fas fa-certificate fa-2x text-primary"></i>
                                 </div>
-                                <div>
-                                    <h5 class="card-title mb-0">{{ $certificate->course->name ?? $certificate->title ?? 'Certificate' }}</h5>
-                                    <small class="text-muted">{{ $certificate->certificate_number }}</small>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ $certificate->course->course_name }}</h6>
+                                    <small class="text-muted">Issued {{ $certificate->issue_date->format('M d, Y') }}</small>
                                 </div>
                             </div>
-
-                            <div class="mb-3">
-                                <span class="badge bg-{{ $certificate->status === 'issued' ? 'success' : ($certificate->status === 'pending' ? 'warning' : 'secondary') }}">
-                                    {{ ucfirst(str_replace('_', ' ', $certificate->status)) }}
-                                </span>
-                            </div>
-
-                            @if($certificate->issue_date)
-                            <p class="text-muted small mb-2">
-                                <i class="fas fa-calendar me-1"></i>
-                                Issued: {{ $certificate->issue_date->format('M d, Y') }}
-                            </p>
-                            @endif
-                        </div>
-
-                        @if($certificate->status === 'issued')
-                        <div class="card-footer bg-transparent border-0">
-                            <div class="d-flex gap-2">
-                                <a href="{{ route('certificates.show', $certificate) }}" class="btn btn-sm btn-outline-primary flex-fill">
-                                    <i class="fas fa-eye me-1"></i> View
-                                </a>
-                                <a href="{{ route('certificates.download', $certificate) }}" class="btn btn-sm btn-primary flex-fill">
-                                    <i class="fas fa-download me-1"></i> Download
-                                </a>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">{{ $certificate->certificate_number }}</small>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ route('certificates.view', $certificate) }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                                        <i class="fas fa-eye me-1"></i> View
+                                    </a>
+                                    <a href="{{ route('certificates.download', $certificate) }}" class="btn btn-outline-success btn-sm">
+                                        <i class="fas fa-download me-1"></i> PDF
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                        @endif
                     </div>
                 </div>
                 @endforeach
@@ -216,33 +201,34 @@
 
         {{-- Badges Tab --}}
         <div class="tab-pane fade" id="badges" role="tabpanel">
-            @if($earnedBadges->isEmpty() && $unearnedBadges->isEmpty())
-            <div class="card">
-                <div class="card-body text-center py-5">
-                    <i class="fas fa-award fa-4x text-muted mb-3"></i>
-                    <h5>No Badges Available</h5>
-                    <p class="text-muted">Badges will appear here as they become available.</p>
-                </div>
-            </div>
-            @else
+            @php
+                $allBadges = \App\Services\GamificationService::getAllBadges();
+            @endphp
+
             {{-- Earned Badges --}}
-            @if($earnedBadges->isNotEmpty())
+            @php
+                $earned = array_intersect_key($allBadges, array_flip($earnedBadgeKeys));
+            @endphp
+            @if(count($earned) > 0)
             <h6 class="text-muted mb-3">
-                <i class="fas fa-check-circle text-success me-1"></i> Earned ({{ $earnedBadges->count() }})
+                <i class="fas fa-check-circle text-success me-1"></i> Earned ({{ count($earned) }})
             </h6>
             <div class="row mb-4">
-                @foreach($earnedBadges as $badge)
+                @foreach($earned as $key => $badge)
+                @php
+                    $userBadge = $user->earnedBadges()->where('badge_key', $key)->first();
+                    $earnedDate = $userBadge ? $userBadge->earned_at->format('M d, Y') : 'Earned';
+                @endphp
                 <div class="col-6 col-md-4 col-lg-3 mb-3">
                     <div class="card h-100 border-0 shadow-sm badge-card badge-earned">
                         <div class="card-body text-center py-4">
-                            <div class="badge-icon-wrapper mb-3" style="color: {{ $badge->color ?? '#ffc107' }};">
-                                <i class="{{ $badge->icon ?? 'fas fa-medal' }} fa-3x"></i>
+                            <div class="badge-icon-wrapper mb-3" style="color: #ffc107;">
+                                <i class="{{ $badge['icon'] }} fa-3x"></i>
                             </div>
-                            <h6 class="card-title mb-1">{{ $badge->name }}</h6>
-                            <p class="text-muted small mb-2">{{ $badge->description }}</p>
+                            <h6 class="card-title mb-1">{{ $badge['name'] }}</h6>
+                            <p class="text-muted small mb-2">{{ $badge['description'] }}</p>
                             <span class="badge bg-success">
-                                <i class="fas fa-check me-1"></i>
-                                {{ $badge->pivot->earned_at ? $badge->pivot->earned_at->format('M d, Y') : 'Earned' }}
+                                <i class="fas fa-check me-1"></i> {{ $earnedDate }}
                             </span>
                         </div>
                     </div>
@@ -251,21 +237,24 @@
             </div>
             @endif
 
-            {{-- Unearned Badges --}}
-            @if($unearnedBadges->isNotEmpty())
+            {{-- Locked Badges --}}
+            @php
+                $locked = array_diff_key($allBadges, array_flip($earnedBadgeKeys));
+            @endphp
+            @if(count($locked) > 0)
             <h6 class="text-muted mb-3">
-                <i class="fas fa-lock text-secondary me-1"></i> Locked ({{ $unearnedBadges->count() }})
+                <i class="fas fa-lock text-secondary me-1"></i> Locked ({{ count($locked) }})
             </h6>
             <div class="row">
-                @foreach($unearnedBadges as $badge)
+                @foreach($locked as $key => $badge)
                 <div class="col-6 col-md-4 col-lg-3 mb-3">
                     <div class="card h-100 border-0 shadow-sm badge-card badge-locked">
                         <div class="card-body text-center py-4">
                             <div class="badge-icon-wrapper mb-3 text-muted" style="opacity: 0.4;">
-                                <i class="{{ $badge->icon ?? 'fas fa-medal' }} fa-3x"></i>
+                                <i class="{{ $badge['icon'] }} fa-3x"></i>
                             </div>
-                            <h6 class="card-title mb-1 text-muted">{{ $badge->name }}</h6>
-                            <p class="text-muted small mb-2">{{ $badge->description }}</p>
+                            <h6 class="card-title mb-1 text-muted">{{ $badge['name'] }}</h6>
+                            <p class="text-muted small mb-2">{{ $badge['description'] }}</p>
                             <span class="badge bg-secondary">
                                 <i class="fas fa-lock me-1"></i> Locked
                             </span>
@@ -274,7 +263,6 @@
                 </div>
                 @endforeach
             </div>
-            @endif
             @endif
         </div>
     </div>

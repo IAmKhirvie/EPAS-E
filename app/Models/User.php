@@ -123,11 +123,17 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsTo(Department::class);
     }
 
-    public function badges(): BelongsToMany
+    public function earnedBadges(): HasMany
     {
-        return $this->belongsToMany(Badge::class, 'user_badges')
-            ->withPivot('earned_at', 'metadata')
-            ->withTimestamps();
+        return $this->hasMany(UserBadge::class)->orderByDesc('earned_at');
+    }
+
+    /**
+     * Get array of earned badge keys.
+     */
+    public function earnedBadgeKeys(): array
+    {
+        return $this->earnedBadges()->pluck('badge_key')->toArray();
     }
 
     public function points(): HasMany

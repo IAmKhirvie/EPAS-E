@@ -13,7 +13,7 @@ class UserBadge extends Model
 
     protected $fillable = [
         'user_id',
-        'badge_id',
+        'badge_key',
         'earned_at',
         'metadata',
     ];
@@ -28,8 +28,12 @@ class UserBadge extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function badge()
+    public function getBadgeDataAttribute(): array
     {
-        return $this->belongsTo(Badge::class);
+        return GamificationService::getBadge($this->badge_key) ?? [
+            'name' => 'Unknown Badge',
+            'icon' => 'fa-question-circle',
+            'description' => 'A special achievement.',
+        ];
     }
 }
