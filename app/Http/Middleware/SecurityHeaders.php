@@ -16,11 +16,10 @@ class SecurityHeaders
         $response->headers->set('X-Frame-Options', 'DENY');
         $response->headers->set('X-XSS-Protection', '1; mode=block');
 
-        // HSTS with preload directive for production
+        // HSTS only in production — setting this in dev forces browsers to use HTTPS
+        // which causes ERR_TOO_MANY_REDIRECTS on HTTP local servers
         if (config('app.env') === 'production') {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
-        } else {
-            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
 
         // Cache control to prevent back button issues with sensitive data
