@@ -65,7 +65,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.7) 100%);
+        background: color-mix(in srgb, var(--primary-dark) 80%, transparent);
     }
     
     .slide.active {

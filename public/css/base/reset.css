@@ -23,6 +23,7 @@
     --light: #f8f9fa;
     --dark: #212529;
     --gray: #6c757d;
+    
     --light-gray: #d4d4d4;
     --card: white;
     --border-radius: 8px;
@@ -73,7 +74,7 @@
     --primary-light: #6D9773;
     --primary-dark: #0c3a2d;
     --primary-foreground: #6D977340;
-
+    --light: #f8f9fa;
     /* Bootstrap overrides for dark mode */
     --bs-primary: #6D9773;
     --bs-primary-rgb: 109, 151, 115;
@@ -712,7 +713,7 @@ body {
 /* ===== MOBILE RESPONSIVENESS FIXES ===== */
 
 /* Tablet and Mobile devices (< 1032px) */
-@media (max-width: 1032px) {
+ @media (max-width: 1032px) {
   html, body {
     width: 100%;
     height: 100%;
@@ -777,7 +778,7 @@ body {
 }
 
 /* Small mobile devices */
-@media (max-width: 576px) {
+ @media (max-width: 576px) {
   .layout-wrapper {
     margin-top: 4.5rem;
     width: 100%;
@@ -815,7 +816,7 @@ body {
 }
 
 /* Small mobile devices (380px — Redmi 12C, etc.) */
-@media (max-width: 380px) {
+ @media (max-width: 380px) {
   .layout-wrapper {
     margin-top: 3rem; /* Matches reduced navbar height */
     width: 100%;
@@ -823,7 +824,7 @@ body {
 }
 
 /* Extra small devices */
-@media (max-width: 360px) {
+ @media (max-width: 360px) {
   .layout-wrapper {
     margin-top: 3rem;
     width: 100%;
@@ -842,7 +843,7 @@ body {
 }
 
 /* Safe area support for notched phones */
-@supports(padding: max(0px)) {
+ @supports(padding: max(0px)) {
   @media (max-width: 1032px) {
     .main-content {
       padding-left: max(0.25rem, env(safe-area-inset-left));

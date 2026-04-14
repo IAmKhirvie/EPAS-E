@@ -12,6 +12,13 @@ class CheckRole
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         if (!auth()->check()) {
+            // Redirect to the correct login page based on the route
+            if ($request->is('admin/*')) {
+                return redirect()->route('admin.login');
+            }
+            if ($request->is('instructor/*')) {
+                return redirect()->route('instructor.login');
+            }
             return redirect()->route('login');
         }
 

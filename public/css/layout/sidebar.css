@@ -237,7 +237,7 @@ html, body {
    SIDEBAR SECTIONS
    ============================================ */
 .sidebar-section {
-    padding: 0.25rem 0;
+    /* padding: 0.25rem 0; */
 }
 
 .sidebar-section:last-child {

@@ -68,7 +68,7 @@
 
 /* Content Sections */
 .content-section {
-    background: var(--card-bg);
+    background: #ffffff;
     border-radius: var(--border-radius);
     padding: 2rem;
     box-shadow: var(--shadow);

@@ -37,8 +37,8 @@
     max-height: calc(100vh - 90px);
     overflow-y: auto;
     background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 0 10px 10px 0;
+    /* box-shadow: 0 2px 8px rgba(0,0,0,0.1); */
     padding: 1rem;
 }
 

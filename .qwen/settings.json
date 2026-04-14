@@ -11,7 +11,12 @@
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git push)",
-      "Bash(taskkill *)"
+      "Bash(taskkill *)",
+      "Bash(findstr *)",
+      "Bash(icacls *)",
+      "Bash(echo *)",
+      "Bash(permissions *)",
+      "Bash(.)"
     ]
   },
   "$version": 3

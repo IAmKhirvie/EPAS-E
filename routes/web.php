@@ -840,6 +840,14 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
     // Student Credentials (unified badges + certificates view)
     Route::get('/credentials', [CredentialsController::class, 'index'])->name('credentials.index');
 
+    // Badges management (placeholder – replace with actual controller later)
+    Route::prefix('admin/badges')->name('admin.badges.')->middleware('check.role:admin')->group(function () {
+        Route::get('/', function () {
+            // Redirect to certificates page until badges are implemented
+            return redirect()->route('admin.certificates.index');
+        })->name('index');
+    });
+
     // Certificates
     Route::prefix('certificates')->name('certificates.')->group(function () {
         Route::get('/', [CertificateController::class, 'index'])->name('index');
