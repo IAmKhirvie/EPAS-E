@@ -23,6 +23,7 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 *.docx
+!docs/*.docx
 *.lnk
 *.sql
 npm-debug.log
