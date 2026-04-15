@@ -4,10 +4,13 @@
 
 @section('content')
 <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="mb-0"><i class="fas fa-certificate text-primary me-2"></i>Certificate Management</h4>
-        <div>
-            <a href="{{ route('admin.certificates.pending') }}" class="btn btn-warning btn-sm me-2">
+    <div class="page-header">
+        <div class="page-header-left">
+            <h1><i class="fas fa-certificate me-2"></i>Certificate Management</h1>
+            <p>Manage and release student certificates</p>
+        </div>
+        <div class="page-header-actions">
+            <a href="{{ route('admin.certificates.pending') }}" class="btn btn-warning btn-sm">
                 <i class="fas fa-clock me-1"></i> Pending Approvals
             </a>
             <a href="{{ route('admin.certificates.manual-release') }}" class="btn btn-primary btn-sm">

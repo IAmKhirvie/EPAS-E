@@ -6,8 +6,12 @@
 <div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col-12">
-            <h1 class="h3 mb-0">My Certificates</h1>
-            <p class="text-muted">View and download your earned certificates</p>
+            <div class="page-header" style="margin-bottom:0;">
+                <div class="page-header-left">
+                    <h1><i class="fas fa-certificate me-2"></i>My Certificates</h1>
+                    <p>View and download your earned certificates</p>
+                </div>
+            </div>
         </div>
     </div>
 

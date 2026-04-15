@@ -3,12 +3,15 @@
 @section('title', 'Content Management - EPAS-E')
 
 @section('content')
-<div class="content-area">
+<div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 mb-0">Content Management</h1>
-                <div>
+            <div class="page-header">
+                <div class="page-header-left">
+                    <h1><i class="fas fa-cubes me-2"></i>Content Management</h1>
+                    <p>Manage courses, modules, and learning materials</p>
+                </div>
+                <div class="page-header-actions">
                     <a href="{{ route('courses.create') }}" class="btn btn-primary">
                         <i class="fas fa-plus me-2"></i>Create Course
                     </a>

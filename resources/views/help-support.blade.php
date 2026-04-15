@@ -1,62 +1,44 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid py-5">
-    <div class="row mb-4">
-        <div class="col-12">
-            <a href="{{ url()->previous() }}" class="btn btn-outline-secondary btn-sm mb-3">
+<div class="container-fluid py-4">
+    <div class="page-header">
+        <div class="page-header-left">
+            <h1><i class="fas fa-question-circle me-2"></i>Help & Support</h1>
+            <p>Find answers to common questions and get help using the system</p>
+        </div>
+        <div class="page-header-actions">
+            <a href="{{ url()->previous() }}" class="btn btn-outline-secondary btn-sm">
                 <i class="fas fa-arrow-left me-1"></i>Back
             </a>
-            <h1 class="h3 mb-0">Help & Support</h1>
-            <p class="text-muted">Find answers to common questions and get help using the system</p>
         </div>
     </div>
 
-    <!-- Quick Links -->
-    <div class="row mb-4">
-        <div class="col-md-3 col-6 mb-3">
-            <div class="card border-0 shadow-sm h-100 text-center">
-                <div class="card-body py-4">
-                    <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                        <i class="fas fa-book text-primary fa-lg"></i>
-                    </div>
-                    <h6 class="mb-1">Getting Started</h6>
-                    <small class="text-muted">Learn the basics</small>
-                </div>
-            </div>
+    {{-- Quick Links --}}
+    <div class="page-stat-cards">
+        <div class="page-stat-card green">
+            <div class="stat-decor"></div>
+            <div class="stat-icon"><i class="fas fa-book"></i></div>
+            <div class="stat-value" style="font-size:1.1rem;">Getting Started</div>
+            <div class="stat-label">Learn the basics</div>
         </div>
-        <div class="col-md-3 col-6 mb-3">
-            <div class="card border-0 shadow-sm h-100 text-center">
-                <div class="card-body py-4">
-                    <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                        <i class="fas fa-graduation-cap text-success fa-lg"></i>
-                    </div>
-                    <h6 class="mb-1">Courses</h6>
-                    <small class="text-muted">How to take courses</small>
-                </div>
-            </div>
+        <div class="page-stat-card emerald">
+            <div class="stat-decor"></div>
+            <div class="stat-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div class="stat-value" style="font-size:1.1rem;">Courses</div>
+            <div class="stat-label">How to take courses</div>
         </div>
-        <div class="col-md-3 col-6 mb-3">
-            <div class="card border-0 shadow-sm h-100 text-center">
-                <div class="card-body py-4">
-                    <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                        <i class="fas fa-tasks text-warning fa-lg"></i>
-                    </div>
-                    <h6 class="mb-1">Assignments</h6>
-                    <small class="text-muted">Submit your work</small>
-                </div>
-            </div>
+        <div class="page-stat-card orange">
+            <div class="stat-decor"></div>
+            <div class="stat-icon"><i class="fas fa-tasks"></i></div>
+            <div class="stat-value" style="font-size:1.1rem;">Assignments</div>
+            <div class="stat-label">Submit your work</div>
         </div>
-        <div class="col-md-3 col-6 mb-3">
-            <div class="card border-0 shadow-sm h-100 text-center">
-                <div class="card-body py-4">
-                    <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                        <i class="fas fa-cog text-info fa-lg"></i>
-                    </div>
-                    <h6 class="mb-1">Account</h6>
-                    <small class="text-muted">Manage settings</small>
-                </div>
-            </div>
+        <div class="page-stat-card blue">
+            <div class="stat-decor"></div>
+            <div class="stat-icon"><i class="fas fa-cog"></i></div>
+            <div class="stat-value" style="font-size:1.1rem;">Account</div>
+            <div class="stat-label">Manage settings</div>
         </div>
     </div>
 

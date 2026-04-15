@@ -4,50 +4,39 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h3 mb-0">My Credentials</h1>
-            <p class="text-muted">View your earned certificates, badges, and achievements</p>
+    {{-- Header --}}
+    <div class="page-header">
+        <div class="page-header-left">
+            <h1><i class="fas fa-award me-2"></i>My Credentials</h1>
+            <p>View your earned certificates, badges, and achievements</p>
         </div>
     </div>
 
     {{-- Stats Summary --}}
-    <div class="row mb-4">
-        <div class="col-6 col-md-3 mb-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-star fa-2x text-warning mb-2"></i>
-                    <h4 class="mb-0">{{ number_format($stats['total_points']) }}</h4>
-                    <small class="text-muted">Total Points</small>
-                </div>
-            </div>
+    <div class="page-stat-cards">
+        <div class="page-stat-card orange">
+            <div class="stat-decor"></div>
+            <div class="stat-icon"><i class="fas fa-star"></i></div>
+            <div class="stat-value">{{ number_format($stats['total_points']) }}</div>
+            <div class="stat-label">Total Points</div>
         </div>
-        <div class="col-6 col-md-3 mb-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-fire fa-2x text-danger mb-2"></i>
-                    <h4 class="mb-0">{{ $stats['current_streak'] }}</h4>
-                    <small class="text-muted">Day Streak</small>
-                </div>
-            </div>
+        <div class="page-stat-card red">
+            <div class="stat-decor"></div>
+            <div class="stat-icon"><i class="fas fa-fire"></i></div>
+            <div class="stat-value">{{ $stats['current_streak'] }}</div>
+            <div class="stat-label">Day Streak</div>
         </div>
-        <div class="col-6 col-md-3 mb-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-award fa-2x text-primary mb-2"></i>
-                    <h4 class="mb-0">{{ $stats['badges_earned'] }}</h4>
-                    <small class="text-muted">Badges Earned</small>
-                </div>
-            </div>
+        <div class="page-stat-card blue">
+            <div class="stat-decor"></div>
+            <div class="stat-icon"><i class="fas fa-award"></i></div>
+            <div class="stat-value">{{ $stats['badges_earned'] }}</div>
+            <div class="stat-label">Badges Earned</div>
         </div>
-        <div class="col-6 col-md-3 mb-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-trophy fa-2x text-success mb-2"></i>
-                    <h4 class="mb-0">#{{ $stats['rank'] }}</h4>
-                    <small class="text-muted">Rank</small>
-                </div>
-            </div>
+        <div class="page-stat-card emerald">
+            <div class="stat-decor"></div>
+            <div class="stat-icon"><i class="fas fa-trophy"></i></div>
+            <div class="stat-value">#{{ $stats['rank'] }}</div>
+            <div class="stat-label">Rank</div>
         </div>
     </div>
 

@@ -87,13 +87,15 @@
   });
 
   // ── Intercept AJAX errors globally (jQuery) ──
-  $(document).ajaxError(function(event, jqXHR, settings, error) {
-    if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
-        console.error('[AJAX Error]', jqXHR.responseJSON.message);
-    } else {
-        console.error('[AJAX Error]', error);
-    }
-  });
+  if (typeof $ !== 'undefined') {
+    $(document).ajaxError(function(event, jqXHR, settings, error) {
+      if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+          console.error('[AJAX Error]', jqXHR.responseJSON.message);
+      } else {
+          console.error('[AJAX Error]', error);
+      }
+    });
+  }
 
   if (typeof $ !== 'undefined' && $.ajaxSetup) {
     var csrfMeta = document.querySelector('meta[name="csrf-token"]');

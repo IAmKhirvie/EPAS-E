@@ -481,6 +481,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     </p>
                 </div>
             `;
+        } else if (content.type === 'sheet' || content.type === 'overview') {
+            // Title slide — styled like a presentation title page
+            const sheetNum = content.type === 'sheet' ? (content.title.match(/Info Sheet [\d.]+/) || [''])[0] : '';
+            const sheetTitle = content.type === 'sheet' ? content.title.replace(/Info Sheet [\d.]+:\s*/, '') : content.title;
+            const subtitle = content.content ? content.content.replace(/<[^>]*>/g, '').trim() : '';
+
+            bodyHtml = '<div class="focus-title-slide">' +
+                (sheetNum ? '<div class="focus-title-badge">' + sheetNum + '</div>' : '') +
+                '<h1 class="focus-title-heading">' + sheetTitle + '</h1>' +
+                (subtitle && subtitle !== sheetTitle ? '<p class="focus-title-subtitle">' + subtitle + '</p>' : '') +
+                '<div class="focus-title-divider"></div>' +
+                '<p class="focus-title-hint"><i class="fas fa-arrow-right me-2"></i>Press Next to begin</p>' +
+                '</div>';
         } else {
             if (content.content) {
                 const tempDiv = document.createElement('div');
@@ -502,33 +515,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (content.parts && content.parts.length > 0) {
                 content.parts.forEach(function (part, idx) {
-                    let partImageHtml = '';
-                    if (part.image) {
-                        partImageHtml = '<div class="part-image mb-3">' +
-                            '<img src="' + part.image + '" alt="' + (part.title || 'Part ' + (idx + 1)) + '" class="img-fluid rounded" style="max-height: 300px;">' +
-                            '</div>';
-                    }
-                    // Preserve HTML formatting in explanation (bold, italic, etc.)
+                    // Don't render part image inline — it shows in the side panel
                     let explanationHtml = part.explanation || '';
-                    // Only add line breaks if content doesn't contain HTML tags
                     if (!/<[a-z][\s\S]*>/i.test(explanationHtml)) {
                         explanationHtml = explanationHtml.replace(/\n/g, '<br>');
                     }
-                    bodyHtml += '<div class="part-section mb-4 p-3 bg-light rounded">' +
-                        '<h5><span class="badge bg-primary me-2">' + (idx + 1) + '</span>' + (part.title || '') + '</h5>' +
-                        partImageHtml +
-                        '<div class="part-explanation">' + explanationHtml + '</div>' +
+                    bodyHtml += '<div class="part-section focus-part">' +
+                        '<h3 class="focus-part-title">' + (part.title || '') + '</h3>' +
+                        '<div class="focus-part-explanation">' + explanationHtml + '</div>' +
                         '</div>';
                 });
             }
 
-            // Add scroll indicator at the bottom
-            bodyHtml += '<div class="scroll-end-marker" id="scrollEndMarker">' +
-                '<i class="fas fa-check-circle"></i> End of section' +
-                '</div>';
+            // No scroll marker needed — content auto-fits to viewport
         }
 
         document.getElementById('focusContentBody').innerHTML = bodyHtml || '<p class="text-muted">No content available for this section.</p>';
+
+        // Auto-scale font to fit content in viewport without scrolling
+        // Range: 1rem (min) to 2rem (max), default 1.5rem
+        autoFitFontSize();
 
         // Scroll content panel to top and check if scrolling is needed
         const contentPanel = document.querySelector('.focus-content-panel');
@@ -556,6 +562,60 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!isActivity) {
             setupScrollTracking();
         }
+    }
+
+    // Re-fit on resize (device rotation, window resize)
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            if (focusModeContainer.classList.contains('active')) {
+                autoFitFontSize();
+            }
+        }, 200);
+    });
+
+    function autoFitFontSize() {
+        const panel = document.querySelector('.focus-content-panel');
+        const body = document.getElementById('focusContentBody');
+        if (!panel || !body) return;
+
+        const maxRem = 2;
+        const minRem = 1;
+        const defaultRem = 1.5;
+        let currentRem = defaultRem;
+
+        // Get root font size for rem calculation
+        const rootSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+
+        body.style.fontSize = currentRem + 'rem';
+
+        // Wait a frame for layout to settle
+        requestAnimationFrame(function() {
+            // If content overflows, shrink until it fits or hits minimum
+            while (panel.scrollHeight > panel.clientHeight + 5 && currentRem > minRem) {
+                currentRem -= 0.05;
+                body.style.fontSize = currentRem + 'rem';
+            }
+
+            // If there's lots of free space and we're below max, grow
+            if (panel.scrollHeight <= panel.clientHeight - 100 && currentRem < maxRem) {
+                while (panel.scrollHeight <= panel.clientHeight - 50 && currentRem < maxRem) {
+                    currentRem += 0.05;
+                    body.style.fontSize = currentRem + 'rem';
+                }
+                // Step back one if we overflowed
+                if (panel.scrollHeight > panel.clientHeight + 5) {
+                    currentRem -= 0.05;
+                    body.style.fontSize = currentRem + 'rem';
+                }
+            }
+
+            // Mark section complete since everything fits on screen
+            currentSectionScrolled = true;
+            markCurrentSectionComplete();
+            updateNextButtonState();
+        });
     }
 
     function updateFocusImage(content) {

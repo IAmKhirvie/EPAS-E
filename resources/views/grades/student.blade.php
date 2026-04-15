@@ -34,36 +34,34 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h3 mb-1">
-                        <i class="fas fa-graduation-cap me-2"></i>
-                        @if(Auth::user()->id !== $student->id)
-                            {{ $student->full_name }}'s Grades
-                        @else
-                            My Grades
-                        @endif
-                    </h1>
-                    @if($student->student_id)
-                        <p class="text-muted mb-0">Student ID: {{ $student->student_id }} | Section: {{ $student->section ?? 'N/A' }}</p>
-                    @endif
-                </div>
+    {{-- Header --}}
+    <div class="page-header">
+        <div class="page-header-left">
+            <h1>
+                <i class="fas fa-graduation-cap me-2"></i>
                 @if(Auth::user()->id !== $student->id)
-                    <a href="{{ route('grades.index') }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-1"></i>Back to Student List
-                    </a>
+                    {{ $student->full_name }}'s Grades
+                @else
+                    My Grades
                 @endif
-            </div>
+            </h1>
+            @if($student->student_id)
+                <p>Student ID: {{ $student->student_id }} | Section: {{ $student->section ?? 'N/A' }}</p>
+            @endif
         </div>
+        @if(Auth::user()->id !== $student->id)
+        <div class="page-header-actions">
+            <a href="{{ route('grades.index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Student List
+            </a>
+        </div>
+        @endif
     </div>
 
     <!-- Overall Grade Summary with Chart -->
     <div class="row mb-4">
         <div class="col-lg-4 mb-4 mb-lg-0">
-            <div class="card h-100 border-0 shadow-sm">
+            <div class="widget-card" style="margin-bottom:0;height:100%">
                 <div class="card-body text-center">
                     <h6 class="text-muted mb-3">Overall Grade</h6>
                     <div class="grade-ring">
@@ -82,7 +80,7 @@
         </div>
 
         <div class="col-lg-4 mb-4 mb-lg-0">
-            <div class="card h-100 border-0 shadow-sm">
+            <div class="widget-card" style="margin-bottom:0;height:100%">
                 <div class="card-body">
                     <h6 class="text-muted mb-3">Progress Overview</h6>
                     <div class="d-flex justify-content-between mb-2">
@@ -110,7 +108,7 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="card h-100 border-0 shadow-sm">
+            <div class="widget-card" style="margin-bottom:0;height:100%">
                 <div class="card-body">
                     <h6 class="text-muted mb-3">Philippine K-12 Grading Scale</h6>
                     <div class="grade-scale-item">
@@ -146,8 +144,8 @@
     <!-- Performance by Category Chart -->
     <div class="row mb-4">
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <div class="widget-card">
+                <div class="widget-card-header">
                     <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Performance by Category</h6>
                     <small class="text-muted">Click a dot to view the activity</small>
                 </div>
@@ -157,8 +155,8 @@
             </div>
         </div>
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white">
+            <div class="widget-card" style="margin-bottom:0;height:100%">
+                <div class="widget-card-header">
                     <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Activity Distribution</h6>
                 </div>
                 <div class="card-body d-flex align-items-center justify-content-center">
@@ -171,8 +169,8 @@
     <!-- Grades by Module -->
     @forelse($gradesData as $moduleData)
         @if($moduleData['total_count'] > 0)
-        <div class="card mb-4 border-0 shadow-sm">
-            <div class="card-header bg-light">
+        <div class="widget-card">
+            <div class="widget-card-header">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="fas fa-book me-2"></i>{{ $moduleData['module']->module_name }}
@@ -194,8 +192,8 @@
                 <div class="mb-4">
                     <h6 class="text-muted mb-3"><i class="fas fa-check-circle me-2"></i>Self-Checks (Quizzes)</h6>
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
+                        <table class="modern-table">
+                            <thead>
                                 <tr>
                                     <th>Title</th>
                                     <th>Information Sheet</th>
@@ -259,8 +257,8 @@
                 <div class="mb-4">
                     <h6 class="text-muted mb-3"><i class="fas fa-book-open me-2"></i>Homeworks</h6>
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
+                        <table class="modern-table">
+                            <thead>
                                 <tr>
                                     <th>Title</th>
                                     <th>Information Sheet</th>
@@ -340,8 +338,8 @@
                 <div class="mb-4">
                     <h6 class="text-muted mb-3"><i class="fas fa-clipboard-list me-2"></i>Task Sheets</h6>
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
+                        <table class="modern-table">
+                            <thead>
                                 <tr>
                                     <th>Title</th>
                                     <th>Information Sheet</th>
@@ -406,8 +404,8 @@
                 <div class="mb-4">
                     <h6 class="text-muted mb-3"><i class="fas fa-hard-hat me-2"></i>Job Sheets</h6>
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
+                        <table class="modern-table">
+                            <thead>
                                 <tr>
                                     <th>Title</th>
                                     <th>Information Sheet</th>
@@ -482,7 +480,7 @@
         </div>
         @endif
     @empty
-        <div class="card border-0 shadow-sm">
+        <div class="widget-card">
             <div class="card-body text-center py-5">
                 <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
                 <h5>No Modules Available</h5>

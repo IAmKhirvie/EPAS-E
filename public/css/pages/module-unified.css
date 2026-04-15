@@ -509,7 +509,7 @@ body.focus-mode-active .main-content-section {
 .focus-mode-body {
     display: flex;
     margin-top: 60px;
-    height: calc(100vh - 60px);
+    height: calc(100vh - 60px - 70px); /* header 60px + nav 70px */
 }
 
 .focus-image-panel {
@@ -519,8 +519,9 @@ body.focus-mode-active .main-content-section {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 30px;
-    overflow-y: auto;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
 }
 
 .focus-image-panel .no-image {
@@ -534,11 +535,10 @@ body.focus-mode-active .main-content-section {
 }
 
 .focus-image-panel img {
-    max-width: 100%;
-    max-height: 80vh;
-    object-fit: contain;
-    border-radius: 10px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
 }
 
 .focus-image-panel .image-caption {
@@ -578,8 +578,10 @@ body.focus-mode-active .main-content-section {
 .focus-content-panel {
     width: 60%;
     background: #fff;
-    padding: 40px 60px;
+    padding: 30px 40px;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .focus-content-panel h2 {
@@ -601,21 +603,34 @@ body.focus-mode-active .main-content-section {
 
 .focus-nav {
     position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
     display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 15px;
     z-index: 10002;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 0 20px;
+}
+
+.dark-mode .focus-nav {
+    background: rgba(26, 26, 26, 0.95);
+    border-top-color: rgba(255, 255, 255, 0.1);
 }
 
 .focus-nav button {
-    padding: 12px 30px;
+    padding: 10px 28px;
     border: none;
     border-radius: 25px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
+    font-size: 0.9rem;
 }
 
 .focus-nav .btn-prev,
@@ -716,18 +731,20 @@ body.focus-mode-active .main-content-section {
 
     .focus-image-panel {
         width: 100%;
-        height: 40vh;
-        padding: 20px;
+        height: 35%;
+        padding: 0;
     }
 
     .focus-content-panel {
         width: 100%;
-        height: 60vh;
-        padding: 20px 30px;
+        height: 65%;
+        padding: 15px 20px;
     }
 
     .focus-image-panel img {
-        max-height: 35vh;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 }
 
@@ -971,6 +988,104 @@ body.focus-mode-active .main-content-section {
 .focus-content-panel .part-section h5 {
     color: #333;
     font-weight: 600;
+}
+
+/* Focus title slide — presentation-style title page */
+.focus-title-slide {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex: 1;
+    min-height: 100%;
+    padding: 2rem;
+}
+
+.focus-title-badge {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    background: linear-gradient(135deg, var(--theme-gradient-start, #20c997) 0%, var(--theme-gradient-end, #198754) 100%);
+    color: white;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+}
+
+.focus-title-heading {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    color: var(--text-primary, #1a1a1a);
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    max-width: 600px;
+}
+
+.focus-title-subtitle {
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    color: var(--text-muted, #888);
+    max-width: 500px;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.focus-title-divider {
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(135deg, var(--theme-gradient-start, #20c997) 0%, var(--theme-gradient-end, #198754) 100%);
+    border-radius: 2px;
+    margin-bottom: 1.5rem;
+}
+
+.focus-title-hint {
+    font-size: 0.85rem;
+    color: var(--text-muted, #aaa);
+    opacity: 0.7;
+    margin: 0;
+}
+
+.dark-mode .focus-title-heading {
+    color: #f0f0f0;
+}
+
+.dark-mode .focus-title-subtitle {
+    color: #aaa;
+}
+
+/* Focus part slides — image on side, text fills content panel */
+.focus-content-panel .focus-part {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 60%;
+    padding: 2rem 0;
+    border: none;
+    background: none;
+}
+
+.focus-content-panel .focus-part-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-primary, #1a1a1a);
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.focus-content-panel .focus-part-explanation {
+    font-size: inherit;
+    line-height: 1.8;
+    color: var(--text-secondary, #444);
+}
+
+.dark-mode .focus-content-panel .focus-part-title {
+    color: #f0f0f0;
+}
+
+.dark-mode .focus-content-panel .focus-part-explanation {
+    color: #c0c0c0;
 }
 
 /* Focus mode dark mode */

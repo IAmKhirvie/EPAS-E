@@ -56,6 +56,7 @@
     <link rel="stylesheet" href="{{ dynamic_asset('css/pages/modules.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('css/pages/users.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('css/pages/index.css')}}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/common-page.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('css/pages/dashboard.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('css/pages/grades.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('css/pages/analytics.css') }}">
