@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php --version)",
+      "Bash(composer --version)",
+      "Bash(npm --version)",
+      "Bash(php artisan:*)",
+      "Bash(npm run:*)",
+      "Bash(where mysqldump:*)",
+      "Read(//c/xampp/mysql/bin/**)",
+      "Read(//c/wamp64/bin/**)",
+      "Read(//c/laragon/bin/**)",
+      "Read(//c/Program Files/**)"
+    ]
+  }
+}
