@@ -238,22 +238,12 @@ This module consists of five (5) learning outcomes. Learning outcomes contain le
                 ['question_text' => 'It is a process of splitting atoms into smaller atoms that release heat and radiation', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Fission', 'order' => 12],
                 ['question_text' => 'If the Electrons on the last orbit/shell is not stable, it is also called ___', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Free electron', 'order' => 13],
                 ['question_text' => 'It is an electronic device that converts AC to DC', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Rectifier', 'order' => 14],
-                ['question_text' => 'Give the 3 parts of an Atom (Part 1)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Proton', 'order' => 15],
-                ['question_text' => 'Give the 3 parts of an Atom (Part 2)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Neutron', 'order' => 16],
-                ['question_text' => 'Give the 3 parts of an Atom (Part 3)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Electron', 'order' => 17],
-                ['question_text' => 'Give the 3 types of Materials (Type 1)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Conductor', 'order' => 18],
-                ['question_text' => 'Give the 3 types of Materials (Type 2)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Insulator', 'order' => 19],
-                ['question_text' => 'Give the 3 types of Materials (Type 3)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Semiconductor', 'order' => 20],
-                ['question_text' => 'Give the 2 categories of current (Category 1, complete name)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Direct Current', 'order' => 21],
-                ['question_text' => 'Give the 2 categories of current (Category 2, complete name)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Alternating Current', 'order' => 22],
-                ['question_text' => 'Give at least 4 Sources of Electricity (Source 1)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Solar', 'order' => 23],
-                ['question_text' => 'Give at least 4 Sources of Electricity (Source 2)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Hydropower', 'order' => 24],
-                ['question_text' => 'Give at least 4 Sources of Electricity (Source 3)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Nuclear', 'order' => 25],
-                ['question_text' => 'Give at least 4 Sources of Electricity (Source 4)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Geothermal', 'order' => 26],
-                ['question_text' => 'Give the 2 advantages of AC (Advantage 1)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Easy to produce', 'order' => 27],
-                ['question_text' => 'Give the 2 advantages of AC (Advantage 2)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Easy to amplify', 'order' => 28],
-                ['question_text' => 'Give the 2 advantages of DC (Advantage 1)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Stable', 'order' => 29],
-                ['question_text' => 'Give the 2 advantages of DC (Advantage 2)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Can be stored', 'order' => 30],
+                ['question_text' => 'Give the 3 parts of an Atom', 'question_type' => 'enumeration', 'points' => 3, 'correct_answer' => 'Proton,Neutron,Electron', 'order' => 15],
+                ['question_text' => 'Give the 3 types of Materials', 'question_type' => 'enumeration', 'points' => 3, 'correct_answer' => 'Conductor,Insulator,Semiconductor', 'order' => 16],
+                ['question_text' => 'Give the 2 categories of current (complete name)', 'question_type' => 'enumeration', 'points' => 2, 'correct_answer' => 'Direct Current,Alternating Current', 'order' => 17],
+                ['question_text' => 'Give at least 4 Sources of Electricity', 'question_type' => 'enumeration', 'points' => 4, 'correct_answer' => 'Solar,Hydropower,Nuclear,Geothermal,Wind,Biomass', 'order' => 18],
+                ['question_text' => 'Give the 2 advantages of AC', 'question_type' => 'enumeration', 'points' => 2, 'correct_answer' => 'Easy to produce,Easy to amplify', 'order' => 19],
+                ['question_text' => 'Give the 2 advantages of DC', 'question_type' => 'enumeration', 'points' => 2, 'correct_answer' => 'Stable,Can be stored', 'order' => 20],
             ]);
 
             // ╔══════════════════════════════════════════════════╗
@@ -362,11 +352,11 @@ This module consists of five (5) learning outcomes. Learning outcomes contain le
             ]);
 
             $this->createSelfCheckQuestions($sc121, [
-                ['question_text' => 'It is an electronic device that resists, limits or opposes the amount of current in a circuit:', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'Resistor', 'options' => ['Resistor', 'Capacitor', 'Diode', 'None of the above'], 'order' => 1],
-                ['question_text' => 'A kind of resistor that can vary the resistance:', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'Variable resistor', 'options' => ['Fixed resistor', 'Potentiometer', 'Volume control', 'Variable resistor'], 'order' => 2],
-                ['question_text' => 'A circuit with only one possible path that the electrical current may flow:', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'Series', 'options' => ['Parallel', 'Series', 'Series - Parallel', 'None of the above'], 'order' => 3],
-                ['question_text' => 'The computation of accepted value of resistor\'s resistance from minimum to maximum:', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'Tolerance', 'options' => ['Decoding', 'Conversion', 'Tolerance', 'None of the above'], 'order' => 4],
-                ['question_text' => 'It states that an electrical circuit\'s current is directly proportional to its voltage, and inversely proportional to its resistance:', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'Ohm\'s law', 'options' => ['Fuse law', 'Ohm\'s law', 'Volt\'s law', 'None of the above'], 'order' => 5],
+                ['question_text' => 'It is an electronic device that resists, limits or opposes the amount of current in a circuit:', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'a', 'options' => ['Resistor', 'Capacitor', 'Diode', 'None of the above'], 'order' => 1],
+                ['question_text' => 'A kind of resistor that can vary the resistance:', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'd', 'options' => ['Fixed resistor', 'Potentiometer', 'Volume control', 'Variable resistor'], 'order' => 2],
+                ['question_text' => 'A circuit with only one possible path that the electrical current may flow:', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'b', 'options' => ['Parallel', 'Series', 'Series - Parallel', 'None of the above'], 'order' => 3],
+                ['question_text' => 'The computation of accepted value of resistor\'s resistance from minimum to maximum:', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'c', 'options' => ['Decoding', 'Conversion', 'Tolerance', 'None of the above'], 'order' => 4],
+                ['question_text' => 'It states that an electrical circuit\'s current is directly proportional to its voltage, and inversely proportional to its resistance:', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'b', 'options' => ['Fuse law', 'Ohm\'s law', 'Volt\'s law', 'None of the above'], 'order' => 5],
             ]);
 
             $sc122 = SelfCheck::create([
@@ -532,21 +522,14 @@ This module consists of five (5) learning outcomes. Learning outcomes contain le
                 'instructions' => 'Part 1: Enumeration. Part 2: Write down the condition of each measured component as leaky, shorted, open or good (2 pts. each).',
                 'time_limit' => 15,
                 'passing_score' => 70,
-                'total_points' => 20,
+                'total_points' => 10,
                 'is_active' => true,
             ]);
 
             $this->createSelfCheckQuestions($sc131, [
-                ['question_text' => 'Give at least 4 kinds of diodes (Diode 1)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Rectifier Diode', 'order' => 1],
-                ['question_text' => 'Give at least 4 kinds of diodes (Diode 2)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Signal Diode', 'order' => 2],
-                ['question_text' => 'Give at least 4 kinds of diodes (Diode 3)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Regulator Diode', 'order' => 3],
-                ['question_text' => 'Give at least 4 kinds of diodes (Diode 4)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Light Emitting Diode (LED)', 'order' => 4],
-                ['question_text' => 'Give at least 4 kinds of capacitors (Capacitor 1)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Polystyrene', 'order' => 5],
-                ['question_text' => 'Give at least 4 kinds of capacitors (Capacitor 2)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Mylar', 'order' => 6],
-                ['question_text' => 'Give at least 4 kinds of capacitors (Capacitor 3)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Ceramic', 'order' => 7],
-                ['question_text' => 'Give at least 4 kinds of capacitors (Capacitor 4)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Tantalum', 'order' => 8],
-                ['question_text' => '2 parts of Diode (Part 1)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Anode', 'order' => 9],
-                ['question_text' => '2 parts of Diode (Part 2)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Cathode', 'order' => 10],
+                ['question_text' => 'Give at least 4 kinds of diodes', 'question_type' => 'enumeration', 'points' => 4, 'correct_answer' => 'Rectifier Diode,Signal Diode,Regulator Diode,Temperature Dependent Diode,Light Emitting Diode,Photodiode', 'order' => 1],
+                ['question_text' => 'Give at least 4 kinds of capacitors', 'question_type' => 'enumeration', 'points' => 4, 'correct_answer' => 'Polystyrene,Mylar,Polyethylene,Mica,Tantalum,Ceramic', 'order' => 2],
+                ['question_text' => 'Give the 2 parts of a Diode', 'question_type' => 'enumeration', 'points' => 2, 'correct_answer' => 'Anode,Cathode', 'order' => 3],
             ]);
 
             // ── Sheet 1.3 Task Sheets ──
@@ -685,21 +668,15 @@ This module consists of five (5) learning outcomes. Learning outcomes contain le
             ]);
 
             $this->createSelfCheckQuestions($sc141, [
-                ['question_text' => 'It is a semi conductor device that can be used for amplification, oscillation, rectification and switching', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'Transistor', 'options' => ['Transistor', 'Capacitor', 'Diode', 'None of the above'], 'order' => 1],
-                ['question_text' => 'A type of IC with a rectangular housing and two parallel rows of electrical connecting pin', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'Dual In-line Package (DIP) IC', 'options' => ['Linear IC', 'Dual In-line Package (DIP) IC', 'Surface Mounted Device (SMD) IC', 'None of the above'], 'order' => 2],
-                ['question_text' => 'An electro-magnetic device that is commonly used for step-down of voltage', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'Transformer', 'options' => ['Power supply', 'Integrated circuit', 'Transformer', 'None of the above'], 'order' => 3],
-                ['question_text' => 'All types of modern electronic devices. They are integrated, meaning they are made as a total circuit and housed in one enclosure', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'Integrated circuit', 'options' => ['Power supply', 'Integrated circuit', 'Transistor', 'None of the above'], 'order' => 4],
-                ['question_text' => 'It is a process of a transistor, that allows to move back and forth', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'Oscillation', 'options' => ['Amplification', 'Rectification', 'Oscillation', 'None of the above'], 'order' => 5],
-                ['question_text' => 'Give at least two (2) types of integrated circuit (Type 1)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Analog (or Linear)', 'order' => 6],
-                ['question_text' => 'Give at least two (2) types of integrated circuit (Type 2)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Digital (or Logic)', 'order' => 7],
-                ['question_text' => 'What are the three (3) parts of Transistor? (Part 1)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Base', 'order' => 8],
-                ['question_text' => 'What are the three (3) parts of Transistor? (Part 2)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Collector', 'order' => 9],
-                ['question_text' => 'What are the three (3) parts of Transistor? (Part 3)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Emitter', 'order' => 10],
-                ['question_text' => 'What are the three (3) parts of Transformers? (Part 1)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Core', 'order' => 11],
-                ['question_text' => 'What are the three (3) parts of Transformers? (Part 2)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Primary', 'order' => 12],
-                ['question_text' => 'What are the three (3) parts of Transformers? (Part 3)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Secondary', 'order' => 13],
-                ['question_text' => 'Give at least two (2) types of rectification process (Type 1)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Full-wave (Bridge rectifier)', 'order' => 14],
-                ['question_text' => 'Give at least two (2) types of rectification process (Type 2)', 'question_type' => 'identification', 'points' => 1, 'correct_answer' => 'Half-wave (Single diode rectifier)', 'order' => 15],
+                ['question_text' => 'It is a semi conductor device that can be used for amplification, oscillation, rectification and switching', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'a', 'options' => ['Transistor', 'Capacitor', 'Diode', 'None of the above'], 'order' => 1],
+                ['question_text' => 'A type of IC with a rectangular housing and two parallel rows of electrical connecting pin', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'b', 'options' => ['Linear IC', 'Dual In-line Package (DIP) IC', 'Surface Mounted Device (SMD) IC', 'None of the above'], 'order' => 2],
+                ['question_text' => 'An electro-magnetic device that is commonly used for step-down of voltage', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'c', 'options' => ['Power supply', 'Integrated circuit', 'Transformer', 'None of the above'], 'order' => 3],
+                ['question_text' => 'All types of modern electronic devices. They are integrated, meaning they are made as a total circuit and housed in one enclosure', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'b', 'options' => ['Power supply', 'Integrated circuit', 'Transistor', 'None of the above'], 'order' => 4],
+                ['question_text' => 'It is a process of a transistor, that allows to move back and forth', 'question_type' => 'multiple_choice', 'points' => 1, 'correct_answer' => 'c', 'options' => ['Amplification', 'Rectification', 'Oscillation', 'None of the above'], 'order' => 5],
+                ['question_text' => 'Give at least two (2) types of integrated circuit', 'question_type' => 'enumeration', 'points' => 2, 'correct_answer' => 'Analog,Linear,Digital,Logic', 'order' => 6],
+                ['question_text' => 'What are the three (3) parts of a Transistor?', 'question_type' => 'enumeration', 'points' => 3, 'correct_answer' => 'Base,Collector,Emitter', 'order' => 7],
+                ['question_text' => 'What are the three (3) parts of a Transformer?', 'question_type' => 'enumeration', 'points' => 3, 'correct_answer' => 'Core,Primary,Secondary', 'order' => 8],
+                ['question_text' => 'Give at least two (2) types of rectification process', 'question_type' => 'enumeration', 'points' => 2, 'correct_answer' => 'Full-wave,Half-wave,Bridge rectifier,Single diode rectifier', 'order' => 9],
             ]);
 
             // ── Sheet 1.4 Task Sheet ──
