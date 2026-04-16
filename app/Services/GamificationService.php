@@ -86,15 +86,49 @@ class GamificationService
         $this->awardForActivity($user, 'daily_login');
     }
 
-    public function getLeaderboard(int $limit = 10): \Illuminate\Support\Collection
+    /**
+     * Get leaderboard with optional filtering by section or course.
+     *
+     * @param int $limit
+     * @param string|null $section Filter by student section
+     * @param int|null $courseId Filter by course enrollment (students who have progress in course)
+     */
+    public function getLeaderboard(int $limit = 20, ?string $section = null, ?int $courseId = null): \Illuminate\Support\Collection
     {
-        return User::where('role', Roles::STUDENT)
-            ->where('stat', 1)
-            ->orderByDesc('total_points')
+        $query = User::where('role', Roles::STUDENT)
+            ->where('stat', 1);
+
+        if ($section) {
+            $query->where('section', $section);
+        }
+
+        if ($courseId) {
+            $query->whereHas('progress', function ($q) use ($courseId) {
+                $q->where('progressable_type', 'App\\Models\\Module')
+                  ->whereHas('module', function ($q2) use ($courseId) {
+                      $q2->where('course_id', $courseId);
+                  });
+            });
+        }
+
+        return $query->orderByDesc('total_points')
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->limit($limit)
-            ->get(['id', 'first_name', 'last_name', 'total_points', 'profile_image']);
+            ->get(['id', 'first_name', 'last_name', 'total_points', 'profile_image', 'section']);
+    }
+
+    /**
+     * Get available sections for leaderboard filter.
+     */
+    public function getAvailableSections(): \Illuminate\Support\Collection
+    {
+        return User::where('role', Roles::STUDENT)
+            ->where('stat', 1)
+            ->whereNotNull('section')
+            ->distinct()
+            ->orderBy('section')
+            ->pluck('section');
     }
 
     public function getUserStats(User $user): array
@@ -108,13 +142,11 @@ class GamificationService
 
     public function getUserRank(User $user): int
     {
-        // Count students with strictly more points
         $above = User::where('role', Roles::STUDENT)
             ->where('stat', 1)
             ->where('total_points', '>', $user->total_points)
             ->count();
 
-        // For tie-breaking: count students with same points but alphabetically before
         $sameTied = User::where('role', Roles::STUDENT)
             ->where('stat', 1)
             ->where('total_points', $user->total_points)

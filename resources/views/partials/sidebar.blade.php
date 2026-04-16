@@ -60,6 +60,11 @@
                     <span>{{ Auth::user()->role === \App\Constants\Roles::STUDENT ? 'My Grades' : 'Grades' }}</span>
                 </a>
 
+                <a href="{{ route('forums.index') }}" class="nav-item {{ Request::is('forums*') ? 'active' : '' }}" data-tooltip="Forums">
+                    <i class="fas fa-comments"></i>
+                    <span>Forums</span>
+                </a>
+
                 @if(in_array(Auth::user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]))
                 <a href="{{ route('analytics.dashboard') }}" class="nav-item {{ Request::is('analytics*') ? 'active' : '' }}" data-tooltip="Analytics">
                     <i class="fas fa-chart-pie"></i>

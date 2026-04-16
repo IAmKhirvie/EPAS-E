@@ -7,98 +7,55 @@ use Illuminate\Database\Seeder;
 
 class ForumCategorySeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $categories = [
-            // Announcement Categories (admin/instructor only can post)
-            [
-                'name' => 'Announcements',
-                'slug' => 'announcements',
-                'description' => 'Official announcements from instructors and administrators',
-                'icon' => 'fas fa-bullhorn',
-                'color' => '#dc3545',
-                'order' => 1,
-                'is_active' => true,
-                'is_announcement_category' => true,
-                'admin_only_post' => true,
-            ],
-            [
-                'name' => 'New Module Updates',
-                'slug' => 'new-module-updates',
-                'description' => 'Notifications about new modules, lessons, and content updates',
-                'icon' => 'fas fa-book-open',
-                'color' => '#6d9773',
-                'order' => 2,
-                'is_active' => true,
-                'is_announcement_category' => true,
-                'admin_only_post' => true,
-            ],
-            [
-                'name' => 'Schedule & Deadlines',
-                'slug' => 'schedule-deadlines',
-                'description' => 'Important dates, deadlines, and schedule changes',
-                'icon' => 'fas fa-calendar-alt',
-                'color' => '#fd7e14',
-                'order' => 3,
-                'is_active' => true,
-                'is_announcement_category' => true,
-                'admin_only_post' => true,
-            ],
-
-            // Discussion Categories (everyone can post)
             [
                 'name' => 'General Discussion',
                 'slug' => 'general-discussion',
-                'description' => 'General topics and conversations',
+                'description' => 'Chat about anything related to EPAS and electronics.',
                 'icon' => 'fas fa-comments',
-                'color' => '#6c757d',
-                'order' => 4,
-                'is_active' => true,
-                'is_announcement_category' => false,
-                'admin_only_post' => false,
+                'color' => '#0c3a2d',
+                'order' => 1,
             ],
             [
-                'name' => 'Q&A / Help',
-                'slug' => 'qa-help',
-                'description' => 'Ask questions and get help from the community',
-                'icon' => 'fas fa-question-circle',
-                'color' => '#198754',
-                'order' => 5,
-                'is_active' => true,
-                'is_announcement_category' => false,
-                'admin_only_post' => false,
+                'name' => 'Electronics Q&A',
+                'slug' => 'electronics-qa',
+                'description' => 'Ask questions about electronic components, circuits, and theory.',
+                'icon' => 'fas fa-microchip',
+                'color' => '#2563eb',
+                'order' => 2,
             ],
             [
-                'name' => 'Technical Support',
-                'slug' => 'technical-support',
-                'description' => 'Technical issues, troubleshooting, and system help',
+                'name' => 'Practical Skills',
+                'slug' => 'practical-skills',
+                'description' => 'Discuss soldering, PCB making, assembly techniques, and troubleshooting.',
                 'icon' => 'fas fa-tools',
-                'color' => '#0dcaf0',
-                'order' => 6,
-                'is_active' => true,
-                'is_announcement_category' => false,
-                'admin_only_post' => false,
+                'color' => '#d97706',
+                'order' => 3,
             ],
             [
-                'name' => 'Study Resources',
-                'slug' => 'study-resources',
-                'description' => 'Share study materials, tips, and resources',
+                'name' => 'Study Tips & Resources',
+                'slug' => 'study-tips',
+                'description' => 'Share study strategies, resources, and preparation tips for NC II.',
                 'icon' => 'fas fa-lightbulb',
-                'color' => '#ffc107',
-                'order' => 7,
-                'is_active' => true,
-                'is_announcement_category' => false,
-                'admin_only_post' => false,
+                'color' => '#7c3aed',
+                'order' => 4,
+            ],
+            [
+                'name' => 'Help & Support',
+                'slug' => 'help-support',
+                'description' => 'Get help with the EPAS-E platform, account issues, or technical problems.',
+                'icon' => 'fas fa-question-circle',
+                'color' => '#dc2626',
+                'order' => 5,
             ],
         ];
 
-        foreach ($categories as $category) {
+        foreach ($categories as $cat) {
             ForumCategory::updateOrCreate(
-                ['slug' => $category['slug']],
-                $category
+                ['slug' => $cat['slug']],
+                $cat
             );
         }
     }

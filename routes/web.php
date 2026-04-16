@@ -67,6 +67,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\TrashController;
 use App\Http\Controllers\CredentialsController;
+use App\Http\Controllers\ForumController;
 
 /*
 |--------------------------------------------------------------------------
@@ -925,6 +926,26 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::get('/analytics', [StudentAnalyticsController::class, 'index'])->name('analytics');
         Route::get('/analytics/module/{module}', [StudentAnalyticsController::class, 'moduleDetail'])->name('analytics.module');
         Route::get('/classes', [StudentClassController::class, 'index'])->name('classes');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Discussion Forum Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('forums')->name('forums.')->group(function () {
+        Route::get('/', [ForumController::class, 'index'])->name('index');
+        Route::get('/category/{category}', [ForumController::class, 'category'])->name('category');
+        Route::get('/category/{category}/new', [ForumController::class, 'createThread'])->name('create-thread');
+        Route::post('/category/{category}/new', [ForumController::class, 'storeThread'])->name('store-thread');
+        Route::get('/thread/{thread}', [ForumController::class, 'show'])->name('show');
+        Route::post('/thread/{thread}/reply', [ForumController::class, 'reply'])->name('reply');
+        Route::post('/post/{post}/vote', [ForumController::class, 'vote'])->name('vote');
+        Route::post('/thread/{thread}/post/{post}/best-answer', [ForumController::class, 'markBestAnswer'])->name('best-answer');
+        Route::post('/thread/{thread}/pin', [ForumController::class, 'pinThread'])->name('pin');
+        Route::post('/thread/{thread}/lock', [ForumController::class, 'lockThread'])->name('lock');
+        Route::delete('/thread/{thread}', [ForumController::class, 'deleteThread'])->name('delete-thread');
     });
 
     /*

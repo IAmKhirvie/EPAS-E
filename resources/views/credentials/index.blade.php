@@ -109,7 +109,27 @@
         <div class="tab-pane fade" id="leaderboard" role="tabpanel">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-transparent">
-                    <h6 class="mb-0"><i class="fas fa-trophy text-warning me-2"></i>Top Students</h6>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <h6 class="mb-0"><i class="fas fa-trophy text-warning me-2"></i>Top Students</h6>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{{ route('credentials.index', ['leaderboard' => 'all']) }}#leaderboard"
+                               class="btn btn-sm {{ $leaderboardFilter === 'all' ? 'btn-primary' : 'btn-outline-secondary' }}">
+                                <i class="fas fa-globe me-1"></i>All
+                            </a>
+                            @if(auth()->user()->section)
+                            <a href="{{ route('credentials.index', ['leaderboard' => 'section']) }}#leaderboard"
+                               class="btn btn-sm {{ $leaderboardFilter === 'section' ? 'btn-primary' : 'btn-outline-secondary' }}">
+                                <i class="fas fa-users me-1"></i>My Section ({{ auth()->user()->section }})
+                            </a>
+                            @endif
+                            @foreach($courses as $course)
+                            <a href="{{ route('credentials.index', ['leaderboard' => 'course', 'course_id' => $course->id]) }}#leaderboard"
+                               class="btn btn-sm {{ $leaderboardFilter === 'course' && request('course_id') == $course->id ? 'btn-primary' : 'btn-outline-secondary' }}">
+                                <i class="fas fa-book me-1"></i>{{ Str::limit($course->course_name, 20) }}
+                            </a>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     @if($leaderboard->isEmpty())
@@ -156,6 +176,9 @@
                                                 @if($isCurrentUser)
                                                 <span class="badge bg-primary ms-1">You</span>
                                                 @endif
+                                                @if($student->section && $leaderboardFilter !== 'section')
+                                                <span class="badge bg-light text-muted ms-1">{{ $student->section }}</span>
+                                                @endif
                                             </span>
                                         </div>
                                     </td>
@@ -189,4 +212,16 @@
         border-color: #dee2e6 #dee2e6 #fff;
     }
 </style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-activate leaderboard tab if filter is applied or hash is #leaderboard
+        if (window.location.hash === '#leaderboard' || '{{ $leaderboardFilter }}' !== 'all') {
+            const tab = document.getElementById('leaderboard-tab');
+            if (tab) {
+                const bsTab = new bootstrap.Tab(tab);
+                bsTab.show();
+            }
+        }
+    });
+</script>
 @endsection
