@@ -699,11 +699,13 @@ class SelfCheckController extends Controller
             ]);
 
             // Award gamification points
+            $gamification = app(\App\Services\GamificationService::class);
+            $gamification->awardForActivity(auth()->user(), 'self_check_attempt', $submission);
             if ($passed) {
-                app(\App\Services\GamificationService::class)->awardForActivity(auth()->user(), 'self_check_pass', $submission);
+                $gamification->awardForActivity(auth()->user(), 'self_check_pass', $submission);
             }
             if ($percentage >= 100) {
-                app(\App\Services\GamificationService::class)->awardForActivity(auth()->user(), 'perfect_score', $submission);
+                $gamification->awardForActivity(auth()->user(), 'perfect_score', $submission);
             }
 
             // Notify instructor of submission

@@ -13,6 +13,7 @@ class GamificationService
     {
         return config('joms.gamification.points', [
             'topic_complete' => 10,
+            'self_check_attempt' => 10,
             'self_check_pass' => 25,
             'homework_submit' => 15,
             'perfect_score' => 50,
@@ -90,6 +91,8 @@ class GamificationService
         return User::where('role', Roles::STUDENT)
             ->where('stat', 1)
             ->orderByDesc('total_points')
+            ->orderBy('first_name')
+            ->orderBy('last_name')
             ->limit($limit)
             ->get(['id', 'first_name', 'last_name', 'total_points', 'profile_image']);
     }
@@ -105,16 +108,33 @@ class GamificationService
 
     public function getUserRank(User $user): int
     {
-        return User::where('role', Roles::STUDENT)
+        // Count students with strictly more points
+        $above = User::where('role', Roles::STUDENT)
             ->where('stat', 1)
             ->where('total_points', '>', $user->total_points)
-            ->count() + 1;
+            ->count();
+
+        // For tie-breaking: count students with same points but alphabetically before
+        $sameTied = User::where('role', Roles::STUDENT)
+            ->where('stat', 1)
+            ->where('total_points', $user->total_points)
+            ->where(function ($q) use ($user) {
+                $q->where('first_name', '<', $user->first_name)
+                  ->orWhere(function ($q2) use ($user) {
+                      $q2->where('first_name', $user->first_name)
+                         ->where('last_name', '<', $user->last_name);
+                  });
+            })
+            ->count();
+
+        return $above + $sameTied + 1;
     }
 
     protected function getActivityReason(string $activity): string
     {
         return match ($activity) {
             'topic_complete' => 'Completed a topic',
+            'self_check_attempt' => 'Attempted a self-check assessment',
             'self_check_pass' => 'Passed a self-check assessment',
             'homework_submit' => 'Submitted homework',
             'perfect_score' => 'Achieved a perfect score',
