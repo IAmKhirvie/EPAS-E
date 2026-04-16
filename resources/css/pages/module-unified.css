@@ -360,6 +360,21 @@ body.focus-mode-active .main-content-section {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
+.focus-image-panel .table-container {
+    width: 95%;
+    max-width: 95%;
+    height: 100%;
+    max-height: none;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-left: 3%;
+    background: none;
+}
+
 .focus-image-panel .image-caption {
     color: white;
     text-align: center;

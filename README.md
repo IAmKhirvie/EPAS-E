@@ -36,9 +36,9 @@ A comprehensive Learning Management System built with Laravel 12 for Philippine 
 
 ### Gamification
 
-- Activity-based points (daily login, submissions, completions, perfect scores)
-- Badge system with multiple criteria types (points, streaks, milestones)
-- Leaderboards and streak tracking
+- Activity-based points (daily login, quiz attempts, submissions, completions, perfect scores)
+- Leaderboards with section, course, and institution-level filtering
+- Streak tracking
 
 ### Communication
 
