@@ -83,11 +83,10 @@ class ContentSanitizationService
         try {
             $config = \HTMLPurifier_Config::createDefault();
 
-            // Only allow basic formatting tags
-            $config->set('HTML.Allowed', 'b,strong,i,em,u,br,p,ul,ol,li,code');
-
-            // No attributes allowed for maximum security
-            $config->set('HTML.AllowedAttributes', '');
+            // Allow formatting tags, tables, images, and headings for rich content
+            $config->set('HTML.Allowed', 'b,strong,i,em,u,br,p,ul,ol,li,code,img[src|alt|width|height],table[border|cellpadding|cellspacing],thead,tbody,tr,th,td,div,h1,h2,h3,h4,h5,h6,span,a[href|target],sup,sub');
+            $config->set('CSS.AllowedProperties', 'text-align,font-weight,font-style,text-decoration,width,height,border,border-collapse,padding,margin,vertical-align,background-color,color');
+            $config->set('URI.AllowedSchemes', ['http' => true, 'https' => true, 'data' => true]);
 
             // Disable auto-formatting to preserve user's intended formatting
             $config->set('AutoFormat.AutoParagraph', false);

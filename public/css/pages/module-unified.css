@@ -975,6 +975,113 @@ body.focus-mode-active .main-content-section {
     margin: 0.5rem 0;
 }
 
+/* ==================== FOCUS MODE LAYOUT CLASSES ==================== */
+
+/* When no images exist, expand content panel to full width */
+.focus-mode-body.no-images .focus-image-panel {
+    display: none;
+}
+
+.focus-mode-body.no-images .focus-content-panel {
+    width: 100%;
+}
+
+/* When tables exist, adjust image panel for table display */
+.focus-mode-body.has-tables .focus-image-panel {
+    background: #f8f9fa;
+}
+
+/* Quiz mode — full width content, no image panel */
+.focus-mode-body.quiz-mode .focus-image-panel {
+    display: none;
+}
+
+.focus-mode-body.quiz-mode .focus-content-panel {
+    width: 100%;
+}
+
+/* Table label in focus image panel */
+.table-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.focus-mode-body.has-tables .table-label {
+    color: #666;
+}
+
+/* Focus title slide (module overview in focus mode) */
+.focus-title-slide {
+    text-align: center;
+    padding: 40px 30px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.focus-title-slide h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #0c3a2d;
+    margin-bottom: 16px;
+}
+
+.focus-title-slide p {
+    color: #666;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* Focus part (individual content section) */
+.focus-part {
+    margin-bottom: 2rem;
+}
+
+.focus-part h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #0c3a2d;
+    margin-bottom: 1rem;
+}
+
+/* Activity intro card (assessment start screen) */
+.activity-intro-card {
+    text-align: center;
+    padding: 40px 30px;
+    max-width: 500px;
+    margin: 30px auto;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+}
+
+.activity-intro-card h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #0c3a2d;
+    margin-bottom: 12px;
+}
+
+.activity-intro-card p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+/* Self-check quiz container in focus mode */
+.selfcheck-quiz-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Locked/disabled button */
+.btn-locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 /* ==================== ADDITIONAL STYLES ==================== */
 
 /* Category Button */

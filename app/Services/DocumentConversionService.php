@@ -208,7 +208,7 @@ class DocumentConversionService
         );
         $config->set('HTML.AllowedAttributes', 'class,style,src,alt,width,height,href');
         // Only use CSS properties that HTMLPurifier actually supports
-        $config->set('CSS.AllowedProperties', 'color,background-color,font-size,font-weight,text-align,margin,padding,border,text-decoration,font-style,font-family,border-collapse,width');
+        $config->set('CSS.AllowedProperties', 'color,background-color,font-size,font-weight,text-align,margin,padding,border,border-left,border-right,border-top,border-bottom,border-collapse,text-decoration,font-style,font-family,width,height,vertical-align,text-indent,line-height,white-space');
         $config->set('Cache.DefinitionImpl', null);
         $config->set('URI.AllowedSchemes', ['http' => true, 'https' => true, 'data' => true]);
 

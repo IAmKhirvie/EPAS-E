@@ -85,7 +85,7 @@ class DashboardController extends Controller
                 ? ($progressSummary['completed_modules'] / $progressSummary['total_modules']) * 100
                 : 0;
 
-            $totalActivities = $progressSummary['total_modules'] + $progressSummary['in_progress_modules'];
+            $totalActivities = $progressSummary['total_modules'];
             $completedActivities = $progressSummary['completed_modules'];
 
             return response()->json([

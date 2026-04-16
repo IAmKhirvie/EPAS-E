@@ -33,23 +33,26 @@ class ProgressTrackingService
             return;
         }
 
-        $status = ($submissionData['passed'] ?? false) ? 'passed' : 'failed';
+        $newStatus = ($submissionData['passed'] ?? false) ? 'passed' : 'failed';
+        $newScore = $submissionData['score'] ?? null;
 
-        UserProgress::updateOrCreate(
-            [
-                'user_id' => $userId,
-                'module_id' => $informationSheet->module_id,
-                'progressable_type' => SelfCheck::class,
-                'progressable_id' => $selfCheck->id,
-            ],
-            [
-                'status' => $status,
-                'score' => $submissionData['score'] ?? null,
-                'max_score' => $submissionData['total_points'] ?? null,
-                'attempts' => \DB::raw('attempts + 1'),
-                'completed_at' => now(),
-            ]
-        );
+        $progress = UserProgress::firstOrNew([
+            'user_id' => $userId,
+            'module_id' => $informationSheet->module_id,
+            'progressable_type' => SelfCheck::class,
+            'progressable_id' => $selfCheck->id,
+        ]);
+
+        // Keep best score — only update if new score is higher or first attempt
+        if (!$progress->exists || $newScore === null || $newScore >= ($progress->score ?? 0)) {
+            $progress->status = $newStatus;
+            $progress->score = $newScore;
+            $progress->max_score = $submissionData['total_points'] ?? null;
+        }
+
+        $progress->attempts = ($progress->attempts ?? 0) + 1;
+        $progress->completed_at = now();
+        $progress->save();
 
         // Check if information sheet should be marked complete
         $this->checkAndUpdateSheetCompletion($informationSheet, $userId);
@@ -65,24 +68,26 @@ class ProgressTrackingService
             return;
         }
 
-        $status = isset($submissionData['grade']) ? 'completed' : 'in_progress';
+        // 'submitted' counts toward sheet completion; 'completed' when graded
+        $status = isset($submissionData['grade']) ? 'completed' : 'submitted';
 
-        UserProgress::updateOrCreate(
-            [
-                'user_id' => $userId,
-                'module_id' => $informationSheet->module_id,
-                'progressable_type' => Homework::class,
-                'progressable_id' => $homework->id,
-            ],
-            [
-                'status' => $status,
-                'score' => $submissionData['grade'] ?? null,
-                'max_score' => 100,
-                'attempts' => \DB::raw('attempts + 1'),
-                'started_at' => \DB::raw('COALESCE(started_at, NOW())'),
-                'completed_at' => $status === 'completed' ? now() : null,
-            ]
-        );
+        $progress = UserProgress::firstOrNew([
+            'user_id' => $userId,
+            'module_id' => $informationSheet->module_id,
+            'progressable_type' => Homework::class,
+            'progressable_id' => $homework->id,
+        ]);
+
+        // Don't downgrade from completed to submitted
+        if (!($progress->exists && $progress->status === 'completed' && $status === 'submitted')) {
+            $progress->status = $status;
+        }
+        $progress->score = $submissionData['grade'] ?? $progress->score;
+        $progress->max_score = 100;
+        $progress->attempts = ($progress->attempts ?? 0) + 1;
+        $progress->started_at = $progress->started_at ?? now();
+        $progress->completed_at = now();
+        $progress->save();
 
         $this->checkAndUpdateSheetCompletion($informationSheet, $userId);
     }
@@ -97,24 +102,24 @@ class ProgressTrackingService
             return;
         }
 
-        $status = isset($submissionData['grade']) ? 'completed' : 'in_progress';
+        $status = isset($submissionData['grade']) ? 'completed' : 'submitted';
 
-        UserProgress::updateOrCreate(
-            [
-                'user_id' => $userId,
-                'module_id' => $informationSheet->module_id,
-                'progressable_type' => TaskSheet::class,
-                'progressable_id' => $taskSheet->id,
-            ],
-            [
-                'status' => $status,
-                'score' => $submissionData['grade'] ?? null,
-                'max_score' => $submissionData['max_score'] ?? 100,
-                'attempts' => \DB::raw('attempts + 1'),
-                'started_at' => \DB::raw('COALESCE(started_at, NOW())'),
-                'completed_at' => $status === 'completed' ? now() : null,
-            ]
-        );
+        $progress = UserProgress::firstOrNew([
+            'user_id' => $userId,
+            'module_id' => $informationSheet->module_id,
+            'progressable_type' => TaskSheet::class,
+            'progressable_id' => $taskSheet->id,
+        ]);
+
+        if (!($progress->exists && $progress->status === 'completed' && $status === 'submitted')) {
+            $progress->status = $status;
+        }
+        $progress->score = $submissionData['grade'] ?? $progress->score;
+        $progress->max_score = $submissionData['max_score'] ?? 100;
+        $progress->attempts = ($progress->attempts ?? 0) + 1;
+        $progress->started_at = $progress->started_at ?? now();
+        $progress->completed_at = now();
+        $progress->save();
 
         $this->checkAndUpdateSheetCompletion($informationSheet, $userId);
     }
@@ -129,24 +134,24 @@ class ProgressTrackingService
             return;
         }
 
-        $status = isset($submissionData['grade']) ? 'completed' : 'in_progress';
+        $status = isset($submissionData['grade']) ? 'completed' : 'submitted';
 
-        UserProgress::updateOrCreate(
-            [
-                'user_id' => $userId,
-                'module_id' => $informationSheet->module_id,
-                'progressable_type' => JobSheet::class,
-                'progressable_id' => $jobSheet->id,
-            ],
-            [
-                'status' => $status,
-                'score' => $submissionData['grade'] ?? null,
-                'max_score' => $submissionData['max_score'] ?? 100,
-                'attempts' => \DB::raw('attempts + 1'),
-                'started_at' => \DB::raw('COALESCE(started_at, NOW())'),
-                'completed_at' => $status === 'completed' ? now() : null,
-            ]
-        );
+        $progress = UserProgress::firstOrNew([
+            'user_id' => $userId,
+            'module_id' => $informationSheet->module_id,
+            'progressable_type' => JobSheet::class,
+            'progressable_id' => $jobSheet->id,
+        ]);
+
+        if (!($progress->exists && $progress->status === 'completed' && $status === 'submitted')) {
+            $progress->status = $status;
+        }
+        $progress->score = $submissionData['grade'] ?? $progress->score;
+        $progress->max_score = $submissionData['max_score'] ?? 100;
+        $progress->attempts = ($progress->attempts ?? 0) + 1;
+        $progress->started_at = $progress->started_at ?? now();
+        $progress->completed_at = now();
+        $progress->save();
 
         $this->checkAndUpdateSheetCompletion($informationSheet, $userId);
     }
@@ -344,7 +349,7 @@ class ProgressTrackingService
                 ->where('module_id', $sheet->module_id)
                 ->where('progressable_type', Homework::class)
                 ->whereIn('progressable_id', $homeworks)
-                ->where('status', 'completed')
+                ->whereIn('status', ['completed', 'submitted'])
                 ->count();
         }
 
@@ -353,7 +358,7 @@ class ProgressTrackingService
                 ->where('module_id', $sheet->module_id)
                 ->where('progressable_type', TaskSheet::class)
                 ->whereIn('progressable_id', $taskSheets)
-                ->where('status', 'completed')
+                ->whereIn('status', ['completed', 'submitted'])
                 ->count();
         }
 
@@ -362,7 +367,7 @@ class ProgressTrackingService
                 ->where('module_id', $sheet->module_id)
                 ->where('progressable_type', JobSheet::class)
                 ->whereIn('progressable_id', $jobSheets)
-                ->where('status', 'completed')
+                ->whereIn('status', ['completed', 'submitted'])
                 ->count();
         }
 

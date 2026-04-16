@@ -78,15 +78,7 @@ class SelfCheckGradingService
         switch ($question->question_type) {
             case 'multiple_choice':
             case 'image_choice':
-                // userAnswer can be an index (from focus mode) or the answer text itself
-                $options = $question->options ?? [];
-                if (is_numeric($userAnswer) && is_array($options) && isset($options[(int) $userAnswer])) {
-                    // Index-based: resolve the option text and compare
-                    $selectedOption = $options[(int) $userAnswer];
-                    $selectedText = is_array($selectedOption) ? ($selectedOption['label'] ?? $selectedOption['text'] ?? $selectedOption) : $selectedOption;
-                    return strtolower(trim((string) $selectedText)) === strtolower(trim((string) $question->correct_answer));
-                }
-                // Direct text comparison fallback
+                // Both user answer and correct_answer are stored as indices
                 return strtolower(trim((string) $userAnswer)) === strtolower(trim((string) $question->correct_answer));
 
             case 'multiple_select':

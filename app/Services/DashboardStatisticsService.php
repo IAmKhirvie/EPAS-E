@@ -447,10 +447,12 @@ class DashboardStatisticsService
 
     public function clearAnnouncementCache(): void
     {
-        Cache::forget('dashboard_announcements_count');
-        // Announcement list caches use dynamic limit keys
-        foreach ([3, 5, 10] as $limit) {
-            Cache::forget("dashboard_announcements_{$limit}");
+        // Clear role-qualified cache keys matching getRecentAnnouncements()
+        foreach (['admin', 'instructor', 'student'] as $role) {
+            Cache::forget("dashboard_announcements_count_{$role}");
+            foreach ([3, 5, 10] as $limit) {
+                Cache::forget("dashboard_announcements_{$limit}_{$role}");
+            }
         }
     }
 

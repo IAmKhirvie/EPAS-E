@@ -8,7 +8,7 @@
     <div class="page-header">
         <div class="page-header-left">
             <h1><i class="fas fa-award me-2"></i>My Credentials</h1>
-            <p>View your earned certificates, badges, and achievements</p>
+            <p>View your earned certificates and achievements</p>
         </div>
     </div>
 

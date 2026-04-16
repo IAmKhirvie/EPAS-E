@@ -649,6 +649,7 @@ class SelfCheckController extends Controller
         }
 
         try {
+            $submission = \DB::transaction(function () use ($request, $selfCheck) {
             $score = 0;
             $totalPoints = $selfCheck->total_points;
             $results = [];
@@ -686,7 +687,7 @@ class SelfCheckController extends Controller
                 'total_points' => $totalPoints,
                 'percentage' => $percentage,
                 'passed' => $passed,
-                'answers' => json_encode($request->answers),
+                'answers' => $request->answers,
                 'completed_at' => now(),
             ]);
 
@@ -708,7 +709,16 @@ class SelfCheckController extends Controller
                 $gamification->awardForActivity(auth()->user(), 'perfect_score', $submission);
             }
 
-            // Notify instructor of submission
+            return $submission;
+            }); // end DB::transaction
+
+            // Re-extract values from submission for the response
+            $score = $submission->score;
+            $totalPoints = $submission->total_points;
+            $percentage = $submission->percentage;
+            $passed = $submission->passed;
+
+            // Notify instructor of submission (outside transaction)
             $selfCheck->loadMissing('informationSheet.module.course.instructor');
             app(NotificationService::class)->notifySubmissionReceived(auth()->user(), 'self-check', $selfCheck);
 
