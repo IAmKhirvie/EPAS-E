@@ -26,12 +26,6 @@
             <div class="stat-value">{{ $stats['current_streak'] }}</div>
             <div class="stat-label">Day Streak</div>
         </div>
-        <div class="page-stat-card blue">
-            <div class="stat-decor"></div>
-            <div class="stat-icon"><i class="fas fa-award"></i></div>
-            <div class="stat-value">{{ $stats['badges_earned'] }}</div>
-            <div class="stat-label">Badges Earned</div>
-        </div>
         <div class="page-stat-card emerald">
             <div class="stat-decor"></div>
             <div class="stat-icon"><i class="fas fa-trophy"></i></div>
@@ -47,14 +41,6 @@
                 <i class="fas fa-certificate me-1"></i> Certificates
                 @if($certificates->count() > 0)
                 <span class="badge bg-primary ms-1">{{ $certificates->count() }}</span>
-                @endif
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="badges-tab" data-bs-toggle="tab" data-bs-target="#badges" type="button" role="tab">
-                <i class="fas fa-award me-1"></i> Badges
-                @if(count($earnedBadgeKeys) > 0)
-                <span class="badge bg-primary ms-1">{{ count($earnedBadgeKeys) }}</span>
                 @endif
             </button>
         </li>
@@ -188,85 +174,6 @@
             </div>
         </div>
 
-        {{-- Badges Tab --}}
-        <div class="tab-pane fade" id="badges" role="tabpanel">
-            @php
-                $allBadges = \App\Services\GamificationService::getAllBadges();
-                $userBadges = $user->earnedBadges()->get();
-                $earnedByKey = [];
-                foreach ($userBadges as $ub) {
-                    $earnedByKey[$ub->badge_key] = $ub->badge_data;
-                }
-            @endphp
-
-            @foreach($allBadges as $badgeKey => $badgeDef)
-                @php
-                    $tiers = \App\Services\GamificationService::getBadgeTiers($badgeKey);
-                    $earnedTiers = [];
-                    foreach ($tiers as $tier => $tierData) {
-                        $fullKey = "{$badgeKey}_tier_{$tier}";
-                        if (isset($earnedByKey[$fullKey])) {
-                            $earnedTiers[$tier] = $earnedByKey[$fullKey];
-                        }
-                    }
-                    $nextTier = null;
-                    foreach ($tiers as $tier => $tierData) {
-                        if (!isset($earnedTiers[$tier])) {
-                            $nextTier = ['tier' => $tier] + $tierData;
-                            break;
-                        }
-                    }
-                @endphp
-
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                            <i class="{{ $badgeDef['icon'] }} fa-lg me-2" style="color: var(--primary);"></i>
-                            <h6 class="mb-0">{{ $badgeDef['name'] }}</h6>
-                        </div>
-                        <small class="text-muted">{{ $badgeDef['description'] }}</small>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div class="d-flex gap-2 flex-wrap">
-                                @foreach($tiers as $tier => $tierData)
-                                    @php $isEarned = isset($earnedTiers[$tier]); @endphp
-                                    <span class="badge {{ $isEarned ? 'bg-success' : 'bg-secondary' }}" style="{{ $isEarned ? 'background-color: ' . $tierData['color'] . ' !important; color: #000;' : '' }}">
-                                        <i class="{{ $tierData['icon'] }} me-1"></i>
-                                        {{ $tierData['name'] }}
-                                        @if($isEarned)
-                                            <i class="fas fa-check ms-1"></i>
-                                        @else
-                                            <i class="fas fa-lock ms-1"></i>
-                                        @endif
-                                    </span>
-                                @endforeach
-                            </div>
-                        </div>
-
-                        @if(count($earnedTiers) > 0)
-                        <div class="earned-tiers mb-3">
-                            <small class="text-success"><i class="fas fa-check-circle me-1"></i> Earned:
-                                @foreach($earnedTiers as $tier => $data)
-                                    <span class="fw-bold" style="color: {{ $data['color'] }}">{{ $data['tier_name'] }}</span>@if(!$loop->last), @endif
-                                @endforeach
-                            </small>
-                        </div>
-                        @endif
-
-                        @if($nextTier)
-                        <div class="next-tier">
-                            <small class="text-muted">
-                                <i class="fas fa-bullseye me-1"></i> Next: 
-                                <strong style="color: {{ $nextTier['color'] }}">{{ $nextTier['name'] }}</strong> — 
-                                {{ \App\Services\GamificationService::formatCriteria($nextTier['criteria']) }}
-                            </small>
-                        </div>
-                        @endif
-                    </div>
-                </div>
-            @endforeach
-        </div>
     </div>
 </div>
 
@@ -274,26 +181,6 @@
 
 @section('scripts')
 <style>
-    .badge-card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .badge-card.badge-earned:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12) !important;
-    }
-
-    .badge-icon-wrapper {
-        width: 70px;
-        height: 70px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;
-        border-radius: 50%;
-        background: rgba(0, 0, 0, 0.03);
-    }
-
     .nav-tabs .nav-link {
         font-weight: 500;
     }
@@ -301,7 +188,5 @@
     .nav-tabs .nav-link.active {
         border-color: #dee2e6 #dee2e6 #fff;
     }
-
-    .badge.bg-success { background-color: #198754 !important; }
 </style>
 @endsection

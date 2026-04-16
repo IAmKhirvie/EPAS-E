@@ -53,6 +53,9 @@ class DocumentConversionService
             $html = $matches[1];
         }
 
+        // Strip MS Word/Office XML bloat before sanitizing
+        $html = app(ContentSanitizationService::class)->stripWordBloat($html);
+
         return $this->sanitizeHtml($html);
     }
 

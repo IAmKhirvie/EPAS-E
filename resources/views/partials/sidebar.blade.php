@@ -163,12 +163,6 @@
                     <span>Certificates</span>
                 </a>
 
-                <!-- Badges -->
-                <a href="{{ route('admin.badges.index') }}" class="nav-item {{ Request::is('admin/badges*') ? 'active' : '' }}" data-tooltip="Badges">
-                    <i class="fas fa-award"></i>
-                    <span>Badges</span>
-                </a>
-
             </nav>
         </div>
         @endif

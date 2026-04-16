@@ -21,16 +21,12 @@ class CredentialsController extends Controller
 
         $certificates = $this->certificateService->getUserCertificates($user);
 
-        // Hardcoded badge system: just get earned keys
-        $earnedBadgeKeys = $user->earnedBadgeKeys();
-
         $gamificationService = app(GamificationService::class);
         $stats = $gamificationService->getUserStats($user);
         $leaderboard = $gamificationService->getLeaderboard(20);
 
         return view('credentials.index', compact(
             'certificates',
-            'earnedBadgeKeys',
             'stats',
             'leaderboard'
         ));

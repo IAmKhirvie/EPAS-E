@@ -134,11 +134,6 @@ class UserController extends Controller
         $departments = Department::all();
         $pendingItems = app(PendingItemsService::class)->getPendingItemsForUser($user->id);
 
-        // Eager-load badges for the credentials section
-        if ($user->role === Roles::STUDENT) {
-            $user->load('badges');
-        }
-
         return view('private.users.edit', compact('user', 'departments', 'pendingItems'));
     }
 
