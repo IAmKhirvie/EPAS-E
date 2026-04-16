@@ -82,7 +82,7 @@ use App\Models\Course;
 use App\Models\Certificate;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-Route::get('/preview-certificate/{template?}', function ($template = 'default') {
+Route::get('/preview-certificate/{template?}', function ($template = 'tesda') {
     // Fetch a real certificate or use dummy data
     $certificate = Certificate::with(['user', 'course'])->first();
 
@@ -92,13 +92,23 @@ Route::get('/preview-certificate/{template?}', function ($template = 'default') 
         $course = Course::first() ?? new Course(['course_name' => 'Sample Course']);
         $issue_date = now()->format('F d, Y');
         $certificate_number = 'CERT-PREVIEW-00001';
-        $config = [];
+        $config = [
+            'organization' => 'EPAS-E Learning Management System',
+            'institution' => config('joms.institution_name', 'IETI College of Technology - Marikina'),
+            'signatory_left_title' => 'School Administrator',
+            'signatory_right_title' => 'Lead Instructor / Trainer',
+        ];
     } else {
         $user = $certificate->user;
         $course = $certificate->course;
         $issue_date = $certificate->issue_date?->format('F d, Y') ?? now()->format('F d, Y');
         $certificate_number = $certificate->certificate_number;
-        $config = $certificate->course->certificate_config ?? [];
+        $config = $certificate->course->certificate_config ?? [
+            'organization' => 'EPAS-E Learning Management System',
+            'institution' => config('joms.institution_name', 'IETI College of Technology - Marikina'),
+            'signatory_left_title' => 'School Administrator',
+            'signatory_right_title' => 'Lead Instructor / Trainer',
+        ];
     }
 
     // Check if the view exists
