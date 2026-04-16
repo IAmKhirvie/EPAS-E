@@ -63,9 +63,12 @@ class LoginController extends Controller
                 $user->last_login = now();
                 $user->save();
 
+                // Record daily login for gamification (points + streak)
+                app(\App\Services\GamificationService::class)->recordDailyLogin($user);
+
                 $request->session()->regenerate();
                 $request->session()->put('login_at', now());
-                $request->session()->flash('show_login_loader', true); // Flash data - only available on next request
+                $request->session()->flash('show_login_loader', true);
                 $request->session()->forget('url.intended');
 
                 return redirect('/student/dashboard');

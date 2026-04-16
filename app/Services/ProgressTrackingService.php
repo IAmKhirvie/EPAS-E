@@ -474,6 +474,17 @@ class ProgressTrackingService
 
         Log::info("Module {$moduleId} marked as completed for user {$userId}");
 
+        // Award gamification points for module completion
+        try {
+            $user = User::find($userId);
+            $module = Module::find($moduleId);
+            if ($user && $module) {
+                app(GamificationService::class)->awardForActivity($user, 'module_complete', $module);
+            }
+        } catch (\Exception $e) {
+            Log::error("Failed to award module completion points: " . $e->getMessage());
+        }
+
         // Auto-issue certificate if all modules in the course are completed
         $this->checkAndIssueCertificate($moduleId, $userId);
     }
@@ -497,6 +508,9 @@ class ProgressTrackingService
             $certificateService = app(CertificateService::class);
 
             if ($certificateService->checkCourseCompletion($user, $module->course)) {
+                // Award course completion points
+                app(GamificationService::class)->awardForActivity($user, 'course_complete', $module->course);
+
                 $certificateService->generateCertificate($user, $module->course, [
                     'auto_issued' => true,
                     'trigger' => 'module_completion',

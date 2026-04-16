@@ -698,6 +698,14 @@ class SelfCheckController extends Controller
                 'passed' => $passed,
             ]);
 
+            // Award gamification points
+            if ($passed) {
+                app(\App\Services\GamificationService::class)->awardForActivity(auth()->user(), 'self_check_pass', $submission);
+            }
+            if ($percentage >= 100) {
+                app(\App\Services\GamificationService::class)->awardForActivity(auth()->user(), 'perfect_score', $submission);
+            }
+
             // Notify instructor of submission
             $selfCheck->loadMissing('informationSheet.module.course.instructor');
             app(NotificationService::class)->notifySubmissionReceived(auth()->user(), 'self-check', $selfCheck);

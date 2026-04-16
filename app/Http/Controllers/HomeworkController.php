@@ -185,6 +185,9 @@ class HomeworkController extends Controller
             // Track progress
             $this->progressService->recordHomeworkProgress($homework, auth()->id());
 
+            // Award gamification points
+            app(\App\Services\GamificationService::class)->awardForActivity(auth()->user(), 'homework_submit', $submission);
+
             // Notify instructor of submission
             $homework->loadMissing('informationSheet.module.course.instructor');
             app(NotificationService::class)->notifySubmissionReceived(auth()->user(), 'homework', $homework);

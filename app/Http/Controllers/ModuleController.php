@@ -309,6 +309,9 @@ class ModuleController extends Controller
             // Track the topic as viewed/completed
             $this->moduleService->trackTopicProgress($topic);
 
+            // Award gamification points for topic completion
+            app(\App\Services\GamificationService::class)->awardForActivity(auth()->user(), 'topic_complete', $topic);
+
             // Get updated progress
             $progress = $this->moduleService->getProgress($module, auth()->id());
 
