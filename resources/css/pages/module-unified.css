@@ -332,6 +332,88 @@ a.sidebar-topic-item.sidebar-topic-link:hover {
     margin-bottom: 1rem;
 }
 
+/* ==================== START READING CARD ==================== */
+
+.start-reading-card {
+    text-align: center;
+    padding: 50px 30px;
+    max-width: 520px;
+    margin: 40px auto;
+}
+
+.start-reading-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0c3a2d, #1a6b4a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 25px rgba(12, 58, 45, 0.25);
+}
+
+.start-reading-icon i {
+    font-size: 2rem;
+    color: #fff;
+}
+
+.start-reading-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.start-reading-meta {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 24px;
+}
+
+.start-reading-info {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.start-reading-info .info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #495057;
+    font-weight: 500;
+}
+
+.start-reading-info .info-item i {
+    color: #0c3a2d;
+    font-size: 0.9rem;
+}
+
+.start-reading-btn {
+    padding: 12px 36px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(12, 58, 45, 0.2);
+    transition: all 0.2s ease;
+}
+
+.start-reading-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(12, 58, 45, 0.3);
+}
+
+.start-reading-hint {
+    font-size: 0.78rem;
+    color: #adb5bd;
+    margin-top: 16px;
+    margin-bottom: 0;
+}
+
 /* ==================== CONTENT CARDS (AJAX-loaded content) ==================== */
 
 .sheet-content {
