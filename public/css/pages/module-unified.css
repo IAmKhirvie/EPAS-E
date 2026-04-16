@@ -435,12 +435,18 @@ body.focus-mode-active .main-content-section {
 
 .focus-nav {
     position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: 0;
+    right: 0;
+    height: 70px;
     display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 15px;
     z-index: 10002;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 0 20px;
 }
 
 .focus-nav button {
