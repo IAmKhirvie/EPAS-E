@@ -271,6 +271,7 @@
                                     </div>
                                     @break
 
+                                @case('identification')
                                 @case('fill_blank')
                                 @case('image_identification')
                                     <div class="row">
@@ -287,6 +288,51 @@
                                         </div>
                                         @endif
                                     </div>
+                                    @break
+
+                                @case('enumeration')
+                                    @php
+                                        $correctItems = array_map('trim', explode(',', $result['question']->correct_answer));
+                                        $userText = $result['user_answer'] ?: '';
+                                        $userItems = array_filter(array_map('trim', preg_split('/[\n,]+/', $userText)));
+                                    @endphp
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="mb-1 cb-field-label">Your Answer:</p>
+                                            @if(empty($userItems))
+                                                <p class="text-danger">(No answer)</p>
+                                            @else
+                                                <ol class="mb-0">
+                                                    @foreach($userItems as $item)
+                                                    @php
+                                                        $itemMatched = false;
+                                                        foreach($correctItems as $c) {
+                                                            if (strtolower(trim($item)) === strtolower(trim($c)) || str_contains(strtolower($item), strtolower($c)) || str_contains(strtolower($c), strtolower($item))) {
+                                                                $itemMatched = true;
+                                                                break;
+                                                            }
+                                                        }
+                                                    @endphp
+                                                    <li class="text-{{ $itemMatched ? 'success' : 'danger' }}">
+                                                        {{ $item }}
+                                                        <i class="fas {{ $itemMatched ? 'fa-check-circle' : 'fa-times-circle' }} ms-1"></i>
+                                                    </li>
+                                                    @endforeach
+                                                </ol>
+                                            @endif
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="mb-1 cb-field-label">Correct Answers:</p>
+                                            <ol class="mb-0 text-success">
+                                                @foreach($correctItems as $item)
+                                                <li>{{ $item }}</li>
+                                                @endforeach
+                                            </ol>
+                                        </div>
+                                    </div>
+                                    @if($result['partial_credit'] && $result['partial_credit'] < 1)
+                                    <p class="text-info mt-2" style="font-size: 0.8rem;"><i class="fas fa-info-circle me-1"></i>Partial credit: {{ number_format($result['partial_credit'] * 100, 0) }}%</p>
+                                    @endif
                                     @break
 
                                 @case('matching')

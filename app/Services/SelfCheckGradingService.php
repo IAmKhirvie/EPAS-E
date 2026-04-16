@@ -78,8 +78,16 @@ class SelfCheckGradingService
         switch ($question->question_type) {
             case 'multiple_choice':
             case 'image_choice':
-                // Compare index
-                return (string) $userAnswer === (string) $question->correct_answer;
+                // userAnswer can be an index (from focus mode) or the answer text itself
+                $options = $question->options ?? [];
+                if (is_numeric($userAnswer) && is_array($options) && isset($options[(int) $userAnswer])) {
+                    // Index-based: resolve the option text and compare
+                    $selectedOption = $options[(int) $userAnswer];
+                    $selectedText = is_array($selectedOption) ? ($selectedOption['label'] ?? $selectedOption['text'] ?? $selectedOption) : $selectedOption;
+                    return strtolower(trim((string) $selectedText)) === strtolower(trim((string) $question->correct_answer));
+                }
+                // Direct text comparison fallback
+                return strtolower(trim((string) $userAnswer)) === strtolower(trim((string) $question->correct_answer));
 
             case 'multiple_select':
                 return $this->gradeMultipleSelectQuestion($question, $userAnswer);
@@ -89,6 +97,7 @@ class SelfCheckGradingService
                 $correctBool = strtolower(trim($question->correct_answer));
                 return $userBool === $correctBool;
 
+            case 'identification':
             case 'fill_blank':
                 // Check if answer matches any acceptable answer (case-insensitive)
                 $acceptableAnswers = array_map(
@@ -96,6 +105,32 @@ class SelfCheckGradingService
                     explode(',', $question->correct_answer)
                 );
                 return in_array(strtolower(trim($userAnswer)), $acceptableAnswers);
+
+            case 'enumeration':
+                // User provides multiple answers (newline or comma separated)
+                // Order does NOT matter — grade by how many correct items they listed
+                $correctItems = array_map(fn($a) => strtolower(trim($a)), explode(',', $question->correct_answer));
+                $correctItems = array_values(array_filter($correctItems));
+                if (empty($correctItems)) return null;
+
+                // Parse user's answers (newline or comma separated)
+                $userItems = preg_split('/[\n,]+/', (string) $userAnswer);
+                $userItems = array_map(fn($a) => strtolower(trim($a)), $userItems);
+                $userItems = array_values(array_filter($userItems));
+
+                $matched = 0;
+                $usedCorrect = [];
+                foreach ($userItems as $user) {
+                    foreach ($correctItems as $cIdx => $correct) {
+                        if (in_array($cIdx, $usedCorrect)) continue;
+                        if ($user === $correct || str_contains($user, $correct) || str_contains($correct, $user)) {
+                            $matched++;
+                            $usedCorrect[] = $cIdx;
+                            break;
+                        }
+                    }
+                }
+                return count($correctItems) > 0 ? $matched / count($correctItems) : 0;
 
             case 'short_answer':
                 // Check for keywords if provided

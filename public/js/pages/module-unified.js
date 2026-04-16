@@ -265,14 +265,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function focusKeyHandler(e) {
+        // Don't capture keys when typing in inputs/textareas
+        const tag = e.target.tagName.toLowerCase();
+        const isTyping = tag === 'input' || tag === 'textarea' || e.target.isContentEditable;
+
         if (e.key === 'Escape') exitFocusMode();
-        else if (e.key === 'ArrowRight' || e.key === ' ') {
+        else if (!isTyping && (e.key === 'ArrowRight' || e.key === ' ')) {
             e.preventDefault();
             if (canProceedToNext()) nextFocusContent();
         }
-        else if (e.key === 'ArrowLeft') { e.preventDefault(); prevFocusContent(); }
-        else if (e.key === 'ArrowUp') { e.preventDefault(); prevImage(); }
-        else if (e.key === 'ArrowDown') { e.preventDefault(); nextImage(); }
+        else if (!isTyping && e.key === 'ArrowLeft') { e.preventDefault(); prevFocusContent(); }
+        else if (!isTyping && e.key === 'ArrowUp') { e.preventDefault(); prevImage(); }
+        else if (!isTyping && e.key === 'ArrowDown') { e.preventDefault(); nextImage(); }
     }
 
     function canProceedToNext() {
@@ -879,16 +883,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 `;
                 break;
 
-            case 'fill_blank':
-            case 'short_answer':
-                html += `
-                    <input type="text" class="form-control selfcheck-text-input"
-                           placeholder="Type your answer here..."
-                           onchange="window.saveAnswer(${q.id}, this.value)"
-                           oninput="window.saveAnswer(${q.id}, this.value)">
-                `;
-                break;
-
             case 'numeric':
             case 'slider':
                 const min = q.options?.min || 0;
@@ -905,6 +899,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 `;
                 break;
 
+            case 'identification':
+            case 'fill_blank':
+            case 'short_answer':
+                html += `
+                    <input type="text" class="form-control selfcheck-text-input"
+                           placeholder="Type your answer here..."
+                           onchange="window.saveAnswer(${q.id}, this.value)"
+                           oninput="window.saveAnswer(${q.id}, this.value)">
+                `;
+                break;
+
+            case 'enumeration':
+                html += `
+                    <textarea class="form-control selfcheck-textarea" rows="4"
+                              placeholder="List your answers, one per line..."
+                              onchange="window.saveAnswer(${q.id}, this.value)"
+                              oninput="window.saveAnswer(${q.id}, this.value)"></textarea>
+                    <small class="text-muted mt-1 d-block"><i class="fas fa-info-circle me-1"></i>Separate each answer with a new line</small>
+                `;
+                break;
+
             case 'essay':
                 html += `
                     <textarea class="form-control selfcheck-textarea" rows="5"
@@ -915,8 +930,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 break;
 
             default:
-                html += `<p class="text-muted">Question type "${q.type}" - please answer on the full quiz page.</p>`;
-                html += `<input type="text" class="form-control" placeholder="Your answer" onchange="window.saveAnswer(${q.id}, this.value)">`;
+                html += `
+                    <input type="text" class="form-control selfcheck-text-input"
+                           placeholder="Type your answer here..."
+                           onchange="window.saveAnswer(${q.id}, this.value)"
+                           oninput="window.saveAnswer(${q.id}, this.value)">
+                `;
         }
 
         html += `</div></div>`;
@@ -928,6 +947,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const percentage = results.percentage;
         const score = results.score;
         const total = results.total;
+        const details = results.details || [];
+        const questions = content.questions || [];
 
         let html = `
             <div class="selfcheck-results">
@@ -945,30 +966,65 @@ document.addEventListener('DOMContentLoaded', function () {
                         <p class="text-muted">Passing score: ${content.passingScore}%</p>
                     </div>
                 </div>
+
+                <div class="selfcheck-results-actions" style="margin-bottom:1.5rem;">
+                    ${passed ? `
+                        <button class="btn btn-success" onclick="window.continueFocusMode()">
+                            <i class="fas fa-arrow-right me-2"></i>Continue
+                        </button>
+                    ` : `
+                        <button class="btn btn-primary" onclick="window.retrySelfCheck()">
+                            <i class="fas fa-redo me-2"></i>Try Again
+                        </button>
+                    `}
+                </div>
+
+                <div class="selfcheck-review">
+                    <h5 style="margin-bottom:1rem;font-weight:700;"><i class="fas fa-list-check me-2"></i>Answer Review</h5>
         `;
 
-        if (passed) {
-            html += `
-                <div class="selfcheck-results-actions">
-                    <button class="btn btn-success btn-lg" onclick="window.continueFocusMode()">
-                        <i class="fas fa-arrow-right me-2"></i>Continue to Next Section
-                    </button>
-                </div>
-            `;
-        } else {
-            html += `
-                <div class="selfcheck-results-actions">
-                    <button class="btn btn-primary" onclick="window.retrySelfCheck()">
-                        <i class="fas fa-redo me-2"></i>Try Again
-                    </button>
-                    <button class="btn btn-outline-secondary" onclick="window.reviewSelfCheck()">
-                        <i class="fas fa-eye me-2"></i>Review Answers
-                    </button>
-                </div>
-            `;
-        }
+        questions.forEach((q, idx) => {
+            const detail = details.find(d => d.question_id === q.id) || {};
+            const isCorrect = detail.is_correct || false;
+            const userAnswer = selfCheckState.answers[q.id];
+            let userAnswerText = '';
+            let correctAnswerText = q.correct_answer || '';
 
-        html += `</div>`;
+            // Resolve user answer to readable text
+            if (q.type === 'multiple_choice' || q.type === 'image_choice') {
+                const opts = q.options || [];
+                if (userAnswer !== undefined && userAnswer !== null && opts[userAnswer]) {
+                    const opt = opts[userAnswer];
+                    userAnswerText = typeof opt === 'object' ? (opt.label || opt.text || opt) : opt;
+                } else {
+                    userAnswerText = userAnswer ?? 'No answer';
+                }
+            } else if (q.type === 'true_false') {
+                userAnswerText = userAnswer === 'true' ? 'True' : userAnswer === 'false' ? 'False' : 'No answer';
+            } else {
+                userAnswerText = userAnswer || 'No answer';
+            }
+
+            html += `
+                <div class="review-item" style="padding:0.75rem 1rem;margin-bottom:0.5rem;border-radius:8px;border-left:4px solid ${isCorrect ? '#198754' : '#dc3545'};background:${isCorrect ? 'rgba(25,135,84,0.05)' : 'rgba(220,53,69,0.05)'};">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.25rem;">
+                        <strong style="font-size:0.85rem;">Q${idx + 1}. ${q.text}</strong>
+                        <span style="flex-shrink:0;margin-left:0.5rem;">
+                            ${isCorrect
+                                ? '<i class="fas fa-check-circle" style="color:#198754;"></i>'
+                                : '<i class="fas fa-times-circle" style="color:#dc3545;"></i>'}
+                            <small style="color:var(--text-muted);margin-left:0.25rem;">${detail.points_earned || 0}/${q.points || 1}</small>
+                        </span>
+                    </div>
+                    <div style="font-size:0.8rem;">
+                        <div style="color:${isCorrect ? '#198754' : '#dc3545'};"><strong>Your answer:</strong> ${userAnswerText}</div>
+                        ${!isCorrect ? `<div style="color:#198754;"><strong>Correct:</strong> ${correctAnswerText}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `</div></div>`;
         return html;
     }
 
