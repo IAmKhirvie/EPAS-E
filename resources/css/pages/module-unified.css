@@ -332,6 +332,26 @@ a.sidebar-topic-item.sidebar-topic-link:hover {
     margin-bottom: 1rem;
 }
 
+/* Category Button */
+.btn-category {
+    background: #0c3a2d;
+    border-color: #0c3a2d;
+    color: #fff;
+}
+
+.btn-category:hover,
+.btn-category:focus {
+    background: #0a2f24;
+    border-color: #0a2f24;
+    color: #fff;
+}
+
+.btn-category:active {
+    background: #082620;
+    border-color: #082620;
+    color: #fff;
+}
+
 /* ==================== START READING CARD ==================== */
 
 .start-reading-card {
