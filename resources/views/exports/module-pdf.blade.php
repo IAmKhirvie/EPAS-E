@@ -196,7 +196,12 @@
             @foreach($sheet->topics->sortBy('order') as $topic)
             <div class="topic">
                 <h4>{{ $topic->title }}</h4>
+                @if($topic->content)
                 <div class="content">{!! $topic->content !!}</div>
+                @endif
+                @if($topic->document_content)
+                <div class="content">{!! app(\App\Services\ContentSanitizationService::class)->stripWordBloat($topic->document_content) !!}</div>
+                @endif
             </div>
             @endforeach
         </div>

@@ -49,13 +49,17 @@
                 <p>Student ID: {{ $student->student_id }} | Section: {{ $student->section ?? 'N/A' }}</p>
             @endif
         </div>
-        @if(Auth::user()->id !== $student->id)
         <div class="page-header-actions">
+            @if(Auth::user()->id === $student->id)
+            <a href="{{ route('grades.export-mine') }}" class="btn btn-outline-success btn-sm">
+                <i class="fas fa-file-export me-1"></i>Export My Grades
+            </a>
+            @else
             <a href="{{ route('grades.index') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i>Back to Student List
             </a>
+            @endif
         </div>
-        @endif
     </div>
 
     <!-- Overall Grade Summary with Chart -->

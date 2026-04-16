@@ -614,6 +614,41 @@ class GradesController extends Controller
      * @param int|null $prefetchedCompletedCount
      * @return array
      */
+    /**
+     * Export the authenticated student's own grades to CSV.
+     */
+    public function exportMyGrades(): Response
+    {
+        $user = Auth::user();
+
+        if ($user->role !== Roles::STUDENT) {
+            abort(403);
+        }
+
+        $summary = $this->calculateStudentGradeSummary($user);
+
+        // Build CSV
+        $lines = [];
+        $lines[] = implode(',', ['Student Name', 'Student ID', 'Section', 'Self-Check Avg', 'Homework Avg', 'Overall Avg', 'Grade', 'Status']);
+        $lines[] = implode(',', [
+            '"' . $user->full_name . '"',
+            $user->student_id ?? 'N/A',
+            $user->section ?? 'N/A',
+            $summary['self_check_average'],
+            $summary['homework_average'],
+            $summary['overall_average'],
+            $summary['grade_descriptor'],
+            $summary['competency_status'],
+        ]);
+
+        $csv = implode("\n", $lines);
+        $filename = 'my_grades_' . date('Y-m-d') . '.csv';
+
+        return response($csv)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
     private function calculateStudentGradeSummary(
         User $student,
         ?float $prefetchedSelfCheckAvg = null,

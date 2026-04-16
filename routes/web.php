@@ -843,6 +843,7 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::get('/', [GradesController::class, 'index'])->name('index');
         Route::get('/api/my-grades', [GradesController::class, 'getStudentGradesApi'])->name('api.my-grades');
         Route::get('/export', [GradesController::class, 'exportGrades'])->name('export')->middleware('check.role:admin,instructor');
+        Route::get('/export-mine', [GradesController::class, 'exportMyGrades'])->name('export-mine')->middleware('check.role:student');
         Route::get('/export-class/{section}', [GradesController::class, 'exportClassGrades'])->name('export-class')->middleware('check.role:admin,instructor');
         Route::get('/{student}', [GradesController::class, 'show'])->name('show')->where('student', '[0-9]+');
     });
