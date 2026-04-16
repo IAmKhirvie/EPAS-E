@@ -157,12 +157,6 @@
                     </div>
                 </div>
 
-                <!-- Certificates -->
-                <a href="{{ route('admin.certificates.index') }}" class="nav-item {{ Request::is('admin/certificates*') ? 'active' : '' }}" data-tooltip="Certificates">
-                    <i class="fas fa-certificate"></i>
-                    <span>Certificates</span>
-                </a>
-
             </nav>
         </div>
         @endif

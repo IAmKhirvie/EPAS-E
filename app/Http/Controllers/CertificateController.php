@@ -481,8 +481,57 @@ class CertificateController extends Controller
     }
 
     /**
-     * Regenerate certificate PDF.
+     * Distribute certificates to all students who completed all modules in any course.
      */
+    public function distributeCertificates()
+    {
+        $courses = Course::where('is_active', true)->with('modules')->get();
+        $issued = 0;
+
+        foreach ($courses as $course) {
+            $activeModules = $course->modules->where('is_active', true);
+            if ($activeModules->isEmpty()) {
+                continue;
+            }
+
+            // Get all active students
+            $students = User::where('role', 'student')->where('stat', 1)->get();
+
+            foreach ($students as $student) {
+                // Skip if already has certificate for this course
+                $existing = Certificate::where('user_id', $student->id)
+                    ->where('course_id', $course->id)
+                    ->whereIn('status', ['issued', 'pending', 'pending_instructor', 'pending_admin'])
+                    ->exists();
+
+                if ($existing) {
+                    continue;
+                }
+
+                // Check if student completed all modules
+                if ($this->certificateService->checkCourseCompletion($student, $course)) {
+                    try {
+                        $this->certificateService->generateCertificate($student, $course, [
+                            'auto_distributed' => true,
+                            'distributed_by' => auth()->id(),
+                        ]);
+                        $issued++;
+                    } catch (\Exception $e) {
+                        Log::error("Failed to distribute certificate to user {$student->id} for course {$course->id}", [
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+                }
+            }
+        }
+
+        if ($issued > 0) {
+            return back()->with('success', "Successfully distributed {$issued} certificate(s) to qualifying students.");
+        }
+
+        return back()->with('info', 'No new certificates to distribute. All qualifying students already have certificates.');
+    }
+
     /**
      * Generate and save the PDF – ALWAYS overwrites old file.
      */
@@ -495,14 +544,15 @@ class CertificateController extends Controller
             'issue_date' => $certificate->issued_at ? $certificate->issued_at->format('F d, Y') : now()->format('F d, Y'),
             'config' => [
                 'organization' => 'EPAS-E Learning Management System',
-                'signatory_left_title' => 'Program Director',
-                'signatory_right_title' => 'Lead Instructor',
+                'institution' => config('joms.institution_name', 'IETI College of Technology - Marikina'),
+                'signatory_left_title' => 'School Administrator',
+                'signatory_right_title' => 'Lead Instructor / Trainer',
             ],
         ];
 
-        $template = $certificate->template_used ?? 'default';
+        $template = $certificate->template_used ?? 'tesda';
 
-        // Check if view exists in certificates.templates.* (fix for your folder structure)
+        // Check if view exists in certificates.templates.*
         if (!view()->exists("certificates.templates.{$template}")) {
             \Log::warning("Template '{$template}' not found, falling back to 'default'");
             $template = 'default';

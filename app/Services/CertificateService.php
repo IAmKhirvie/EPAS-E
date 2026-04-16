@@ -18,7 +18,8 @@ class CertificateService
      * Available certificate templates.
      */
     public const TEMPLATES = [
-        'default' => 'Default (Blue)',
+        'tesda' => 'TESDA NC II (Default)',
+        'default' => 'Classic (Blue)',
         'gold' => 'Gold Premium',
         'modern' => 'Modern Minimal',
         'formal' => 'Formal/Traditional',
@@ -49,7 +50,7 @@ class CertificateService
         $certificateNumber = Certificate::generateCertificateNumber();
 
         // Get template from course or use default
-        $template = $course->certificate_template ?? 'default';
+        $template = $course->certificate_template ?? 'tesda';
 
         // Create certificate record
         $certificate = Certificate::create([
@@ -87,12 +88,13 @@ class CertificateService
             'issue_date' => $certificate->issued_at ? $certificate->issued_at->format('F d, Y') : now()->format('F d, Y'),
             'config' => [
                 'organization' => 'EPAS-E Learning Management System',
-                'signatory_left_title' => 'Program Director',
-                'signatory_right_title' => 'Lead Instructor',
+                'institution' => config('joms.institution_name', 'IETI College of Technology - Marikina'),
+                'signatory_left_title' => 'School Administrator',
+                'signatory_right_title' => 'Lead Instructor / Trainer',
             ],
         ];
 
-        $template = $certificate->template_used ?? 'default';
+        $template = $certificate->template_used ?? 'tesda';
         // Check if view exists in certificates.templates.*
         if (!view()->exists("certificates.templates.{$template}")) {
             Log::warning("Template '{$template}' not found, falling back to 'default'");
@@ -249,7 +251,7 @@ class CertificateService
 
         $course = $module->course;
         $certificateNumber = Certificate::generateCertificateNumber();
-        $template = $course->certificate_template ?? 'default';
+        $template = $course->certificate_template ?? 'tesda';
 
         // Create certificate with pending status (needs instructor approval first)
         $certificate = Certificate::create([
@@ -409,7 +411,7 @@ class CertificateService
 
         $course = $module->course;
         $certificateNumber = Certificate::generateCertificateNumber();
-        $template = $course->certificate_template ?? 'default';
+        $template = $course->certificate_template ?? 'tesda';
 
         // Create certificate directly as issued
         $certificate = Certificate::create([

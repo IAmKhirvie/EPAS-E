@@ -473,6 +473,43 @@ class ProgressTrackingService
         $this->clearProgressCache($userId);
 
         Log::info("Module {$moduleId} marked as completed for user {$userId}");
+
+        // Auto-issue certificate if all modules in the course are completed
+        $this->checkAndIssueCertificate($moduleId, $userId);
+    }
+
+    /**
+     * Check if all modules in a course are completed and auto-issue a certificate.
+     */
+    protected function checkAndIssueCertificate(int $moduleId, int $userId): void
+    {
+        try {
+            $module = Module::with('course')->find($moduleId);
+            if (!$module || !$module->course) {
+                return;
+            }
+
+            $user = User::find($userId);
+            if (!$user) {
+                return;
+            }
+
+            $certificateService = app(CertificateService::class);
+
+            if ($certificateService->checkCourseCompletion($user, $module->course)) {
+                $certificateService->generateCertificate($user, $module->course, [
+                    'auto_issued' => true,
+                    'trigger' => 'module_completion',
+                    'trigger_module_id' => $moduleId,
+                ]);
+
+                Log::info("Auto-issued certificate for user {$userId} - completed all modules in course {$module->course->id}");
+            }
+        } catch (\Exception $e) {
+            Log::error("Auto-certificate issuance failed for user {$userId}, module {$moduleId}", [
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**

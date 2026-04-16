@@ -16,11 +16,25 @@
     {{-- Header --}}
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
         <h4 class="mb-0">{{ $this->pageTitle }}</h4>
-        @if($canCreate)
-            <a href="{{ route('private.users.create') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-plus me-1"></i> Add User
-            </a>
-        @endif
+        <div class="d-flex gap-2">
+            @if($canCreate && Auth::user()->role === \App\Constants\Roles::ADMIN)
+                <a href="{{ route('admin.certificates.index') }}" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-certificate me-1"></i> Certificates
+                </a>
+                <form action="{{ route('admin.certificates.distribute') }}" method="POST"
+                      onsubmit="return confirm('This will issue certificates to all students who completed all modules but don\'t have one yet. Continue?')">
+                    @csrf
+                    <button type="submit" class="btn btn-success btn-sm">
+                        <i class="fas fa-paper-plane me-1"></i> Distribute Certificates
+                    </button>
+                </form>
+            @endif
+            @if($canCreate)
+                <a href="{{ route('private.users.create') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i> Add User
+                </a>
+            @endif
+        </div>
     </div>
 
     {{-- Filter Counts --}}
