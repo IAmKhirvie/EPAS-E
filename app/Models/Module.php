@@ -106,7 +106,11 @@ class Module extends Model
         'assessment_include_sources' => 'array',
     ];
 
-    // Add this relationship
+    public function getThumbnailUrlAttribute(): ?string
+    {
+        return $this->thumbnail ? asset('storage/' . $this->thumbnail) : null;
+    }
+
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
