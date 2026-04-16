@@ -550,6 +550,7 @@
                     'sheetId' => $sheet->id,
                     'title' => $topic->title,
                     'content' => $topic->content ?? '',
+                    'document_content' => $topic->document_content ?? '',
                     'parts' => $topic->parts ?? [],
                     'images' => $topicImages
                 ];
@@ -733,6 +734,11 @@
             let bodyHtml = '';
             if (content.content) {
                 bodyHtml += `<div class="mb-4">${content.content.replace(/\n/g, '<br>')}</div>`;
+            }
+
+            // Add document content from uploaded files
+            if (content.document_content) {
+                bodyHtml += `<div class="mb-4 document-content">${content.document_content}</div>`;
             }
 
             // Add parts if available
