@@ -585,28 +585,29 @@
 
     /* Login dropdown → centered modal on mobile */
     #login-dropdown {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        right: auto;
-        bottom: auto;
-        width: calc(100% - 2rem);
-        max-width: 360px;
-        min-width: unset;
-        border-radius: 20px;
-        z-index: 1100;
-        transform: translate(-50%, -50%) scale(0.9);
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        right: auto !important;
+        bottom: auto !important;
+        width: calc(100% - 2rem) !important;
+        max-width: 360px !important;
+        min-width: unset !important;
+        border-radius: 20px !important;
+        z-index: 1100 !important;
+        transform: translate(-50%, -50%) scale(0.9) !important;
         opacity: 0;
         visibility: hidden;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
         overflow: hidden;
+        background: #fff !important;
     }
 
     #login-dropdown.active {
-        transform: translate(-50%, -50%) scale(1);
-        opacity: 1;
-        visibility: visible;
+        transform: translate(-50%, -50%) scale(1) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
     }
 
     /* Bigger login options in modal */
