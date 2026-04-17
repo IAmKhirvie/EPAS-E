@@ -452,16 +452,8 @@ class ModuleController extends Controller
         $this->authorize('delete', $module);
 
         try {
-            if ($module->informationSheets()->count() > 0) {
-                if (request()->expectsJson()) {
-                    return response()->json([
-                        'message' => 'Cannot delete module that has information sheets. Please delete the information sheets first.'
-                    ], 422);
-                }
-                return back()->with('error', 'Cannot delete module that has information sheets. Please delete the information sheets first.');
-            }
-
             $courseId = $module->course_id;
+            // Cascade soft-delete handled by Module::deleting() boot method
             $module->delete();
 
             if (request()->expectsJson()) {
