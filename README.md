@@ -152,13 +152,18 @@ php artisan serve
 npm run dev
 ```
 
-## Default Account
+## Default Accounts
 
-After running `php artisan db:seed`, the following admin account is created:
+After running `php artisan db:seed`, the following accounts are created:
 
-| Role  | Email                                    | Password     |
-| ----- | ---------------------------------------- | ------------ |
-| Admin | `khirviecliffordbautista@gmail.com`       | `EPASe@2025` |
+| Role       | Email                                | Section | Password     |
+| ---------- | ------------------------------------ | ------- | ------------ |
+| Admin      | `khirviecliffordbautista@gmail.com`  | —       | `EPASe@2025` |
+| Instructor | `karlrapada@gmail.com`               | S8B1    | `EPASe@2025` |
+| Instructor | `KebinSy2121252@gmail.com`           | S8A1    | `EPASe@2025` |
+| Student    | `mikaellayap23@gmail.com`            | S8A1    | `EPASe@2025` |
+| Student    | `kookyarabia06@gmail.com`            | S8A1    | `EPASe@2025` |
+| Student    | `sheilamerida@gmail.com`             | S8B1    | `EPASe@2025` |
 
 > **Note:** These accounts are created by the `UserSeeder`. Make sure to run `php artisan db:seed` after migrations.
 

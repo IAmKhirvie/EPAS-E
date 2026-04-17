@@ -217,7 +217,8 @@
 (function() {
     function updateBadges() {
         fetch('{{ route("api.badge-counts") }}', {
-            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+            credentials: 'same-origin'
         })
         .then(r => r.ok ? r.json() : null)
         .catch(() => null)

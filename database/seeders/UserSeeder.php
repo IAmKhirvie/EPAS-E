@@ -109,5 +109,25 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ]
         );
+
+        // Instructor - S8A1
+        DB::table('users')->updateOrInsert(
+            ['email' => 'KebinSy2121252@gmail.com'],
+            [
+                'student_id' => 'MAR000000000006',
+                'password' => Hash::make('EPASe@2025'),
+                'first_name' => 'Andrei Kevin',
+                'middle_name' => 'A.',
+                'last_name' => 'Sy',
+                'ext_name' => '',
+                'role' => 'instructor',
+                'section' => 'S8A1',
+                'department_id' => 1,
+                'stat' => 1,
+                'email_verified_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
     }
 }

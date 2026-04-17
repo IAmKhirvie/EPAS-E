@@ -527,21 +527,21 @@
 @endauth
 
   <!-- Scripts (local) - Critical -->
-    <script src="{{ dynamic_asset('vendor/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ dynamic_asset('vendor/js/bootstrap.bundle.min.js') }}" data-navigate-once></script>
 
     <!-- App Script -->
-    <script src="{{ dynamic_asset('js/app.js') }}"></script>
+    <script src="{{ dynamic_asset('js/app.js') }}" data-navigate-once></script>
 
     <!-- Utility Scripts -->
-    <script src="{{ dynamic_asset('js/utils/dark-mode.js') }}"></script>
+    <script src="{{ dynamic_asset('js/utils/dark-mode.js') }}" data-navigate-once></script>
 
     <!-- Component Script -->
-    <script src="{{ dynamic_asset('js/components/navbar.js') }}"></script>
+    <script src="{{ dynamic_asset('js/components/navbar.js') }}" data-navigate-once></script>
 
     <!-- Deferred Scripts (non-critical) -->
-    <script src="{{ dynamic_asset('vendor/js/gsap.min.js') }}" defer></script>
-    <script src="{{ dynamic_asset('js/utils/dynamic-form.js') }}" defer></script>
-    <script src="{{ dynamic_asset('js/functions/FAB.js') }}" defer></script>
+    <script src="{{ dynamic_asset('vendor/js/gsap.min.js') }}" defer data-navigate-once></script>
+    <script src="{{ dynamic_asset('js/utils/dynamic-form.js') }}" defer data-navigate-once></script>
+    <script src="{{ dynamic_asset('js/functions/FAB.js') }}" defer data-navigate-once></script>
   @yield('scripts')
   @stack('scripts')
 
@@ -565,7 +565,7 @@
     </div>
   </div>
 
-  <script src="{{ dynamic_asset('js/error-popup.js') }}"></script>
+  <script src="{{ dynamic_asset('js/error-popup.js') }}" data-navigate-once></script>
   <script>
     // Show server-side flash messages via error popup
     @if(session('error_popup'))
