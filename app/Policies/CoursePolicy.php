@@ -34,7 +34,17 @@ class CoursePolicy
             return true;
         }
 
-        return $course->is_active;
+        if (!$course->is_active) {
+            return false;
+        }
+
+        // Check section targeting — null means all sections can access
+        if ($course->target_sections && $user->section) {
+            $sections = array_map('trim', explode(',', $course->target_sections));
+            return in_array($user->section, $sections);
+        }
+
+        return true;
     }
 
     /**

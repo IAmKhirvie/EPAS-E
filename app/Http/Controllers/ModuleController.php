@@ -143,6 +143,7 @@ class ModuleController extends Controller
     public function show(Course $course, Module $module)
     {
         $this->verifyModuleBelongsToCourse($course, $module);
+        $this->authorize('view', $course);
 
         $user = Auth::user();
 
