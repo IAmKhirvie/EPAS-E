@@ -152,17 +152,13 @@ php artisan serve
 npm run dev
 ```
 
-## Test Accounts
+## Default Account
 
-After running `php artisan db:seed`, the following test accounts are available:
+After running `php artisan db:seed`, the following admin account is created:
 
-| Role       | Email                        | Password       |
-| ---------- | ---------------------------- | -------------- |
-| Admin      | `Juswa@gmail.com`            | `Password123`  |
-| Instructor | `karl142412@gmail.com`       | `Password@123` |
-| Instructor | `KebinSy2121252@gmail.com`   | `Password@123` |
-| Student    | `Sheila1112421152@gmail.com` | `Password@123` |
-| Student    | `mikaellayap23@gmail.com`    | `Password123`  |
+| Role  | Email                                    | Password     |
+| ----- | ---------------------------------------- | ------------ |
+| Admin | `khirviecliffordbautista@gmail.com`       | `EPASe@2025` |
 
 > **Note:** These accounts are created by the `UserSeeder`. Make sure to run `php artisan db:seed` after migrations.
 

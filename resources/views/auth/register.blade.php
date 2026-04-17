@@ -49,7 +49,9 @@
                         autofocus
                         autocomplete="off"
                         readonly
-                        onfocus="this.removeAttribute('readonly')">
+                        onfocus="this.removeAttribute('readonly')"
+                        pattern="^[a-zA-Z\s\-'\.]+$"
+                        title="Letters only — no numbers or special characters">
                     <label for="first_name">FIRST NAME</label>
                 </div>
             </div>
@@ -63,7 +65,9 @@
                         value="{{ old('middle_name') }}"
                         autocomplete="off"
                         readonly
-                        onfocus="this.removeAttribute('readonly')">
+                        onfocus="this.removeAttribute('readonly')"
+                        pattern="^[a-zA-Z\s\-'\.]+$"
+                        title="Letters only — no numbers or special characters">
                     <label for="middle_name">MIDDLE NAME (Optional)</label>
                 </div>
             </div>
@@ -81,7 +85,9 @@
                         required
                         autocomplete="off"
                         readonly
-                        onfocus="this.removeAttribute('readonly')">
+                        onfocus="this.removeAttribute('readonly')"
+                        pattern="^[a-zA-Z\s\-'\.]+$"
+                        title="Letters only — no numbers or special characters">
                     <label for="last_name">LAST NAME</label>
                 </div>
             </div>
@@ -95,7 +101,9 @@
                         value="{{ old('ext_name') }}"
                         autocomplete="off"
                         readonly
-                        onfocus="this.removeAttribute('readonly')">
+                        onfocus="this.removeAttribute('readonly')"
+                        pattern="^[a-zA-Z\s\-'\.]+$"
+                        title="Letters only — no numbers or special characters">
                     <label for="ext_name">EXT. NAME</label>
                 </div>
             </div>
@@ -411,11 +419,27 @@
 
 <script>
 function showConfirmModal() {
-    const firstName = document.getElementById('first_name').value;
-    const middleName = document.getElementById('middle_name').value;
-    const lastName = document.getElementById('last_name').value;
-    const extName = document.getElementById('ext_name').value;
-    const email = document.getElementById('email').value;
+    const firstName = document.getElementById('first_name').value.trim();
+    const middleName = document.getElementById('middle_name').value.trim();
+    const lastName = document.getElementById('last_name').value.trim();
+    const extName = document.getElementById('ext_name').value.trim();
+    const email = document.getElementById('email').value.trim();
+
+    // Validate names — no numbers allowed
+    const namePattern = /^[a-zA-Z\s\-'\.]+$/;
+    const fields = [
+        { value: firstName, label: 'First name' },
+        { value: lastName, label: 'Last name' },
+    ];
+    if (middleName) fields.push({ value: middleName, label: 'Middle name' });
+    if (extName) fields.push({ value: extName, label: 'Ext. name' });
+
+    for (const field of fields) {
+        if (!namePattern.test(field.value)) {
+            alert(field.label + ' must contain only letters — no numbers or special characters.');
+            return;
+        }
+    }
 
     // Build full name
     let fullName = firstName;
