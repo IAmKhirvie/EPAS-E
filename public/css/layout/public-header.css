@@ -60,12 +60,13 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background-color: rgba(12, 58, 45, 0.75);
+    background-color: var(--background);
     border-radius: 9999px;
     padding: 0.5rem;
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
     height: 3.5rem;
+    mix-blend-mode: multiply;
     /* border: 1px solid var(--border); */
 }
 
@@ -442,13 +443,12 @@
     justify-content: center;
     transition: all 0.3s ease;
     position: relative;
-    color: #fff;
+    color: var(--text-primary);
     text-decoration: none;
 }
 
 .icon-button:hover, .user-button:hover {
     transform: scale(1.05);
-    color: #ffb902;
 }
 
 /* Enhanced Notification Badge */
