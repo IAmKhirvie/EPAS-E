@@ -28,7 +28,7 @@ class StoreCourseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'course_name'   => 'required|string|max:255',
+            'course_name'   => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.\,\(\)]+$/u'],
             'course_code'   => 'required|string|max:50|unique:courses',
             'description'   => 'nullable|string',
             'sector'        => 'nullable|string|max:255',

@@ -46,11 +46,11 @@ class UpdateModuleRequest extends FormRequest
     {
         return [
             'course_id'            => 'required|exists:courses,id',
-            'qualification_title'  => 'required|string|max:255',
-            'unit_of_competency'   => 'required|string|max:255',
-            'module_title'         => 'required|string|max:255',
+            'qualification_title'  => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.\,\(\)]+$/u'],
+            'unit_of_competency'   => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.\,\(\)]+$/u'],
+            'module_title'         => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.\,\(\)]+$/u'],
             'module_number'        => 'required|string|max:50',
-            'module_name'          => 'required|string|max:255',
+            'module_name'          => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.\,\(\)]+$/u'],
             'table_of_contents'    => 'nullable|string',
             'how_to_use_cblm'      => 'nullable|string',
             'introduction'         => 'nullable|string',

@@ -28,10 +28,10 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'ext_name' => 'nullable|string|max:255',
+            'first_name' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.]+$/u'],
+            'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.]+$/u'],
+            'last_name' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.]+$/u'],
+            'ext_name' => ['nullable', 'string', 'max:10', 'regex:/^[\pL\s\-\'\.]+$/u'],
             'email' => [
                 'required',
                 'string',

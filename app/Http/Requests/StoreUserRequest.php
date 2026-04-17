@@ -15,10 +15,10 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name'    => 'required|string|max:255',
-            'middle_name'   => 'nullable|string|max:255',
-            'last_name'     => 'required|string|max:255',
-            'ext_name'      => 'nullable|string|max:10',
+            'first_name'    => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.]+$/u'],
+            'middle_name'   => ['nullable', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.]+$/u'],
+            'last_name'     => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.]+$/u'],
+            'ext_name'      => ['nullable', 'string', 'max:10', 'regex:/^[\pL\s\-\'\.]+$/u'],
             'email'         => 'required|email:rfc,dns|unique:users,email',
             'role'          => 'required|string|in:' . implode(',', Roles::all()),
             'department_id' => 'required|exists:departments,id',

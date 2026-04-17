@@ -188,7 +188,7 @@ class TrashTable extends Component
                 return;
             }
 
-            $model->forceDelete();
+            $this->forceDeleteWithChildren($model, $type);
 
             // Remove from selection
             $uniqueKey = "{$type}_{$id}";
@@ -243,28 +243,91 @@ class TrashTable extends Component
     {
         try {
             $deleted = 0;
+            $errors = 0;
 
             foreach ($this->selectedItems as $uniqueKey) {
                 [$type, $id] = explode('_', $uniqueKey, 2);
                 $model = $this->getModelInstance($type, (int)$id);
 
                 if ($model && $this->canManageItem($model, $type)) {
-                    $model->forceDelete();
-                    $deleted++;
+                    try {
+                        $this->forceDeleteWithChildren($model, $type);
+                        $deleted++;
+                    } catch (\Exception $e) {
+                        Log::error("Force delete failed for {$type}#{$id}", ['error' => $e->getMessage()]);
+                        $errors++;
+                    }
                 }
             }
 
             $this->selectedItems = [];
             $this->selectAll = false;
 
-            // Clear the trash count cache
             Cache::forget("trash_count_" . Auth::id());
 
-            session()->flash('success', "{$deleted} item(s) permanently deleted.");
+            if ($errors > 0) {
+                session()->flash('warning', "{$deleted} item(s) deleted, {$errors} failed.");
+            } else {
+                session()->flash('success', "{$deleted} item(s) permanently deleted.");
+            }
         } catch (\Exception $e) {
             Log::error('Bulk force delete failed', ['error' => $e->getMessage()]);
             session()->flash('error', 'Failed to delete items.');
         }
+    }
+
+    private function forceDeleteWithChildren($model, string $type): void
+    {
+        \DB::transaction(function () use ($model, $type) {
+            match ($type) {
+                'course' => $this->forceDeleteCourse($model),
+                'module' => $this->forceDeleteModule($model),
+                'information_sheet' => $this->forceDeleteSheet($model),
+                default => $model->forceDelete(),
+            };
+        });
+    }
+
+    private function forceDeleteCourse(Course $course): void
+    {
+        foreach ($course->modules()->withTrashed()->get() as $module) {
+            $this->forceDeleteModule($module);
+        }
+        $course->forceDelete();
+    }
+
+    private function forceDeleteModule(Module $module): void
+    {
+        foreach ($module->informationSheets()->withTrashed()->get() as $sheet) {
+            $this->forceDeleteSheet($sheet);
+        }
+        $module->forceDelete();
+    }
+
+    private function forceDeleteSheet(InformationSheet $sheet): void
+    {
+        $sheet->topics()->withTrashed()->forceDelete();
+        foreach ($sheet->selfChecks()->withTrashed()->get() as $sc) {
+            $sc->submissions()->delete();
+            $sc->questions()->forceDelete();
+            $sc->forceDelete();
+        }
+        foreach ($sheet->homeworks()->withTrashed()->get() as $hw) {
+            $hw->submissions()->delete();
+            $hw->forceDelete();
+        }
+        foreach ($sheet->taskSheets()->withTrashed()->get() as $ts) {
+            $ts->submissions()->delete();
+            $ts->forceDelete();
+        }
+        foreach ($sheet->jobSheets()->withTrashed()->get() as $js) {
+            $js->submissions()->delete();
+            $js->forceDelete();
+        }
+        foreach ($sheet->checklists()->withTrashed()->get() as $cl) {
+            $cl->forceDelete();
+        }
+        $sheet->forceDelete();
     }
 
     private function getModelInstance(string $type, int $id)

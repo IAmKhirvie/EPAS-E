@@ -23,10 +23,10 @@ class UpdateUserRequest extends FormRequest
 
         return [
             'student_id'     => 'required|string|max:25|unique:users,student_id,' . $userId,
-            'first_name'     => 'required|string|max:255',
-            'middle_name'    => 'nullable|string|max:255',
-            'last_name'      => 'required|string|max:255',
-            'ext_name'       => 'nullable|string|max:10',
+            'first_name'     => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.]+$/u'],
+            'middle_name'    => ['nullable', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.]+$/u'],
+            'last_name'      => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.]+$/u'],
+            'ext_name'       => ['nullable', 'string', 'max:10', 'regex:/^[\pL\s\-\'\.]+$/u'],
             'email'          => 'required|email|unique:users,email,' . $userId,
             'role'           => $roleRule,
             'department_id'  => 'nullable|exists:departments,id',

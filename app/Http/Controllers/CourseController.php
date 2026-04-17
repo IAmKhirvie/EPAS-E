@@ -153,7 +153,7 @@ class CourseController extends Controller
         $this->authorize('create', Course::class);
 
         $validated = $request->validate([
-            'course_name' => 'required|string|max:255',
+            'course_name' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.\,\(\)]+$/u'],
             'course_code' => 'required|string|max:50|unique:courses',
             'description' => 'nullable|string',
             'sector' => 'nullable|string|max:255',
@@ -293,7 +293,7 @@ class CourseController extends Controller
         $user = Auth::user();
 
         $rules = [
-            'course_name' => 'required|string|max:255',
+            'course_name' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.\,\(\)]+$/u'],
             'course_code' => 'required|string|max:50|unique:courses,course_code,' . $course->id,
             'description' => 'nullable|string',
             'sector' => 'nullable|string|max:255',

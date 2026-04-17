@@ -153,10 +153,14 @@ class UsersImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
         if (empty($data['first_name'])) {
             $errors[] = 'First name is required';
+        } elseif (!preg_match('/^[\pL\s\-\'\.]+$/u', $data['first_name'])) {
+            $errors[] = 'First name must contain only letters, spaces, hyphens, or apostrophes';
         }
 
         if (empty($data['last_name'])) {
             $errors[] = 'Last name is required';
+        } elseif (!preg_match('/^[\pL\s\-\'\.]+$/u', $data['last_name'])) {
+            $errors[] = 'Last name must contain only letters, spaces, hyphens, or apostrophes';
         }
 
         if (empty($data['email'])) {

@@ -35,11 +35,11 @@ class ModuleController extends Controller
         $this->authorize('create', Module::class);
 
         $validated = $request->validate([
-            'qualification_title' => 'required|string|max:255',
-            'unit_of_competency' => 'required|string|max:255',
-            'module_title' => 'required|string|max:255',
+            'qualification_title' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.\,\(\)]+$/u'],
+            'unit_of_competency' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.\,\(\)]+$/u'],
+            'module_title' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.\,\(\)]+$/u'],
             'module_number' => 'required|string|max:50',
-            'module_name' => 'required|string|max:255',
+            'module_name' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.\,\(\)]+$/u'],
             'order' => 'nullable|integer|min:1',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'table_of_contents' => 'nullable|string',
@@ -358,11 +358,11 @@ class ModuleController extends Controller
         $this->authorize('update', $module);
 
         $validated = $request->validate([
-            'qualification_title' => 'required|string|max:255',
-            'unit_of_competency' => 'required|string|max:255',
-            'module_title' => 'required|string|max:255',
+            'qualification_title' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.\,\(\)]+$/u'],
+            'unit_of_competency' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.\,\(\)]+$/u'],
+            'module_title' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.\,\(\)]+$/u'],
             'module_number' => 'required|string|max:50',
-            'module_name' => 'required|string|max:255',
+            'module_name' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.\,\(\)]+$/u'],
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'remove_thumbnail' => 'nullable|boolean',
             'table_of_contents' => 'nullable|string',

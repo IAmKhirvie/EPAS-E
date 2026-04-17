@@ -45,7 +45,7 @@ class UpdateCourseRequest extends FormRequest
         $courseId = $this->route('course')?->id;
 
         return [
-            'course_name'   => 'required|string|max:255',
+            'course_name'   => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.\,\(\)]+$/u'],
             'course_code'   => 'required|string|max:50|unique:courses,course_code,' . $courseId,
             'description'   => 'nullable|string',
             'sector'        => 'nullable|string|max:255',
