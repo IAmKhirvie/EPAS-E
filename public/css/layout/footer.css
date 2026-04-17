@@ -1,6 +1,6 @@
 /* Footer styles - Refined */
 footer {
-  background: #1f1f1f;
+  background: #0c3a2d;
   color: #e0e0e0;
   text-align: center;
   padding: 2rem 1rem;
@@ -10,7 +10,7 @@ footer {
   margin-top: auto;
   position: relative;
   backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 2px solid #ffb902;
 }
 
 footer::before {
@@ -19,8 +19,8 @@ footer::before {
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-  background: var(--primary);
+  height: 2px;
+  background: #ffb902;
 }
 
 footer:hover {
@@ -58,14 +58,14 @@ footer:hover {
 }
 
 .footer-links a:hover {
-  color: var(--primary);
+  color: #ffb902;
   transform: translateY(-1px);
 }
 
 /* Dark mode footer */
 .dark-mode footer {
-  background: #0a0a0a;
-  border-top-color: var(--border);
+  background: #062019;
+  border-top-color: #ffb902;
 }
 
 .dark-mode footer::before {
