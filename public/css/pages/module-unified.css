@@ -798,12 +798,17 @@ body.focus-mode-active .main-content-section {
 
 .focus-nav {
     position: fixed;
-    bottom: 30px;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     gap: 15px;
     z-index: 10002;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    border-radius: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .focus-nav button {
@@ -850,6 +855,10 @@ body.focus-mode-active .main-content-section {
 }
 
 /* Dark Mode */
+.dark-mode .focus-nav {
+    background: rgba(26, 26, 46, 0.9);
+}
+
 .dark-mode .focus-content-panel {
     background: #1a1a2e;
 }

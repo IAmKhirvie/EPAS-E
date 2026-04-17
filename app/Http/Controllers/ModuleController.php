@@ -658,8 +658,9 @@ class ModuleController extends Controller
         $this->verifyModuleBelongsToCourse($course, $module);
 
         $module->load([
-            'informationSheets.topics',
-            'informationSheets.selfChecks.questions',
+            'informationSheets' => fn($q) => $q->orderBy('sheet_number'),
+            'informationSheets.topics' => fn($q) => $q->orderBy('order'),
+            'informationSheets.selfChecks.questions' => fn($q) => $q->orderBy('order'),
             'informationSheets.taskSheets',
             'informationSheets.jobSheets',
         ]);

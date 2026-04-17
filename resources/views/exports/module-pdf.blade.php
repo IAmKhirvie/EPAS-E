@@ -174,7 +174,7 @@
 
     @foreach($module->informationSheets as $sheet)
     <div class="section page-break">
-        <div class="section-title">{{ $sheet->title }}</div>
+        <div class="section-title">Information Sheet {{ $sheet->sheet_number }}: {{ $sheet->title }}</div>
 
         @if($sheet->learning_objective)
         <div class="subsection">
@@ -218,15 +218,22 @@
                     <p><em>{{ $selfCheck->instructions }}</em></p>
                     @endif
                     <ul class="question-list">
-                        @foreach($selfCheck->questions as $index => $question)
+                        @foreach($selfCheck->questions->sortBy('order') as $index => $question)
                         <li class="question-item">
-                            <strong>{{ $index + 1 }}. {{ $question->question }}</strong>
-                            @if($question->question_type === 'multiple_choice' && $question->options)
+                            <strong>{{ $index + 1 }}. {{ $question->question_text }}</strong>
+                            @if(in_array($question->question_type, ['multiple_choice', 'image_choice']) && $question->options)
                             <ul class="options">
                                 @foreach($question->options as $option)
-                                <li>{{ $option }}</li>
+                                <li>{{ is_array($option) ? ($option['text'] ?? $option['label'] ?? '') : $option }}</li>
                                 @endforeach
                             </ul>
+                            @elseif($question->question_type === 'true_false')
+                            <ul class="options">
+                                <li>True</li>
+                                <li>False</li>
+                            </ul>
+                            @elseif($question->question_type === 'identification' || $question->question_type === 'fill_blank')
+                            <p style="margin-top:5px;color:#666"><em>Answer: ________________</em></p>
                             @endif
                         </li>
                         @endforeach
