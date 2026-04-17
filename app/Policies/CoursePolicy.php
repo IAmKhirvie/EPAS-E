@@ -39,11 +39,11 @@ class CoursePolicy
 
     /**
      * Determine whether the user can create courses.
-     * Only admins can create courses.
+     * Admins and instructors can create courses.
      */
     public function create(User $user): bool
     {
-        return $user->role === Roles::ADMIN;
+        return in_array($user->role, [Roles::ADMIN, Roles::INSTRUCTOR]);
     }
 
     /**
