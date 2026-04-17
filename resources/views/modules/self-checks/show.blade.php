@@ -327,11 +327,77 @@
             {{-- Submit Button (students only) --}}
             @if(auth()->user()->role === \App\Constants\Roles::STUDENT && !($selfCheck->due_date && now()->gt($selfCheck->due_date)) && !($attemptsExhausted))
             <div class="sc-sidebar__group">
-                <button type="submit" form="selfCheckForm" class="btn btn-success w-100">
+                <div class="quiz-progress mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small class="fw-bold">Progress</small>
+                        <small id="quizProgressText">0 / {{ $selfCheck->questions->count() }}</small>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-success" id="quizProgressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <button type="button" onclick="validateAndSubmitQuiz()" class="btn btn-success w-100" id="quizSubmitBtn">
                     <i class="fas fa-paper-plane me-1"></i>Submit Answers
                 </button>
-                <small class="text-muted d-block text-center mt-1">Answer all questions first</small>
+                <small class="text-muted d-block text-center mt-1" id="quizProgressHint">Answer all questions first</small>
             </div>
+            <script>
+            function updateQuizProgress() {
+                var total = document.querySelectorAll('.sc-question-card').length;
+                var answered = 0;
+                document.querySelectorAll('.sc-question-card').forEach(function(card) {
+                    var inputs = card.querySelectorAll('input[type="radio"]:checked, input[type="checkbox"]:checked, input[type="hidden"][value]:not([value=""])');
+                    var textInputs = card.querySelectorAll('input[type="text"], input[type="number"], textarea');
+                    var hasText = false;
+                    textInputs.forEach(function(t) { if (t.value.trim()) hasText = true; });
+                    if (inputs.length > 0 || hasText) answered++;
+                });
+                var pct = total > 0 ? Math.round((answered / total) * 100) : 0;
+                document.getElementById('quizProgressBar').style.width = pct + '%';
+                document.getElementById('quizProgressText').textContent = answered + ' / ' + total;
+                var hint = document.getElementById('quizProgressHint');
+                if (answered === total) {
+                    hint.textContent = 'All questions answered!';
+                    hint.classList.remove('text-muted');
+                    hint.classList.add('text-success');
+                } else {
+                    hint.textContent = (total - answered) + ' question(s) remaining';
+                    hint.classList.remove('text-success');
+                    hint.classList.add('text-muted');
+                }
+            }
+            function validateAndSubmitQuiz() {
+                var total = document.querySelectorAll('.sc-question-card').length;
+                var answered = 0;
+                var firstUnanswered = null;
+                document.querySelectorAll('.sc-question-card').forEach(function(card, i) {
+                    var inputs = card.querySelectorAll('input[type="radio"]:checked, input[type="checkbox"]:checked, input[type="hidden"][value]:not([value=""])');
+                    var textInputs = card.querySelectorAll('input[type="text"], input[type="number"], textarea');
+                    var hasText = false;
+                    textInputs.forEach(function(t) { if (t.value.trim()) hasText = true; });
+                    if (inputs.length > 0 || hasText) {
+                        answered++;
+                    } else if (!firstUnanswered) {
+                        firstUnanswered = card;
+                    }
+                });
+                if (answered < total) {
+                    if (firstUnanswered) {
+                        firstUnanswered.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstUnanswered.style.outline = '2px solid #dc3545';
+                        setTimeout(function() { firstUnanswered.style.outline = ''; }, 3000);
+                    }
+                    if (!confirm('You have ' + (total - answered) + ' unanswered question(s). Submit anyway?')) return;
+                }
+                document.getElementById('selfCheckForm').submit();
+            }
+            document.addEventListener('DOMContentLoaded', function() {
+                document.getElementById('selfCheckForm').addEventListener('input', updateQuizProgress);
+                document.getElementById('selfCheckForm').addEventListener('change', updateQuizProgress);
+                document.getElementById('selfCheckForm').addEventListener('click', function() { setTimeout(updateQuizProgress, 100); });
+                updateQuizProgress();
+            });
+            </script>
             @endif
 
             {{-- Submissions (Instructors/Admins) --}}

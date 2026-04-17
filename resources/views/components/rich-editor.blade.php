@@ -53,6 +53,16 @@
         @if($toolbar === 'full')
         <div class="toolbar-divider"></div>
         <div class="toolbar-group">
+            <select class="toolbar-select" data-command="formatBlock" title="Heading">
+                <option value="">Normal</option>
+                <option value="h2">Heading 2</option>
+                <option value="h3">Heading 3</option>
+                <option value="h4">Heading 4</option>
+            </select>
+        </div>
+
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
             <button type="button" class="toolbar-btn" data-command="justifyLeft" title="Align Left">
                 <i class="fas fa-align-left"></i>
             </button>
@@ -66,6 +76,9 @@
 
         <div class="toolbar-divider"></div>
         <div class="toolbar-group">
+            <button type="button" class="toolbar-btn" data-command="insertTable" title="Insert Table">
+                <i class="fas fa-table"></i>
+            </button>
             <button type="button" class="toolbar-btn" data-command="createLink" title="Insert Link">
                 <i class="fas fa-link"></i>
             </button>
@@ -195,6 +208,48 @@
     text-decoration: underline;
 }
 
+.rich-editor-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+
+.rich-editor-content table td,
+.rich-editor-content table th {
+    border: 1px solid #dee2e6;
+    padding: 8px 12px;
+    min-width: 60px;
+}
+
+.rich-editor-content table th {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+
+.rich-editor-content h2,
+.rich-editor-content h3,
+.rich-editor-content h4 {
+    margin: 15px 0 8px;
+    font-weight: 600;
+    color: #0c3a2d;
+}
+
+.toolbar-select {
+    height: 32px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background: #fff;
+    color: #495057;
+    font-size: 13px;
+    padding: 0 8px;
+    cursor: pointer;
+}
+
+.toolbar-select:focus {
+    border-color: #6d9773;
+    outline: none;
+}
+
 /* Dark mode */
 .dark-mode .rich-editor-container {
     border-color: #3d3d4d;
@@ -254,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Handle toolbar button clicks
         buttons.forEach(function(btn) {
             btn.addEventListener('mousedown', function(e) {
-                e.preventDefault(); // Prevent losing focus
+                e.preventDefault();
             });
 
             btn.addEventListener('click', function(e) {
@@ -266,6 +321,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (url) {
                         document.execCommand(command, false, url);
                     }
+                } else if (command === 'insertTable') {
+                    const size = prompt('Table size (rows x cols):', '3x3');
+                    if (size) {
+                        const parts = size.split('x').map(n => parseInt(n.trim()));
+                        const rows = Math.min(parts[0] || 3, 20);
+                        const cols = Math.min(parts[1] || 3, 10);
+                        let html = '<table><thead><tr>';
+                        for (let c = 0; c < cols; c++) html += '<th>Header</th>';
+                        html += '</tr></thead><tbody>';
+                        for (let r = 0; r < rows - 1; r++) {
+                            html += '<tr>';
+                            for (let c = 0; c < cols; c++) html += '<td>&nbsp;</td>';
+                            html += '</tr>';
+                        }
+                        html += '</tbody></table><p><br></p>';
+                        document.execCommand('insertHTML', false, html);
+                    }
                 } else {
                     document.execCommand(command, false, null);
                 }
@@ -273,6 +345,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 content.focus();
                 syncContent();
                 updateButtonStates();
+            });
+        });
+
+        // Handle heading select
+        container.querySelectorAll('.toolbar-select').forEach(function(sel) {
+            sel.addEventListener('change', function(e) {
+                const value = sel.value;
+                if (value) {
+                    document.execCommand('formatBlock', false, '<' + value + '>');
+                } else {
+                    document.execCommand('formatBlock', false, '<p>');
+                }
+                content.focus();
+                syncContent();
             });
         });
 
