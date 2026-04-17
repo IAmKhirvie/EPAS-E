@@ -876,6 +876,131 @@ body.focus-mode-active .main-content-section {
     border-color: var(--bs-border-color, #495057);
 }
 
+/* Dark mode - TOC Sidebar */
+.dark-mode .sidebar-section .card {
+    background: #1a1a2e;
+    border-color: #2a2a3e;
+}
+
+.dark-mode .sidebar-section .card-header {
+    background: #1a1a2e;
+    border-bottom-color: #ffb902;
+}
+
+.dark-mode .sidebar-section .card-header h6 {
+    color: #e9ecef;
+}
+
+.dark-mode .toc-sidebar {
+    background: #1a1a2e;
+}
+
+.dark-mode .sidebar-section .list-group-item.toc-link {
+    background: #1a1a2e;
+    color: #adb5bd;
+}
+
+.dark-mode .sidebar-section .list-group-item.toc-link:hover {
+    background: #2a2a3e;
+    border-left-color: #0c3a2d;
+}
+
+.dark-mode .sidebar-section .list-group-item.toc-link.active {
+    background: #0c3a2d;
+    color: #fff;
+}
+
+.dark-mode .sidebar-section .sheet-link {
+    background: #222236;
+    color: #adb5bd;
+}
+
+.dark-mode .sidebar-section .sheet-link:hover {
+    background: #2a2a3e;
+}
+
+.dark-mode .sidebar-toc-item {
+    border-bottom-color: #2a2a3e;
+}
+
+.dark-mode .sidebar-toc-link {
+    color: #adb5bd;
+}
+
+.dark-mode .sidebar-toc-link:hover {
+    background: #2a2a3e;
+    color: #e9ecef;
+}
+
+.dark-mode .sidebar-toc-link.active {
+    background: #0c3a2d;
+    color: #fff;
+}
+
+.dark-mode .sidebar-sheet-main {
+    color: #e9ecef;
+}
+
+.dark-mode .sidebar-dropdown-toggle {
+    background: #2a2a3e;
+    border-color: #3a3a5a;
+    color: #adb5bd;
+}
+
+.dark-mode .sidebar-dropdown-toggle:hover {
+    background: #3a3a5a;
+    color: #e9ecef;
+}
+
+.dark-mode .sidebar-topics-dropdown {
+    background: #151528;
+    border-top-color: #2a2a3e;
+}
+
+.dark-mode .sidebar-topic-item {
+    color: #8a8aa0;
+}
+
+.dark-mode .sidebar-topic-item:hover {
+    background: #2a2a3e;
+    color: #e9ecef;
+    border-left-color: #0c3a2d;
+}
+
+.dark-mode .sidebar-topic-item.active {
+    background: #0c3a2d;
+    color: #fff;
+    border-left-color: #ffb902;
+}
+
+.dark-mode .sidebar-nav-buttons {
+    background: #222236;
+    border-bottom-color: #2a2a3e;
+}
+
+.dark-mode .sidebar-actions {
+    border-bottom-color: #2a2a3e;
+}
+
+.dark-mode .sidebar-action-btn {
+    background: #2a2a3e;
+    border-color: #3a3a5a;
+    color: #adb5bd;
+}
+
+.dark-mode .sidebar-action-btn:hover {
+    background: #3a3a5a;
+    color: #e9ecef;
+}
+
+.dark-mode .sidebar-section .progress {
+    background: #2a2a3e;
+}
+
+.dark-mode .toc-group {
+    border-bottom-color: #2a2a3e;
+}
+
 /* Responsive */
 @media (max-width: 991.98px) {
     .module-unified-layout {
