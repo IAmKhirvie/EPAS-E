@@ -113,14 +113,35 @@ class PrerequisiteService
         $cacheKey = "unmet_prerequisites_{$user->id}_{$module->id}";
 
         return Cache::remember($cacheKey, 300, function () use ($user, $module) {
-            $prerequisites = $module->prerequisites()->with('prerequisiteModule')->get();
+            $unmet = collect();
 
-            return $prerequisites->filter(function ($prerequisite) use ($user) {
+            // Check manually configured prerequisites
+            $prerequisites = $module->prerequisites()->with('prerequisiteModule')->get();
+            foreach ($prerequisites as $prerequisite) {
                 $prereqModule = $prerequisite->prerequisiteModule;
-                return $prereqModule && !$prereqModule->isCompletedBy($user);
-            })->map(function ($prerequisite) {
-                return $prerequisite->prerequisiteModule;
-            });
+                if ($prereqModule && !$prereqModule->isCompletedBy($user)) {
+                    $unmet->push($prereqModule);
+                }
+            }
+
+            // Auto-sequential: if course enforces sequential modules,
+            // all previous modules (by order) must be completed first
+            $course = $module->course;
+            if ($course && $course->enforce_sequential_modules) {
+                $previousModules = Module::where('course_id', $course->id)
+                    ->where('is_active', true)
+                    ->where('order', '<', $module->order)
+                    ->orderBy('order')
+                    ->get();
+
+                foreach ($previousModules as $prev) {
+                    if (!$prev->isCompletedBy($user) && !$unmet->contains('id', $prev->id)) {
+                        $unmet->push($prev);
+                    }
+                }
+            }
+
+            return $unmet;
         });
     }
 
