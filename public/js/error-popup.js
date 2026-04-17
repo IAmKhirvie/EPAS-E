@@ -27,17 +27,11 @@
     iconEl.innerHTML = '<i class="' + c.icon + '"></i>';
     overlay.classList.add('active');
 
-    // Always log to console for developer debugging
-    var logMethod = type === 'error' ? 'error' : (type === 'warning' ? 'warn' : 'info');
-    console.groupCollapsed('%c[JOMS ' + (c.title) + ']%c ' + message,
-      'color: ' + (type === 'error' ? '#dc3545' : type === 'warning' ? '#ffc107' : '#ffb902') + '; font-weight: bold;',
-      'color: inherit;'
-    );
-    console.log('Type:', type);
-    console.log('Time:', new Date().toISOString());
-    console.log('Page:', window.location.pathname);
-    console.trace('Stack trace');
-    console.groupEnd();
+    // Log errors only in development (suppress in production)
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      var logMethod = type === 'error' ? 'error' : (type === 'warning' ? 'warn' : 'info');
+      console[logMethod]('[JOMS ' + type + '] ' + message);
+    }
   };
 
   // Close popup handlers
@@ -60,13 +54,7 @@
 
   // ── Global uncaught JS error handler ──
   window.onerror = function(message, source, lineno, colno, error) {
-    console.groupCollapsed('%c[JOMS JS Error]%c ' + message,
-      'color: #dc3545; font-weight: bold;', 'color: inherit;'
-    );
-    console.error('Source:', source + ':' + lineno + ':' + colno);
-    if (error && error.stack) console.error('Stack:', error.stack);
-    console.groupEnd();
-    // Don't show popup for JS errors — just log to console
+    // Suppress console noise in production
     return false;
   };
 
@@ -76,13 +64,9 @@
     if (event.reason) {
       msg = event.reason.message || event.reason.toString();
     }
-    console.groupCollapsed('%c[JOMS Promise Error]%c ' + msg,
-      'color: #dc3545; font-weight: bold;', 'color: inherit;'
-    );
-    console.error('Reason:', event.reason);
-    console.log('Time:', new Date().toISOString());
-    console.log('Page:', window.location.pathname);
-    console.groupEnd();
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      console.error('[JOMS Promise Error]', msg);
+    }
     // Don't show popup — just log
   });
 
@@ -117,20 +101,24 @@
   window.fetch = function() {
     var url = arguments[0];
     if (typeof url === 'object' && url.url) url = url.url;
+    var urlStr = String(url);
+
+    // Skip error handling for background polling endpoints
+    var silentEndpoints = ['badge-counts', 'unread-count', 'pending-count'];
+    var isSilent = silentEndpoints.some(function(ep) { return urlStr.includes(ep); });
+
     return originalFetch.apply(this, arguments).then(function(response) {
-      if (!response.ok && response.headers.get('content-type') && response.headers.get('content-type').includes('application/json')) {
+      if (!response.ok && !isSilent && response.headers.get('content-type') && response.headers.get('content-type').includes('application/json')) {
         var cloned = response.clone();
         cloned.json().then(function(data) {
           if (data.error || data.message) {
-            console.error('[JOMS Fetch Error]', response.status, data.message || data.error, 'URL:', url);
             window.showErrorPopup(data.message || 'An error occurred.', 'Error ' + response.status, 'error');
           }
         }).catch(function() {});
       }
       return response;
     }).catch(function(error) {
-      if (error.name !== 'AbortError') {
-        console.error('[JOMS Fetch Network Error]', 'URL:', url, 'Error:', error.message);
+      if (error.name !== 'AbortError' && !isSilent) {
         window.showErrorPopup('Network error. Please check your connection and try again.', 'Connection Error', 'warning');
       }
       throw error;

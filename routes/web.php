@@ -430,13 +430,11 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         // Credential issuance from user management
         Route::post('/private/users/{user}/issue-certificate', [CertificateController::class, 'issueCertificateForUser'])->name('private.users.issue-certificate');
 
-        // Registration Management (approve/reject pending registrations)
-        Route::prefix('admin/registrations')->name('admin.registrations.')->group(function () {
+        // Registration Management (admin only - approve/reject pending registrations)
+        Route::middleware(['check.role:admin'])->prefix('admin/registrations')->name('admin.registrations.')->group(function () {
             Route::get('/', [RegistrationController::class, 'index'])->name('index');
-            // Bulk actions (must be before wildcard routes)
             Route::post('/bulk-approve', [RegistrationController::class, 'bulkApprove'])->name('bulk-approve');
             Route::post('/bulk-reject', [RegistrationController::class, 'bulkReject'])->name('bulk-reject');
-            // Individual registration actions
             Route::get('/{registration}', [RegistrationController::class, 'show'])->name('show');
             Route::post('/{registration}/approve', [RegistrationController::class, 'approve'])->name('approve');
             Route::post('/{registration}/reject', [RegistrationController::class, 'reject'])->name('reject');

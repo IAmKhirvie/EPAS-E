@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function markTopicCompleteOnServer(sheetId, topicId) {
-        console.log('Marking topic complete:', sheetId, topicId);
+        // Topic completion tracked silently
 
         fetch(`${baseUrl}/sheets/${sheetId}/topics/${topicId}/complete`, {
             method: 'POST',
@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(r => r.json())
         .then(data => {
-            console.log('Topic complete response:', data);
+            // Response received
             if (data.success && data.progress) {
                 updateProgressDisplay(data.progress);
             }
