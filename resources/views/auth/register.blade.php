@@ -113,6 +113,26 @@
             <div class="col-md-12">
                 <div class="input">
                     <input
+                        type="text"
+                        id="student_id"
+                        name="student_id"
+                        placeholder=" "
+                        value="{{ old('student_id', 'MAR') }}"
+                        required
+                        autocomplete="off"
+                        readonly
+                        onfocus="this.removeAttribute('readonly')"
+                        pattern="^MAR.+$"
+                        title="Student ID must start with MAR">
+                    <label for="student_id">STUDENT ID (e.g. MAR-123456789)</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="input">
+                    <input
                         type="email"
                         id="email"
                         name="email"

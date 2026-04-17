@@ -22,10 +22,12 @@ class SecurityHeaders
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
         }
 
-        // Cache control to prevent back button issues with sensitive data
-        $response->headers->set('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
-        $response->headers->set('Pragma', 'no-cache');
-        $response->headers->set('Expires', 'Fri, 01 Jan 1990 00:00:00 GMT');
+        // Cache control — allow browser caching of static assets, prevent caching of HTML
+        $contentType = $response->headers->get('Content-Type', '');
+        if (str_contains($contentType, 'text/html') || empty($contentType)) {
+            $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            $response->headers->set('Pragma', 'no-cache');
+        }
 
         // Content Security Policy
         // Allow Vite dev server in local development

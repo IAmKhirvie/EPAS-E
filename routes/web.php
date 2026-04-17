@@ -1001,6 +1001,22 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
     // Enrollment Requests API
     Route::get('/api/enrollment-requests/pending-count', [EnrollmentRequestController::class, 'getPendingCount'])->name('api.enrollment-requests.pending-count');
 
+    // Real-time badge counts API
+    Route::get('/api/badge-counts', function () {
+        $user = auth()->user();
+        $data = ['trash' => 0, 'registrations' => 0, 'enrollments' => 0];
+
+        if ($user->role === \App\Constants\Roles::ADMIN) {
+            $data['registrations'] = \App\Models\Registration::where('status', 'pending')->count();
+        }
+
+        if (in_array($user->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR])) {
+            $data['enrollments'] = \App\Models\EnrollmentRequest::where('status', 'pending')->count();
+        }
+
+        return response()->json($data);
+    })->name('api.badge-counts');
+
     /*
     |--------------------------------------------------------------------------
     | Help & Support Routes

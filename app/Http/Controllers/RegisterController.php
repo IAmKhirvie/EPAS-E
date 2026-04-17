@@ -28,6 +28,7 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'student_id' => ['required', 'string', 'max:25', 'regex:/^MAR.+$/', 'unique:users,student_id'],
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.]+$/u'],
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.]+$/u'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\'\.]+$/u'],
@@ -70,6 +71,7 @@ class RegisterController extends Controller
         try {
             // Create registration (pending user)
             $registration = $this->registrationService->createRegistration([
+                'student_id' => $request->student_id,
                 'first_name' => $request->first_name,
                 'middle_name' => $request->middle_name,
                 'last_name' => $request->last_name,

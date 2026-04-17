@@ -4,9 +4,7 @@
     <meta charset="utf-8" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+    {{-- Cache headers handled by middleware for authenticated pages --}}
     <title>@yield('title','EPAS-E - Electronic Products Assembly and Servicing')</title>
 
     <!-- Favicon -->
@@ -689,5 +687,14 @@
     @endif
   </script>
   @livewireScripts
+
+  {{-- Enable Livewire SPA-like navigation globally --}}
+  <script>
+    document.addEventListener('livewire:navigated', () => {
+        // Re-initialize components after SPA navigation
+        if (window.TopNavbar) new TopNavbar();
+        if (window.initDarkMode) window.initDarkMode();
+    });
+  </script>
 </body>
 </html>
