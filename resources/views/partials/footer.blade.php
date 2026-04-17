@@ -90,7 +90,7 @@
 
 <style>
     .footer {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+        background: linear-gradient(135deg, #0c3a2d 0%, #062019 100%) !important;
         color: #f8f9fa !important;
         padding: 3rem 0 1.5rem;
         margin-top: 3rem;
