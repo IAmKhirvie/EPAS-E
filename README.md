@@ -103,6 +103,55 @@ npm run dev
 
 The app will be available at `http://127.0.0.1:8000`.
 
+## Deployment (Cloudflare Tunnel)
+
+To deploy the app publicly via Cloudflare Tunnel:
+
+```bash
+# 1. Install cloudflared (Windows)
+winget install Cloudflare.cloudflared
+
+# 2. Set production environment in .env
+APP_ENV=production
+APP_DEBUG=false
+SESSION_ENCRYPT=true
+SESSION_SECURE_COOKIE=true
+
+# 3. Build frontend assets for production
+npm run build
+
+# 4. Cache everything for performance
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan event:cache
+
+# 5. Start Laravel server
+php artisan serve --host=127.0.0.1 --port=8000
+
+# 6. Start Cloudflare Tunnel (in a separate terminal)
+cloudflared tunnel --url http://127.0.0.1:8000
+```
+
+Cloudflare will output a public URL like `https://xxxxx.trycloudflare.com`. HTTPS is auto-detected — no extra config needed.
+
+### Switching back to local development
+
+```bash
+# In .env, change:
+APP_ENV=local
+APP_DEBUG=true
+SESSION_SECURE_COOKIE=false
+
+# Clear and rebuild config
+php artisan config:clear
+php artisan config:cache
+
+# Start both servers
+php artisan serve
+npm run dev
+```
+
 ## Test Accounts
 
 After running `php artisan db:seed`, the following test accounts are available:
