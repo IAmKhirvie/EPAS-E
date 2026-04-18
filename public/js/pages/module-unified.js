@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.focusGoTo = function(idx) {
         if (idx >= 0 && idx < focusModeData.length) {
             currentFocusIndex = idx;
-            showFocusContent();
+            updateFocusContent();
         }
     };
 
@@ -1188,11 +1188,29 @@ document.addEventListener('DOMContentLoaded', function () {
         const prevNav = document.getElementById('quizPrevNav');
         const nextNav = document.getElementById('quizNextNav');
 
-        // Show submit on last question
-        if (isLast) {
-            submitBtn.classList.remove('d-none');
-        } else {
-            submitBtn.classList.add('d-none');
+        // Show submit button on last question
+        if (submitBtn) {
+            if (isLast) {
+                submitBtn.classList.remove('d-none');
+                // Check if all questions answered
+                const content = focusModeData[currentFocusIndex];
+                const questions = content.questions || [];
+                const allAnswered = questions.every(q =>
+                    selfCheckState.answers[q.id] !== undefined ||
+                    selfCheckState.answers[String(q.id)] !== undefined
+                );
+                if (allAnswered) {
+                    submitBtn.className = 'btn btn-success';
+                    submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>Submit Answers';
+                    submitBtn.disabled = false;
+                } else {
+                    submitBtn.className = 'btn btn-warning';
+                    submitBtn.innerHTML = '<i class="fas fa-clipboard-check me-1"></i>Answer All Questions First';
+                    submitBtn.disabled = true;
+                }
+            } else {
+                submitBtn.classList.add('d-none');
+            }
         }
 
         // Side nav arrows
