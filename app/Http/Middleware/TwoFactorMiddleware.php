@@ -24,13 +24,16 @@ class TwoFactorMiddleware
             return $next($request);
         }
 
-        // Check if 2FA is enabled for user
-        if ($this->twoFactorService->isEnabled($user)) {
+        // Check if 2FA is enabled AND actually set up for user
+        if ($this->twoFactorService->isEnabled($user) && $this->twoFactorService->hasSecret($user)) {
             // Check if already verified in this session
             if (!session()->has('2fa_verified') || !session('2fa_verified')) {
-                // Store intended URL
-                session()->put('url.intended', $request->url());
+                // Don't redirect if already on the challenge page
+                if ($request->routeIs('two-factor.*')) {
+                    return $next($request);
+                }
 
+                session()->put('url.intended', $request->url());
                 return redirect()->route('two-factor.challenge');
             }
         }
