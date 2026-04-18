@@ -275,7 +275,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Legacy parts editor
-    let partIndex = {{ (($topic->parts && count($topic->parts) > 0) ? count($topic->parts) : 0) }};
+    let partIndex = {{ ($topic->parts && count($topic->parts) > 0) ? count($topic->parts) : 0 }};
     const partsContainer = document.getElementById('partsContainer');
     const noPartsMessage = document.getElementById('noPartsMessage');
     const addPartBtn = document.getElementById('addPartBtn');
