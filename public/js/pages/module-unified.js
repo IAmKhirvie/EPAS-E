@@ -404,6 +404,40 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Focus mode dot navigation (for topics/sheets)
+    function updateFocusDots() {
+        let dotsContainer = document.getElementById('focusDotsNav');
+        if (!dotsContainer) {
+            dotsContainer = document.createElement('div');
+            dotsContainer.id = 'focusDotsNav';
+            dotsContainer.className = 'focus-dots-nav';
+            const container = document.querySelector('.focus-mode-container');
+            if (container) container.appendChild(dotsContainer);
+        }
+
+        let html = '';
+        focusModeData.forEach((item, i) => {
+            const isCurrent = i === currentFocusIndex;
+            const isCompleted = completedSections.has(i);
+            const isSelfCheck = item.type === 'self_check';
+            const isActivity = ['task_sheet', 'job_sheet'].includes(item.type);
+            let cls = 'focus-dot';
+            if (isCurrent) cls += ' current';
+            if (isCompleted) cls += ' completed';
+            if (isSelfCheck) cls += ' selfcheck';
+            if (isActivity) cls += ' activity';
+            html += `<span class="${cls}" onclick="window.focusGoTo(${i})" title="${item.title}"></span>`;
+        });
+        dotsContainer.innerHTML = html;
+    }
+
+    window.focusGoTo = function(idx) {
+        if (idx >= 0 && idx < focusModeData.length) {
+            currentFocusIndex = idx;
+            showFocusContent();
+        }
+    };
+
     // Track self-check state
     let selfCheckState = {
         active: false,
@@ -560,8 +594,10 @@ document.addEventListener('DOMContentLoaded', function () {
         updateFocusImageAndTables(content, extractedTables);
 
         document.getElementById('focusProgressBadge').textContent = (currentFocusIndex + 1) + ' / ' + focusModeData.length;
-        document.getElementById('focusPrevBtn').disabled = currentFocusIndex === 0;
+        const prevNav = document.getElementById('focusPrevBtn');
+        if (prevNav) prevNav.classList.toggle('disabled', currentFocusIndex === 0);
         updateNextButtonState();
+        updateFocusDots();
 
         // Re-setup scroll tracking for new content
         if (!isActivity) {
