@@ -827,9 +827,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderSelfCheckQuiz(content) {
         let questions = content.questions || [];
 
-        // Randomize if enabled
-        if (content.randomizeQuestions) {
-            questions = shuffleArray([...questions]);
+        // Always shuffle questions
+        questions = shuffleArray([...questions]);
+        if (false) { // kept for reference
         }
 
         // Build dot navigation
@@ -883,7 +883,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderQuestion(q, idx, randomizeOptions) {
         let options = q.options || [];
-        if (randomizeOptions && Array.isArray(options) && ['multiple_choice', 'multiple_select'].includes(q.type)) {
+        // Always shuffle options for MC/MS
+        if (Array.isArray(options) && ['multiple_choice', 'multiple_select'].includes(q.type)) {
             options = shuffleArray([...options]);
         }
 

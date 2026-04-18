@@ -856,10 +856,10 @@ body.focus-mode-active .main-content-section {
     pointer-events: none;
 }
 
-/* Status label — floating message at bottom center */
+/* Status label — floating message above dot nav */
 .focus-status-label {
     position: fixed;
-    bottom: 20px;
+    bottom: 60px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(12, 58, 45, 0.9);
