@@ -136,7 +136,8 @@
                                                 <!-- Delete Module Button -->
                                                 <button type="button" class="btn btn-sm btn-outline-danger delete-module-btn"
                                                     data-course-id="{{ $course->id }}"
-                                                    data-module-id="{{ $module->id }}"
+                                                    data-module-id="{{ $module->slug }}"
+                                                    data-module-numeric-id="{{ $module->id }}"
                                                     data-module-name="Module {{ $module->module_number }}: {{ $module->module_name }}"
                                                     data-info-sheets-count="{{ $module->informationSheets->count() }}">
                                                     <i class="fas fa-trash me-1"></i>Delete Module
@@ -938,7 +939,8 @@
             },
             function(btn, id) {
                 return function(response) {
-                    const el = document.getElementById('moduleHeading' + id);
+                    const numericId = getDataAttr(btn, 'module-numeric-id') || id;
+                    const el = document.getElementById('moduleHeading' + numericId);
                     if (el) {
                         const accordionItem = getClosest(el, '.accordion-item');
                         fadeOutAndRemove(accordionItem, 300, function() {

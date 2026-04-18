@@ -592,8 +592,7 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
     })->name('modules.update');
 
     Route::delete('/modules/{module}', function (\App\Models\Module $module) {
-        // Call the controller directly instead of redirecting (redirects don't work with DELETE)
-        return app(ModuleController::class)->destroy($module);
+        return app(ModuleController::class)->destroy($module->course, $module);
     })->name('modules.destroy');
 
     // Backward compatibility: legacy information sheet routes
