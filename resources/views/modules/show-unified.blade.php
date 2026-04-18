@@ -304,20 +304,6 @@ $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darke
             $prevModule = $currentIndex > 0 ? $courseModules[$currentIndex - 1] : null;
             $nextModule = $currentIndex !== false && $currentIndex < $courseModules->count() - 1 ? $courseModules[$currentIndex + 1] : null;
                 @endphp
-                <div class="d-flex justify-content-between mt-4 mb-3">
-                    @if($prevModule)
-                    <a href="{{ route('courses.modules.show', [$course, $prevModule]) }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-1"></i> {{ $prevModule->module_name }}
-                    </a>
-                    @else
-                    <div></div>
-                    @endif
-                    @if($nextModule)
-                    <a href="{{ route('courses.modules.show', [$course, $nextModule]) }}" class="btn btn-category">
-                        {{ $nextModule->module_name }} <i class="fas fa-arrow-right ms-1"></i>
-                    </a>
-                    @endif
-                </div>
         </div>
 
         {{-- Right Sidebar --}}

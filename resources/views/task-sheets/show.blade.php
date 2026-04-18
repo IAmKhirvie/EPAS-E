@@ -63,7 +63,7 @@
                 <div class="cb-meta-section__title"><i class="fas fa-bullseye" style="color:#388e3c;"></i> Objectives</div>
                 <ul class="cb-meta-section__list">
                     @foreach($taskSheet->objectives_list as $obj)
-                    <li><i class="fas fa-check-circle" style="color:#66bb6a;"></i> {{ $obj }}</li>
+                    <li><i class="fas fa-check-circle"></i> {{ $obj['name'] ?? $obj }}</li>
                     @endforeach
                 </ul>
             </div>
@@ -71,7 +71,7 @@
                 <div class="cb-meta-section__title"><i class="fas fa-tools" style="color:#f57c00;"></i> Materials</div>
                 <ul class="cb-meta-section__list">
                     @foreach($taskSheet->materials_list as $mat)
-                    <li><i class="fas fa-wrench" style="color:#ffa726;"></i> {{ $mat }}</li>
+                        <li><i class="fas fa-wrench"></i> {{ $mat }}</li>
                     @endforeach
                 </ul>
             </div>

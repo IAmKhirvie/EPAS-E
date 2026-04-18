@@ -75,10 +75,9 @@ class TaskSheet extends Model
     public function getMaterialsListAttribute(): array
     {
         return $this->materials->map(function ($item) {
-            return [
-                'name' => $item->material_name,
-                'quantity' => $item->quantity,
-            ];
+            $name = $item->material_name;
+            $quantity = $item->quantity;
+            return $quantity ? "{$name} ({$quantity})" : $name;
         })->toArray();
     }
 
