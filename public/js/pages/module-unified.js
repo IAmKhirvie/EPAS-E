@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const moduleId = moduleData.dataset.moduleId;
     const moduleSlug = moduleData.dataset.moduleSlug;
     const courseId = moduleData.dataset.courseId;
+    const userRole = document.body.dataset.userRole || 'student';
+    const isStudent = userRole === 'student';
 
     // ==================== TOC NAVIGATION ====================
 
@@ -404,7 +406,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Focus mode dot navigation (for topics/sheets)
+    // Focus mode dot navigation — only shows dots for current sheet's content
     function updateFocusDots() {
         let dotsContainer = document.getElementById('focusDotsNav');
         if (!dotsContainer) {
@@ -415,8 +417,15 @@ document.addEventListener('DOMContentLoaded', function () {
             if (container) container.appendChild(dotsContainer);
         }
 
+        // Find current sheet ID
+        const currentItem = focusModeData[currentFocusIndex];
+        const currentSheetId = currentItem ? currentItem.sheetId : null;
+
         let html = '';
         focusModeData.forEach((item, i) => {
+            // Only show dots for same sheet as current item
+            if (currentSheetId && item.sheetId !== currentSheetId) return;
+
             const isCurrent = i === currentFocusIndex;
             const isCompleted = completedSections.has(i);
             const isSelfCheck = item.type === 'self_check';
@@ -797,9 +806,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 <p class="activity-intro-description">${content.description || ''}</p>
                 <div class="activity-intro-meta"><i class="fas fa-question-circle me-1"></i>${content.questionCount} Questions</div>
                 <div class="activity-intro-meta"><i class="fas fa-chart-line me-1"></i>${content.passingScore}% Passing Score</div>
+                ${isStudent ? `
                 <button onclick="window.startSelfCheckInFocus()" class="btn btn-lg activity-start-btn" style="background: ${iconColor}; border-color: ${iconColor}; color: #000;">
                     <i class="fas fa-play me-2"></i>Start Self-Check
                 </button>
+                ` : `
+                <button onclick="window.startSelfCheckInFocus()" class="btn btn-lg activity-start-btn" style="background: #6c757d; border-color: #6c757d; color: #fff;">
+                    <i class="fas fa-eye me-2"></i>Preview Questions
+                </button>
+                <p class="text-muted mt-2"><small>Admin/Instructor view — answers will not be submitted</small></p>
+                `}
                 <p class="activity-intro-hint">
                     <i class="fas fa-info-circle me-1"></i>
                     Answer all questions to test your understanding
@@ -845,9 +861,13 @@ document.addEventListener('DOMContentLoaded', function () {
         html += `
                 </div>
                 <div class="selfcheck-quiz-footer">
+                    ${isStudent ? `
                     <button type="button" class="btn btn-success d-none" id="submitQuizBtn" onclick="window.submitSelfCheck()">
                         <i class="fas fa-check me-1"></i>Submit Answers
                     </button>
+                    ` : `
+                    <p class="text-muted text-center"><i class="fas fa-eye me-1"></i>Preview mode — viewing questions only</p>
+                    `}
                 </div>
             </div>
             <div class="selfcheck-side-nav prev disabled" id="quizPrevNav" onclick="window.prevQuestion()">
@@ -988,10 +1008,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function renderSelfCheckResults(content, results) {
-        const passed = results.passed;
-        const percentage = results.percentage;
-        const score = results.score;
-        const total = results.total;
+        const passed = results.passed || false;
+        const percentage = Number(results.percentage) || 0;
+        const score = Number(results.score) || 0;
+        const total = Number(results.total) || 0;
         const details = results.details || [];
         const questions = content.questions || [];
 
@@ -1238,17 +1258,22 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             body: JSON.stringify({ answers: answersPayload, focus_mode: true })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.message || 'Server error'); });
+            }
+            return response.json();
+        })
         .then(data => {
             selfCheckState.submitted = true;
             selfCheckState.results = {
-                passed: data.passed,
-                percentage: data.percentage,
-                score: data.score,
-                total: data.total_points,
-                details: data.results
+                passed: data.passed || false,
+                percentage: data.percentage || 0,
+                score: data.score || 0,
+                total: data.total_points || 0,
+                details: data.results || []
             };
-            selfCheckState.passed = data.passed;
+            selfCheckState.passed = data.passed || false;
 
             // Mark as completed if passed
             if (data.passed) {
