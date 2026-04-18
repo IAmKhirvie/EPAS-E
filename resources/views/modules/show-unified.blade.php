@@ -479,9 +479,11 @@ $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darke
             </div>
         </div>
     </div>
-    <div class="focus-nav">
-        <button class="btn-prev" id="focusPrevBtn"><i class="fas fa-arrow-left me-2"></i>Previous</button>
-        <button class="btn-next" id="focusNextBtn">Next<i class="fas fa-arrow-right ms-2"></i></button>
+    <div class="focus-side-nav prev" id="focusPrevBtn">
+        <i class="fas fa-chevron-left"></i>
+    </div>
+    <div class="focus-side-nav next" id="focusNextBtn">
+        <i class="fas fa-chevron-right"></i>
     </div>
 </div>
 

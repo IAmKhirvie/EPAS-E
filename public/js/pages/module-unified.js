@@ -1053,8 +1053,13 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     window.saveAnswer = function(questionId, value) {
-        selfCheckState.answers[questionId] = value;
+        if (value !== undefined && value !== null && String(value).trim() !== '') {
+            selfCheckState.answers[questionId] = value;
+        } else {
+            delete selfCheckState.answers[questionId];
+        }
         updateQuizProgress();
+        updateQuizNavButtons();
     };
 
     window.saveMultiAnswer = function(questionId) {
@@ -1068,6 +1073,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const content = focusModeData[currentFocusIndex];
         const questions = content.questions || [];
         const allQuestions = document.querySelectorAll('.selfcheck-question');
+        const currentQ = questions[selfCheckState.currentQuestion];
+
+        // Block next if current question not answered
+        if (currentQ && selfCheckState.answers[currentQ.id] === undefined) {
+            const activeCard = allQuestions[selfCheckState.currentQuestion];
+            if (activeCard) {
+                activeCard.style.outline = '2px solid #dc3545';
+                activeCard.querySelector('.selfcheck-question-text').style.color = '#dc3545';
+                setTimeout(() => {
+                    activeCard.style.outline = '';
+                    activeCard.querySelector('.selfcheck-question-text').style.color = '';
+                }, 1500);
+            }
+            return;
+        }
 
         if (selfCheckState.currentQuestion < questions.length - 1) {
             allQuestions[selfCheckState.currentQuestion].classList.remove('active');
