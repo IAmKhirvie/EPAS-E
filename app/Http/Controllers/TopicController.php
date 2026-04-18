@@ -34,53 +34,78 @@ class TopicController extends Controller
         $validated = $request->validated();
 
         try {
-            // Use HTML Purifier for maximum security (without nl2br)
-            if (!empty($validated['content'])) {
-                $validated['content'] = $this->sanitizer->sanitizeWithHtmlPurifier($validated['content']);
-            }
+            // Check if using block-based content
+            if (!empty($validated['blocks'])) {
+                $blocks = json_decode($validated['blocks'], true);
 
-            // Process parts with images
-            $parts = $this->sanitizer->processPartsWithImages($request, $validated['parts'] ?? []);
-            $validated['parts'] = $parts;
+                if (is_array($blocks) && count($blocks) > 0) {
+                    // Sanitize block HTML content
+                    $blocks = $this->sanitizer->sanitizeBlocks($blocks);
+                    // Process block images
+                    $blocks = $this->sanitizer->processBlockImages($request, $blocks);
+                    // Process block documents
+                    $blocks = $this->sanitizer->processBlockDocuments($request, $blocks);
 
-            // Handle document upload
-            if ($request->hasFile('file')) {
-                $file = $request->file('file');
-                $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-                $validated['file_path'] = $file->storeAs('topics', $filename, 'public');
-                $validated['original_filename'] = $file->getClientOriginalName();
+                    $validated['blocks'] = $blocks;
+                    $validated['content'] = null;
+                    $validated['parts'] = null;
+                    $validated['file_path'] = null;
+                    $validated['original_filename'] = null;
+                    $validated['document_content'] = null;
+                } else {
+                    $validated['blocks'] = null;
+                }
+            } else {
+                $validated['blocks'] = null;
 
-                $ext = strtolower($file->getClientOriginalExtension());
-                if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'])) {
-                    $validated['document_content'] = app(DocumentConversionService::class)
-                        ->convertToHtml(Storage::disk('public')->path($validated['file_path']), $ext);
+                // Legacy flow: process content + parts + document
+                if (!empty($validated['content'])) {
+                    $validated['content'] = $this->sanitizer->sanitizeWithHtmlPurifier($validated['content']);
+                }
+
+                $parts = $this->sanitizer->processPartsWithImages($request, $validated['parts'] ?? []);
+                $validated['parts'] = $parts;
+
+                if ($request->hasFile('file')) {
+                    $file = $request->file('file');
+                    $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                    $validated['file_path'] = $file->storeAs('topics', $filename, 'public');
+                    $validated['original_filename'] = $file->getClientOriginalName();
+
+                    $ext = strtolower($file->getClientOriginalExtension());
+                    if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'])) {
+                        $validated['document_content'] = app(DocumentConversionService::class)
+                            ->convertToHtml(Storage::disk('public')->path($validated['file_path']), $ext);
+                    }
                 }
             }
 
+            // Remove the raw blocks JSON string before creating (it's now an array)
+            unset($validated['block_images'], $validated['block_documents']);
+
             $topic = $informationSheet->topics()->create($validated);
-            
+
             // Load relationships for the announcement
             $informationSheet->load('module.course');
             $module = $informationSheet->module;
             $course = $module->course;
-            
+
             $content = "New topic '{$topic->title}' (Topic {$topic->topic_number}) has been added to Information Sheet {$informationSheet->sheet_number} in Module {$module->module_number} of {$course->course_name}.";
-            
-            // Fix: Use the full class reference
+
             \App\Http\Controllers\AnnouncementController::createAutomaticAnnouncement(
-                'topic', 
-                $content, 
-                auth()->user(), 
-                'all' 
+                'topic',
+                $content,
+                auth()->user(),
+                'all'
             );
-            
+
             return redirect()->route('content.management')
                 ->with('success', "Topic '{$topic->title}' created successfully!");
 
         } catch (\Exception $e) {
             Log::error('Topic creation failed: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
-            
+
             return back()->withInput()
                 ->with('error', 'Failed to create topic. Please try again.');
         }
@@ -102,33 +127,65 @@ class TopicController extends Controller
         $validated = $request->validated();
 
         try {
-            // Use HTML Purifier for maximum security (without nl2br)
-            if (!empty($validated['content'])) {
-                $validated['content'] = $this->sanitizer->sanitizeWithHtmlPurifier($validated['content']);
-            }
+            // Check if using block-based content
+            if (!empty($validated['blocks'])) {
+                $blocks = json_decode($validated['blocks'], true);
 
-            // Process parts with images (pass existing parts to handle image retention)
-            $parts = $this->sanitizer->processPartsWithImages($request, $validated['parts'] ?? [], $topic->parts ?? []);
-            $validated['parts'] = $parts;
+                if (is_array($blocks) && count($blocks) > 0) {
+                    // Sanitize block HTML content
+                    $blocks = $this->sanitizer->sanitizeBlocks($blocks);
+                    // Process block images (pass existing blocks for image retention)
+                    $blocks = $this->sanitizer->processBlockImages($request, $blocks, $topic->blocks);
+                    // Process block documents
+                    $blocks = $this->sanitizer->processBlockDocuments($request, $blocks, $topic->blocks);
 
-            // Handle document upload
-            if ($request->hasFile('file')) {
-                if ($topic->file_path) {
-                    Storage::disk('public')->delete($topic->file_path);
-                }
-                $file = $request->file('file');
-                $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-                $validated['file_path'] = $file->storeAs('topics', $filename, 'public');
-                $validated['original_filename'] = $file->getClientOriginalName();
+                    $validated['blocks'] = $blocks;
+                    // Clear legacy fields when switching to blocks
+                    $validated['content'] = null;
+                    $validated['parts'] = null;
 
-                $ext = strtolower($file->getClientOriginalExtension());
-                if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'])) {
-                    $validated['document_content'] = app(DocumentConversionService::class)
-                        ->convertToHtml(Storage::disk('public')->path($validated['file_path']), $ext);
+                    // Clean up legacy document if switching to blocks
+                    if ($topic->file_path && !$topic->usesBlocks()) {
+                        Storage::disk('public')->delete($topic->file_path);
+                        $validated['file_path'] = null;
+                        $validated['original_filename'] = null;
+                        $validated['document_content'] = null;
+                    }
                 } else {
-                    $validated['document_content'] = null;
+                    $validated['blocks'] = null;
+                }
+            } else {
+                $validated['blocks'] = null;
+
+                // Legacy flow: process content + parts + document
+                if (!empty($validated['content'])) {
+                    $validated['content'] = $this->sanitizer->sanitizeWithHtmlPurifier($validated['content']);
+                }
+
+                $parts = $this->sanitizer->processPartsWithImages($request, $validated['parts'] ?? [], $topic->parts ?? []);
+                $validated['parts'] = $parts;
+
+                if ($request->hasFile('file')) {
+                    if ($topic->file_path) {
+                        Storage::disk('public')->delete($topic->file_path);
+                    }
+                    $file = $request->file('file');
+                    $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                    $validated['file_path'] = $file->storeAs('topics', $filename, 'public');
+                    $validated['original_filename'] = $file->getClientOriginalName();
+
+                    $ext = strtolower($file->getClientOriginalExtension());
+                    if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'])) {
+                        $validated['document_content'] = app(DocumentConversionService::class)
+                            ->convertToHtml(Storage::disk('public')->path($validated['file_path']), $ext);
+                    } else {
+                        $validated['document_content'] = null;
+                    }
                 }
             }
+
+            // Remove upload-related keys before updating
+            unset($validated['block_images'], $validated['block_documents']);
 
             $topic->update($validated);
 
@@ -158,6 +215,19 @@ class TopicController extends Controller
                     if (!empty($part['image'])) {
                         $filename = basename($part['image']);
                         Storage::disk('public')->delete('topic-images/' . $filename);
+                    }
+                }
+            }
+            // Clean up block images and documents
+            if ($topic->blocks) {
+                foreach ($topic->blocks as $block) {
+                    $data = $block['data'] ?? [];
+                    if (!empty($data['image'])) {
+                        $filename = basename($data['image']);
+                        Storage::disk('public')->delete('topic-images/' . $filename);
+                    }
+                    if (!empty($data['file_path'])) {
+                        Storage::disk('public')->delete($data['file_path']);
                     }
                 }
             }

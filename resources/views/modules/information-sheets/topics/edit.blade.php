@@ -62,107 +62,27 @@
                         </div>
                     </div>
 
-                    {{-- Introduction Content --}}
-                    <div class="cb-section">
-                        <div class="cb-section__title"><i class="fas fa-align-left"></i> Introduction Content</div>
-                        <div>
-                            <x-rich-editor
-                                name="content"
-                                placeholder="Enter introductory content for this topic (optional if using parts below)..."
-                                :value="old('content', $topic->content ?? '')"
-                                toolbar="full"
-                                :height="200"
-                            />
-                            @error('content')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                        </div>
-                    </div>
-
-                    {{-- Document Attachment --}}
-                    <div class="cb-section">
-                        <div class="cb-section__title"><i class="fas fa-upload"></i> Document Attachment <span class="optional">(optional)</span></div>
-                        @if($topic->file_path)
-                        <div class="cb-context-badge mb-3">
-                            <i class="fas fa-file-alt"></i>
-                            <span class="flex-grow-1">Current file: <strong>{{ $topic->original_filename }}</strong></span>
-                            <a href="{{ route('topics.download', $topic) }}" class="btn btn-sm btn-outline-primary ms-2">
-                                <i class="fas fa-download me-1"></i>Download
-                            </a>
-                        </div>
-                        @endif
-                        <label class="cb-upload-area">
-                            <input type="file" class="d-none" name="file"
-                                   accept=".pdf,.xlsx,.xls,.doc,.docx,.ppt,.pptx"
-                                   onchange="this.closest('.cb-upload-area').classList.add('has-file'); this.closest('.cb-upload-area').querySelector('.upload-name').textContent = this.files[0].name;">
-                            <i class="fas fa-cloud-upload-alt d-block"></i>
-                            <div class="cb-upload-area__text">
-                                <strong>{{ $topic->file_path ? 'Upload new file to replace' : 'Click to upload' }}</strong> or drag and drop<br>
-                                <small>PDF, Word, Excel, PowerPoint (max 10MB)</small>
-                            </div>
-                            <span class="upload-name"></span>
-                        </label>
-                        @error('file')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                    </div>
-
-                    {{-- Content Parts --}}
-                    <div class="cb-section">
-                        <div class="cb-items-header">
-                            <h5><i class="fas fa-puzzle-piece"></i> Content Parts <span class="cb-count-badge">{{ ($topic->parts && count($topic->parts) > 0) ? count($topic->parts) : 0 }}</span></h5>
-                            <small style="color: var(--cb-text-hint);">Add multiple parts with images and explanations</small>
-                        </div>
-
-                        <div id="partsContainer">
-                            @if($topic->parts && count($topic->parts) > 0)
-                                @foreach($topic->parts as $index => $part)
-                                <div class="part-card">
-                                    <span class="part-number">Part {{ $index + 1 }}</span>
-                                    <button type="button" class="btn btn-outline-danger btn-sm part-remove-btn" onclick="removePart(this)">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-
-                                    <div class="row mt-2">
-                                        <div class="col-md-3">
-                                            <label class="cb-field-label small">Image</label>
-                                            <div class="image-preview-container" onclick="this.querySelector('input[type=file]').click()">
-                                                <input type="file" name="part_images[{{ $index }}]" accept="image/*" class="d-none" onchange="previewPartImage(this)">
-                                                <input type="hidden" name="parts[{{ $index }}][existing_image]" value="{{ $part['image'] ?? '' }}">
-                                                @if(!empty($part['image']))
-                                                    <img src="{{ $part['image'] }}" alt="Part Image">
-                                                @else
-                                                    <div class="placeholder-content">
-                                                        <i class="fas fa-image d-block"></i>
-                                                        <small>Click to upload</small>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="col-md-9">
-                                            <div class="mb-3">
-                                                <label class="cb-field-label small">Title / Name</label>
-                                                <input type="text" class="form-control" name="parts[{{ $index }}][title]"
-                                                       value="{{ $part['title'] ?? '' }}"
-                                                       placeholder="e.g., Benjamin Franklin">
-                                            </div>
-                                            <div>
-                                                <label class="cb-field-label small">Explanation / Description</label>
-                                                <textarea class="form-control" name="parts[{{ $index }}][explanation]" rows="3"
-                                                          placeholder="e.g., American scientist and inventor...">{{ $part['explanation'] ?? '' }}</textarea>
-                                            </div>
-                                        </div>
-                                    </div>
+                    {{-- Block-based Content Editor --}}
+                    @if($topic->usesBlocks())
+                        @include('components.block-editor', ['existingBlocks' => $topic->blocks])
+                    @else
+                        {{-- Legacy topic: offer conversion to blocks --}}
+                        <div class="cb-section" id="legacyConvertSection">
+                            <div class="alert alert-info d-flex align-items-center gap-3">
+                                <i class="fas fa-info-circle fa-lg"></i>
+                                <div class="flex-grow-1">
+                                    <strong>This topic uses the legacy content format.</strong>
+                                    Convert it to the new block editor for more flexible layouts.
                                 </div>
-                                @endforeach
-                            @endif
+                                <button type="button" class="btn btn-primary btn-sm" id="convertToBlocksBtn">
+                                    <i class="fas fa-magic me-1"></i>Convert to Blocks
+                                </button>
+                            </div>
                         </div>
+                        @include('components.block-editor', ['existingBlocks' => []])
+                    @endif
 
-                        <div id="noPartsMessage" class="cb-empty-state" @if($topic->parts && count($topic->parts) > 0) style="display: none;" @endif>
-                            <i class="fas fa-puzzle-piece"></i>
-                            <p>No parts added yet. Click "Add Part" to create content sections with images.</p>
-                        </div>
-
-                        <button type="button" class="cb-add-btn" id="addPartBtn">
-                            <i class="fas fa-plus"></i> Add Part
-                        </button>
-                    </div>
+                    @error('blocks')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
 
                     {{-- Settings --}}
                     <div class="cb-section">
@@ -196,205 +116,122 @@
     </div>
 </div>
 
-@push('styles')
-<style>
-.preserve-whitespace {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    font-family: 'Courier New', Courier, monospace;
-    line-height: 1.5;
-}
-
-.part-card {
-    background: var(--cb-surface);
-    border: 1px solid var(--cb-border);
-    border-radius: var(--cb-radius-sm);
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-    position: relative;
-    transition: box-shadow 0.2s;
-}
-
-.part-card:hover {
-    box-shadow: var(--cb-shadow-hover);
-}
-
-.part-number {
-    position: absolute;
-    top: -12px;
-    left: 15px;
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: white;
-    padding: 2px 12px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.part-remove-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-.image-preview-container {
-    width: 150px;
-    height: 150px;
-    border: 2px dashed var(--cb-border-dashed);
-    border-radius: var(--cb-radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    overflow: hidden;
-    transition: all 0.2s;
-    background: var(--cb-surface-alt);
-}
-
-.image-preview-container:hover {
-    border-color: #f59e0b;
-    background: #fffbeb;
-}
-
-.image-preview-container img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: cover;
-}
-
-.image-preview-container .placeholder-content {
-    text-align: center;
-    color: var(--cb-text-hint);
-}
-
-.image-preview-container .placeholder-content i {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-}
-
-.dark-mode .part-card {
-    background: var(--card-bg);
-    border-color: var(--border);
-}
-
-.dark-mode .image-preview-container {
-    background: var(--input-bg);
-    border-color: var(--border);
-}
-
-.dark-mode .image-preview-container:hover {
-    border-color: #f59e0b;
-    background: rgba(245, 158, 11, 0.1);
-}
-</style>
-@endpush
-
+@if(!$topic->usesBlocks())
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    let partIndex = {{ ($topic->parts && count($topic->parts) > 0) ? count($topic->parts) : 0 }};
-    const partsContainer = document.getElementById('partsContainer');
-    const noPartsMessage = document.getElementById('noPartsMessage');
-    const addPartBtn = document.getElementById('addPartBtn');
+    const convertBtn = document.getElementById('convertToBlocksBtn');
+    if (!convertBtn) return;
 
-    function updatePartsUI() {
-        const parts = partsContainer.querySelectorAll('.part-card');
-        noPartsMessage.style.display = parts.length === 0 ? 'flex' : 'none';
-        const badge = document.querySelector('.cb-count-badge');
-        if (badge) badge.textContent = parts.length;
-    }
+    convertBtn.addEventListener('click', function() {
+        // Convert legacy content + parts to blocks
+        const legacyData = @json([
+            'content' => $topic->content,
+            'parts' => $topic->parts,
+            'document_content' => $topic->document_content,
+            'file_path' => $topic->file_path,
+            'original_filename' => $topic->original_filename,
+        ]);
 
-    function renumberParts() {
-        const parts = partsContainer.querySelectorAll('.part-card');
-        parts.forEach((part, index) => {
-            part.querySelector('.part-number').textContent = 'Part ' + (index + 1);
-        });
-    }
+        const blocksContainer = document.getElementById('blocksContainer');
+        const addBlockByType = function(type) {
+            const btn = document.querySelector(`.block-type-btn[data-block-type="${type}"]`);
+            if (btn) btn.click();
+        };
 
-    function createPartCard(index) {
-        const card = document.createElement('div');
-        card.className = 'part-card';
-        card.innerHTML = `
-            <span class="part-number">Part ${index + 1}</span>
-            <button type="button" class="btn btn-outline-danger btn-sm part-remove-btn" onclick="removePart(this)">
-                <i class="fas fa-times"></i>
-            </button>
-
-            <div class="row mt-2">
-                <div class="col-md-3">
-                    <label class="cb-field-label small">Image</label>
-                    <div class="image-preview-container" onclick="this.querySelector('input[type=file]').click()">
-                        <input type="file" name="part_images[${index}]" accept="image/*" class="d-none" onchange="previewPartImage(this)">
-                        <input type="hidden" name="parts[${index}][existing_image]" value="">
-                        <div class="placeholder-content">
-                            <i class="fas fa-image d-block"></i>
-                            <small>Click to upload</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-9">
-                    <div class="mb-3">
-                        <label class="cb-field-label small">Title / Name</label>
-                        <input type="text" class="form-control" name="parts[${index}][title]"
-                               placeholder="e.g., Benjamin Franklin">
-                    </div>
-                    <div>
-                        <label class="cb-field-label small">Explanation / Description</label>
-                        <textarea class="form-control" name="parts[${index}][explanation]" rows="3"
-                                  placeholder="e.g., American scientist and inventor..."></textarea>
-                    </div>
-                </div>
-            </div>
-        `;
-        return card;
-    }
-
-    addPartBtn.addEventListener('click', function() {
-        const card = createPartCard(partIndex);
-        partsContainer.appendChild(card);
-        partIndex++;
-        updatePartsUI();
-    });
-
-    window.removePart = function(btn) {
-        const card = btn.closest('.part-card');
-        card.remove();
-        renumberParts();
-        updatePartsUI();
-
-        // Re-index remaining parts
-        const parts = partsContainer.querySelectorAll('.part-card');
-        parts.forEach((part, idx) => {
-            part.querySelectorAll('input, textarea').forEach(input => {
-                const name = input.getAttribute('name');
-                if (name) {
-                    input.setAttribute('name', name.replace(/\[\d+\]/, `[${idx}]`));
+        // Convert document to a document block
+        if (legacyData.document_content || legacyData.file_path) {
+            addBlockByType('document');
+            // Set the existing document data
+            setTimeout(function() {
+                const lastCard = blocksContainer.lastElementChild;
+                if (lastCard) {
+                    const docInput = lastCard.querySelector('.block-existing-doc');
+                    if (docInput) docInput.value = legacyData.file_path || '';
+                    const docNameInput = lastCard.querySelector('.block-existing-doc-name');
+                    if (docNameInput) docNameInput.value = legacyData.original_filename || '';
+                    // Update the display
+                    const docUpload = lastCard.querySelector('.block-doc-upload');
+                    if (docUpload && legacyData.original_filename) {
+                        docUpload.innerHTML = `
+                            <input type="file" name="${docUpload.querySelector('input[type=file]')?.name || ''}" accept=".pdf,.xlsx,.xls,.doc,.docx,.ppt,.pptx" class="d-none" onchange="window.blockEditor.previewDoc(this)">
+                            <div class="placeholder-content">
+                                <i class="fas fa-file-alt d-block" style="font-size:2rem;color:#6d9773;"></i>
+                                <span class="doc-name">${legacyData.original_filename}</span><br>
+                                <small>Click to replace</small>
+                            </div>
+                        `;
+                    }
                 }
-            });
-        });
-    };
-
-    window.previewPartImage = function(input) {
-        const container = input.closest('.image-preview-container');
-
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const hiddenInput = container.querySelector('input[type=hidden]');
-                const hiddenInputHtml = hiddenInput ? hiddenInput.outerHTML : '';
-
-                container.innerHTML = `
-                    <input type="file" name="${input.name}" accept="image/*" class="d-none" onchange="previewPartImage(this)">
-                    ${hiddenInputHtml}
-                    <img src="${e.target.result}" alt="Preview">
-                `;
-            };
-            reader.readAsDataURL(input.files[0]);
+            }, 100);
         }
-    };
 
-    updatePartsUI();
+        // Convert content to a text block
+        if (legacyData.content && legacyData.content.trim()) {
+            addBlockByType('text');
+            setTimeout(function() {
+                const lastCard = blocksContainer.lastElementChild;
+                if (lastCard) {
+                    const editorContent = lastCard.querySelector('.rich-editor-content');
+                    const editorHidden = lastCard.querySelector('.rich-editor-hidden');
+                    if (editorContent) editorContent.innerHTML = legacyData.content;
+                    if (editorHidden) editorHidden.value = legacyData.content;
+                }
+            }, 200);
+        }
+
+        // Convert parts to image_text or text blocks
+        if (legacyData.parts && legacyData.parts.length > 0) {
+            legacyData.parts.forEach(function(part, idx) {
+                const hasImage = part.image && part.image.trim();
+                const type = hasImage ? 'image_text' : 'text';
+
+                setTimeout(function() {
+                    addBlockByType(type);
+
+                    setTimeout(function() {
+                        const lastCard = blocksContainer.lastElementChild;
+                        if (!lastCard) return;
+
+                        if (type === 'image_text') {
+                            // Set existing image
+                            const existingImg = lastCard.querySelector('.block-existing-image');
+                            if (existingImg) existingImg.value = part.image;
+                            // Show image preview
+                            const imgUpload = lastCard.querySelector('.block-image-upload');
+                            if (imgUpload) {
+                                const fileInput = imgUpload.querySelector('input[type=file]');
+                                imgUpload.innerHTML = `
+                                    <input type="file" name="${fileInput?.name || ''}" accept="image/*" class="d-none" onchange="window.blockEditor.previewImage(this)">
+                                    <img src="${part.image}" alt="Part image">
+                                `;
+                            }
+                        }
+
+                        // Build content from title + explanation
+                        let html = '';
+                        if (part.title) html += `<h4>${part.title}</h4>`;
+                        if (part.explanation) html += `<p>${part.explanation.replace(/\n/g, '<br>')}</p>`;
+
+                        const editorContent = lastCard.querySelector('.rich-editor-content');
+                        const editorHidden = lastCard.querySelector('.rich-editor-hidden');
+                        // For image_text, get the last editor (the text one, not any other)
+                        const editors = lastCard.querySelectorAll('.rich-editor-content');
+                        const hiddens = lastCard.querySelectorAll('.rich-editor-hidden');
+                        const targetEditor = editors[editors.length - 1];
+                        const targetHidden = hiddens[hiddens.length - 1];
+                        if (targetEditor) targetEditor.innerHTML = html;
+                        if (targetHidden) targetHidden.value = html;
+                    }, 100);
+                }, 300 + (idx * 200));
+            });
+        }
+
+        // Hide the conversion section
+        document.getElementById('legacyConvertSection').style.display = 'none';
+    });
 });
 </script>
 @endpush
+@endif
 @endsection

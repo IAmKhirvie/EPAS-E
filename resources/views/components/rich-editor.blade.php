@@ -292,142 +292,152 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.rich-editor-container').forEach(function(container) {
-        if (container.dataset.initialized) return;
-        container.dataset.initialized = 'true';
+/**
+ * Initialize a single rich editor container.
+ * Callable on dynamically created editors: window.initRichEditor(containerEl)
+ */
+window.initRichEditor = function(container) {
+    if (container.dataset.initialized) return;
+    container.dataset.initialized = 'true';
 
-        const content = container.querySelector('.rich-editor-content');
-        const hidden = container.querySelector('.rich-editor-hidden');
-        const buttons = container.querySelectorAll('.toolbar-btn');
+    const content = container.querySelector('.rich-editor-content');
+    const hidden = container.querySelector('.rich-editor-hidden');
+    const buttons = container.querySelectorAll('.toolbar-btn');
 
-        // Sync content to hidden textarea
-        function syncContent() {
-            hidden.value = content.innerHTML;
-        }
+    if (!content || !hidden) return;
 
-        // Handle toolbar button clicks
-        buttons.forEach(function(btn) {
-            btn.addEventListener('mousedown', function(e) {
-                e.preventDefault();
-            });
+    // Sync content to hidden textarea
+    function syncContent() {
+        hidden.value = content.innerHTML;
+    }
 
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const command = btn.dataset.command;
-
-                if (command === 'createLink') {
-                    const url = prompt('Enter URL:', 'https://');
-                    if (url) {
-                        document.execCommand(command, false, url);
-                    }
-                } else if (command === 'insertTable') {
-                    const size = prompt('Table size (rows x cols):', '3x3');
-                    if (size) {
-                        const parts = size.split('x').map(n => parseInt(n.trim()));
-                        const rows = Math.min(parts[0] || 3, 20);
-                        const cols = Math.min(parts[1] || 3, 10);
-                        let html = '<table><thead><tr>';
-                        for (let c = 0; c < cols; c++) html += '<th>Header</th>';
-                        html += '</tr></thead><tbody>';
-                        for (let r = 0; r < rows - 1; r++) {
-                            html += '<tr>';
-                            for (let c = 0; c < cols; c++) html += '<td>&nbsp;</td>';
-                            html += '</tr>';
-                        }
-                        html += '</tbody></table><p><br></p>';
-                        document.execCommand('insertHTML', false, html);
-                    }
-                } else {
-                    document.execCommand(command, false, null);
-                }
-
-                content.focus();
-                syncContent();
-                updateButtonStates();
-            });
-        });
-
-        // Handle heading select
-        container.querySelectorAll('.toolbar-select').forEach(function(sel) {
-            sel.addEventListener('change', function(e) {
-                const value = sel.value;
-                if (value) {
-                    document.execCommand('formatBlock', false, '<' + value + '>');
-                } else {
-                    document.execCommand('formatBlock', false, '<p>');
-                }
-                content.focus();
-                syncContent();
-            });
-        });
-
-        // Update button active states
-        function updateButtonStates() {
-            buttons.forEach(function(btn) {
-                const command = btn.dataset.command;
-                try {
-                    if (document.queryCommandState(command)) {
-                        btn.classList.add('active');
-                    } else {
-                        btn.classList.remove('active');
-                    }
-                } catch (e) {
-                    btn.classList.remove('active');
-                }
-            });
-        }
-
-        // Event listeners
-        content.addEventListener('input', syncContent);
-        content.addEventListener('keyup', updateButtonStates);
-        content.addEventListener('mouseup', updateButtonStates);
-
-        // Keyboard shortcuts
-        content.addEventListener('keydown', function(e) {
-            if (e.ctrlKey || e.metaKey) {
-                switch(e.key.toLowerCase()) {
-                    case 'b':
-                        e.preventDefault();
-                        document.execCommand('bold', false, null);
-                        break;
-                    case 'i':
-                        e.preventDefault();
-                        document.execCommand('italic', false, null);
-                        break;
-                    case 'u':
-                        e.preventDefault();
-                        document.execCommand('underline', false, null);
-                        break;
-                }
-                syncContent();
-                updateButtonStates();
-            }
-        });
-
-        // Handle paste - clean up pasted content
-        content.addEventListener('paste', function(e) {
+    // Handle toolbar button clicks
+    buttons.forEach(function(btn) {
+        btn.addEventListener('mousedown', function(e) {
             e.preventDefault();
+        });
 
-            // Get plain text or HTML
-            let paste = (e.clipboardData || window.clipboardData).getData('text/html');
-            if (!paste) {
-                paste = (e.clipboardData || window.clipboardData).getData('text/plain');
-                paste = paste.replace(/\n/g, '<br>');
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const command = btn.dataset.command;
+
+            if (command === 'createLink') {
+                const url = prompt('Enter URL:', 'https://');
+                if (url) {
+                    document.execCommand(command, false, url);
+                }
+            } else if (command === 'insertTable') {
+                const size = prompt('Table size (rows x cols):', '3x3');
+                if (size) {
+                    const parts = size.split('x').map(n => parseInt(n.trim()));
+                    const rows = Math.min(parts[0] || 3, 20);
+                    const cols = Math.min(parts[1] || 3, 10);
+                    let html = '<table><thead><tr>';
+                    for (let c = 0; c < cols; c++) html += '<th>Header</th>';
+                    html += '</tr></thead><tbody>';
+                    for (let r = 0; r < rows - 1; r++) {
+                        html += '<tr>';
+                        for (let c = 0; c < cols; c++) html += '<td>&nbsp;</td>';
+                        html += '</tr>';
+                    }
+                    html += '</tbody></table><p><br></p>';
+                    document.execCommand('insertHTML', false, html);
+                }
             } else {
-                // Clean dangerous content from pasted HTML
-                paste = paste.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
-                paste = paste.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
-                paste = paste.replace(/on\w+="[^"]*"/gi, '');
-                paste = paste.replace(/javascript:/gi, '');
+                document.execCommand(command, false, null);
             }
 
-            document.execCommand('insertHTML', false, paste);
+            content.focus();
+            syncContent();
+            updateButtonStates();
+        });
+    });
+
+    // Handle heading select
+    container.querySelectorAll('.toolbar-select').forEach(function(sel) {
+        sel.addEventListener('change', function(e) {
+            const value = sel.value;
+            if (value) {
+                document.execCommand('formatBlock', false, '<' + value + '>');
+            } else {
+                document.execCommand('formatBlock', false, '<p>');
+            }
+            content.focus();
             syncContent();
         });
+    });
 
-        // Initial sync
+    // Update button active states
+    function updateButtonStates() {
+        buttons.forEach(function(btn) {
+            const command = btn.dataset.command;
+            try {
+                if (document.queryCommandState(command)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            } catch (e) {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    // Event listeners
+    content.addEventListener('input', syncContent);
+    content.addEventListener('keyup', updateButtonStates);
+    content.addEventListener('mouseup', updateButtonStates);
+
+    // Keyboard shortcuts
+    content.addEventListener('keydown', function(e) {
+        if (e.ctrlKey || e.metaKey) {
+            switch(e.key.toLowerCase()) {
+                case 'b':
+                    e.preventDefault();
+                    document.execCommand('bold', false, null);
+                    break;
+                case 'i':
+                    e.preventDefault();
+                    document.execCommand('italic', false, null);
+                    break;
+                case 'u':
+                    e.preventDefault();
+                    document.execCommand('underline', false, null);
+                    break;
+            }
+            syncContent();
+            updateButtonStates();
+        }
+    });
+
+    // Handle paste - clean up pasted content
+    content.addEventListener('paste', function(e) {
+        e.preventDefault();
+
+        // Get plain text or HTML
+        let paste = (e.clipboardData || window.clipboardData).getData('text/html');
+        if (!paste) {
+            paste = (e.clipboardData || window.clipboardData).getData('text/plain');
+            paste = paste.replace(/\n/g, '<br>');
+        } else {
+            // Clean dangerous content from pasted HTML
+            paste = paste.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+            paste = paste.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+            paste = paste.replace(/on\w+="[^"]*"/gi, '');
+            paste = paste.replace(/javascript:/gi, '');
+        }
+
+        document.execCommand('insertHTML', false, paste);
         syncContent();
+    });
+
+    // Initial sync
+    syncContent();
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.rich-editor-container').forEach(function(container) {
+        window.initRichEditor(container);
     });
 });
 </script>

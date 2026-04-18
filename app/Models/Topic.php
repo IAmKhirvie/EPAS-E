@@ -19,12 +19,22 @@ class Topic extends Model
         'original_filename',
         'document_content',
         'parts',
+        'blocks',
         'order'
     ];
 
     protected $casts = [
         'parts' => 'array',
+        'blocks' => 'array',
     ];
+
+    /**
+     * Check if this topic uses the block-based content system.
+     */
+    public function usesBlocks(): bool
+    {
+        return !is_null($this->blocks) && count($this->blocks) > 0;
+    }
 
     public function informationSheet()
     {

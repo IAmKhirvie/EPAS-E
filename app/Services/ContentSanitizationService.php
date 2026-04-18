@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * ContentSanitizationService
@@ -162,6 +163,131 @@ class ContentSanitizationService
 
         // DON'T convert newlines to <br> tags here either
         return $content;
+    }
+
+    /**
+     * Sanitize HTML content within blocks.
+     */
+    public function sanitizeBlocks(array $blocks): array
+    {
+        foreach ($blocks as &$block) {
+            $type = $block['type'] ?? '';
+            $data = $block['data'] ?? [];
+
+            // Sanitize HTML content in blocks that contain rich text
+            if (in_array($type, ['text', 'image_text', 'table', 'callout']) && !empty($data['content'])) {
+                $data['content'] = $this->sanitizeWithHtmlPurifier($data['content']);
+            }
+
+            // Sanitize document_content in document blocks
+            if ($type === 'document' && !empty($data['document_content'])) {
+                $data['document_content'] = $this->sanitizeWithHtmlPurifier($data['document_content']);
+            }
+
+            $block['data'] = $data;
+        }
+
+        return $blocks;
+    }
+
+    /**
+     * Process image uploads for blocks (image and image_text types).
+     */
+    public function processBlockImages(Request $request, array $blocks, ?array $existingBlocks = null): array
+    {
+        $existingMap = [];
+        if ($existingBlocks) {
+            foreach ($existingBlocks as $eb) {
+                if (!empty($eb['id'])) {
+                    $existingMap[$eb['id']] = $eb;
+                }
+            }
+        }
+
+        foreach ($blocks as &$block) {
+            $type = $block['type'] ?? '';
+            $blockId = $block['id'] ?? '';
+
+            if (!in_array($type, ['image', 'image_text'])) {
+                continue;
+            }
+
+            // Check if a new image was uploaded for this block
+            if ($request->hasFile("block_images.{$blockId}")) {
+                $image = $request->file("block_images.{$blockId}");
+                $imageName = 'block_' . time() . '_' . Str::random(8) . '.' . $image->extension();
+                $image->storeAs('topic-images', $imageName, 'public');
+                $block['data']['image'] = asset('storage/topic-images/' . $imageName);
+
+                // Delete old image if this block had one
+                if (isset($existingMap[$blockId]['data']['image'])) {
+                    $oldImage = $existingMap[$blockId]['data']['image'];
+                    $oldFilename = basename($oldImage);
+                    Storage::disk('public')->delete('topic-images/' . $oldFilename);
+                }
+            } elseif (!empty($block['data']['image'])) {
+                // Keep existing image reference
+            } elseif (isset($existingMap[$blockId]['data']['image'])) {
+                // Preserve existing image if not explicitly cleared
+                $block['data']['image'] = $existingMap[$blockId]['data']['image'];
+            }
+        }
+
+        return $blocks;
+    }
+
+    /**
+     * Process document uploads for document blocks.
+     */
+    public function processBlockDocuments(Request $request, array $blocks, ?array $existingBlocks = null): array
+    {
+        $existingMap = [];
+        if ($existingBlocks) {
+            foreach ($existingBlocks as $eb) {
+                if (!empty($eb['id'])) {
+                    $existingMap[$eb['id']] = $eb;
+                }
+            }
+        }
+
+        foreach ($blocks as &$block) {
+            if (($block['type'] ?? '') !== 'document') {
+                continue;
+            }
+
+            $blockId = $block['id'] ?? '';
+
+            if ($request->hasFile("block_documents.{$blockId}")) {
+                $file = $request->file("block_documents.{$blockId}");
+                $filename = \Illuminate\Support\Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $block['data']['file_path'] = $file->storeAs('topics', $filename, 'public');
+                $block['data']['original_filename'] = $file->getClientOriginalName();
+
+                // Convert document to HTML
+                $ext = strtolower($file->getClientOriginalExtension());
+                if (in_array($ext, ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf'])) {
+                    $block['data']['document_content'] = app(DocumentConversionService::class)
+                        ->convertToHtml(Storage::disk('public')->path($block['data']['file_path']), $ext);
+                }
+
+                // Delete old file if this block had one
+                if (isset($existingMap[$blockId]['data']['file_path'])) {
+                    Storage::disk('public')->delete($existingMap[$blockId]['data']['file_path']);
+                }
+            } elseif (!empty($block['data']['file_path'])) {
+                // Keep existing file reference — also preserve document_content from existing
+                if (isset($existingMap[$blockId]['data']['document_content'])) {
+                    $block['data']['document_content'] = $existingMap[$blockId]['data']['document_content'];
+                }
+            } elseif (isset($existingMap[$blockId])) {
+                // Preserve existing document data
+                $block['data']['file_path'] = $existingMap[$blockId]['data']['file_path'] ?? null;
+                $block['data']['original_filename'] = $existingMap[$blockId]['data']['original_filename'] ?? null;
+                $block['data']['document_content'] = $existingMap[$blockId]['data']['document_content'] ?? null;
+            }
+        }
+
+        return $blocks;
     }
 
     /**

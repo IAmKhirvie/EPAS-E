@@ -79,7 +79,6 @@ html, body {
     border-radius: var(--pill-radius) var(--pill-radius) 0 0;
     overflow: hidden;
     background-color: var(--primary);
-    background: var(--primary);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -189,6 +188,7 @@ html, body {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
 }
 
 .sidebar-profile__collapsed-photo .avatar-fallback {
@@ -591,7 +591,7 @@ html, body {
 }
 
 .dark-mode .sidebar-profile__bg {
-    background: #1a365d;
+    background-color: #1a365d;
     border-radius: var(--pill-radius) var(--pill-radius) 0 0;
 }
 
