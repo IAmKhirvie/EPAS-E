@@ -33,14 +33,14 @@ $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darke
     }
 
     .btn-category {
-        background: var(--category-color);
+        background: var(--primary);
         border-color: var(--category-color);
         color: white;
     }
 
     .btn-category:hover,
     .btn-category:focus {
-        background: var(--category-color-dark);
+        background: var(--primary-dark);
         border-color: var(--category-color-dark);
         color: white;
     }
@@ -500,79 +500,79 @@ $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darke
     $focusContent = [];
     $focusContent[] = [
         'type' => 'overview',
-        'title' => 'Module Overview: '.$module->module_name,
-        'content' => $module->introduction ?? $module->learning_outcomes ?? 'Welcome to '.$module->module_name,
-        'images' => $module->images ?? []
+        'title' => 'Module Overview: '.$module -> module_name,
+        'content' => $module -> introduction ?? $module -> learning_outcomes ?? 'Welcome to '.$module -> module_name,
+        'images' => $module -> images ?? []
     ];
 
-    foreach($module->informationSheets as $sheet) {
+    foreach($module -> informationSheets as $sheet) {
         $focusContent[] = [
             'type' => 'sheet',
-            'id' => $sheet->id,
-            'title' => 'Info Sheet '.$sheet->sheet_number.
-            ': '.$sheet->title,
-            'content' => $sheet->content ?? '',
-            'images' => $sheet->parts ? collect($sheet->parts)->pluck('image')->filter()->values()->toArray() : []
+            'id' => $sheet -> id,
+            'title' => 'Info Sheet '.$sheet -> sheet_number.
+            ': '.$sheet -> title,
+            'content' => $sheet -> content ?? '',
+            'images' => $sheet -> parts ? collect($sheet -> parts) -> pluck('image') -> filter() -> values() -> toArray() : []
         ];
 
-        if ($sheet->topics) {
-            foreach($sheet->topics as $topic) {
+        if ($sheet -> topics) {
+            foreach($sheet -> topics as $topic) {
                 $topicImages = [];
-                if ($topic->parts) {
-                    foreach($topic->parts as $part) {
+                if ($topic -> parts) {
+                    foreach($topic -> parts as $part) {
                         if (!empty($part['image'])) {
                             $topicImages[] = ['url' => $part['image'], 'caption' => $part['title'] ?? ''];
                         }
                     }
                 }
                 $focusContent[] = [
-                    'type' => 'topic', 'id' => $topic->id, 'sheetId' => $sheet->id,
-                    'title' => $topic->title, 'content' => $topic->content ?? '',
-                    'parts' => $topic->parts ?? [], 'images' => $topicImages
+                    'type' => 'topic', 'id' => $topic -> id, 'sheetId' => $sheet -> id,
+                    'title' => $topic -> title, 'content' => $topic -> content ?? '',
+                    'parts' => $topic -> parts ?? [], 'images' => $topicImages
                 ];
             }
         }
 
         // Self-Checks
-        if ($sheet->selfChecks && $sheet->selfChecks->count() > 0) {
-            foreach($sheet->selfChecks as $scIndex => $sc) {
+        if ($sheet -> selfChecks && $sheet -> selfChecks -> count() > 0) {
+            foreach($sheet -> selfChecks as $scIndex => $sc) {
                 $questions = [];
-                if ($sc->questions) {
-                    foreach($sc->questions as $qIndex => $q) {
+                if ($sc -> questions) {
+                    foreach($sc -> questions as $qIndex => $q) {
                         $questions[] = [
-                            'id' => $q->id, 'index' => $qIndex, 'type' => $q->question_type,
-                            'text' => $q->question_text, 'points' => $q->points ?? 1,
-                            'options' => $q->options ?? [],
-                            'image' => $q->image_path ? Storage::url($q->image_path) : null,
-                            'audio' => $q->audio_path ? Storage::url($q->audio_path) : null,
-                            'video' => $q->video_url ?? null,
+                            'id' => $q -> id, 'index' => $qIndex, 'type' => $q -> question_type,
+                            'text' => $q -> question_text, 'points' => $q -> points ?? 1,
+                            'options' => $q -> options ?? [],
+                            'image' => $q -> image_path ? Storage::url($q -> image_path) : null,
+                            'audio' => $q -> audio_path ? Storage::url($q -> audio_path) : null,
+                            'video' => $q -> video_url ?? null,
                         ];
                     }
                 }
                 $focusContent[] = [
-                    'type' => 'self_check', 'id' => $sc->id, 'sheetId' => $sheet->id,
-                    'sheetTitle' => $sheet->title, 'title' => 'Self-Check: '.$sc->title,
-                    'description' => $sc->description ?? 'Test your understanding.',
+                    'type' => 'self_check', 'id' => $sc -> id, 'sheetId' => $sheet -> id,
+                    'sheetTitle' => $sheet -> title, 'title' => 'Self-Check: '.$sc -> title,
+                    'description' => $sc -> description ?? 'Test your understanding.',
                     'url' => route('self-checks.show', $sc),
                     'submitUrl' => route('self-checks.submit', $sc),
                     'questions' => $questions, 'questionCount' => count($questions),
-                    'passingScore' => $sc->passing_score ?? 70,
-                    'revealAnswers' => $sc->reveal_answers ?? true,
-                    'randomizeQuestions' => $sc->randomize_questions ?? false,
-                    'randomizeOptions' => $sc->randomize_options ?? false,
+                    'passingScore' => $sc -> passing_score ?? 70,
+                    'revealAnswers' => $sc -> reveal_answers ?? true,
+                    'randomizeQuestions' => $sc -> randomize_questions ?? false,
+                    'randomizeOptions' => $sc -> randomize_options ?? false,
                     'icon' => 'clipboard-check', 'color' => '#ffc107'
                 ];
             }
         }
 
         // Task Sheets
-        if ($sheet->taskSheets && $sheet->taskSheets->count() > 0) {
-            foreach($sheet->taskSheets as $tsIndex => $ts) {
+        if ($sheet -> taskSheets && $sheet -> taskSheets -> count() > 0) {
+            foreach($sheet -> taskSheets as $tsIndex => $ts) {
                 $focusContent[] = [
-                    'type' => 'task_sheet', 'id' => $ts->id, 'sheetId' => $sheet->id,
-                    'sheetTitle' => $sheet->title,
-                    'title' => 'Task Sheet: '.($ts->title ?? 'Task Sheet '.($tsIndex + 1)),
-                    'description' => $ts->description ?? 'Complete the tasks to practice.',
+                    'type' => 'task_sheet', 'id' => $ts -> id, 'sheetId' => $sheet -> id,
+                    'sheetTitle' => $sheet -> title,
+                    'title' => 'Task Sheet: '.($ts -> title ?? 'Task Sheet '.($tsIndex + 1)),
+                    'description' => $ts -> description ?? 'Complete the tasks to practice.',
                     'url' => route('task-sheets.show', $ts),
                     'icon' => 'clipboard-list', 'color' => '#0dcaf0'
                 ];
@@ -580,13 +580,13 @@ $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darke
         }
 
         // Job Sheets
-        if ($sheet->jobSheets && $sheet->jobSheets->count() > 0) {
-            foreach($sheet->jobSheets as $jsIndex => $js) {
+        if ($sheet -> jobSheets && $sheet -> jobSheets -> count() > 0) {
+            foreach($sheet -> jobSheets as $jsIndex => $js) {
                 $focusContent[] = [
-                    'type' => 'job_sheet', 'id' => $js->id, 'sheetId' => $sheet->id,
-                    'sheetTitle' => $sheet->title,
-                    'title' => 'Job Sheet: '.($js->title ?? 'Job Sheet '.($jsIndex + 1)),
-                    'description' => $js->description ?? 'Apply your knowledge.',
+                    'type' => 'job_sheet', 'id' => $js -> id, 'sheetId' => $sheet -> id,
+                    'sheetTitle' => $sheet -> title,
+                    'title' => 'Job Sheet: '.($js -> title ?? 'Job Sheet '.($jsIndex + 1)),
+                    'description' => $js -> description ?? 'Apply your knowledge.',
                     'url' => route('job-sheets.show', $js),
                     'icon' => 'hard-hat', 'color' => '#198754'
                 ];

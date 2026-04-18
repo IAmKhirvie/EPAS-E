@@ -137,6 +137,7 @@
                                                 <button type="button" class="btn btn-sm btn-outline-danger delete-module-btn"
                                                     data-course-id="{{ $course->id }}"
                                                     data-module-id="{{ $module->id }}"
+                                                    data-module-slug="{{ $module->slug }}"
                                                     data-module-name="Module {{ $module->module_number }}: {{ $module->module_name }}"
                                                     data-info-sheets-count="{{ $module->informationSheets->count() }}">
                                                     <i class="fas fa-trash me-1"></i>Delete Module
@@ -712,21 +713,6 @@
     (function() {
         'use strict';
 
-        // Debug: Log when script loads with timestamp
-        console.log('[Content Management] Script loaded - Vanilla JS v2 -', new Date().toISOString());
-        console.log('[Content Management] Delete handlers initialized for:', [
-            '.delete-course-btn',
-            '.delete-module-btn',
-            '.delete-info-sheet-btn',
-            '.delete-self-check-btn',
-            '.delete-task-sheet-btn',
-            '.delete-job-sheet-btn',
-            '.delete-homework-btn',
-            '.delete-checklist-btn',
-            '.delete-doc-assessment-btn',
-            '.delete-topic-btn'
-        ].join(', '));
-
         let currentDeleteUrl = '';
         let currentDeleteCallback = null;
 
@@ -862,14 +848,6 @@
 
                 // Get the URL immediately from the button that was clicked
                 const url = getUrlFn(btn, id);
-                console.log('[Content Management] Delete clicked:', {
-                    selector: selector,
-                    id: id,
-                    url: url,
-                    button: btn,
-                    allDataAttrs: Array.from(btn.attributes).filter(attr => attr.name.startsWith('data-'))
-                });
-
                 if (!url) {
                     console.error('[Content Management] Delete URL is null/undefined!');
                     showAlert('Error: Unable to determine delete URL.', 'error');
@@ -930,11 +908,12 @@
             },
             function(btn, id) {
                 const courseId = getDataAttr(btn, 'course-id');
-                if (!courseId) {
-                    console.error('Missing course-id for module delete');
+                const slug = getDataAttr(btn, 'module-slug');
+                if (!courseId || !slug) {
+                    console.error('Missing course-id or module-slug for module delete');
                     return null;
                 }
-                return '/courses/' + courseId + '/module-' + id;
+                return '/courses/' + courseId + '/module-' + slug;
             },
             function(btn, id) {
                 return function(response) {
@@ -1172,16 +1151,7 @@
         // Confirm Delete Button Handler
         if (confirmDeleteBtn) {
             confirmDeleteBtn.addEventListener('click', function() {
-                console.log('[Content Management] Confirm delete clicked.');
-                console.log('[Content Management] currentDeleteUrl value:', currentDeleteUrl);
-                console.log('[Content Management] currentDeleteUrl type:', typeof currentDeleteUrl);
-                console.log('[Content Management] currentDeleteUrl length:', currentDeleteUrl ? currentDeleteUrl.length : 'N/A');
-                console.log('[Content Management] currentDeleteUrl is truthy:', !!currentDeleteUrl);
-                console.log('[Content Management] currentDeleteUrl === "":', currentDeleteUrl === '');
-                console.log('[Content Management] currentDeleteUrl === \'/content-management\':', currentDeleteUrl === '/content-management');
-
                 if (!currentDeleteUrl || currentDeleteUrl === '' || currentDeleteUrl === '/content-management') {
-                    console.error('[Content Management] currentDeleteUrl is invalid!', currentDeleteUrl);
                     showAlert('Error: No delete URL set. Please refresh the page and try again.', 'error');
                     return;
                 }
@@ -1191,11 +1161,6 @@
 
                 // Create the URL explicitly to avoid any potential mutation
                 const deleteUrl = String(currentDeleteUrl);
-                console.log('[Content Management] Created deleteUrl variable:', deleteUrl);
-                console.log('[Content Management] deleteUrl === currentDeleteUrl:', deleteUrl === currentDeleteUrl);
-
-                // Log immediately before fetch
-                console.log('[Content Management] About to fetch URL:', deleteUrl);
 
                 // Create a Request object to debug what's being sent
                 const fetchUrl = deleteUrl;
@@ -1210,16 +1175,14 @@
                     redirect: 'manual'
                 };
 
-                console.log('[Content Management] Fetch URL (string):', fetchUrl);
-                console.log('[Content Management] Fetch options:', fetchOptions);
-                console.log('[Content Management] document.baseURI:', document.baseURI);
-
                 // Try creating a Request object to see what URL it resolves to
                 try {
                     const testRequest = new Request(fetchUrl, fetchOptions);
-                    console.log('[Content Management] Request object URL:', testRequest.url);
                 } catch (e) {
-                    console.error('[Content Management] Failed to create Request object:', e);
+                    console.error('Error creating Request object:', e);
+                    showAlert('Error: Invalid delete URL. Please refresh the page and try again.', 'error');
+                    setButtonLoading(button, false);
+                    return;
                 }
 
                 fetch(fetchUrl, fetchOptions)
