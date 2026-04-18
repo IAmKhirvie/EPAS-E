@@ -856,6 +856,29 @@ body.focus-mode-active .main-content-section {
     pointer-events: none;
 }
 
+/* Status label — floating message at bottom center */
+.focus-status-label {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(12, 58, 45, 0.9);
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    z-index: 10003;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    display: none;
+}
+
+.dark-mode .focus-status-label {
+    background: rgba(255, 185, 2, 0.9);
+    color: #1a1a2e;
+}
+
 /* Adjust focus content to not overlap side nav */
 .focus-image-panel {
     padding-left: 60px;
@@ -1564,8 +1587,9 @@ body.focus-mode-active .main-content-section {
 }
 
 .selfcheck-dot.answered {
-    background: #0c3a2d;
-    box-shadow: 0 0 6px rgba(12, 58, 45, 0.6);
+    background: #28a745 !important;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.7), 0 0 16px rgba(40, 167, 69, 0.3);
+    transform: scale(1.1);
 }
 
 .selfcheck-dot.current {

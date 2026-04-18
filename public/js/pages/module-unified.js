@@ -363,43 +363,44 @@ document.addEventListener('DOMContentLoaded', function () {
         const isActivity = content && ['task_sheet', 'job_sheet'].includes(content.type);
         const canProceed = canProceedToNext();
 
-        // Self-check handling
+        // Always keep the arrow icon
+        nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+
+        // Remove or add status label
+        let statusLabel = document.getElementById('focusStatusLabel');
+        if (!statusLabel) {
+            statusLabel = document.createElement('div');
+            statusLabel.id = 'focusStatusLabel';
+            statusLabel.className = 'focus-status-label';
+            document.querySelector('.focus-mode-container').appendChild(statusLabel);
+        }
+
         if (isSelfCheck) {
             if (selfCheckState.passed) {
-                // Passed - can proceed
-                nextBtn.disabled = false;
-                nextBtn.innerHTML = isLastSection
-                    ? '<i class="fas fa-check me-2"></i>Complete Module'
-                    : 'Continue<i class="fas fa-arrow-right ms-2"></i>';
-                nextBtn.classList.remove('btn-locked');
+                nextBtn.classList.remove('disabled');
+                statusLabel.textContent = '';
+                statusLabel.style.display = 'none';
             } else if (selfCheckState.submitted && !selfCheckState.passed) {
-                // Failed - must retry
-                nextBtn.disabled = true;
-                nextBtn.innerHTML = '<i class="fas fa-redo me-2"></i>Retry Required';
-                nextBtn.classList.add('btn-locked');
+                nextBtn.classList.add('disabled');
+                statusLabel.textContent = 'Retry Required';
+                statusLabel.style.display = 'block';
             } else {
-                // Not started or in progress
-                nextBtn.disabled = true;
-                nextBtn.innerHTML = '<i class="fas fa-clipboard-check me-2"></i>Complete Self-Check First';
-                nextBtn.classList.add('btn-locked');
+                nextBtn.classList.add('disabled');
+                statusLabel.textContent = 'Complete Self-Check First';
+                statusLabel.style.display = 'block';
             }
         } else if (isActivity) {
-            // For task/job sheets, the Next button says "Complete Activity First"
-            nextBtn.disabled = true;
-            nextBtn.innerHTML = '<i class="fas fa-clipboard-check me-2"></i>Complete Activity First';
-            nextBtn.classList.add('btn-locked');
+            nextBtn.classList.add('disabled');
+            statusLabel.textContent = 'Complete Activity First';
+            statusLabel.style.display = 'block';
         } else if (!isLastSection && !canProceed) {
-            nextBtn.disabled = true;
-            nextBtn.innerHTML = '<i class="fas fa-lock me-2"></i>Scroll to Continue';
-            nextBtn.classList.add('btn-locked');
-        } else if (isLastSection) {
-            nextBtn.disabled = false;
-            nextBtn.innerHTML = '<i class="fas fa-check me-2"></i>Complete';
-            nextBtn.classList.remove('btn-locked');
+            nextBtn.classList.add('disabled');
+            statusLabel.textContent = '';
+            statusLabel.style.display = 'none';
         } else {
-            nextBtn.disabled = false;
-            nextBtn.innerHTML = 'Next<i class="fas fa-arrow-right ms-2"></i>';
-            nextBtn.classList.remove('btn-locked');
+            nextBtn.classList.remove('disabled');
+            statusLabel.textContent = '';
+            statusLabel.style.display = 'none';
         }
     }
 
@@ -1164,10 +1165,12 @@ document.addEventListener('DOMContentLoaded', function () {
         dots.forEach((dot, i) => {
             dot.classList.remove('current');
             if (i === selfCheckState.currentQuestion) dot.classList.add('current');
-            // Mark answered dots
+            // Mark answered dots — check both string and number keys
             const q = questions[i];
-            if (q && selfCheckState.answers[q.id] !== undefined) {
-                dot.classList.add('answered');
+            if (q) {
+                const isAnswered = selfCheckState.answers[q.id] !== undefined
+                    || selfCheckState.answers[String(q.id)] !== undefined;
+                dot.classList.toggle('answered', isAnswered);
             }
         });
     }
