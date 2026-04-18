@@ -649,10 +649,10 @@ class SelfCheckController extends Controller
         }
 
         try {
-            $submission = \DB::transaction(function () use ($request, $selfCheck) {
+            $results = [];
+            $submission = \DB::transaction(function () use ($request, $selfCheck, &$results) {
             $score = 0;
             $totalPoints = $selfCheck->total_points;
-            $results = [];
 
             foreach ($selfCheck->questions as $question) {
                 $userAnswer = $request->answers[$question->id] ?? null;
