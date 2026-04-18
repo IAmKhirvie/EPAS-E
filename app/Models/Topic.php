@@ -33,7 +33,8 @@ class Topic extends Model
      */
     public function usesBlocks(): bool
     {
-        return !is_null($this->blocks) && count($this->blocks) > 0;
+        $blocks = $this->blocks;
+        return is_array($blocks) && count($blocks) > 0;
     }
 
     public function informationSheet()
