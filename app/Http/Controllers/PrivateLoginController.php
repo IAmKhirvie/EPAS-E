@@ -30,7 +30,14 @@ class PrivateLoginController extends Controller
     public function showInstructorLoginForm()
     {
         if (Auth::check()) {
-            return $this->redirectToRoleDashboard();
+            $user = Auth::user();
+            if ($user->role === Roles::INSTRUCTOR) {
+                return redirect()->route('admin.dashboard');
+            }
+            // Different role logged in — logout first
+            Auth::logout();
+            request()->session()->invalidate();
+            request()->session()->regenerateToken();
         }
 
         return view('private.instructor-login');
