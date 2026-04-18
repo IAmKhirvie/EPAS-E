@@ -226,7 +226,15 @@
 </div>
 
 @if(!$topic->usesBlocks())
-<script id="legacyTopicData" type="application/json">@json(['content' => $topic->content, 'parts' => $topic->parts, 'document_content' => $topic->document_content, 'file_path' => $topic->file_path, 'original_filename' => $topic->original_filename])</script>
+<script id="legacyTopicData" type="application/json">
+<?php echo json_encode([
+    'content' => $topic->content,
+    'parts' => $topic->parts,
+    'document_content' => $topic->document_content,
+    'file_path' => $topic->file_path,
+    'original_filename' => $topic->original_filename
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>
+</script>
 @push('styles')
 <style>
 .part-card {
@@ -267,7 +275,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Legacy parts editor
-    let partIndex = {{ ($topic->parts && count($topic->parts) > 0) ? count($topic->parts) : 0 }};
+    let partIndex = {{ (($topic->parts && count($topic->parts) > 0) ? count($topic->parts) : 0) }};
     const partsContainer = document.getElementById('partsContainer');
     const noPartsMessage = document.getElementById('noPartsMessage');
     const addPartBtn = document.getElementById('addPartBtn');
