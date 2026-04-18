@@ -815,16 +815,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 <p class="activity-intro-description">${content.description || ''}</p>
                 <div class="activity-intro-meta"><i class="fas fa-question-circle me-1"></i>${content.questionCount} Questions</div>
                 <div class="activity-intro-meta"><i class="fas fa-chart-line me-1"></i>${content.passingScore}% Passing Score</div>
-                ${isStudent ? `
                 <button onclick="window.startSelfCheckInFocus()" class="btn btn-lg activity-start-btn" style="background: ${iconColor}; border-color: ${iconColor}; color: #000;">
                     <i class="fas fa-play me-2"></i>Start Self-Check
                 </button>
-                ` : `
-                <button onclick="window.startSelfCheckInFocus()" class="btn btn-lg activity-start-btn" style="background: #6c757d; border-color: #6c757d; color: #fff;">
-                    <i class="fas fa-eye me-2"></i>Preview Questions
-                </button>
-                <p class="text-muted mt-2"><small>Admin/Instructor view — answers will not be submitted</small></p>
-                `}
                 <p class="activity-intro-hint">
                     <i class="fas fa-info-circle me-1"></i>
                     Answer all questions to test your understanding
@@ -869,13 +862,9 @@ document.addEventListener('DOMContentLoaded', function () {
         html += `
                 </div>
                 <div class="selfcheck-quiz-footer">
-                    ${isStudent ? `
                     <button type="button" class="btn btn-success d-none" id="submitQuizBtn" onclick="window.submitSelfCheck()">
                         <i class="fas fa-check me-1"></i>Submit Answers
                     </button>
-                    ` : `
-                    <p class="text-muted text-center"><i class="fas fa-eye me-1"></i>Preview mode — viewing questions only</p>
-                    `}
                 </div>
             </div>
             <div class="selfcheck-side-nav prev disabled" id="quizPrevNav" onclick="window.prevQuestion()">
