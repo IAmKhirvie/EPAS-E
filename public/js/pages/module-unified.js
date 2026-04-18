@@ -808,16 +808,16 @@ document.addEventListener('DOMContentLoaded', function () {
         html += `
                 </div>
                 <div class="selfcheck-quiz-footer">
-                    <button type="button" class="btn btn-secondary" onclick="window.prevQuestion()">
-                        <i class="fas fa-arrow-left me-1"></i>Previous
-                    </button>
-                    <button type="button" class="btn btn-primary" id="nextQBtn" onclick="window.nextQuestion()">
-                        Next<i class="fas fa-arrow-right ms-1"></i>
-                    </button>
                     <button type="button" class="btn btn-success d-none" id="submitQuizBtn" onclick="window.submitSelfCheck()">
                         <i class="fas fa-check me-1"></i>Submit Answers
                     </button>
                 </div>
+            </div>
+            <div class="selfcheck-side-nav prev disabled" id="quizPrevNav" onclick="window.prevQuestion()">
+                <i class="fas fa-chevron-left"></i>
+            </div>
+            <div class="selfcheck-side-nav next" id="quizNextNav" onclick="window.nextQuestion()">
+                <i class="fas fa-chevron-right"></i>
             </div>
         `;
 
@@ -1104,17 +1104,26 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateQuizNavButtons() {
         const content = focusModeData[currentFocusIndex];
         const questions = content.questions || [];
-        const isLastQuestion = selfCheckState.currentQuestion >= questions.length - 1;
+        const isFirst = selfCheckState.currentQuestion === 0;
+        const isLast = selfCheckState.currentQuestion >= questions.length - 1;
 
-        const nextBtn = document.getElementById('nextQBtn');
         const submitBtn = document.getElementById('submitQuizBtn');
+        const prevNav = document.getElementById('quizPrevNav');
+        const nextNav = document.getElementById('quizNextNav');
 
-        if (isLastQuestion) {
-            nextBtn.classList.add('d-none');
+        // Show submit on last question
+        if (isLast) {
             submitBtn.classList.remove('d-none');
         } else {
-            nextBtn.classList.remove('d-none');
             submitBtn.classList.add('d-none');
+        }
+
+        // Side nav arrows
+        if (prevNav) {
+            prevNav.classList.toggle('disabled', isFirst);
+        }
+        if (nextNav) {
+            nextNav.classList.toggle('disabled', isLast);
         }
     }
 
