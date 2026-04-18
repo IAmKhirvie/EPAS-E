@@ -610,7 +610,8 @@
     // }
 
     // PWA Install Prompt Handler
-    let deferredPrompt;
+    if (typeof window.deferredPrompt === 'undefined') window.deferredPrompt = null;
+    var deferredPrompt = window.deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
@@ -688,12 +689,17 @@
   </script>
   @livewireScripts
 
-  {{-- Enable Livewire SPA-like navigation globally --}}
-  <script>
+  {{-- Re-initialize components after Livewire SPA navigation --}}
+  <script data-navigate-once>
     document.addEventListener('livewire:navigated', () => {
-        // Re-initialize components after SPA navigation
-        if (window.TopNavbar) new TopNavbar();
-        if (window.initDarkMode) window.initDarkMode();
+        // Re-bind navbar event listeners on new DOM
+        try { if (typeof TopNavbar !== 'undefined') new TopNavbar(); } catch(e) {}
+        try { if (typeof initDarkMode !== 'undefined') initDarkMode(); } catch(e) {}
+        // Re-bind sidebar toggle
+        var toggle = document.getElementById('sidebar-toggle');
+        if (toggle) {
+            toggle.addEventListener('click', function() { toggle.classList.toggle('active'); });
+        }
     });
   </script>
 </body>

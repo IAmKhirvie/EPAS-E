@@ -364,8 +364,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
 <script>
-let sidebarCropper = null;
-let currentMode = 'select';
+if (typeof window._sidebarCropperInit === 'undefined') {
+window._sidebarCropperInit = true;
+var sidebarCropper = null;
+var currentMode = 'select';
 
 function openProfilePhotoModal() {
     showModeSelect();
@@ -553,6 +555,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('uploadModeInput').value = '';
     });
 });
+} // end sidebarCropper guard
 </script>
 
 <script>
