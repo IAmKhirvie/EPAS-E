@@ -445,14 +445,14 @@
 
     /* Category-colored buttons */
     .btn-category {
-        background: var(--category-color);
+        background: var(--primary);
         border-color: var(--category-color);
         color: white;
     }
 
     .btn-category:hover,
     .btn-category:focus {
-        background: var(--category-color-dark);
+        background: var(--primary-dark);
         border-color: var(--category-color-dark);
         color: white;
     }

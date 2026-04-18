@@ -119,7 +119,6 @@ class ModuleController extends Controller
 
             return redirect()->route('courses.show', $course)
                 ->with('success', 'Module created successfully!');
-
         } catch (\Illuminate\Database\QueryException $e) {
             Log::error('Module creation failed: ' . $e->getMessage());
 
@@ -131,7 +130,6 @@ class ModuleController extends Controller
 
             return back()->withInput()
                 ->with('error', 'Failed to create module due to a database error. Please try again.');
-
         } catch (\Exception $e) {
             Log::error('Module creation failed: ' . $e->getMessage());
 
@@ -220,8 +218,10 @@ class ModuleController extends Controller
     {
         $this->verifyModuleBelongsToCourse($course, $module);
 
-        if ($topic->information_sheet_id !== $informationSheet->id ||
-            $informationSheet->module_id !== $module->id) {
+        if (
+            $topic->information_sheet_id !== $informationSheet->id ||
+            $informationSheet->module_id !== $module->id
+        ) {
             abort(404);
         }
 
@@ -241,8 +241,10 @@ class ModuleController extends Controller
     {
         $this->verifyModuleBelongsToCourse($course, $module);
 
-        if ($topic->information_sheet_id !== $informationSheet->id ||
-            $informationSheet->module_id !== $module->id) {
+        if (
+            $topic->information_sheet_id !== $informationSheet->id ||
+            $informationSheet->module_id !== $module->id
+        ) {
             return response()->json(['success' => false, 'message' => 'Not found'], 404);
         }
 
@@ -268,7 +270,7 @@ class ModuleController extends Controller
         }
 
         $courses = Course::where('is_active', true)
-            ->when($user->role === Roles::INSTRUCTOR, fn ($q) => $q->where('instructor_id', $user->id))
+            ->when($user->role === Roles::INSTRUCTOR, fn($q) => $q->where('instructor_id', $user->id))
             ->orderBy('course_name')
             ->get();
 
@@ -301,8 +303,10 @@ class ModuleController extends Controller
     {
         $this->verifyModuleBelongsToCourse($course, $module);
 
-        if ($topic->information_sheet_id !== $informationSheet->id ||
-            $informationSheet->module_id !== $module->id) {
+        if (
+            $topic->information_sheet_id !== $informationSheet->id ||
+            $informationSheet->module_id !== $module->id
+        ) {
             return response()->json(['success' => false, 'message' => 'Not found'], 404);
         }
 
@@ -334,7 +338,7 @@ class ModuleController extends Controller
         $user = Auth::user();
 
         $courses = Course::where('is_active', true)
-            ->when($user->role === Roles::INSTRUCTOR, fn ($q) => $q->where('instructor_id', $user->id))
+            ->when($user->role === Roles::INSTRUCTOR, fn($q) => $q->where('instructor_id', $user->id))
             ->orderBy('course_name')
             ->get();
 
@@ -406,11 +410,11 @@ class ModuleController extends Controller
                 if ($request->hasFile('thumbnail')) {
                     // Delete old thumbnail if exists
                     if ($module->thumbnail) {
-                        \Storage::disk('public')->delete($module->thumbnail);
+                        Storage::disk('public')->delete($module->thumbnail);
                     }
                     $validated['thumbnail'] = $request->file('thumbnail')->store('modules/thumbnails', 'public');
                 } elseif ($request->boolean('remove_thumbnail') && $module->thumbnail) {
-                    \Storage::disk('public')->delete($module->thumbnail);
+                    Storage::disk('public')->delete($module->thumbnail);
                     $validated['thumbnail'] = null;
                 } else {
                     unset($validated['thumbnail']);
@@ -433,12 +437,10 @@ class ModuleController extends Controller
 
             return redirect()->route('courses.show', $module->course_id)
                 ->with('success', 'Module updated successfully!');
-
         } catch (\InvalidArgumentException $e) {
             // Circular dependency error
             return back()->withInput()
                 ->with('error', $e->getMessage());
-
         } catch (\Exception $e) {
             Log::error('Module update failed: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
 
@@ -465,7 +467,6 @@ class ModuleController extends Controller
 
             return redirect()->route('courses.show', $courseId)
                 ->with('success', 'Module deleted successfully!');
-
         } catch (\Exception $e) {
             Log::error('Module deletion failed: ' . $e->getMessage());
 
