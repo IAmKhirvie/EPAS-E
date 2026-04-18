@@ -95,7 +95,7 @@
                                     <div class="thumbnail-upload-wrapper">
                                         <div class="thumbnail-preview {{ $course->thumbnail ? 'has-image' : '' }}" id="thumbnailPreview">
                                             @if($course->thumbnail)
-                                            <img src="{{ dynamic_route('private.thumbnail', $course->thumbnail) }}" alt="Current thumbnail">
+                                            <img src="{{ asset('storage/' . $course->thumbnail) }}" alt="Current thumbnail">
                                             @else
                                             <i class="fas fa-image"></i>
                                             <span>Click to upload image</span>
