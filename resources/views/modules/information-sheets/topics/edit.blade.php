@@ -226,6 +226,7 @@
 </div>
 
 @if(!$topic->usesBlocks())
+<script id="legacyTopicData" type="application/json">@json(['content' => $topic->content, 'parts' => $topic->parts, 'document_content' => $topic->document_content, 'file_path' => $topic->file_path, 'original_filename' => $topic->original_filename])</script>
 @push('styles')
 <style>
 .part-card {
@@ -361,13 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const convertBtn = document.getElementById('convertToBlocksBtn');
     if (convertBtn) {
         convertBtn.addEventListener('click', function() {
-            const legacyData = @json([
-                'content' => $topic->content,
-                'parts' => $topic->parts,
-                'document_content' => $topic->document_content,
-                'file_path' => $topic->file_path,
-                'original_filename' => $topic->original_filename,
-            ]);
+            const legacyData = JSON.parse(document.getElementById('legacyTopicData').textContent);
 
             // Show block editor, hide legacy fields
             document.getElementById('blockEditorWrapper').style.display = 'block';

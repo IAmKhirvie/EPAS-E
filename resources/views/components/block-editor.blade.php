@@ -53,6 +53,9 @@
 
     {{-- Hidden input for form submission --}}
     <input type="hidden" name="blocks" id="blocksJsonInput" value="">
+
+    {{-- Existing blocks data for JS --}}
+    <script id="existingBlocksData" type="application/json">@json($existingBlocks)</script>
 </div>
 
 @push('styles')
@@ -778,7 +781,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Load existing blocks
-    const existingBlocks = @json($existingBlocks);
+    const existingBlocks = JSON.parse(document.getElementById('existingBlocksData').textContent);
     if (existingBlocks && existingBlocks.length > 0) {
         existingBlocks.forEach(function(block) {
             addBlock(block.type, block.data, block.id);
