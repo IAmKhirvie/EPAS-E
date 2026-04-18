@@ -47,7 +47,7 @@ class AppServiceProvider extends ServiceProvider
         $isBehindHttpsProxy = isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https';
         $isCloudflare = isset($_SERVER['HTTP_CF_VISITOR']) || str_contains($_SERVER['HTTP_HOST'] ?? '', 'trycloudflare.com');
 
-        if ($forceHttps || $isProduction || $isBehindHttpsProxy || $isCloudflare) {
+        if ($forceHttps || $isBehindHttpsProxy || $isCloudflare) {
             URL::forceScheme('https');
         }
 
