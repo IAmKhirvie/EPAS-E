@@ -73,11 +73,23 @@ document.addEventListener('DOMContentLoaded', function() {
             color: '#7b1fa2',
             bgColor: '#f3e5f5'
         },
+        identification: {
+            name: 'Identification',
+            icon: 'fa-pen',
+            color: '#5c6bc0',
+            bgColor: '#e8eaf6'
+        },
         short_answer: {
             name: 'Short Answer',
             icon: 'fa-align-left',
             color: '#ef6c00',
             bgColor: '#fff3e0'
+        },
+        enumeration: {
+            name: 'Enumeration',
+            icon: 'fa-list-ol',
+            color: '#8d6e63',
+            bgColor: '#efebe9'
         },
         numeric: {
             name: 'Numeric',
@@ -257,9 +269,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 typeSpecificFields = getTrueFalseFields(index);
                 break;
             case 'fill_blank':
+            case 'identification':
                 typeSpecificFields = getFillBlankFields(index);
                 break;
             case 'short_answer':
+            case 'enumeration':
                 typeSpecificFields = getShortAnswerFields(index);
                 break;
             case 'numeric':
