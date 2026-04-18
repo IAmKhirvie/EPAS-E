@@ -1105,6 +1105,18 @@ document.addEventListener('DOMContentLoaded', function () {
         selfCheckState.currentQuestion = 0;
         selfCheckState.answers = {};
         updateFocusContent();
+
+        // Enter key on single-line inputs goes to next question
+        setTimeout(() => {
+            document.querySelectorAll('.selfcheck-text-input, .selfcheck-numeric-input input').forEach(input => {
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        window.nextQuestion();
+                    }
+                });
+            });
+        }, 100);
     };
 
     window.saveAnswer = function(questionId, value) {

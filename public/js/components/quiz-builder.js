@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add a new question
     function addQuestion(type) {
         questionIndex++;
-        const config = questionTypes[type];
+        const config = questionTypes[type] || { name: type, icon: 'fa-question', bgColor: '#f8f9fa', color: '#333' };
 
         // Hide empty state
         if (emptyState) emptyState.style.display = 'none';

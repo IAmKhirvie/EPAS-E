@@ -96,7 +96,40 @@ class SelfCheckGradingService
                     fn($a) => strtolower(trim($a)),
                     explode(',', $question->correct_answer)
                 );
-                return in_array(strtolower(trim($userAnswer)), $acceptableAnswers);
+                $userLower = strtolower(trim($userAnswer));
+
+                // Direct match
+                if (in_array($userLower, $acceptableAnswers)) {
+                    return true;
+                }
+
+                // Grouped question support: if question text contains patterns like
+                // "Part 1", "Part 2", "Type 1", "Source 1", "Category 1", "Advantage 1"
+                // then accept any answer from sibling questions in the same group
+                if (preg_match('/\((Part|Type|Source|Category|Advantage|Item)\s*\d+\)/i', $question->question_text)) {
+                    // Extract base question text without the (Part X) suffix
+                    $baseText = preg_replace('/\s*\((Part|Type|Source|Category|Advantage|Item)\s*\d+\)\s*$/i', '', $question->question_text);
+                    $baseText = trim($baseText);
+
+                    // Find all sibling questions with same base text
+                    $siblings = $question->selfCheck->questions()
+                        ->where('id', '!=', $question->id)
+                        ->where('question_text', 'like', $baseText . '%')
+                        ->pluck('correct_answer')
+                        ->toArray();
+
+                    // Collect all valid answers from the group
+                    $allGroupAnswers = $acceptableAnswers;
+                    foreach ($siblings as $sibAnswer) {
+                        foreach (explode(',', $sibAnswer) as $a) {
+                            $allGroupAnswers[] = strtolower(trim($a));
+                        }
+                    }
+
+                    return in_array($userLower, array_unique($allGroupAnswers));
+                }
+
+                return false;
 
             case 'enumeration':
                 // User provides multiple answers (newline or comma separated)
