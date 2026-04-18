@@ -455,7 +455,8 @@ document.addEventListener('DOMContentLoaded', function () {
         answers: {},
         submitted: false,
         passed: false,
-        results: null
+        results: null,
+        shuffledQuestions: null
     };
 
     function resetSelfCheckState() {
@@ -466,7 +467,8 @@ document.addEventListener('DOMContentLoaded', function () {
             answers: {},
             submitted: false,
             passed: false,
-            results: null
+            results: null,
+            shuffledQuestions: null
         };
     }
 
@@ -827,10 +829,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderSelfCheckQuiz(content) {
         let questions = content.questions || [];
 
-        // Always shuffle questions
+        // Always shuffle questions and store the shuffled order
         questions = shuffleArray([...questions]);
-        if (false) { // kept for reference
-        }
+        selfCheckState.shuffledQuestions = questions;
 
         // Build dot navigation
         let dots = '';
@@ -1128,8 +1129,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     window.nextQuestion = function() {
-        const content = focusModeData[currentFocusIndex];
-        const questions = content.questions || [];
+        const questions = selfCheckState.shuffledQuestions || (focusModeData[currentFocusIndex] || {}).questions || [];
         const allQuestions = document.querySelectorAll('.selfcheck-question');
         const currentQ = questions[selfCheckState.currentQuestion];
 
@@ -1180,8 +1180,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     function updateQuizNavButtons() {
-        const content = focusModeData[currentFocusIndex];
-        const questions = content.questions || [];
+        const questions = selfCheckState.shuffledQuestions || (focusModeData[currentFocusIndex] || {}).questions || [];
         const isFirst = selfCheckState.currentQuestion === 0;
         const isLast = selfCheckState.currentQuestion >= questions.length - 1;
 
@@ -1191,8 +1190,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Only show submit when ALL questions are answered
         if (submitBtn) {
-            const content = focusModeData[currentFocusIndex];
-            const questions = content ? (content.questions || []) : [];
+            const questions = selfCheckState.shuffledQuestions || (focusModeData[currentFocusIndex] || {}).questions || [];
             const allAnswered = questions.length > 0 && questions.every(q =>
                 selfCheckState.answers[q.id] !== undefined ||
                 selfCheckState.answers[String(q.id)] !== undefined
@@ -1218,23 +1216,21 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateQuizProgress() {
-        const content = focusModeData[currentFocusIndex];
-        const questions = content.questions || [];
+        // Use shuffled order so dots match displayed questions
+        const questions = selfCheckState.shuffledQuestions || (focusModeData[currentFocusIndex] || {}).questions || [];
 
         const currentNum = document.getElementById('currentQNum');
         const progressFill = document.getElementById('quizProgressFill');
 
-        // Update progress bar based on answered questions, not current index
         const answeredCount = Object.keys(selfCheckState.answers).length;
         if (currentNum) currentNum.textContent = selfCheckState.currentQuestion + 1;
-        if (progressFill) progressFill.style.width = (answeredCount / questions.length * 100) + '%';
+        if (progressFill && questions.length) progressFill.style.width = (answeredCount / questions.length * 100) + '%';
 
-        // Update dots
+        // Update dots — follows shuffled order
         const dots = document.querySelectorAll('.selfcheck-dot');
         dots.forEach((dot, i) => {
             dot.classList.remove('current');
             if (i === selfCheckState.currentQuestion) dot.classList.add('current');
-            // Mark answered dots — check both string and number keys
             const q = questions[i];
             if (q) {
                 const isAnswered = selfCheckState.answers[q.id] !== undefined
