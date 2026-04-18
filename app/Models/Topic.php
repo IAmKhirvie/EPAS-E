@@ -31,6 +31,11 @@ class Topic extends Model
         return $this->belongsTo(InformationSheet::class);
     }
 
+    public function module()
+    {
+        return $this->belongsTo(Module::class);
+    }
+
     public function getNextTopic()
     {
         return self::where('information_sheet_id', $this->information_sheet_id)

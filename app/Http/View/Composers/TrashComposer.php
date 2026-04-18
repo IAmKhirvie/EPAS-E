@@ -66,13 +66,36 @@ class TrashComposer
 
             if (!empty($instructorCourseIds)) {
                 $count += Module::onlyTrashed()->whereIn('course_id', $instructorCourseIds)->count();
-                $count += Topic::onlyTrashed()->whereHas('module', fn($q) => $q->whereIn('course_id', $instructorCourseIds))->count();
-                $count += InformationSheet::onlyTrashed()->whereHas('module', fn($q) => $q->whereIn('course_id', $instructorCourseIds))->count();
-                $count += Homework::onlyTrashed()->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds))->count();
-                $count += SelfCheck::onlyTrashed()->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds))->count();
-                $count += TaskSheet::onlyTrashed()->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds))->count();
-                $count += JobSheet::onlyTrashed()->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds))->count();
-                $count += Checklist::onlyTrashed()->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds))->count();
+
+                // FIX: Topic belongs to InformationSheet, which belongs to Module.
+                // Do NOT use direct module() relationship (it expects a missing module_id column).
+                $count += Topic::onlyTrashed()
+                    ->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds))
+                    ->count();
+
+                $count += InformationSheet::onlyTrashed()
+                    ->whereHas('module', fn($q) => $q->whereIn('course_id', $instructorCourseIds))
+                    ->count();
+
+                $count += Homework::onlyTrashed()
+                    ->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds))
+                    ->count();
+
+                $count += SelfCheck::onlyTrashed()
+                    ->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds))
+                    ->count();
+
+                $count += TaskSheet::onlyTrashed()
+                    ->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds))
+                    ->count();
+
+                $count += JobSheet::onlyTrashed()
+                    ->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds))
+                    ->count();
+
+                $count += Checklist::onlyTrashed()
+                    ->whereHas('informationSheet.module', fn($q) => $q->whereIn('course_id', $instructorCourseIds))
+                    ->count();
             }
 
             // Instructor's own announcements
