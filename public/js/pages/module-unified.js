@@ -378,7 +378,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (isSelfCheck) {
-            if (selfCheckState.passed) {
+            if (!isStudent || selfCheckState.passed) {
+                // Admin/instructor can always proceed, students only after passing
                 nextBtn.classList.remove('disabled');
                 statusLabel.textContent = '';
                 statusLabel.style.display = 'none';
@@ -392,9 +393,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 statusLabel.style.display = 'block';
             }
         } else if (isActivity) {
-            nextBtn.classList.add('disabled');
-            statusLabel.textContent = 'Complete Activity First';
-            statusLabel.style.display = 'block';
+            if (!isStudent) {
+                nextBtn.classList.remove('disabled');
+                statusLabel.textContent = '';
+                statusLabel.style.display = 'none';
+            } else {
+                nextBtn.classList.add('disabled');
+                statusLabel.textContent = 'Complete Activity First';
+                statusLabel.style.display = 'block';
+            }
         } else if (!isLastSection && !canProceed) {
             nextBtn.classList.add('disabled');
             statusLabel.textContent = '';
