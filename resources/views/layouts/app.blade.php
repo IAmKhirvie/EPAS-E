@@ -28,9 +28,42 @@
     <link rel="stylesheet" href="{{ dynamic_asset('vendor/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('vendor/css/fontawesome.min.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('vendor/css/animate.min.css') }}">
-    <!-- All CSS bundled -->
-    <link rel="stylesheet" href="{{ dynamic_asset('css/bundle.css') }}">
-    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/mobile.css') }}" media="screen and (max-width: 1032px)">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/app.css') }}">
+    
+    <!-- Base CSS-->
+    <link rel="stylesheet" href="{{ dynamic_asset('css/base/reset.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/base/typography.css') }}">
+    
+    <!-- Component CSS -->
+    <link rel="stylesheet" href="{{ dynamic_asset('css/components/adduser.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/components/alerts.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/components/buttons.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/components/fab.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/components/forms.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/components/overlay.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/components/tables.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/components/utilities.css') }}">
+
+    <!-- Layout CSS -->
+    <link rel="stylesheet" href="{{ dynamic_asset('css/layout/header.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/layout/main-content.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/layout/sidebar.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/layout/footer.css') }}">
+
+    <!-- Page Specific CSS -->
+    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/modules.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/users.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/index.css')}}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/common-page.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/grades.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/analytics.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/content-builder.css') }}">
+
+    <!-- Mobile CSS -->
+    <link rel="stylesheet" href="{{ dynamic_asset('css/components/responsive-tables.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/components/touch-friendly.css') }}">
+    <link rel="stylesheet" href="{{ dynamic_asset('css/pages/mobile.css') }}"  media="screen and (max-width: 1032px)">
     <script>
         // Immediately check and apply dark mode before page renders
         (function() {

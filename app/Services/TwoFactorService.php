@@ -118,15 +118,6 @@ class TwoFactorService
             ->exists();
     }
 
-    public function hasSecret(User $user): bool
-    {
-        return DB::table('user_two_factor')
-            ->where('user_id', $user->id)
-            ->whereNotNull('secret')
-            ->where('secret', '!=', '')
-            ->exists();
-    }
-
     protected function generateBackupCodes(int $count = 8): array
     {
         $codes = [];

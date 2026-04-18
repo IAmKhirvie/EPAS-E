@@ -45,39 +45,39 @@
         <div class="sidebar-section">
             <div class="sidebar-label">Main Menu</div>
             <nav class="sidebar-nav">
-                <a href="{{ route('dashboard') }}" class="nav-item {{ Request::routeIs('dashboard', 'student.dashboard', 'admin.dashboard') ? 'active' : '' }}" data-tooltip="Dashboard">
+                <a href="{{ route('dashboard') }}" wire:navigate class="nav-item {{ Request::routeIs('dashboard', 'student.dashboard', 'admin.dashboard') ? 'active' : '' }}" data-tooltip="Dashboard">
                     <i class="fas fa-chart-bar"></i>
                     <span>Dashboard</span>
                 </a>
 
-                <a href="{{ route('courses.index') }}" class="nav-item {{ Request::is('courses*') ? 'active' : '' }}" data-tooltip="Courses">
+                <a href="{{ route('courses.index') }}" wire:navigate class="nav-item {{ Request::is('courses*') ? 'active' : '' }}" data-tooltip="Courses">
                     <i class="fas fa-book"></i>
                     <span>Courses</span>
                 </a>
 
-                <a href="{{ route('grades.index') }}" class="nav-item {{ Request::is('grades*') ? 'active' : '' }}" data-tooltip="Grades">
+                <a href="{{ route('grades.index') }}" wire:navigate class="nav-item {{ Request::is('grades*') ? 'active' : '' }}" data-tooltip="Grades">
                     <i class="fas fa-graduation-cap"></i>
                     <span>{{ Auth::user()->role === \App\Constants\Roles::STUDENT ? 'My Grades' : 'Grades' }}</span>
                 </a>
 
 
                 @if(in_array(Auth::user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]))
-                <a href="{{ route('analytics.dashboard') }}" class="nav-item {{ Request::is('analytics*') ? 'active' : '' }}" data-tooltip="Analytics">
+                <a href="{{ route('analytics.dashboard') }}" wire:navigate class="nav-item {{ Request::is('analytics*') ? 'active' : '' }}" data-tooltip="Analytics">
                     <i class="fas fa-chart-pie"></i>
                     <span>Analytics</span>
                 </a>
                 @endif
 
                 @if(Auth::user()->role === \App\Constants\Roles::STUDENT)
-                <a href="{{ route('student.analytics') }}" class="nav-item {{ Request::is('student/analytics*') ? 'active' : '' }}" data-tooltip="My Analytics">
+                <a href="{{ route('student.analytics') }}" wire:navigate class="nav-item {{ Request::is('student/analytics*') ? 'active' : '' }}" data-tooltip="My Analytics">
                     <i class="fas fa-chart-line"></i>
                     <span>My Analytics</span>
                 </a>
-                <a href="{{ route('student.classes') }}" class="nav-item {{ Request::is('student/classes*') ? 'active' : '' }}" data-tooltip="My Class">
+                <a href="{{ route('student.classes') }}" wire:navigate class="nav-item {{ Request::is('student/classes*') ? 'active' : '' }}" data-tooltip="My Class">
                     <i class="fas fa-users"></i>
                     <span>My Class</span>
                 </a>
-                <a href="{{ route('credentials.index') }}" class="nav-item {{ Request::is('credentials*') || Request::is('certificates*') ? 'active' : '' }}" data-tooltip="My Credentials">
+                <a href="{{ route('credentials.index') }}" wire:navigate class="nav-item {{ Request::is('credentials*') || Request::is('certificates*') ? 'active' : '' }}" data-tooltip="My Credentials">
                     <i class="fas fa-award"></i>
                     <span>My Credentials</span>
                 </a>
@@ -90,7 +90,7 @@
         <div class="sidebar-section">
             <div class="sidebar-label">Content</div>
             <nav class="sidebar-nav">
-                <a href="{{ route('content.management') }}" class="nav-item {{ Request::is('content-management*') ? 'active' : '' }}" data-tooltip="Content Management">
+                <a href="{{ route('content.management') }}" wire:navigate class="nav-item {{ Request::is('content-management*') ? 'active' : '' }}" data-tooltip="Content Management">
                     <i class="fas fa-cubes"></i>
                     <span>Content Management</span>
                 </a>
@@ -106,7 +106,7 @@
                 @php
                 $pendingRegistrations = \App\Models\Registration::whereIn('status', ['pending', 'email_verified'])->count();
                 @endphp
-                <a href="{{ route('admin.registrations.index') }}" class="nav-item {{ Request::is('admin/registrations*') ? 'active' : '' }}" data-tooltip="Registrations">
+                <a href="{{ route('admin.registrations.index') }}" wire:navigate class="nav-item {{ Request::is('admin/registrations*') ? 'active' : '' }}" data-tooltip="Registrations">
                     <i class="fas fa-user-clock"></i>
                     <span>Registrations</span>
                     <span class="nav-badge" id="badge-registrations" style="{{ $pendingRegistrations > 0 ? '' : 'display:none' }}">{{ $pendingRegistrations }}</span>
@@ -121,15 +121,15 @@
                     </a>
                     <div class="flyout-menu">
                         <div class="flyout-header">Users</div>
-                        <a href="{{ route('private.users.index') }}" class="flyout-item {{ Request::is('private/users*') && !Request::is('*instructors*') && !Request::is('*students*') ? 'active' : '' }}">
+                        <a href="{{ route('private.users.index') }}" wire:navigate class="flyout-item {{ Request::is('private/users*') && !Request::is('*instructors*') && !Request::is('*students*') ? 'active' : '' }}">
                             <i class="fas fa-users-cog"></i>
                             <span>All Users</span>
                         </a>
-                        <a href="{{ route('private.students.index') }}" class="flyout-item {{ Request::is('private/students*') ? 'active' : '' }}">
+                        <a href="{{ route('private.students.index') }}" wire:navigate class="flyout-item {{ Request::is('private/students*') ? 'active' : '' }}">
                             <i class="fas fa-user-graduate"></i>
                             <span>Students</span>
                         </a>
-                        <a href="{{ route('private.instructors.index') }}" class="flyout-item {{ Request::is('private/instructors*') ? 'active' : '' }}">
+                        <a href="{{ route('private.instructors.index') }}" wire:navigate class="flyout-item {{ Request::is('private/instructors*') ? 'active' : '' }}">
                             <i class="fas fa-chalkboard-teacher"></i>
                             <span>Instructors</span>
                         </a>
@@ -145,11 +145,11 @@
                     </a>
                     <div class="flyout-menu">
                         <div class="flyout-header">Classes</div>
-                        <a href="{{ route('class-management.index') }}" class="flyout-item {{ Request::is('class-management*') ? 'active' : '' }}">
+                        <a href="{{ route('class-management.index') }}" wire:navigate class="flyout-item {{ Request::is('class-management*') ? 'active' : '' }}">
                             <i class="fas fa-sitemap"></i>
                             <span>All Classes</span>
                         </a>
-                        <a href="{{ route('enrollment-requests.index') }}" class="flyout-item {{ Request::is('enrollment-requests*') ? 'active' : '' }}">
+                        <a href="{{ route('enrollment-requests.index') }}" wire:navigate class="flyout-item {{ Request::is('enrollment-requests*') ? 'active' : '' }}">
                             <i class="fas fa-user-plus"></i>
                             <span>Enrollments</span>
                         </a>
@@ -165,17 +165,17 @@
         <div class="sidebar-section">
             <div class="sidebar-label">Teaching</div>
             <nav class="sidebar-nav">
-                <a href="{{ route('class-management.index') }}" class="nav-item {{ Request::is('class-management*') ? 'active' : '' }}" data-tooltip="My Classes">
+                <a href="{{ route('class-management.index') }}" wire:navigate class="nav-item {{ Request::is('class-management*') ? 'active' : '' }}" data-tooltip="My Classes">
                     <i class="fas fa-chalkboard"></i>
                     <span>My Classes</span>
                 </a>
 
-                <a href="{{ route('private.students.index') }}" class="nav-item {{ Request::is('private/students*') ? 'active' : '' }}" data-tooltip="My Students">
+                <a href="{{ route('private.students.index') }}" wire:navigate class="nav-item {{ Request::is('private/students*') ? 'active' : '' }}" data-tooltip="My Students">
                     <i class="fas fa-user-graduate"></i>
                     <span>My Students</span>
                 </a>
 
-                <a href="{{ route('enrollment-requests.index') }}" class="nav-item {{ Request::is('enrollment-requests*') ? 'active' : '' }}" data-tooltip="Enrollment Requests">
+                <a href="{{ route('enrollment-requests.index') }}" wire:navigate class="nav-item {{ Request::is('enrollment-requests*') ? 'active' : '' }}" data-tooltip="Enrollment Requests">
                     <i class="fas fa-user-plus"></i>
                     <span>Enrollments</span>
                 </a>
@@ -190,7 +190,7 @@
                 @php
                     $trashedCount = $trashedCount ?? 0;
                 @endphp
-                <a href="{{ route('trash.index') }}" class="nav-item {{ Request::is('trash*') ? 'active' : '' }}" data-tooltip="Trash">
+                <a href="{{ route('trash.index') }}" wire:navigate class="nav-item {{ Request::is('trash*') ? 'active' : '' }}" data-tooltip="Trash">
                     <i class="fas fa-trash-alt"></i>
                     <span>Trash</span>
                     <span class="nav-badge" id="badge-trash" style="{{ $trashedCount > 0 ? '' : 'display:none' }}">{{ $trashedCount }}</span>
@@ -201,7 +201,7 @@
         <!-- Help & Support (for students only) -->
         <div class="sidebar-section">
             <nav class="sidebar-nav">
-                <a href="{{ route('help-support') }}" class="nav-item {{ Request::is('help-support*') ? 'active' : '' }}" data-tooltip="Help & Support">
+                <a href="{{ route('help-support') }}" wire:navigate class="nav-item {{ Request::is('help-support*') ? 'active' : '' }}" data-tooltip="Help & Support">
                     <i class="fas fa-question-circle"></i>
                     <span>Help & Support</span>
                 </a>

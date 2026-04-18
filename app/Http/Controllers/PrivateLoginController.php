@@ -30,7 +30,6 @@ class PrivateLoginController extends Controller
     public function showInstructorLoginForm()
     {
         if (Auth::check()) {
-            // Already logged in — send to their own dashboard
             return $this->redirectToRoleDashboard();
         }
 
