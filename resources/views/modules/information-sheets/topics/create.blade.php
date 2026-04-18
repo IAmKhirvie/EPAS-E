@@ -54,6 +54,11 @@
                         </div>
                     </div>
 
+                    {{-- Load rich editor CSS/JS for block editor --}}
+                    <div style="display:none;">
+                        <x-rich-editor name="_block_editor_init" />
+                    </div>
+
                     {{-- Block-based Content Editor --}}
                     @include('components.block-editor', ['existingBlocks' => []])
 
