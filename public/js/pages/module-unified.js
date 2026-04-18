@@ -779,6 +779,13 @@ document.addEventListener('DOMContentLoaded', function () {
             questions = shuffleArray([...questions]);
         }
 
+        // Build dot navigation
+        let dots = '';
+        questions.forEach((q, idx) => {
+            const answered = selfCheckState.answers && selfCheckState.answers[q.id] !== undefined;
+            dots += `<span class="selfcheck-dot ${idx === 0 ? 'current' : ''} ${answered ? 'answered' : ''}" onclick="window.goToQuestion(${idx})" title="Question ${idx+1}"></span>`;
+        });
+
         let html = `
             <div class="selfcheck-quiz-container">
                 <div class="selfcheck-quiz-header">
@@ -789,6 +796,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <div class="selfcheck-progress-fill" id="quizProgressFill" style="width: ${(1/questions.length)*100}%"></div>
                         </div>
                     </div>
+                    <div class="selfcheck-dots" id="quizDots">${dots}</div>
                 </div>
                 <div class="selfcheck-questions">
         `;
@@ -1082,6 +1090,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
+    window.goToQuestion = function(idx) {
+        const allQuestions = document.querySelectorAll('.selfcheck-question');
+        if (idx >= 0 && idx < allQuestions.length) {
+            allQuestions[selfCheckState.currentQuestion].classList.remove('active');
+            selfCheckState.currentQuestion = idx;
+            allQuestions[idx].classList.add('active');
+            updateQuizNavButtons();
+            updateQuizProgress();
+        }
+    };
+
     function updateQuizNavButtons() {
         const content = focusModeData[currentFocusIndex];
         const questions = content.questions || [];
@@ -1106,8 +1125,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const currentNum = document.getElementById('currentQNum');
         const progressFill = document.getElementById('quizProgressFill');
 
+        // Update progress bar based on answered questions, not current index
+        const answeredCount = Object.keys(selfCheckState.answers).length;
         if (currentNum) currentNum.textContent = selfCheckState.currentQuestion + 1;
-        if (progressFill) progressFill.style.width = ((selfCheckState.currentQuestion + 1) / questions.length * 100) + '%';
+        if (progressFill) progressFill.style.width = (answeredCount / questions.length * 100) + '%';
+
+        // Update dots
+        const dots = document.querySelectorAll('.selfcheck-dot');
+        dots.forEach((dot, i) => {
+            dot.classList.remove('current');
+            if (i === selfCheckState.currentQuestion) dot.classList.add('current');
+            // Mark answered dots
+            const q = questions[i];
+            if (q && selfCheckState.answers[q.id] !== undefined) {
+                dot.classList.add('answered');
+            }
+        });
     }
 
     window.submitSelfCheck = function() {
