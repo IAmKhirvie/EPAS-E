@@ -1,0 +1,1 @@
+<?php require 'vendor/autoload.php'; $a=require 'bootstrap/app.php'; $a->make('Illuminate\Contracts\Console\Kernel')->bootstrap(); $u=App\Models\User::where('email','karlrapada@gmail.com')->first(); echo 'secret: '.($u->two_factor_secret ? 'SET':'NULL').PHP_EOL; echo 'required: '.$u->two_factor_required.PHP_EOL;

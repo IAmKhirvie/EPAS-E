@@ -20,24 +20,7 @@ class TwoFactorMiddleware
     {
         $user = auth()->user();
 
-        if (!$user) {
-            return $next($request);
-        }
-
-        // Check if 2FA is enabled AND actually set up for user
-        if ($this->twoFactorService->isEnabled($user) && $this->twoFactorService->hasSecret($user)) {
-            // Check if already verified in this session
-            if (!session()->has('2fa_verified') || !session('2fa_verified')) {
-                // Don't redirect if already on the challenge page
-                if ($request->routeIs('two-factor.*')) {
-                    return $next($request);
-                }
-
-                session()->put('url.intended', $request->url());
-                return redirect()->route('two-factor.challenge');
-            }
-        }
-
+        // 2FA verification disabled — users can enable it manually from settings
         return $next($request);
     }
 }
