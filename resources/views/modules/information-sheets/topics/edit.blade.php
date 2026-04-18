@@ -275,57 +275,44 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Legacy parts editor
-    let partIndex = {{ (($topic->parts && count($topic->parts) > 0) ? count($topic->parts) : 0) }};
-    const partsContainer = document.getElementById('partsContainer');
-    const noPartsMessage = document.getElementById('noPartsMessage');
-    const addPartBtn = document.getElementById('addPartBtn');
+    var partIndex = <?php echo (($topic->parts && count($topic->parts) > 0) ? count($topic->parts) : 0); ?>;
+    var partsContainer = document.getElementById('partsContainer');
+    var noPartsMessage = document.getElementById('noPartsMessage');
+    var addPartBtn = document.getElementById('addPartBtn');
 
     if (partsContainer && addPartBtn) {
         function updatePartsUI() {
-            const parts = partsContainer.querySelectorAll('.part-card');
+            var parts = partsContainer.querySelectorAll('.part-card');
             if (noPartsMessage) noPartsMessage.style.display = parts.length === 0 ? 'flex' : 'none';
-            const badge = document.querySelector('.cb-count-badge');
+            var badge = document.querySelector('.cb-count-badge');
             if (badge) badge.textContent = parts.length;
         }
 
         function renumberParts() {
-            partsContainer.querySelectorAll('.part-card').forEach((part, index) => {
+            partsContainer.querySelectorAll('.part-card').forEach(function(part, index) {
                 part.querySelector('.part-number').textContent = 'Part ' + (index + 1);
             });
         }
 
         function createPartCard(index) {
-            const card = document.createElement('div');
+            var card = document.createElement('div');
             card.className = 'part-card';
-            card.innerHTML = `
-                <span class="part-number">Part ${index + 1}</span>
-                <button type="button" class="btn btn-outline-danger btn-sm part-remove-btn" onclick="removePart(this)">
-                    <i class="fas fa-times"></i>
-                </button>
-                <div class="row mt-2">
-                    <div class="col-md-3">
-                        <label class="cb-field-label small">Image</label>
-                        <div class="image-preview-container" onclick="this.querySelector('input[type=file]').click()">
-                            <input type="file" name="part_images[${index}]" accept="image/*" class="d-none" onchange="previewPartImage(this)">
-                            <input type="hidden" name="parts[${index}][existing_image]" value="">
-                            <div class="placeholder-content">
-                                <i class="fas fa-image d-block"></i>
-                                <small>Click to upload</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-9">
-                        <div class="mb-3">
-                            <label class="cb-field-label small">Title / Name</label>
-                            <input type="text" class="form-control" name="parts[${index}][title]" placeholder="e.g., Benjamin Franklin">
-                        </div>
-                        <div>
-                            <label class="cb-field-label small">Explanation / Description</label>
-                            <textarea class="form-control" name="parts[${index}][explanation]" rows="3" placeholder="e.g., American scientist and inventor..."></textarea>
-                        </div>
-                    </div>
-                </div>
-            `;
+            card.innerHTML = '<span class="part-number">Part ' + (index + 1) + '</span>'
+                + '<button type="button" class="btn btn-outline-danger btn-sm part-remove-btn" onclick="removePart(this)"><i class="fas fa-times"></i></button>'
+                + '<div class="row mt-2">'
+                + '<div class="col-md-3">'
+                + '<label class="cb-field-label small">Image</label>'
+                + '<div class="image-preview-container" onclick="this.querySelector(\'input[type=file]\').click()">'
+                + '<input type="file" name="part_images[' + index + ']" accept="image/*" class="d-none" onchange="previewPartImage(this)">'
+                + '<input type="hidden" name="parts[' + index + '][existing_image]" value="">'
+                + '<div class="placeholder-content"><i class="fas fa-image d-block"></i><small>Click to upload</small></div>'
+                + '</div></div>'
+                + '<div class="col-md-9">'
+                + '<div class="mb-3"><label class="cb-field-label small">Title / Name</label>'
+                + '<input type="text" class="form-control" name="parts[' + index + '][title]" placeholder="e.g., Benjamin Franklin"></div>'
+                + '<div><label class="cb-field-label small">Explanation / Description</label>'
+                + '<textarea class="form-control" name="parts[' + index + '][explanation]" rows="3" placeholder="e.g., American scientist and inventor..."></textarea></div>'
+                + '</div></div>';
             return card;
         }
 
@@ -338,26 +325,24 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.closest('.part-card').remove();
             renumberParts();
             updatePartsUI();
-            partsContainer.querySelectorAll('.part-card').forEach((part, idx) => {
-                part.querySelectorAll('input, textarea').forEach(input => {
-                    const name = input.getAttribute('name');
+            partsContainer.querySelectorAll('.part-card').forEach(function(part, idx) {
+                part.querySelectorAll('input, textarea').forEach(function(input) {
+                    var name = input.getAttribute('name');
                     if (name) input.setAttribute('name', name.replace(new RegExp('\\[\\d+\\]'), '[' + idx + ']'));
                 });
             });
         };
 
         window.previewPartImage = function(input) {
-            const container = input.closest('.image-preview-container');
+            var container = input.closest('.image-preview-container');
             if (input.files && input.files[0]) {
-                const reader = new FileReader();
+                var reader = new FileReader();
                 reader.onload = function(e) {
-                    const hiddenInput = container.querySelector('input[type=hidden]');
-                    const hiddenInputHtml = hiddenInput ? hiddenInput.outerHTML : '';
-                    container.innerHTML = `
-                        <input type="file" name="${input.name}" accept="image/*" class="d-none" onchange="previewPartImage(this)">
-                        ${hiddenInputHtml}
-                        <img src="${e.target.result}" alt="Preview">
-                    `;
+                    var hiddenInput = container.querySelector('input[type=hidden]');
+                    var hiddenInputHtml = hiddenInput ? hiddenInput.outerHTML : '';
+                    container.innerHTML = '<input type="file" name="' + input.name + '" accept="image/*" class="d-none" onchange="previewPartImage(this)">'
+                        + hiddenInputHtml
+                        + '<img src="' + e.target.result + '" alt="Preview">';
                 };
                 reader.readAsDataURL(input.files[0]);
             }
@@ -367,10 +352,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Convert to Blocks button
-    const convertBtn = document.getElementById('convertToBlocksBtn');
+    var convertBtn = document.getElementById('convertToBlocksBtn');
     if (convertBtn) {
         convertBtn.addEventListener('click', function() {
-            const legacyData = JSON.parse(document.getElementById('legacyTopicData').textContent);
+            var legacyData = JSON.parse(document.getElementById('legacyTopicData').textContent);
 
             // Show block editor, hide legacy fields
             document.getElementById('blockEditorWrapper').style.display = 'block';
