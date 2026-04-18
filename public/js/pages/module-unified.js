@@ -1188,26 +1188,20 @@ document.addEventListener('DOMContentLoaded', function () {
         const prevNav = document.getElementById('quizPrevNav');
         const nextNav = document.getElementById('quizNextNav');
 
-        // Show submit button on last question
+        // Only show submit when ALL questions are answered
         if (submitBtn) {
-            if (isLast) {
+            const content = focusModeData[currentFocusIndex];
+            const questions = content ? (content.questions || []) : [];
+            const allAnswered = questions.length > 0 && questions.every(q =>
+                selfCheckState.answers[q.id] !== undefined ||
+                selfCheckState.answers[String(q.id)] !== undefined
+            );
+
+            if (allAnswered) {
                 submitBtn.classList.remove('d-none');
-                // Check if all questions answered
-                const content = focusModeData[currentFocusIndex];
-                const questions = content.questions || [];
-                const allAnswered = questions.every(q =>
-                    selfCheckState.answers[q.id] !== undefined ||
-                    selfCheckState.answers[String(q.id)] !== undefined
-                );
-                if (allAnswered) {
-                    submitBtn.className = 'btn btn-success';
-                    submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>Submit Answers';
-                    submitBtn.disabled = false;
-                } else {
-                    submitBtn.className = 'btn btn-warning';
-                    submitBtn.innerHTML = '<i class="fas fa-clipboard-check me-1"></i>Answer All Questions First';
-                    submitBtn.disabled = true;
-                }
+                submitBtn.className = 'btn btn-success';
+                submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>Submit Answers';
+                submitBtn.disabled = false;
             } else {
                 submitBtn.classList.add('d-none');
             }
