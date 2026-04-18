@@ -449,5 +449,5 @@ window.quizConfig = {
     existingQuestions: @json($existingQuestions ?? [])
 };
 </script>
-<script src="{{ asset('js/components/quiz-builder.js') }}"></script>
+<script src="{{ asset('js/components/quiz-builder.js') }}?v={{ filemtime(public_path('js/components/quiz-builder.js')) }}"></script>
 @endpush
