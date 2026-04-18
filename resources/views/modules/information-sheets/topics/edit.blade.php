@@ -332,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function() {
             partsContainer.querySelectorAll('.part-card').forEach((part, idx) => {
                 part.querySelectorAll('input, textarea').forEach(input => {
                     const name = input.getAttribute('name');
-                    if (name) input.setAttribute('name', name.replace(/\[\d+\]/, `[${idx}]`));
+                    if (name) input.setAttribute('name', name.replace(new RegExp('\\[\\d+\\]'), '[' + idx + ']'));
                 });
             });
         };
