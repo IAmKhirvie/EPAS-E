@@ -64,8 +64,7 @@ class SearchController extends Controller
         }
 
         // Search Announcements
-        $announcements = Announcement::where('is_active', true)
-            ->where(function ($query) use ($q) {
+        $announcements = Announcement::where(function ($query) use ($q) {
                 $query->where('title', 'like', "%{$q}%")
                     ->orWhere('content', 'like', "%{$q}%");
             })

@@ -199,7 +199,7 @@
 .g-ann.expanded { grid-row: 1 / 5; z-index: 5; }
 .g-ann-list { flex: 1; overflow-y: auto; min-height: 0; }
 
-.ann-table { width: 100%; border-collapse: collapse; }
+.ann-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .ann-table thead th { font-size: 0.7rem; font-weight: 600; color: var(--text-muted, #bbb); text-transform: uppercase; letter-spacing: 0.5px; padding: 0.45rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border-light, #f0f0f0); position: sticky; top: 0; background: var(--surface, #fff); z-index: 1; }
 .ann-table tbody tr { transition: background 0.12s; cursor: pointer; }
 .ann-table tbody tr:hover { background: rgba(0,0,0,0.015); }
@@ -210,9 +210,9 @@
 .ann-av { width: 30px; height: 30px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: var(--border, #eee); }
 .ann-av img { width: 100%; height: 100%; object-fit: cover; }
 .ann-av i { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #999; font-size: 0.78rem; }
-.ann-uname { font-size: 0.8rem; font-weight: 600; white-space: nowrap; color: var(--text-primary); }
+.ann-uname { font-size: 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); }
 .ann-dt { font-size: 0.75rem; color: var(--text-muted, #999); white-space: nowrap; }
-.ann-summ { font-size: 0.78rem; color: var(--text-secondary, #666); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
+.ann-summ { font-size: 0.78rem; color: var(--text-secondary, #666); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block; }
 .g-ann.expanded .ann-summ { white-space: normal; max-width: none; }
 .ann-action-btn { width: 26px; height: 26px; border-radius: 7px; border: 1px solid var(--border, #e8e8e8); background: var(--surface, #fff); display: inline-flex; align-items: center; justify-content: center; color: #999; font-size: 0.7rem; cursor: pointer; transition: all 0.12s; text-decoration: none; }
 .ann-action-btn:hover { background: var(--primary, #0c3a2d); color: #fff !important; border-color: var(--primary); }
@@ -282,7 +282,7 @@
     .g-graph, .g-rt, .g-ann, .g-qs { width: 100%; }
     .dash.expanded .g-graph { display: none; }
     .g-ann-list { overflow-x: auto; }
-    .ann-table { min-width: 480px; }
+    .ann-table { min-width: 0; }
     .g-qs-body { flex-direction: column; }
     .g-summary { flex-wrap: wrap; gap: 0.8rem; }
 }
@@ -290,5 +290,5 @@
 @media (max-width: 480px) {
     .dash { padding: 0 0.35rem 5rem; gap: 0.5rem; }
     .g-graph { min-height: 200px; }
-    .ann-table { min-width: 360px; }
+    .ann-table { min-width: 0; }
 }
