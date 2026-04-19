@@ -2,6 +2,110 @@
 
 /* Inherits colors from reset.css - no need to redefine */
 
+/* ===== GUEST NAV: Links + Login/Register ===== */
+.pub-nav-links {
+    display: flex;
+    gap: 2rem;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.pub-nav-links a {
+    text-decoration: none;
+    color: #666;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.pub-nav-links a:hover {
+    color: #0c3a2d;
+}
+
+.dark-mode .pub-nav-links a {
+    color: #aaa;
+}
+
+.dark-mode .pub-nav-links a:hover {
+    color: #6d9773;
+}
+
+.pub-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+.pub-btn {
+    padding: 0.5rem 1.2rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-family: inherit;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+}
+
+.pub-btn-outline {
+    background: transparent;
+    border: 1.5px solid #e0e0e0;
+    color: #333;
+}
+
+.pub-btn-outline:hover {
+    border-color: #0c3a2d;
+    color: #0c3a2d;
+}
+
+.pub-btn-primary {
+    background: #0c3a2d;
+    color: #fff;
+}
+
+.pub-btn-primary:hover {
+    background: #0a3025;
+    color: #fff;
+}
+
+.dark-mode .pub-btn-outline {
+    border-color: #444;
+    color: #ddd;
+}
+
+.dark-mode .pub-btn-outline:hover {
+    border-color: #6d9773;
+    color: #6d9773;
+}
+
+.dark-mode .pub-btn-primary {
+    background: #6d9773;
+}
+
+.dark-mode .pub-btn-primary:hover {
+    background: #5a8563;
+}
+
+@media (max-width: 768px) {
+    .pub-nav-links {
+        display: none;
+    }
+
+    .pub-nav-right {
+        gap: 0.35rem;
+    }
+
+    .pub-btn {
+        padding: 0.4rem 0.85rem;
+        font-size: 0.78rem;
+    }
+}
+
 /* ===== TOP NAVBAR ===== */
 .top-navbar {
     height: var(--navbar-height);
