@@ -34,7 +34,7 @@ html, body {
     top: 50%;
     transform: translateY(-50%);
     height: auto;
-    max-height: calc(100vh - (var(--pill-margin) * 2));
+    min-height: calc(100vh - (var(--pill-margin) * 2));
     z-index: var(--z-sidebar);
     flex-shrink: 0;
     color: var(--sidebar-foreground);
