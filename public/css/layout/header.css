@@ -107,7 +107,6 @@ body.sidebar-collapsed .top-navbar {
 .navbar-search {
     position: relative;
     flex: 1;
-    max-width: calc(100% - 320px);
 }
 .navbar-search input {
     width: 100%;
