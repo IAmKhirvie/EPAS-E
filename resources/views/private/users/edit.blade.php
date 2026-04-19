@@ -299,7 +299,7 @@
             <div class="card-header bg-primary bg-opacity-10 border-primary">
                 <h6 class="mb-0">
                     <i class="fas fa-award me-2"></i>Credentials
-                    <small class="text-muted ms-2">Badges & Certificates for {{ $user->full_name }}</small>
+                    <small class="text-muted ms-2">Achievements & Certificates for {{ $user->full_name }}</small>
                 </h6>
             </div>
             <div class="card-body">

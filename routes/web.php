@@ -826,6 +826,7 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::post('/announcements', [AnnouncementController::class, 'store'])->name('private.announcements.store');
         Route::get('/announcements/{announcement}/edit', [AnnouncementController::class, 'edit'])->name('private.announcements.edit');
         Route::put('/announcements/{announcement}', [AnnouncementController::class, 'update'])->name('private.announcements.update');
+        Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy'])->name('private.announcements.destroy');
     });
 
     // Announcement View & Interaction (All authenticated users)

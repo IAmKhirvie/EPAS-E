@@ -225,7 +225,7 @@ app/
 | ---------------------------- | ------------------------------------------------------ |
 | `GradingService`             | Philippine K-12 grade calculation, GPA, rankings       |
 | `SelfCheckGradingService`    | Auto-grading for 14+ question types                    |
-| `GamificationService`        | Points, badges, streaks with race condition prevention |
+| `GamificationService`        | Points, achievements, streaks with race condition prevention |
 | `NotificationService`        | Multi-channel notification orchestration               |
 | `AnalyticsService`           | Dashboard metrics, progress tracking                   |
 | `DashboardStatisticsService` | Role-based dashboard data aggregation                  |

@@ -125,7 +125,7 @@
                 <div class="w-feat">
                     <div class="w-feat-icon" style="background:rgba(111,66,193,0.08);color:#6f42c1"><i class="fas fa-trophy"></i></div>
                     <h4>Gamification</h4>
-                    <p>Points, badges, streaks, and leaderboards to keep you motivated.</p>
+                    <p>Points, achievements, streaks, and leaderboards to keep you motivated.</p>
                 </div>
                 <div class="w-feat">
                     <div class="w-feat-icon" style="background:rgba(220,53,69,0.08);color:#dc3545"><i class="fas fa-file-pdf"></i></div>

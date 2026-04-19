@@ -904,33 +904,7 @@ h3.user-card-subtitle {
     transition: all 0.3s ease;
 }
 
-.dark-mode-toggle .icon-button {
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 50%;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    color: var(--text-primary);
-}
-
-.dark-mode-toggle .icon-button:hover {
-    background-color: var(--accent);
-    transform: scale(1.05);
-}
-
-.dark-mode-toggle i {
-    font-size: 1rem;
-    transition: transform 0.3s ease;
-}
-
-.dark-mode-toggle .icon-button:hover i {
-    transform: rotate(15deg);
-}
+/* dark-mode-toggle inherits from global .icon-button — no overrides */
 
 /* Apply dark mode styles to main elements */
 .dark-mode body {
@@ -994,10 +968,16 @@ h3.user-card-subtitle {
 }
 
 .icon-button:hover, .user-button:hover {
-    background-color: var(--primary, #0c3a2d);
-    color: #fff;
-    border-color: var(--primary, #0c3a2d);
+    background-color: #f0f0f0;
+    color: var(--text-primary);
+    border-color: #ccc;
     transform: translateY(-1px);
+}
+
+.dark-mode .icon-button:hover, .dark-mode .user-button:hover {
+    background-color: #333;
+    color: #fff;
+    border-color: #555;
 }
 
 /* ===== User Button Variants (Desktop vs Mobile ID Card) ===== */
@@ -1059,7 +1039,7 @@ h3.user-card-subtitle {
 }
 
 .user-button:hover .avatar {
-    border-color: var(--primary-dark);
+    border-color: #ccc;
     transform: scale(1.05);
 }
 
@@ -1688,19 +1668,8 @@ h3.user-card-subtitle {
     animation: highlightNew 2s ease;
 }
 
-/* Dark mode navbar — no background, just transparent */
-@media (min-width: 1033px) {
-    .dark-mode .navbar-right {
-        background-color: transparent;
-    }
-}
-
 .dark-mode .sidebar-toggle {
     color: var(--text-primary);
-}
-
-.dark-mode .user-button--mobile {
-    background: var(--primary-dark);
 }
 
 .dark-mode .navbar-brand h2 {

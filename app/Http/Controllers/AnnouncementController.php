@@ -99,6 +99,29 @@ class AnnouncementController extends Controller
         return view('private.announcements.show', compact('announcement'));
     }
 
+    public function destroy(Announcement $announcement)
+    {
+        $user = Auth::user();
+
+        // Only admin or the author can delete
+        if ($user->role !== \App\Constants\Roles::ADMIN && $announcement->user_id !== $user->id) {
+            return back()->with('error', 'You do not have permission to delete this announcement.');
+        }
+
+        try {
+            $announcement->delete();
+            return redirect()->route('private.announcements.index')
+                ->with('success', 'Announcement deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Announcement deletion failed', [
+                'error' => $e->getMessage(),
+                'user_id' => $user->id,
+                'announcement_id' => $announcement->id,
+            ]);
+            return back()->with('error', 'Failed to delete announcement.');
+        }
+    }
+
     public function addComment(Request $request, Announcement $announcement)
     {
         $request->validate([
