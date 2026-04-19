@@ -13,7 +13,6 @@ use App\Models\DocumentAssessment;
 use App\Models\UserProgress;
 use App\Models\Course;
 use App\Models\User;
-use App\Models\UserPoint;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 

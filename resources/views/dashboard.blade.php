@@ -88,7 +88,7 @@
                             $cy = round($svgH - ($cv / $chartMax) * ($svgH - 10));
                             $dayLabel = now()->subDays(6 - $ci)->format('D, M d');
                         @endphp
-                        <circle class="chart-dot" cx="{{ $cx }}" cy="{{ $cy }}" r="3" fill="var(--primary,#0c3a2d)" stroke="#fff" stroke-width="1.5"
+                        <circle class="chart-dot" cx="{{ $cx }}" cy="{{ $cy }}" r="3" fill="var(--primary,#0c3a2d)" stroke="none"
                             data-day="{{ $dayLabel }}" data-value="{{ $cv }}" style="cursor:pointer"/>
                         @endforeach
                     </svg>
