@@ -33,6 +33,7 @@ body.sidebar-collapsed .top-navbar {
     display: flex;
     align-items: center;
     gap: 1rem;
+    flex: 1;
 }
 
 .sidebar-toggle.active {
