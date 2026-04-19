@@ -167,6 +167,9 @@
                     <a class="dropdown-item" href="{{ route('settings.index') }}"><i class="fas fa-cog"></i>Settings</a>
                     <a class="dropdown-item" href="{{ route('credentials.index') }}"><i class="fas fa-award"></i>Credentials</a>
                     <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ route('about') }}"><i class="fas fa-info-circle"></i>About</a>
+                    <a class="dropdown-item" href="{{ route('contact') }}"><i class="fas fa-envelope"></i>Contact Us</a>
+                    <div class="dropdown-divider"></div>
                     <form method="POST" action="{{ route('logout') }}">@csrf
                         <button type="submit" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt"></i>Logout</button>
                     </form>
