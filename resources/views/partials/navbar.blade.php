@@ -6,6 +6,7 @@
         <div class="navbar-search">
             <i class="fas fa-search"></i>
             <input type="text" id="global-search" placeholder="Search courses, modules, users..." autocomplete="off">
+            <div class="search-results" id="search-results"></div>
         </div>
     </div>
 

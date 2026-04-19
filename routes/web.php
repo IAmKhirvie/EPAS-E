@@ -398,6 +398,9 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     });
 
+    // Global Search
+    Route::get('/search', [\App\Http\Controllers\SearchController::class, 'search'])->name('search');
+
     // Shared Dashboard Progress Endpoints
     Route::get('/dashboard/progress-data', [DashboardController::class, 'getProgressData']);
     Route::get('/dashboard/progress-report', [DashboardController::class, 'getProgressReport']);

@@ -234,5 +234,40 @@
         }
     });
   </script>
+
+  {{-- Global Search --}}
+  <script data-navigate-once>
+  (function() {
+      var input = document.getElementById('global-search');
+      var box = document.getElementById('search-results');
+      if (!input || !box) return;
+      var timer = null;
+
+      input.addEventListener('input', function() {
+          clearTimeout(timer);
+          var q = this.value.trim();
+          if (q.length < 2) { box.classList.remove('active'); box.innerHTML = ''; return; }
+          box.innerHTML = '<div class="sr-empty"><i class="fas fa-spinner fa-spin"></i> Searching...</div>';
+          box.classList.add('active');
+          timer = setTimeout(function() {
+              fetch('/search?q=' + encodeURIComponent(q), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                  .then(function(r) { return r.json(); })
+                  .then(function(data) {
+                      if (!data.length) { box.innerHTML = '<div class="sr-empty">No results for "' + q + '"</div>'; return; }
+                      box.innerHTML = data.map(function(r) {
+                          return '<a href="' + r.url + '" class="sr-item">' +
+                              '<div class="sr-icon"><i class="' + r.icon + '"></i></div>' +
+                              '<div class="sr-info"><span class="sr-title">' + r.title + '</span><span class="sr-sub">' + r.sub + '</span></div>' +
+                              '<span class="sr-type">' + r.type + '</span></a>';
+                      }).join('');
+                  })
+                  .catch(function() { box.innerHTML = '<div class="sr-empty">Search failed</div>'; });
+          }, 300);
+      });
+
+      input.addEventListener('focus', function() { if (this.value.trim().length >= 2 && box.innerHTML) box.classList.add('active'); });
+      document.addEventListener('click', function(e) { if (!e.target.closest('.navbar-search')) box.classList.remove('active'); });
+  })();
+  </script>
 </body>
 </html>
