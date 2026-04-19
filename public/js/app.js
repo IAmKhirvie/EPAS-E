@@ -103,6 +103,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Flyout menu toggle — click nav items with .has-flyout to open/close
+    document.addEventListener('click', function(e) {
+        var flyoutParent = e.target.closest('.nav-item-flyout');
+        var clickedFlyoutTrigger = e.target.closest('.nav-item.has-flyout');
+
+        // Close all other flyouts first
+        document.querySelectorAll('.nav-item-flyout.open').forEach(function(el) {
+            if (el !== flyoutParent) el.classList.remove('open');
+        });
+
+        // Toggle clicked flyout
+        if (clickedFlyoutTrigger && flyoutParent) {
+            e.preventDefault();
+            flyoutParent.classList.toggle('open');
+            return;
+        }
+
+        // Click inside flyout menu — don't close (let links work)
+        if (e.target.closest('.flyout-menu')) return;
+
+        // Click anywhere else — close all flyouts
+        document.querySelectorAll('.nav-item-flyout.open').forEach(function(el) {
+            el.classList.remove('open');
+        });
+    });
+
     // Mobile sidebar functionality
     if (overlay) {
         overlay.addEventListener('click', function() {
