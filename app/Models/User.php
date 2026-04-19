@@ -110,7 +110,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'last_login' => 'datetime',
             'stat' => 'integer',
             'reset_token_expires' => 'datetime',
-            'notification_preferences' => 'array',
+            'notification_preferences' => 'encrypted:array',
         ];
     }
 

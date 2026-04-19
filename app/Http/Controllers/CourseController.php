@@ -48,20 +48,30 @@ class CourseController extends Controller
     /**
      * Get calendar events from courses, self-checks, and other deadlines
      */
+    /**
+     * Color map for calendar event types.
+     */
+    private const EVENT_COLORS = [
+        'course_start'        => '#4cc9f0',
+        'course_end'          => '#4cc9f0',
+        'self_check'          => '#f72585',
+        'homework'            => '#7209b7',
+        'competency_test'     => '#ffb902',
+        'document_assessment' => '#06d6a0',
+    ];
+
     private function getCalendarEvents($courses)
     {
         $events = [];
 
         foreach ($courses as $course) {
-            $color = $course->category?->color ?? '#6d9773';
-
             // Course start date
             if ($course->start_date) {
                 $events[] = [
                     'date' => $course->start_date->format('Y-m-d'),
                     'title' => $course->course_code . ' Starts',
                     'type' => 'course_start',
-                    'color' => $color,
+                    'color' => self::EVENT_COLORS['course_start'],
                     'course_id' => $course->id,
                 ];
             }
@@ -72,7 +82,7 @@ class CourseController extends Controller
                     'date' => $course->end_date->format('Y-m-d'),
                     'title' => $course->course_code . ' Ends',
                     'type' => 'course_end',
-                    'color' => $color,
+                    'color' => self::EVENT_COLORS['course_end'],
                     'course_id' => $course->id,
                 ];
             }
@@ -94,7 +104,71 @@ class CourseController extends Controller
                     'date' => \Carbon\Carbon::parse($selfCheck->due_date)->format('Y-m-d'),
                     'title' => $selfCheck->title,
                     'type' => 'self_check',
-                    'color' => $color,
+                    'color' => self::EVENT_COLORS['self_check'],
+                    'course_id' => $course->id,
+                ];
+            }
+
+            // Get homework due dates
+            $homeworkDueDates = DB::table('homeworks')
+                ->join('information_sheets', 'homeworks.information_sheet_id', '=', 'information_sheets.id')
+                ->join('modules', 'information_sheets.module_id', '=', 'modules.id')
+                ->where('modules.course_id', $course->id)
+                ->whereNotNull('homeworks.due_date')
+                ->whereNull('homeworks.deleted_at')
+                ->whereNull('information_sheets.deleted_at')
+                ->whereNull('modules.deleted_at')
+                ->select('homeworks.due_date', 'homeworks.title')
+                ->get();
+
+            foreach ($homeworkDueDates as $homework) {
+                $events[] = [
+                    'date' => \Carbon\Carbon::parse($homework->due_date)->format('Y-m-d'),
+                    'title' => $homework->title,
+                    'type' => 'homework',
+                    'color' => self::EVENT_COLORS['homework'],
+                    'course_id' => $course->id,
+                ];
+            }
+
+            // Get competency test due dates
+            $competencyTestDueDates = DB::table('competency_tests')
+                ->join('modules', 'competency_tests.module_id', '=', 'modules.id')
+                ->where('modules.course_id', $course->id)
+                ->whereNotNull('competency_tests.due_date')
+                ->whereNull('competency_tests.deleted_at')
+                ->whereNull('modules.deleted_at')
+                ->select('competency_tests.due_date', 'competency_tests.title')
+                ->get();
+
+            foreach ($competencyTestDueDates as $test) {
+                $events[] = [
+                    'date' => \Carbon\Carbon::parse($test->due_date)->format('Y-m-d'),
+                    'title' => $test->title,
+                    'type' => 'competency_test',
+                    'color' => self::EVENT_COLORS['competency_test'],
+                    'course_id' => $course->id,
+                ];
+            }
+
+            // Get document assessment due dates
+            $docAssessmentDueDates = DB::table('document_assessments')
+                ->join('information_sheets', 'document_assessments.information_sheet_id', '=', 'information_sheets.id')
+                ->join('modules', 'information_sheets.module_id', '=', 'modules.id')
+                ->where('modules.course_id', $course->id)
+                ->whereNotNull('document_assessments.due_date')
+                ->whereNull('document_assessments.deleted_at')
+                ->whereNull('information_sheets.deleted_at')
+                ->whereNull('modules.deleted_at')
+                ->select('document_assessments.due_date', 'document_assessments.title')
+                ->get();
+
+            foreach ($docAssessmentDueDates as $docAssessment) {
+                $events[] = [
+                    'date' => \Carbon\Carbon::parse($docAssessment->due_date)->format('Y-m-d'),
+                    'title' => $docAssessment->title,
+                    'type' => 'document_assessment',
+                    'color' => self::EVENT_COLORS['document_assessment'],
                     'course_id' => $course->id,
                 ];
             }

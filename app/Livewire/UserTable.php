@@ -31,6 +31,8 @@ class UserTable extends Component
     public array $selectedUsers = [];
     public bool $selectAll = false;
 
+    public bool $readyToLoad = false;
+
     public bool $showBulkAssign = false;
     public string $bulkSection = '';
     public string $bulkSchoolYear = '';
@@ -326,58 +328,69 @@ class UserTable extends Component
         ", [$student, $instructor, $admin])->first()->toArray();
     }
 
+    public function loadData(): void
+    {
+        $this->readyToLoad = true;
+    }
+
     public function render()
     {
         $viewer = Auth::user();
 
-        $availableSections = User::where('role', Roles::STUDENT)
-            ->whereNotNull('section')
-            ->where('section', '!=', '')
-            ->distinct()
-            ->orderBy('section')
-            ->pluck('section');
-
-        // For instructors, get their assigned sections
+        $availableSections = collect();
         $instructorSections = [];
-        if ($viewer->role === Roles::INSTRUCTOR) {
-            $instructorSections = InstructorSection::where('user_id', $viewer->id)
-                ->pluck('section')
-                ->toArray();
-            if ($viewer->advisory_section && !in_array($viewer->advisory_section, $instructorSections)) {
-                $instructorSections[] = $viewer->advisory_section;
-            }
-            sort($instructorSections);
-        }
-
-        $users = $this->getUserQuery()->paginate(config('joms.pagination.users', 20));
-
-        // Batch-load pending counts for current page users
-        $pendingService = app(PendingItemsService::class);
-        $pendingCounts = $pendingService->getPendingCountsForUsers($users->pluck('id'));
-
-        // For instructor viewing students, calculate progress
+        $users = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20);
+        $pendingCounts = collect();
         $studentProgress = [];
-        if ($viewer->role === Roles::INSTRUCTOR && $this->routeRoleFilter === Roles::STUDENT) {
-            $gradingService = app(GradingService::class);
-            foreach ($users as $student) {
-                $progressSummary = $gradingService->getProgressSummary($student);
-                $totalProgress = 0;
-                $totalCourses = count($progressSummary);
-                foreach ($progressSummary as $course) {
-                    $totalProgress += $course['grade']['percentage'] ?? 0;
+
+        if ($this->readyToLoad) {
+            $availableSections = User::where('role', Roles::STUDENT)
+                ->whereNotNull('section')
+                ->where('section', '!=', '')
+                ->distinct()
+                ->orderBy('section')
+                ->pluck('section');
+
+            // For instructors, get their assigned sections
+            if ($viewer->role === Roles::INSTRUCTOR) {
+                $instructorSections = InstructorSection::where('user_id', $viewer->id)
+                    ->pluck('section')
+                    ->toArray();
+                if ($viewer->advisory_section && !in_array($viewer->advisory_section, $instructorSections)) {
+                    $instructorSections[] = $viewer->advisory_section;
                 }
-                $studentProgress[$student->id] = [
-                    'average_grade' => $totalCourses > 0 ? round($totalProgress / $totalCourses, 1) : 0,
-                    'courses_count' => $totalCourses,
-                ];
+                sort($instructorSections);
+            }
+
+            $users = $this->getUserQuery()->paginate(config('joms.pagination.users', 20));
+
+            // Batch-load pending counts for current page users
+            $pendingService = app(PendingItemsService::class);
+            $pendingCounts = $pendingService->getPendingCountsForUsers($users->pluck('id'));
+
+            // For instructor viewing students, calculate progress
+            if ($viewer->role === Roles::INSTRUCTOR && $this->routeRoleFilter === Roles::STUDENT) {
+                $gradingService = app(GradingService::class);
+                foreach ($users as $student) {
+                    $progressSummary = $gradingService->getProgressSummary($student);
+                    $totalProgress = 0;
+                    $totalCourses = count($progressSummary);
+                    foreach ($progressSummary as $course) {
+                        $totalProgress += $course['grade']['percentage'] ?? 0;
+                    }
+                    $studentProgress[$student->id] = [
+                        'average_grade' => $totalCourses > 0 ? round($totalProgress / $totalCourses, 1) : 0,
+                        'courses_count' => $totalCourses,
+                    ];
+                }
             }
         }
 
         return view('livewire.user-table', [
             'users' => $users,
             'pendingCounts' => $pendingCounts,
-            'filterCounts' => $this->getFilterCounts(),
-            'departments' => Department::all(),
+            'filterCounts' => $this->readyToLoad ? $this->getFilterCounts() : ['total' => 0, 'students' => 0, 'instructors' => 0, 'admins' => 0, 'pending' => 0, 'active' => 0, 'unverified' => 0],
+            'departments' => $this->readyToLoad ? Department::all() : collect(),
             'availableSections' => $availableSections,
             'instructorSections' => $instructorSections,
             'studentProgress' => $studentProgress,

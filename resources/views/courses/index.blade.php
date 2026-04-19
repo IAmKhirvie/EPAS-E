@@ -617,6 +617,13 @@
                         <div class="calendar-grid" id="calendarGrid">
                             {{-- Calendar days will be populated by JS --}}
                         </div>
+                        <div class="calendar-legend" style="margin-top: 8px; font-size: 0.7rem; display: flex; flex-wrap: wrap; gap: 6px 12px; padding: 0 4px;">
+                            <span style="display:flex;align-items:center;gap:3px;"><i class="fas fa-circle" style="font-size:6px;color:#4cc9f0;"></i> Course</span>
+                            <span style="display:flex;align-items:center;gap:3px;"><i class="fas fa-circle" style="font-size:6px;color:#f72585;"></i> Self-Check</span>
+                            <span style="display:flex;align-items:center;gap:3px;"><i class="fas fa-circle" style="font-size:6px;color:#7209b7;"></i> Homework</span>
+                            <span style="display:flex;align-items:center;gap:3px;"><i class="fas fa-circle" style="font-size:6px;color:#ffb902;"></i> Test</span>
+                            <span style="display:flex;align-items:center;gap:3px;"><i class="fas fa-circle" style="font-size:6px;color:#06d6a0;"></i> Assessment</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -854,10 +861,18 @@
                     dotsHtml += '</div>';
                 }
 
-                // Generate tooltip
+                // Generate tooltip with event type labels
+                const typeLabels = {
+                    course_start: 'Course',
+                    course_end: 'Course',
+                    self_check: 'Self-Check',
+                    homework: 'Homework',
+                    competency_test: 'Test',
+                    document_assessment: 'Assessment'
+                };
                 let tooltipAttr = '';
                 if (hasEvents) {
-                    const eventTitles = dayEvents.map(e => e.title).join('\\n');
+                    const eventTitles = dayEvents.map(e => `[${typeLabels[e.type] || e.type}] ${e.title}`).join('\\n');
                     tooltipAttr = ` title="${eventTitles}" data-events='${JSON.stringify(dayEvents)}'`;
                 }
 

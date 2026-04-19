@@ -21,6 +21,7 @@ class ClassTable extends Component
     public string $sortDirection = 'asc';
     public array $selectedStudents = [];
     public bool $selectAll = false;
+    public bool $readyToLoad = false;
 
     // Add Student Modal
     public bool $showAddStudentModal = false;
@@ -326,9 +327,26 @@ class ClassTable extends Component
         session()->flash('success', "{$count} student(s) added to section {$this->sectionFilter}.");
     }
 
+    public function loadData(): void
+    {
+        $this->readyToLoad = true;
+    }
+
     public function render()
     {
         $viewer = Auth::user();
+
+        if (!$this->readyToLoad) {
+            return view('livewire.class-table', [
+                'allSections' => collect(),
+                'studentsBySection' => collect(),
+                'students' => null,
+                'advisersBySection' => collect(),
+                'isInstructor' => $viewer->role === Roles::INSTRUCTOR,
+                'instructors' => collect(),
+            ]);
+        }
+
         $allSections = $this->getAccessibleSections();
 
         if ($viewer->role === Roles::INSTRUCTOR && $allSections->isEmpty()) {

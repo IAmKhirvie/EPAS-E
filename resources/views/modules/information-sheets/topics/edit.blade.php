@@ -4,15 +4,13 @@
 
 @section('content')
 <div class="content-area">
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Courses</a></li>
-            <li class="breadcrumb-item">{{ $informationSheet->module->course->course_name }}</li>
-            <li class="breadcrumb-item">Module {{ $informationSheet->module->module_number }}</li>
-            <li class="breadcrumb-item">Info Sheet {{ $informationSheet->sheet_number }}</li>
-            <li class="breadcrumb-item active">Edit: {{ $topic->title }}</li>
-        </ol>
-    </nav>
+    <x-breadcrumb :items="[
+        ['label' => 'Courses', 'url' => route('content.management')],
+        ['label' => $informationSheet->module->course->course_name],
+        ['label' => 'Module ' . $informationSheet->module->module_number],
+        ['label' => 'Info Sheet ' . $informationSheet->sheet_number],
+        ['label' => 'Edit: ' . $topic->title],
+    ]" />
 
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">

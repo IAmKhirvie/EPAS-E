@@ -8,13 +8,11 @@
 
 @section('content')
 <div class="content-area">
-    <nav aria-label="breadcrumb" class="mb-2">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('document-assessments.show', $assessment) }}">{{ $assessment->title }}</a></li>
-            <li class="breadcrumb-item active">Edit</li>
-        </ol>
-    </nav>
+    <x-breadcrumb :items="[
+        ['label' => 'Content', 'url' => route('content.management')],
+        ['label' => $assessment->title, 'url' => route('document-assessments.show', $assessment)],
+        ['label' => 'Edit'],
+    ]" />
 
     <form action="{{ route('document-assessments.update', [$informationSheet, $assessment]) }}" method="POST" enctype="multipart/form-data" id="docAssessmentForm">
         @csrf

@@ -4,12 +4,10 @@
 
 @section('content')
 <div class="content-area">
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Trash</li>
-        </ol>
-    </nav>
+    <x-breadcrumb :items="[
+        ['label' => 'Dashboard', 'url' => route('dashboard')],
+        ['label' => 'Trash'],
+    ]" />
 
     <livewire:trash-table />
 </div>

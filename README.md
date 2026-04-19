@@ -34,10 +34,11 @@ A comprehensive Learning Management System built with Laravel 12 for Philippine 
 - GPA calculation (4.0 scale)
 - Grade export to CSV/Excel
 
-### Gamification
+### Gamification & Engagement
 
 - Activity-based points (daily login, submissions, completions, perfect scores)
-- Badge system with multiple criteria types (points, streaks, milestones)
+- **Achievement system** with 8 unlockable achievements (First Steps, Week Warrior, Perfectionist, Module Master, Graduate, etc.)
+- **Progress milestones** awarding bonus points at 25%, 50%, 75%, and 100% course completion
 - Leaderboards and streak tracking
 
 ### Communication
@@ -55,18 +56,24 @@ A comprehensive Learning Management System built with Laravel 12 for Philippine 
 ### Security
 
 - Two-factor authentication (TOTP with backup codes)
-- Rate limiting (login, registration, password reset)
+- Rate limiting (login, registration, password reset, **API endpoints**)
 - Comprehensive audit logging
 - Content sanitization (XSS prevention)
-- Security headers (CSP, X-Frame-Options)
+- **Nonce-based CSP** (Content Security Policy) with security headers
+- **CORS configuration** with explicit allowed origins
 - Session management (8hr absolute, 30min idle timeout)
-- Password policy enforcement
+- **Password breach checking** via Have I Been Pwned (Password::uncompromised)
+- **Encrypted storage** for sensitive user preferences
 
 ### Performance
 
 - 100% server-side search, pagination, sorting, and filtering (Livewire components)
+- **Lazy-loaded Livewire components** with skeleton loading states
 - N+1 query prevention with batch prefetching and aggregate queries
 - Multi-tier caching (dashboard 10 min, grades 5 min, analytics 1 hr)
+- **CDN-friendly cache headers** for static assets (1-year immutable)
+- **Image optimization service** with automatic resizing and compression
+- **PWA support** with service worker for offline access
 - 16+ composite database indexes
 
 ## Requirements
@@ -102,6 +109,30 @@ npm run dev
 ```
 
 The app will be available at `http://127.0.0.1:8000`.
+
+### Post-Install: New Feature Setup
+
+After the initial installation, run these additional steps to enable the latest features:
+
+```bash
+# 1. Run new migrations (achievements)
+php artisan migrate
+
+# 2. Encrypt existing user notification preferences (one-time)
+php artisan users:encrypt-preferences
+
+# 3. (Optional) Install Redis for production caching
+composer require predis/predis
+# Then update .env:
+#   CACHE_STORE=redis
+#   SESSION_DRIVER=redis
+#   QUEUE_CONNECTION=redis
+
+# 4. (Optional) Install Intervention Image for upload optimization
+composer require intervention/image
+```
+
+> **Note:** Steps 3 and 4 are optional but recommended for production. The app works without them using file-based caching and uncompressed image uploads.
 
 ## Deployment (Cloudflare Tunnel)
 
@@ -202,6 +233,8 @@ app/
 | `PrerequisiteService`        | Module access gating and dependency checking           |
 | `ContentSanitizationService` | XSS/injection protection                               |
 | `AuditLogService`            | System action logging                                  |
+| `AchievementService`         | Achievement checking and awarding                      |
+| `ImageOptimizationService`   | Upload resizing and compression                        |
 
 ## Code Quality Fixes & Updates
 

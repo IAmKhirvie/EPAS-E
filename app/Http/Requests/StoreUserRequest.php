@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Constants\Roles;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class StoreUserRequest extends FormRequest
 {
@@ -26,9 +27,8 @@ class StoreUserRequest extends FormRequest
             'password'      => [
                 'required',
                 'string',
-                'min:8',
                 'confirmed',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+=\-\[\]{}|:;<>,.?\/~`])[A-Za-z\d@$!%*?&#^()_+=\-\[\]{}|:;<>,.?\/~`]{8,}$/',
+                Password::min(8)->mixedCase()->numbers()->symbols()->uncompromised(),
             ],
             'section'       => 'nullable|string|max:255',
             'school_year'   => 'nullable|string|max:20',

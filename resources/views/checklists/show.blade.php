@@ -4,13 +4,11 @@
 
 @section('content')
 <div class="content-area">
-    <nav aria-label="breadcrumb" class="mb-2">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$checklist->informationSheet->module->course_id, $checklist->informationSheet->module]) }}">{{ $checklist->informationSheet->module->module_name }}</a></li>
-            <li class="breadcrumb-item active">{{ $checklist->title }}</li>
-        </ol>
-    </nav>
+    <x-breadcrumb :items="[
+        ['label' => 'Content', 'url' => route('content.management')],
+        ['label' => $checklist->informationSheet->module->module_name, 'url' => route('courses.modules.show', [$checklist->informationSheet->module->course_id, $checklist->informationSheet->module])],
+        ['label' => $checklist->title],
+    ]" />
 
     @php
         $items = json_decode($checklist->items, true) ?? [];

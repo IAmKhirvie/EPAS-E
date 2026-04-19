@@ -23,7 +23,7 @@
             <div class="col-lg-2 col-md-6 mb-4">
                 <h5>Quick Links</h5>
                 <ul class="list-unstyled footer-links">
-                    <li><a href="{{ route('lobby') }}"><i class="fas fa-home me-2"></i>Home</a></li>
+                    <li><a href="{{ route('welcome') }}"><i class="fas fa-home me-2"></i>Home</a></li>
                     <li><a href="{{ route('about') }}"><i class="fas fa-info-circle me-2"></i>About</a></li>
                     <li><a href="{{ route('contact') }}"><i class="fas fa-envelope me-2"></i>Contact</a></li>
                     <li><a href="{{ route('contact') }}#faqAccordion"><i class="fas fa-question-circle me-2"></i>FAQ</a></li>

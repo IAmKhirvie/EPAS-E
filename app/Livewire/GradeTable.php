@@ -25,6 +25,7 @@ class GradeTable extends Component
     public string $sortDirection = 'asc';
     public array $selectedStudents = [];
     public bool $selectAll = false;
+    public bool $readyToLoad = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -98,62 +99,72 @@ class GradeTable extends Component
         return $query->orderBy($sortColumn, $this->sortDirection);
     }
 
+    public function loadData(): void
+    {
+        $this->readyToLoad = true;
+    }
+
     public function render()
     {
         $viewer = Auth::user();
         $gradingService = app(GradingService::class);
 
-        $students = $this->getStudentsQuery()->paginate(config('joms.pagination.users', 20));
+        $students = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20);
+        $sections = collect();
 
-        // Pre-fetch all submissions for current page
-        $studentIds = $students->getCollection()->pluck('id');
+        if ($this->readyToLoad) {
+            $students = $this->getStudentsQuery()->paginate(config('joms.pagination.users', 20));
 
-        $selfCheckAvgs = SelfCheckSubmission::whereIn('user_id', $studentIds)
-            ->whereNotNull('percentage')
-            ->selectRaw('user_id, MAX(percentage) as max_percentage')
-            ->groupBy('user_id')
-            ->pluck('max_percentage', 'user_id');
+            // Pre-fetch all submissions for current page
+            $studentIds = $students->getCollection()->pluck('id');
 
-        $homeworkAvgs = HomeworkSubmission::whereIn('homework_submissions.user_id', $studentIds)
-            ->whereNotNull('homework_submissions.score')
-            ->join('homeworks', 'homeworks.id', '=', 'homework_submissions.homework_id')
-            ->where('homeworks.max_points', '>', 0)
-            ->selectRaw('homework_submissions.user_id, AVG(homework_submissions.score / homeworks.max_points * 100) as avg_score')
-            ->groupBy('homework_submissions.user_id')
-            ->pluck('avg_score', 'homework_submissions.user_id');
+            $selfCheckAvgs = SelfCheckSubmission::whereIn('user_id', $studentIds)
+                ->whereNotNull('percentage')
+                ->selectRaw('user_id, MAX(percentage) as max_percentage')
+                ->groupBy('user_id')
+                ->pluck('max_percentage', 'user_id');
 
-        $completedCounts = UserProgress::whereIn('user_id', $studentIds)
-            ->where('status', 'completed')
-            ->selectRaw('user_id, COUNT(*) as completed_count')
-            ->groupBy('user_id')
-            ->pluck('completed_count', 'user_id');
+            $homeworkAvgs = HomeworkSubmission::whereIn('homework_submissions.user_id', $studentIds)
+                ->whereNotNull('homework_submissions.score')
+                ->join('homeworks', 'homeworks.id', '=', 'homework_submissions.homework_id')
+                ->where('homeworks.max_points', '>', 0)
+                ->selectRaw('homework_submissions.user_id, AVG(homework_submissions.score / homeworks.max_points * 100) as avg_score')
+                ->groupBy('homework_submissions.user_id')
+                ->pluck('avg_score', 'homework_submissions.user_id');
 
-        // Add grade summary to each student
-        $students->getCollection()->transform(function ($student) use ($selfCheckAvgs, $homeworkAvgs, $completedCounts, $gradingService) {
-            $selfCheckAvg = $selfCheckAvgs->get($student->id, 0);
-            $homeworkAvg = $homeworkAvgs->get($student->id, 0);
-            $overallAvg = ($selfCheckAvg + $homeworkAvg) / 2;
-            $grade = $gradingService->applyGradingScale($overallAvg);
+            $completedCounts = UserProgress::whereIn('user_id', $studentIds)
+                ->where('status', 'completed')
+                ->selectRaw('user_id, COUNT(*) as completed_count')
+                ->groupBy('user_id')
+                ->pluck('completed_count', 'user_id');
 
-            $student->grade_summary = [
-                'overall_average' => round($overallAvg, 1),
-                'self_check_average' => round($selfCheckAvg, 1),
-                'homework_average' => round($homeworkAvg, 1),
-                'completed_activities' => $completedCounts->get($student->id, 0),
-                'grade' => $grade,
-                'grade_descriptor' => $grade['descriptor'],
-                'grade_code' => $grade['code'],
-                'is_competent' => $grade['is_competent'],
-            ];
-            return $student;
-        });
+            // Add grade summary to each student
+            $students->getCollection()->transform(function ($student) use ($selfCheckAvgs, $homeworkAvgs, $completedCounts, $gradingService) {
+                $selfCheckAvg = $selfCheckAvgs->get($student->id, 0);
+                $homeworkAvg = $homeworkAvgs->get($student->id, 0);
+                $overallAvg = ($selfCheckAvg + $homeworkAvg) / 2;
+                $grade = $gradingService->applyGradingScale($overallAvg);
 
-        // Sections for filter
-        $sections = User::where('role', Roles::STUDENT)
-            ->whereNotNull('section')
-            ->distinct()
-            ->pluck('section')
-            ->sort();
+                $student->grade_summary = [
+                    'overall_average' => round($overallAvg, 1),
+                    'self_check_average' => round($selfCheckAvg, 1),
+                    'homework_average' => round($homeworkAvg, 1),
+                    'completed_activities' => $completedCounts->get($student->id, 0),
+                    'grade' => $grade,
+                    'grade_descriptor' => $grade['descriptor'],
+                    'grade_code' => $grade['code'],
+                    'is_competent' => $grade['is_competent'],
+                ];
+                return $student;
+            });
+
+            // Sections for filter
+            $sections = User::where('role', Roles::STUDENT)
+                ->whereNotNull('section')
+                ->distinct()
+                ->pluck('section')
+                ->sort();
+        }
 
         return view('livewire.grade-table', [
             'students' => $students,

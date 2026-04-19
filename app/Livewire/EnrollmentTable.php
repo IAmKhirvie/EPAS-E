@@ -22,6 +22,7 @@ class EnrollmentTable extends Component
     public string $sortDirection = 'desc';
     public array $selectedRequests = [];
     public bool $selectAll = false;
+    public bool $readyToLoad = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -241,13 +242,18 @@ class EnrollmentTable extends Component
         ];
     }
 
+    public function loadData(): void
+    {
+        $this->readyToLoad = true;
+    }
+
     public function render()
     {
         $user = Auth::user();
 
         return view('livewire.enrollment-table', [
-            'requests' => $this->getQuery()->paginate(15),
-            'counts' => $this->getCounts(),
+            'requests' => $this->readyToLoad ? $this->getQuery()->paginate(15) : new \Illuminate\Pagination\LengthAwarePaginator([], 0, 15),
+            'counts' => $this->readyToLoad ? $this->getCounts() : ['all' => 0, 'pending' => 0, 'approved' => 0, 'rejected' => 0],
             'isAdmin' => $user->role === Roles::ADMIN,
             'isInstructor' => $user->role === Roles::INSTRUCTOR,
         ]);

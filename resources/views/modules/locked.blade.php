@@ -6,13 +6,11 @@
 <div class="container-fluid py-3 bg-white border-bottom mb-4">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
-            <nav aria-label="breadcrumb" class="mb-1">
-                <ol class="breadcrumb mb-0 small">
-                    <li class="breadcrumb-item"><a href="{{ route('courses.index') }}">Courses</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('courses.show', $course) }}">{{ $course->course_name }}</a></li>
-                    <li class="breadcrumb-item active">{{ $module->module_number }}</li>
-                </ol>
-            </nav>
+            <x-breadcrumb :items="[
+                ['label' => 'Courses', 'url' => route('courses.index')],
+                ['label' => $course->course_name, 'url' => route('courses.show', $course)],
+                ['label' => $module->module_number],
+            ]" />
             <h4 class="mb-1">
                 <i class="fas fa-lock text-warning me-2"></i>
                 {{ $module->module_number }}: {{ $module->module_name }}

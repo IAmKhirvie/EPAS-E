@@ -1,5 +1,5 @@
 <!-- Left Sidebar -->
-<aside class="sidebar" id="sidebar">
+<aside class="sidebar collapsed" id="sidebar">
     <div class="sidebar-content">
         <!-- User Profile Card -->
         @php $user = Auth::user(); @endphp
@@ -183,8 +183,8 @@
         </div>
         @endif
 
-        @if(in_array(Auth::user()->role, [\App\Constants\Roles::INSTRUCTOR, \App\Constants\Roles::ADMIN]))
-        <!-- Trash (for instructors and admins) -->
+        @if(Auth::user()->role === \App\Constants\Roles::ADMIN)
+        <!-- Trash (admin only) -->
         <div class="sidebar-section">
             <nav class="sidebar-nav">
                 @php

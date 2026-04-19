@@ -23,14 +23,12 @@
                     <!-- Breadcrumb -->
                     <div class="row mb-4">
                         <div class="col-12">
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item">{{ $informationSheet->module->course->course_name }}</li>
-                                    <li class="breadcrumb-item">Module {{ $informationSheet->module->module_number }}</li>
-                                    <li class="breadcrumb-item">Info Sheet {{ $informationSheet->sheet_number }}</li>
-                                    <li class="breadcrumb-item active">New Task Sheet</li>
-                                </ol>
-                            </nav>
+                            <x-breadcrumb :items="[
+                                ['label' => $informationSheet->module->course->course_name],
+                                ['label' => 'Module ' . $informationSheet->module->module_number],
+                                ['label' => 'Info Sheet ' . $informationSheet->sheet_number],
+                                ['label' => 'New Task Sheet'],
+                            ]" />
                         </div>
                     </div>
 

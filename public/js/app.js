@@ -23,36 +23,83 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Sidebar toggle functionality - ADD THIS SECTION
-    const hamburgerMenu = document.getElementById('hamburger-menu');
+    // Sidebar toggle functionality — uses event delegation so it survives Livewire SPA navigation
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
-    
-    if (hamburgerMenu && sidebar) {
-        hamburgerMenu.addEventListener('click', function() {
-            sidebar.classList.toggle('collapsed');
-            document.body.classList.toggle('sidebar-collapsed'); // ADD THIS LINE
-            
-            // Change icon based on state
-            const icon = this.querySelector('i');
+
+    // Sidebar toggle logic:
+    // - Click profile area at top of sidebar = toggle collapse/expand
+    // - Click outside expanded sidebar = collapse
+    function collapseSidebar() {
+        sidebar.classList.add('collapsed');
+        document.body.classList.add('sidebar-collapsed');
+        document.documentElement.classList.add('sidebar-collapsed');
+        localStorage.setItem('sidebarCollapsed', 'true');
+    }
+    function expandSidebar() {
+        sidebar.classList.remove('collapsed');
+        document.body.classList.remove('sidebar-collapsed');
+        document.documentElement.classList.remove('sidebar-collapsed');
+        localStorage.setItem('sidebarCollapsed', 'false');
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!sidebar) return;
+
+        // Click on sidebar profile area = toggle
+        if (e.target.closest('.sidebar-profile')) {
             if (sidebar.classList.contains('collapsed')) {
-                icon.className = 'fa-solid fa-chevron-right';
+                expandSidebar();
             } else {
-                icon.className = 'fa-solid fa-chevron-left';
+                collapseSidebar();
             }
-            
-            // Save state to localStorage
-            const isCollapsed = sidebar.classList.contains('collapsed');
-            localStorage.setItem('sidebarCollapsed', isCollapsed);
-        });
-        
-        // Load saved state - UPDATE THIS SECTION
+            return;
+        }
+
+        // Click outside sidebar = collapse if expanded
+        if (!sidebar.classList.contains('collapsed') && !e.target.closest('.sidebar')) {
+            if (!e.target.closest('.popover') && !e.target.closest('.dropdown') && !e.target.closest('.fab-container')) {
+                collapseSidebar();
+            }
+        }
+    });
+
+    // Event delegation: clicking any sidebar-toggle button anywhere in the document
+    document.addEventListener('click', function(e) {
+        const toggleBtn = e.target.closest('#sidebar-toggle, #hamburger-menu');
+        if (!toggleBtn || !sidebar) return;
+
+        sidebar.classList.toggle('collapsed');
+        document.body.classList.toggle('sidebar-collapsed');
+
+        const icon = toggleBtn.querySelector('i');
+        if (icon) {
+            icon.className = sidebar.classList.contains('collapsed')
+                ? 'fa-solid fa-chevron-right'
+                : 'fa-solid fa-chevron-left';
+        }
+
+        localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+    });
+
+    // Apply saved state on load — default to collapsed if no preference saved
+    if (sidebar) {
         const savedState = localStorage.getItem('sidebarCollapsed');
-        if (savedState === 'true') {
+        const shouldExpand = savedState === 'false'; // only expand if user explicitly chose to
+
+        if (shouldExpand) {
+            sidebar.classList.remove('collapsed');
+            document.body.classList.remove('sidebar-collapsed');
+            document.documentElement.classList.remove('sidebar-collapsed');
+            const icon = document.querySelector('#sidebar-toggle i, #hamburger-menu i');
+            if (icon) icon.className = 'fa-solid fa-chevron-left';
+        } else {
+            // Ensure collapsed state is applied
             sidebar.classList.add('collapsed');
-            document.body.classList.add('sidebar-collapsed'); // ADD THIS LINE
-            const icon = hamburgerMenu.querySelector('i');
-            icon.className = 'fa-solid fa-chevron-right';
+            document.body.classList.add('sidebar-collapsed');
+            document.documentElement.classList.add('sidebar-collapsed');
+            const icon = document.querySelector('#sidebar-toggle i, #hamburger-menu i');
+            if (icon) icon.className = 'fa-solid fa-chevron-right';
         }
     }
 

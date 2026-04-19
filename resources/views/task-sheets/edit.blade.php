@@ -4,13 +4,11 @@
 
 @section('content')
 <div class="content-area">
-    <nav aria-label="breadcrumb" class="mb-2">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$informationSheet->module->course_id, $informationSheet->module]) }}">{{ $informationSheet->module->module_name }}</a></li>
-            <li class="breadcrumb-item active">Edit Task Sheet</li>
-        </ol>
-    </nav>
+    <x-breadcrumb :items="[
+        ['label' => 'Content', 'url' => route('content.management')],
+        ['label' => $informationSheet->module->module_name, 'url' => route('courses.modules.show', [$informationSheet->module->course_id, $informationSheet->module])],
+        ['label' => 'Edit Task Sheet'],
+    ]" />
 
     <form action="{{ route('task-sheets.update', [$informationSheet, $taskSheet]) }}" method="POST" enctype="multipart/form-data" class="cb-builder-layout-form">
         @csrf

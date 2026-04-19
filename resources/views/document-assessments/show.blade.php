@@ -120,12 +120,10 @@
 
 @section('content')
 <div class="content-area">
-    <nav aria-label="breadcrumb" class="mb-2">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
-            <li class="breadcrumb-item active">{{ $assessment->title }}</li>
-        </ol>
-    </nav>
+    <x-breadcrumb :items="[
+        ['label' => 'Content', 'url' => route('content.management')],
+        ['label' => $assessment->title],
+    ]" />
 
     {{-- ═══════ Header ═══════ --}}
     <div class="da-header">

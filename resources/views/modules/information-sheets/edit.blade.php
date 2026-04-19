@@ -4,14 +4,12 @@
 
 @section('content')
 <div class="content-area">
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Courses</a></li>
-            <li class="breadcrumb-item">{{ $module->course->course_name ?? '' }}</li>
-            <li class="breadcrumb-item">Module {{ $module->module_number }}</li>
-            <li class="breadcrumb-item active">Edit: {{ $informationSheet->sheet_number }}</li>
-        </ol>
-    </nav>
+    <x-breadcrumb :items="[
+        ['label' => 'Courses', 'url' => route('content.management')],
+        ['label' => $module->course->course_name ?? ''],
+        ['label' => 'Module ' . $module->module_number],
+        ['label' => 'Edit: ' . $informationSheet->sheet_number],
+    ]" />
 
     <div class="cb-container--simple">
         {{-- Edit Form --}}

@@ -68,13 +68,11 @@ $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darke
                 class="rounded shadow-sm" style="width: 120px; height: 68px; object-fit: cover;">
             @endif
             <div>
-                <nav aria-label="breadcrumb" class="mb-1">
-                    <ol class="breadcrumb mb-0 small">
-                        <li class="breadcrumb-item"><a href="{{ route('courses.index') }}">Courses</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('courses.show', $course) }}">{{ $course->course_name }}</a></li>
-                        <li class="breadcrumb-item active">{{ $module->module_number }}</li>
-                    </ol>
-                </nav>
+                <x-breadcrumb :items="[
+                    ['label' => 'Courses', 'url' => route('courses.index')],
+                    ['label' => $course->course_name, 'url' => route('courses.show', $course)],
+                    ['label' => $module->module_number],
+                ]" />
                 <h4 class="mb-1">{{ $module->module_number }}: {{ $module->module_name }}</h4>
                 <p class="text-muted mb-0 small">{{ $module->qualification_title }}</p>
             </div>

@@ -1,4 +1,4 @@
-<div>
+<div wire:init="loadData">
     {{-- Header --}}
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
         <h4 class="mb-0">Audit Logs</h4>
@@ -26,6 +26,12 @@
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
+
+    @if(!$readyToLoad)
+    <div class="p-3">
+        <x-skeleton type="table-row" :count="5" />
+    </div>
+    @endif
 
     {{-- Table --}}
     <div class="table-responsive" wire:loading.class="opacity-50">

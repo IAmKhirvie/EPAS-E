@@ -32,6 +32,7 @@ class TrashTable extends Component
 
     public array $selectedItems = [];
     public bool $selectAll = false;
+    public bool $readyToLoad = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -527,8 +528,27 @@ class TrashTable extends Component
         return $counts;
     }
 
+    public function loadData(): void
+    {
+        $this->readyToLoad = true;
+    }
+
     public function render()
     {
+        if (!$this->readyToLoad) {
+            return view('livewire.trash-table', [
+                'items' => collect(),
+                'counts' => ['all' => 0],
+                'total' => 0,
+                'perPage' => 20,
+                'currentPage' => 1,
+                'lastPage' => 1,
+                'from' => 0,
+                'to' => 0,
+                'isAdmin' => Auth::user()->role === Roles::ADMIN,
+            ]);
+        }
+
         $items = $this->getTrashedItems();
         $perPage = 20;
         $page = $this->getPage();

@@ -9,6 +9,7 @@ class ApiTokenManager extends Component
 {
     public string $tokenName = '';
     public ?string $plainTextToken = null;
+    public bool $readyToLoad = false;
 
     protected $rules = [
         'tokenName' => 'required|string|min:3|max:50',
@@ -53,9 +54,14 @@ class ApiTokenManager extends Component
         $this->plainTextToken = null;
     }
 
+    public function loadData(): void
+    {
+        $this->readyToLoad = true;
+    }
+
     public function render()
     {
-        $tokens = Auth::user()->tokens()->orderByDesc('created_at')->get();
+        $tokens = $this->readyToLoad ? Auth::user()->tokens()->orderByDesc('created_at')->get() : collect();
 
         return view('livewire.api-token-manager', [
             'tokens' => $tokens,

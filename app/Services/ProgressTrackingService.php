@@ -11,7 +11,9 @@ use App\Models\JobSheet;
 use App\Models\Checklist;
 use App\Models\DocumentAssessment;
 use App\Models\UserProgress;
+use App\Models\Course;
 use App\Models\User;
+use App\Models\UserPoint;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 
@@ -485,13 +487,62 @@ class ProgressTrackingService
             $module = Module::find($moduleId);
             if ($user && $module) {
                 app(GamificationService::class)->awardForActivity($user, 'module_complete', $module);
+                app(AchievementService::class)->checkAndAward($user, 'module_complete');
             }
         } catch (\Exception $e) {
             Log::error("Failed to award module completion points: " . $e->getMessage());
         }
 
+        // Check progress milestones
+        $this->checkMilestones($moduleId, $userId);
+
         // Auto-issue certificate if all modules in the course are completed
         $this->checkAndIssueCertificate($moduleId, $userId);
+    }
+
+    /**
+     * Check if the user has reached a progress milestone (25%, 50%, 75%, 100%) in the course.
+     */
+    protected function checkMilestones(int $moduleId, int $userId): void
+    {
+        try {
+            $module = Module::find($moduleId);
+            if (!$module || !$module->course_id) {
+                return;
+            }
+
+            $course = Course::withCount('modules')->find($module->course_id);
+            if (!$course || $course->modules_count === 0) {
+                return;
+            }
+
+            $completedModules = UserProgress::where('user_id', $userId)
+                ->where('progressable_type', Module::class)
+                ->whereIn('progressable_id', $course->modules()->pluck('id'))
+                ->where('status', 'completed')
+                ->count();
+
+            $percentage = ($completedModules / $course->modules_count) * 100;
+
+            $milestones = config('joms.gamification.milestones', [25 => 25, 50 => 50, 75 => 75, 100 => 100]);
+            $user = User::find($userId);
+            if (!$user) {
+                return;
+            }
+
+            foreach ($milestones as $threshold => $points) {
+                if ($percentage >= $threshold) {
+                    $cacheKey = "milestone_{$userId}_{$course->id}_{$threshold}";
+                    if (!Cache::has($cacheKey)) {
+                        app(GamificationService::class)->awardForActivity($user, "milestone_{$threshold}");
+                        Cache::put($cacheKey, true, now()->addYear());
+                        Log::info("User {$userId} reached {$threshold}% milestone in course {$course->id}");
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Milestone check failed: " . $e->getMessage());
+        }
     }
 
     /**
@@ -513,8 +564,9 @@ class ProgressTrackingService
             $certificateService = app(CertificateService::class);
 
             if ($certificateService->checkCourseCompletion($user, $module->course)) {
-                // Award course completion points
+                // Award course completion points and achievement
                 app(GamificationService::class)->awardForActivity($user, 'course_complete', $module->course);
+                app(AchievementService::class)->checkAndAward($user, 'course_complete');
 
                 $certificateService->generateCertificate($user, $module->course, [
                     'auto_issued' => true,

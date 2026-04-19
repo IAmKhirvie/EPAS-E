@@ -58,6 +58,7 @@ class Homework extends Model
         return $this->hasMany(HomeworkSubmission::class);
     }
 
+
     public function getRequirementsListAttribute(): array
     {
         return $this->requirements->pluck('requirement')->toArray();

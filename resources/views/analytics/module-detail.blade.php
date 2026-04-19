@@ -4,13 +4,11 @@
 
 @section('content')
 <div class="content-area">
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('student.analytics') }}">My Analytics</a></li>
-            <li class="breadcrumb-item active">{{ $module->module_number }}</li>
-        </ol>
-    </nav>
+    <x-breadcrumb :items="[
+        ['label' => 'Dashboard', 'url' => route('dashboard')],
+        ['label' => 'My Analytics', 'url' => route('student.analytics')],
+        ['label' => $module->module_number],
+    ]" />
 
     <div class="card mb-4">
         <div class="card-body">

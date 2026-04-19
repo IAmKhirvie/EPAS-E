@@ -1,20 +1,12 @@
 <!-- Top Navbar - Private-->
 <header class="top-navbar">
 
-    <!-- Left side - Toggle, Logo, and Title -->
+    <!-- Left side - Search bar -->
     <div class="navbar-left">
-        <a class="navbar-brand" href="{{ route('lobby') }}">
-            <div class="navbar-logo-container">
-                <img src="{{ dynamic_asset('assets/EPAS-E.png') }}" alt="EPAS-E LMS" class="logo">
-                <div class="navbar-title-container">
-                    <h2>EPAS-E</h2>
-                    <p>Electronic Products Assembly and Servicing</p>
-                </div>
-            </div>
-        </a>
-        <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
-            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-        </button>
+        <div class="navbar-search">
+            <i class="fas fa-search"></i>
+            <input type="text" id="global-search" placeholder="Search courses, modules, users..." autocomplete="off">
+        </div>
     </div>
 
     <!-- Left side - Logo and Title (mobile) -->
@@ -22,7 +14,7 @@
         <button class="mobile-sidebar-toggle" id="mobile-sidebar-toggle" aria-label="Open menu">
             <i class="fas fa-bars" aria-hidden="true"></i>
         </button>
-        <a class="navbar-brand" href="{{ route('lobby') }}">
+        <a class="navbar-brand" href="{{ route('welcome') }}">
             <div class="navbar-logo-container">
                 <img src="{{ dynamic_asset('assets/EPAS-E.png') }}" alt="EPAS-E LMS" class="logo">
                 <div class="navbar-title-container">
@@ -37,7 +29,7 @@
     <div class="navbar-right">
         <!-- Home Icon -->
         <div class="navbar-item">
-            <a class="icon-button" href="{{ route('lobby') }}" aria-label="Home">
+            <a class="icon-button" href="{{ route('welcome') }}" aria-label="Home">
                 <i class="fa-solid fa-house" aria-hidden="true"></i>
             </a>
         </div>
@@ -148,8 +140,12 @@
             @php $user = Auth::user(); @endphp
             {{-- Desktop: compact avatar button --}}
             <button class="user-button user-button--desktop" id="user-menu-btn">
-                <div class="icon-button" id="desktop-avatar-trigger" title="Click to change photo">
-                    <i class="fas fa-user"></i>
+                <div class="icon-button nav-avatar-btn" id="desktop-avatar-trigger" title="{{ $user->full_name }}">
+                    @if($user->profile_image)
+                    <img src="{{ $user->profile_image_url }}" alt="" class="nav-avatar-img">
+                    @else
+                    <span class="nav-avatar-initials">{{ $user->initials }}</span>
+                    @endif
                 </div>
             </button>
             {{-- Mobile: ID card strip button --}}

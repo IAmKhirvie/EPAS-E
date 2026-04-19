@@ -3,7 +3,7 @@
 
     <!-- Left side - Logo and Title -->
     <div class="navbar-left-2">
-        <a class="navbar-brand" href="{{ route('lobby') }}">
+        <a class="navbar-brand" href="{{ route('welcome') }}">
             <div class="navbar-logo-container">
                 <img src="{{ dynamic_asset('assets/EPAS-E.png') }}" alt="EPAS-E LMS" class="logo">
                 <div class="navbar-title-container">
@@ -18,7 +18,7 @@
     <div class="navbar-right">
         <!-- Home Icon -->
         <div class="navbar-item">
-            <a class="icon-button" href="{{ route('lobby') }}" title="Home">
+            <a class="icon-button" href="{{ route('welcome') }}" title="Home">
                 <i class="fa-solid fa-house"></i>
             </a>
         </div>
@@ -145,8 +145,12 @@
         <div class="navbar-item">
             {{-- Desktop: compact avatar button --}}
             <button class="user-button user-button--desktop" id="user-menu-btn">
-                <div class="icon-button" id="desktop-avatar-trigger" title="Click to change photo">
-                    <i class="fas fa-user"></i>
+                <div class="icon-button nav-avatar-btn" id="desktop-avatar-trigger" title="{{ $user->full_name }}">
+                    @if($user->profile_image)
+                    <img src="{{ $user->profile_image_url }}" alt="" class="nav-avatar-img">
+                    @else
+                    <span class="nav-avatar-initials">{{ $user->initials }}</span>
+                    @endif
                 </div>
             </button>
             {{-- Mobile: ID card strip button --}}

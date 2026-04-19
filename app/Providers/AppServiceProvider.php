@@ -2,11 +2,15 @@
 
 namespace App\Providers;
 
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Blade;
 use App\Http\View\Composers\AnnouncementComposer;
 use App\Http\View\Composers\TrashComposer;
 use App\Models\Course;
@@ -50,6 +54,16 @@ class AppServiceProvider extends ServiceProvider
         if ($forceHttps || $isProduction || $isBehindHttpsProxy || $isCloudflare) {
             URL::forceScheme('https');
         }
+
+        // API rate limiting: 60 requests per minute per user/IP
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        // CSP nonce Blade directive for inline scripts
+        Blade::directive('nonce', function () {
+            return '<?php echo "nonce=\"" . request()->attributes->get("csp-nonce", "") . "\""; ?>';
+        });
 
         // Use Bootstrap 5 pagination
         Paginator::useBootstrapFive();

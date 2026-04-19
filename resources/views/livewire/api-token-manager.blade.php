@@ -1,4 +1,4 @@
-<div>
+<div wire:init="loadData">
     {{-- Flash Messages --}}
     @if (session()->has('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -50,6 +50,19 @@
             </form>
         </div>
     </div>
+
+    {{-- Loading --}}
+    <div wire:loading class="text-center py-2">
+        <div class="spinner-border spinner-border-sm text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    @if(!$readyToLoad)
+    <div class="p-3">
+        <x-skeleton type="table-row" :count="5" />
+    </div>
+    @endif
 
     {{-- Existing Tokens --}}
     <div class="card">

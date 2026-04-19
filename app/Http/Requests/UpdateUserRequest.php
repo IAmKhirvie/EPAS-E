@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Constants\Roles;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -31,7 +32,7 @@ class UpdateUserRequest extends FormRequest
             'role'           => $roleRule,
             'department_id'  => 'nullable|exists:departments,id',
             'stat'           => 'required|boolean',
-            'password'       => 'nullable|string|min:6|confirmed',
+            'password'       => ['nullable', 'string', 'confirmed', Password::min(8)->mixedCase()->numbers()->symbols()->uncompromised()],
             'section'        => 'nullable|string|max:255',
             'school_year'    => 'nullable|string|max:20',
             'custom_section' => 'nullable|string|max:255',

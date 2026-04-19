@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Services\AchievementService;
 use App\Services\CertificateService;
 use App\Services\GamificationService;
 use Illuminate\Http\Request;
@@ -41,13 +42,17 @@ class CredentialsController extends Controller
         $sections = $gamificationService->getAvailableSections();
         $courses = Course::where('is_active', true)->orderBy('course_name')->get(['id', 'course_name']);
 
+        // Achievement showcase
+        $achievements = app(AchievementService::class)->getUserAchievements($user);
+
         return view('credentials.index', compact(
             'certificates',
             'stats',
             'leaderboard',
             'leaderboardFilter',
             'sections',
-            'courses'
+            'courses',
+            'achievements'
         ));
     }
 }

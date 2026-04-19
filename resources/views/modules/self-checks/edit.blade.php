@@ -9,13 +9,11 @@
 @section('content')
 <div class="content-area">
     {{-- Breadcrumb --}}
-    <nav aria-label="breadcrumb" class="mb-2">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('self-checks.show', $selfCheck) }}">{{ $selfCheck->title }}</a></li>
-            <li class="breadcrumb-item active">Edit</li>
-        </ol>
-    </nav>
+    <x-breadcrumb :items="[
+        ['label' => 'Content', 'url' => route('content.management')],
+        ['label' => $selfCheck->title, 'url' => route('self-checks.show', $selfCheck)],
+        ['label' => 'Edit'],
+    ]" />
 
     <form action="{{ route('self-checks.update', [$informationSheet, $selfCheck]) }}" method="POST" id="quiz-form" enctype="multipart/form-data">
         @csrf

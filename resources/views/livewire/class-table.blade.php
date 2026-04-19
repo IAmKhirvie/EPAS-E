@@ -1,4 +1,4 @@
-<div>
+<div wire:init="loadData">
     {{-- Flash Messages --}}
     @if (session()->has('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -79,6 +79,12 @@
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
+
+    @if(!$readyToLoad)
+    <div class="p-3">
+        <x-skeleton type="table-row" :count="5" />
+    </div>
+    @endif
 
     <div wire:loading.class="opacity-50">
         @if($sectionFilter && $students)

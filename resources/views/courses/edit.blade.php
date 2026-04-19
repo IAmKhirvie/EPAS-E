@@ -4,12 +4,10 @@
 
 @section('content')
 <div class="content-area">
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Courses</a></li>
-            <li class="breadcrumb-item active">Edit: {{ $course->course_name }}</li>
-        </ol>
-    </nav>
+    <x-breadcrumb :items="[
+        ['label' => 'Courses', 'url' => route('content.management')],
+        ['label' => 'Edit: ' . $course->course_name],
+    ]" />
 
     <div class="cb-container--simple">
         <form method="POST" action="{{ route('courses.update', $course) }}" enctype="multipart/form-data">

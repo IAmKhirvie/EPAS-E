@@ -8,12 +8,10 @@
 
 @section('content')
 <div class="content-area">
-    <nav aria-label="breadcrumb" class="mb-2">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
-            <li class="breadcrumb-item active">New Document Assessment</li>
-        </ol>
-    </nav>
+    <x-breadcrumb :items="[
+        ['label' => 'Content', 'url' => route('content.management')],
+        ['label' => 'New Document Assessment'],
+    ]" />
 
     <form action="{{ route('document-assessments.store', $informationSheet) }}" method="POST" enctype="multipart/form-data" id="docAssessmentForm">
         @csrf

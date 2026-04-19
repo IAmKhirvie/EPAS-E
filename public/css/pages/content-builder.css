@@ -1088,3 +1088,121 @@
 .dark-mode .doc-viewer__page a {
     color: #6D9773 !important;
 }
+
+/* ===== DASHBOARD-MATCHING OVERRIDES ===== */
+
+/* Main card — clean borders, no heavy shadow */
+.cb-main {
+    border-radius: 16px;
+    border: 1px solid #e8e8e8;
+    box-shadow: none;
+}
+
+/* Header — unified dark green instead of per-type gradients */
+.cb-header,
+.cb-header--task,
+.cb-header--job,
+.cb-header--homework,
+.cb-header--checklist,
+.cb-header--criteria,
+.cb-header--course,
+.cb-header--module,
+.cb-header--info-sheet,
+.cb-header--topic,
+.cb-header--self-check {
+    background: #0c3a2d;
+    border-radius: 16px 16px 0 0;
+}
+
+.cb-header h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.cb-header p {
+    font-size: 0.82rem;
+    opacity: 0.7;
+}
+
+/* Section titles */
+.cb-section__title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    border-bottom: 1px solid #f0f0f0;
+    color: var(--text-primary);
+}
+
+/* Form fields */
+.cb-field-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.cb-field-hint {
+    font-size: 0.72rem;
+}
+
+/* Footer */
+.cb-footer {
+    border-top: 1px solid #f0f0f0;
+    padding: 1rem 1.5rem;
+}
+
+.cb-footer .btn {
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.88rem;
+}
+
+/* Content area wrapper */
+.content-area {
+    border-radius: 16px;
+    border: 1px solid #e8e8e8;
+    box-shadow: none;
+}
+
+/* Form controls */
+.cb-settings .form-control,
+.cb-settings .form-select {
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+    font-size: 0.88rem;
+}
+
+.cb-settings .form-control:focus,
+.cb-settings .form-select:focus {
+    border-color: var(--primary, #0c3a2d);
+    box-shadow: 0 0 0 3px rgba(12, 58, 45, 0.08);
+}
+
+/* Input group */
+.cb-settings .input-group-text {
+    border-radius: 0 10px 10px 0;
+    border: 1px solid #e0e0e0;
+    border-left: none;
+    font-size: 0.82rem;
+}
+
+/* Dark mode overrides */
+.dark-mode .cb-main {
+    border-color: var(--border, #333);
+}
+
+.dark-mode .content-area {
+    border-color: var(--border, #333);
+}
+
+.dark-mode .cb-section__title {
+    border-bottom-color: var(--border, #333);
+}
+
+.dark-mode .cb-footer {
+    border-top-color: var(--border, #333);
+}
+
+.dark-mode .cb-settings .form-control,
+.dark-mode .cb-settings .form-select {
+    background: var(--background, #111);
+    border-color: var(--border, #333);
+    color: var(--text-primary);
+}

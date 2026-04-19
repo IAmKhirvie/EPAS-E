@@ -337,13 +337,11 @@
 @section('content')
 <div class="content-area">
     {{-- Breadcrumb --}}
-    <nav aria-label="breadcrumb" class="mb-2">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$informationSheet->module->course_id, $informationSheet->module]) }}">{{ $informationSheet->module->module_name }}</a></li>
-            <li class="breadcrumb-item active">Create Self Check</li>
-        </ol>
-    </nav>
+    <x-breadcrumb :items="[
+        ['label' => 'Content', 'url' => route('content.management')],
+        ['label' => $informationSheet->module->module_name, 'url' => route('courses.modules.show', [$informationSheet->module->course_id, $informationSheet->module])],
+        ['label' => 'Create Self Check'],
+    ]" />
 
     <form action="{{ route('self-checks.store', $informationSheet) }}" method="POST" id="quiz-form" enctype="multipart/form-data">
         @csrf

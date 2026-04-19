@@ -84,6 +84,15 @@ class GamificationService
         $user->refresh();
 
         $this->awardForActivity($user, 'daily_login');
+
+        // Check streak and first login achievements
+        try {
+            $achievementService = app(AchievementService::class);
+            $achievementService->checkAndAward($user, 'first_login');
+            $achievementService->checkAndAward($user, 'streak');
+        } catch (\Exception $e) {
+            // Don't let achievement errors break login
+        }
     }
 
     /**
@@ -173,6 +182,10 @@ class GamificationService
             'daily_login' => 'Daily login bonus',
             'module_complete' => 'Completed a module',
             'course_complete' => 'Completed a course',
+            'milestone_25' => 'Reached 25% course completion',
+            'milestone_50' => 'Reached 50% course completion',
+            'milestone_75' => 'Reached 75% course completion',
+            'milestone_100' => 'Reached 100% course completion',
             default => 'Activity completed',
         };
     }

@@ -137,7 +137,7 @@ Route::get('/', function () {
     if (Auth::check()) {
         return app(DashboardController::class)->redirectToRoleDashboard();
     }
-    return redirect()->route('lobby');
+    return redirect()->route('welcome');
 });
 
 Route::fallback(function () {
@@ -154,7 +154,7 @@ Route::fallback(function () {
             ->with('error_popup', 'The page you were looking for could not be found.')
             ->with('error_code', 404);
     }
-    return redirect()->route('lobby');
+    return redirect()->route('welcome');
 });
 
 /*
@@ -163,13 +163,17 @@ Route::fallback(function () {
 |--------------------------------------------------------------------------
 |
 | These routes are accessible without authentication.
-| Includes the lobby, about page, and contact form.
+| Includes the welcome page, about page, and contact form.
 |
 */
 
-Route::get('/lobby', function () {
-    return view('lobby');
-})->name('lobby');
+Route::get('/welcome', function () {
+    $totalStudents = \App\Models\User::where('role', 'student')->where('stat', 1)->count();
+    $totalInstructors = \App\Models\User::where('role', 'instructor')->where('stat', 1)->count();
+    $totalCourses = \App\Models\Course::where('is_active', true)->count();
+    $totalModules = \App\Models\Module::where('is_active', true)->count();
+    return view('welcome', compact('totalStudents', 'totalInstructors', 'totalCourses', 'totalModules'));
+})->name('welcome');
 
 Route::get('/about', function () {
     return view('about');
@@ -195,11 +199,18 @@ Route::post('/verify-certificate', [CertificateController::class, 'verify'])->na
 */
 
 // Student Authentication
+// Note: login routes cannot use 'guest' middleware because Laravel uses route('login')
+// as the redirect target for unauthenticated users, causing a redirect loop.
+// LoginController::showLoginForm() handles the redirect for authenticated users instead.
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
-Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:3,1');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+// Registration (guest only)
+Route::middleware('guest')->group(function () {
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:3,1');
+});
 
 // Password Reset (guest only - logged in users should use settings to change password)
 Route::middleware('guest')->group(function () {
@@ -377,8 +388,13 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::get('/progress-data', [StudentDashboard::class, 'getProgressData'])->name('progress-data');
     });
 
-    // Admin/Instructor Dashboard
+    // Admin Dashboard
     Route::prefix('admin')->name('admin.')->middleware('check.role:admin,instructor')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    });
+
+    // Instructor Dashboard (alias — redirects here from /dashboard for instructors)
+    Route::prefix('instructor')->name('instructor.')->middleware('check.role:instructor')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     });
 
@@ -1039,5 +1055,5 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
 
     Route::get('/trash', [TrashController::class, 'index'])
         ->name('trash.index')
-        ->middleware('check.role:admin,instructor');
+        ->middleware('check.role:admin');
 });

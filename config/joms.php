@@ -55,7 +55,12 @@ return [
             'daily_login' => 5,
             'module_complete' => 100,
             'course_complete' => 500,
+            'milestone_25' => 25,
+            'milestone_50' => 50,
+            'milestone_75' => 75,
+            'milestone_100' => 100,
         ],
+        'milestones' => [25 => 25, 50 => 50, 75 => 75, 100 => 100],
     ],
 
     /*

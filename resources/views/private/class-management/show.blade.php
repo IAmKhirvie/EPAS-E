@@ -7,12 +7,10 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h4>{{ isset($isInstructor) && $isInstructor ? 'My Class' : 'Section' }}: {{ $section }}</h4>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('class-management.index') }}">Class Management</a></li>
-                        <li class="breadcrumb-item active">{{ $section }}</li>
-                    </ol>
-                </nav>
+                <x-breadcrumb :items="[
+                    ['label' => 'Class Management', 'url' => route('class-management.index')],
+                    ['label' => $section],
+                ]" />
             </div>
             <div>
                 <span class="badge bg-primary">Total Students: {{ $students->total() }}</span>

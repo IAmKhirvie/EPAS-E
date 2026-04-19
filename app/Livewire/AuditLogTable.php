@@ -23,6 +23,8 @@ class AuditLogTable extends Component
     public array $selectedLogs = [];
     public bool $selectAll = false;
 
+    public bool $readyToLoad = false;
+
     public ?int $expandedLogId = null;
 
     protected $queryString = [
@@ -126,12 +128,17 @@ class AuditLogTable extends Component
         return $query->orderBy($sortColumn, $this->sortDirection);
     }
 
+    public function loadData(): void
+    {
+        $this->readyToLoad = true;
+    }
+
     public function render()
     {
-        $actions = AuditLog::distinct('action')->pluck('action');
+        $actions = $this->readyToLoad ? AuditLog::distinct('action')->pluck('action') : collect();
 
         return view('livewire.audit-log-table', [
-            'logs' => $this->getQuery()->paginate(config('joms.pagination.audit_logs', 50)),
+            'logs' => $this->readyToLoad ? $this->getQuery()->paginate(config('joms.pagination.audit_logs', 50)) : new \Illuminate\Pagination\LengthAwarePaginator([], 0, 50),
             'actions' => $actions,
         ]);
     }

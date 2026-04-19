@@ -4,25 +4,24 @@
 
 @section('content')
 <div class="content-area">
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
-            @if(in_array(auth()->user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]))
-            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
-            @else
-            @php
-                $bcCourse = $selfCheck->informationSheet->module->course ?? null;
-                $bcModule = $selfCheck->informationSheet->module ?? null;
-            @endphp
-            @if($bcCourse)
-            <li class="breadcrumb-item"><a href="{{ route('courses.show', $bcCourse) }}">{{ $bcCourse->course_code }}</a></li>
-            @endif
-            @if($bcModule)
-            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$bcCourse, $bcModule]) }}">{{ $bcModule->title }}</a></li>
-            @endif
-            @endif
-            <li class="breadcrumb-item"><a href="{{ route('self-checks.show', $selfCheck) }}">{{ $selfCheck->title }}</a></li>
-            <li class="breadcrumb-item active">Results</li>
-        </ol>
+    @php
+        $breadcrumbItems = [];
+        if (in_array(auth()->user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR])) {
+            $breadcrumbItems[] = ['label' => 'Content', 'url' => route('content.management')];
+        } else {
+            $bcCourse = $selfCheck->informationSheet->module->course ?? null;
+            $bcModule = $selfCheck->informationSheet->module ?? null;
+            if ($bcCourse) {
+                $breadcrumbItems[] = ['label' => $bcCourse->course_code, 'url' => route('courses.show', $bcCourse)];
+            }
+            if ($bcModule) {
+                $breadcrumbItems[] = ['label' => $bcModule->title, 'url' => route('courses.modules.show', [$bcCourse, $bcModule])];
+            }
+        }
+        $breadcrumbItems[] = ['label' => $selfCheck->title, 'url' => route('self-checks.show', $selfCheck)];
+        $breadcrumbItems[] = ['label' => 'Results'];
+    @endphp
+    <x-breadcrumb :items="$breadcrumbItems" />
     </nav>
 
     <div class="cb-container">

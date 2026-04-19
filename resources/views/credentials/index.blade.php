@@ -45,6 +45,14 @@
             </button>
         </li>
         <li class="nav-item" role="presentation">
+            <button class="nav-link" id="achievements-tab" data-bs-toggle="tab" data-bs-target="#achievements" type="button" role="tab">
+                <i class="fas fa-medal me-1"></i> Achievements
+                @if(isset($achievements))
+                <span class="badge bg-success ms-1">{{ $achievements->where('earned', true)->count() }}/{{ $achievements->count() }}</span>
+                @endif
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
             <button class="nav-link" id="leaderboard-tab" data-bs-toggle="tab" data-bs-target="#leaderboard" type="button" role="tab">
                 <i class="fas fa-trophy me-1"></i> Leaderboard
             </button>
@@ -102,6 +110,47 @@
                 {{ $certificates->links() }}
             </div>
             @endif
+            @endif
+        </div>
+
+        {{-- Achievements Tab --}}
+        <div class="tab-pane fade" id="achievements" role="tabpanel">
+            @if(isset($achievements) && $achievements->isNotEmpty())
+            <div class="row">
+                @foreach($achievements as $achievement)
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm {{ $achievement['earned'] ? '' : 'opacity-50' }}">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <i class="{{ $achievement['icon'] }} fa-3x {{ $achievement['earned'] ? 'text-warning' : 'text-muted' }}"></i>
+                            </div>
+                            <h6 class="fw-bold">{{ $achievement['name'] }}</h6>
+                            <p class="text-muted small mb-2">{{ $achievement['description'] }}</p>
+                            <div class="d-flex justify-content-center align-items-center gap-2">
+                                <span class="badge {{ $achievement['earned'] ? 'bg-success' : 'bg-secondary' }}">
+                                    +{{ $achievement['points'] }} pts
+                                </span>
+                                @if($achievement['earned'])
+                                <small class="text-success">
+                                    <i class="fas fa-check-circle me-1"></i>Earned {{ \Carbon\Carbon::parse($achievement['earned_at'])->format('M d, Y') }}
+                                </small>
+                                @else
+                                <small class="text-muted">
+                                    <i class="fas fa-lock me-1"></i>Locked
+                                </small>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @else
+            <x-empty-state
+                icon="fas fa-medal"
+                title="No Achievements Available"
+                description="Achievements will appear here as you progress through your courses."
+            />
             @endif
         </div>
 
@@ -214,9 +263,15 @@
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Auto-activate leaderboard tab if filter is applied or hash is #leaderboard
+        // Auto-activate tab based on hash or filter
         if (window.location.hash === '#leaderboard' || '{{ $leaderboardFilter }}' !== 'all') {
             const tab = document.getElementById('leaderboard-tab');
+            if (tab) {
+                const bsTab = new bootstrap.Tab(tab);
+                bsTab.show();
+            }
+        } else if (window.location.hash === '#achievements') {
+            const tab = document.getElementById('achievements-tab');
             if (tab) {
                 const bsTab = new bootstrap.Tab(tab);
                 bsTab.show();

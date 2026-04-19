@@ -4,12 +4,10 @@
 
 @section('content')
 <div class="content-area">
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Courses</a></li>
-            <li class="breadcrumb-item active">Create New Module</li>
-        </ol>
-    </nav>
+    <x-breadcrumb :items="[
+        ['label' => 'Courses', 'url' => route('content.management')],
+        ['label' => 'Create New Module'],
+    ]" />
 
     <div class="cb-container--simple">
         <form method="POST" action="{{ route('courses.modules.store', $course) }}" enctype="multipart/form-data">

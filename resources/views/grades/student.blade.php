@@ -4,36 +4,19 @@
 
 @push('styles')
 <style>
-    .grade-ring {
-        width: 150px;
-        height: 150px;
-        margin: 0 auto;
-    }
-    .grade-ring-text {
-        font-size: 2rem;
-        font-weight: bold;
-    }
-    .competency-badge {
-        font-size: 0.85rem;
-        padding: 0.5rem 1rem;
-    }
-    .grade-scale-item {
-        display: flex;
-        align-items: center;
-        padding: 0.25rem 0;
-        font-size: 0.85rem;
-    }
-    .grade-scale-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        margin-right: 0.5rem;
-    }
+    .grade-ring { width: 140px; height: 140px; margin: 0 auto; }
+    .competency-badge { font-size: 0.82rem; padding: 0.4rem 0.85rem; border-radius: 8px; }
+    .grade-scale-item { display: flex; align-items: center; padding: 0.35rem 0; font-size: 0.82rem; }
+    .grade-scale-dot { width: 10px; height: 10px; border-radius: 4px; margin-right: 0.5rem; flex-shrink: 0; }
+    .widget-card { border-radius: 16px; border-color: #e8e8e8; box-shadow: none; }
+    .progress { height: 6px; border-radius: 3px; background: #f0f0f0; }
+    .progress-bar { border-radius: 3px; }
+    .dark-mode .widget-card { border-color: var(--border); }
 </style>
 @endpush
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container-fluid py-3">
     {{-- Header --}}
     <div class="page-header">
         <div class="page-header-left">
@@ -639,10 +622,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const allPoints = @json($chartPoints);
 
     const typeConfig = {
-        'Self-Check':  { color: 'rgba(54, 162, 235, 1)',  bg: 'rgba(54, 162, 235, 0.2)',  order: 0 },
-        'Homework':    { color: 'rgba(75, 192, 192, 1)',  bg: 'rgba(75, 192, 192, 0.2)',  order: 1 },
-        'Task Sheet':  { color: 'rgba(255, 206, 86, 1)',  bg: 'rgba(255, 206, 86, 0.2)',  order: 2 },
-        'Job Sheet':   { color: 'rgba(153, 102, 255, 1)', bg: 'rgba(153, 102, 255, 0.2)', order: 3 },
+        'Self-Check':  { color: '#0c3a2d',  bg: 'rgba(12, 58, 45, 0.15)',  order: 0 },
+        'Homework':    { color: '#fd7e14',  bg: 'rgba(253, 126, 20, 0.15)',  order: 1 },
+        'Task Sheet':  { color: '#0d6efd',  bg: 'rgba(13, 110, 253, 0.15)',  order: 2 },
+        'Job Sheet':   { color: '#6f42c1',  bg: 'rgba(111, 66, 193, 0.15)', order: 3 },
     };
 
     // Group points by type for separate datasets
@@ -720,7 +703,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (!tooltipEl) {
                             tooltipEl = document.createElement('div');
                             tooltipEl.id = 'chartTooltip';
-                            tooltipEl.style.cssText = 'position:fixed;pointer-events:none;z-index:1080;background:#fff;border:1px solid #dee2e6;border-radius:8px;padding:0.625rem 0.75rem;box-shadow:0 4px 12px rgba(0,0,0,0.15);font-size:0.8rem;max-width:260px;transition:opacity 0.15s;';
+                            tooltipEl.style.cssText = 'position:fixed;pointer-events:none;z-index:1080;background:var(--card,#fff);border:1px solid #e8e8e8;border-radius:12px;padding:0.625rem 0.75rem;box-shadow:0 8px 25px rgba(0,0,0,0.1);font-size:0.82rem;max-width:260px;transition:opacity 0.15s;font-family:Plus Jakarta Sans,sans-serif;';
                             document.body.appendChild(tooltipEl);
                         }
 
@@ -786,10 +769,10 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 data: [{{ $categoryCounts['Self-Checks'] }}, {{ $categoryCounts['Homeworks'] }}, {{ $categoryCounts['Task Sheets'] }}, {{ $categoryCounts['Job Sheets'] }}],
                 backgroundColor: [
-                    'rgba(54, 162, 235, 0.8)',
-                    'rgba(75, 192, 192, 0.8)',
-                    'rgba(255, 206, 86, 0.8)',
-                    'rgba(153, 102, 255, 0.8)'
+                    'rgba(12, 58, 45, 0.75)',
+                    'rgba(253, 126, 20, 0.75)',
+                    'rgba(13, 110, 253, 0.75)',
+                    'rgba(111, 66, 193, 0.75)'
                 ]
             }]
         },

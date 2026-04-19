@@ -1,641 +1,399 @@
 @extends('layouts.app')
-
 @section('title', 'Dashboard - EPAS-E')
-
 @push('styles')
 <link rel="stylesheet" href="{{ dynamic_asset('css/pages/dashboard.css') }}">
 @endpush
 
+@php
+    $user = Auth::user();
+    $role = $user->role;
+    $isStudent = $role === \App\Constants\Roles::STUDENT;
+    $isAdmin = $role === \App\Constants\Roles::ADMIN;
+
+    // Generate chart data points (7 days) based on role
+    $chartPoints = [];
+    for ($i = 6; $i >= 0; $i--) {
+        $date = now()->subDays($i);
+        if ($isStudent) {
+            // Student: count completed activities per day
+            $count = \App\Models\UserProgress::where('user_id', $user->id)
+                ->whereDate('updated_at', $date->toDateString())
+                ->count();
+            $chartPoints[] = min($count, 10);
+        } else {
+            // Admin/Instructor: count submissions received per day
+            $count = \App\Models\UserProgress::whereDate('updated_at', $date->toDateString())->count();
+            $chartPoints[] = min($count, 20);
+        }
+    }
+    $chartMax = max(max($chartPoints), 1);
+    $isInstructor = $role === \App\Constants\Roles::INSTRUCTOR;
+@endphp
+
 @section('content')
-<div class="container-fluid py-4">
+<div class="dash" id="dashGrid">
 
-    {{-- Alerts --}}
-    @if(!Auth::user()->hasVerifiedEmail())
-    <div class="dashboard-alert warning" role="alert">
-        <i class="fas fa-envelope-open-text"></i>
-        <div class="alert-content">
-            <strong>Email not verified!</strong> Please verify your email to access all features.
-            <form action="{{ route('settings.resend-verification') }}" method="POST" class="d-inline ms-2">
-                @csrf
-                <button type="submit" class="btn btn-sm btn-warning">
-                    <i class="fas fa-paper-plane me-1"></i>Resend
-                </button>
-            </form>
+    {{-- ===== GRAPH ANALYTICS (row1-2, col1-2) ===== --}}
+    <div class="dc g-graph">
+        <div class="dc-head">
+            <h4><i class="fas fa-chart-area"></i>
+                @if($isStudent) Weekly Progress @elseif($isInstructor) Submissions This Week @else Active Users @endif
+            </h4>
+            <div class="dc-pills"><button class="dc-pill active">7D</button><button class="dc-pill">30D</button></div>
         </div>
-        <button type="button" class="btn-close" onclick="this.closest('.dashboard-alert').remove()"></button>
-    </div>
-    @endif
-
-    @if(Auth::user()->role === \App\Constants\Roles::STUDENT && empty(Auth::user()->student_id))
-    <div class="dashboard-alert info" role="alert" id="studentIdBanner" data-user-id="{{ Auth::id() }}">
-        <i class="fas fa-id-card"></i>
-        <div class="alert-content">
-            <strong>Student ID Not Assigned</strong> — Please approach the admin to get one assigned.
-        </div>
-        <button type="button" class="btn-close" onclick="this.closest('.dashboard-alert').remove(); localStorage.setItem('studentIdBannerDismissed_{{ Auth::id() }}', 'true')"></button>
-    </div>
-    <script>
-        (function() {
-            var banner = document.getElementById('studentIdBanner');
-            if (banner && localStorage.getItem('studentIdBannerDismissed_' + banner.dataset.userId)) banner.remove();
-        })();
-    </script>
-    @endif
-
-    @if(session('success'))
-    <div class="dashboard-alert" style="background:rgba(25,135,84,0.08);border-color:rgba(25,135,84,0.25);color:#0f5132" role="alert">
-        <i class="fas fa-check-circle"></i>
-        <div class="alert-content">{{ session('success') }}</div>
-        <button type="button" class="btn-close" onclick="this.closest('.dashboard-alert').remove()"></button>
-    </div>
-    @endif
-
-    @if($errors->any())
-    <div class="dashboard-alert" style="background:rgba(220,53,69,0.08);border-color:rgba(220,53,69,0.25);color:#842029" role="alert">
-        <i class="fas fa-exclamation-circle"></i>
-        <div class="alert-content">{{ $errors->first() }}</div>
-        <button type="button" class="btn-close" onclick="this.closest('.dashboard-alert').remove()"></button>
-    </div>
-    @endif
-
-    {{-- Header --}}
-    <div class="dashboard-header">
-        <div class="dashboard-header-left">
-            <h1>
-                <i class="fas fa-chart-bar me-2"></i>
-                @if(Auth::user()->role === \App\Constants\Roles::ADMIN)
-                    Admin Dashboard
-                @elseif(Auth::user()->role === \App\Constants\Roles::INSTRUCTOR)
-                    Instructor Dashboard
+        <div class="g-graph-body">
+            <div class="g-summary">
+                @if($isStudent)
+                <div><div class="gs-v">{{ $student_progress ?? 0 }}%</div><div class="gs-l">Progress</div></div>
+                <div><div class="gs-v">{{ $finished_activities ?? '0/0' }}</div><div class="gs-l">Completed</div></div>
+                <div><div class="gs-v">{{ $average_grade ?? '0%' }}</div><div class="gs-l">Avg Grade</div></div>
+                <div><div class="gs-v">{{ number_format($user->total_points ?? 0) }}</div><div class="gs-l">Points</div></div>
                 @else
-                    My Dashboard
+                <div><div class="gs-v">{{ $totalStudents ?? 0 }}</div><div class="gs-l">Students</div></div>
+                <div><div class="gs-v">{{ $totalModules ?? 0 }}</div><div class="gs-l">Modules</div></div>
+                <div><div class="gs-v">{{ $pendingEvaluations ?? 0 }}</div><div class="gs-l">Pending</div></div>
+                @if($isAdmin)<div><div class="gs-v">{{ $pendingRegistrationsCount ?? 0 }}</div><div class="gs-l">Registrations</div></div>@endif
                 @endif
-            </h1>
-            <p>Welcome back, {{ Auth::user()->first_name }}! Here's what's happening.</p>
-        </div>
-        <div class="dashboard-header-actions">
-            <span class="role-badge {{ Auth::user()->role }}">
-                <i class="fas fa-{{ Auth::user()->role === \App\Constants\Roles::ADMIN ? 'shield-alt' : (Auth::user()->role === \App\Constants\Roles::INSTRUCTOR ? 'chalkboard-teacher' : 'user-graduate') }}"></i>
-                {{ ucfirst(Auth::user()->role) }}
-            </span>
-            @if(in_array(Auth::user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]))
-            <a href="{{ route('private.announcements.create') }}" class="btn btn-primary" style="border-radius:50px;">
-                <i class="fas fa-plus me-1"></i>Announcement
-            </a>
-            @endif
-        </div>
-    </div>
-
-    {{-- Stat Cards --}}
-    <div class="stat-cards">
-        @if(Auth::user()->role === \App\Constants\Roles::ADMIN)
-            <div class="stat-card primary">
-                <div class="stat-card-decor"></div>
-                <div class="stat-card-content">
-                    <div class="stat-card-icon"><i class="fas fa-user-graduate"></i></div>
-                    <div class="stat-card-value">{{ $totalStudents ?? 0 }}</div>
-                    <div class="stat-card-label">Total Students</div>
-                </div>
             </div>
-            <div class="stat-card info">
-                <div class="stat-card-decor"></div>
-                <div class="stat-card-content">
-                    <div class="stat-card-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-                    <div class="stat-card-value">{{ $totalInstructors ?? 0 }}</div>
-                    <div class="stat-card-label">Instructors</div>
-                </div>
-            </div>
-            <div class="stat-card success">
-                <div class="stat-card-decor"></div>
-                <div class="stat-card-content">
-                    <div class="stat-card-icon"><i class="fas fa-book-open"></i></div>
-                    <div class="stat-card-value">{{ $totalModules ?? 0 }}</div>
-                    <div class="stat-card-label">Modules</div>
-                </div>
-            </div>
-            <div class="stat-card warning">
-                <div class="stat-card-decor"></div>
-                <div class="stat-card-content">
-                    <div class="stat-card-icon"><i class="fas fa-clock"></i></div>
-                    <div class="stat-card-value">{{ $pendingEvaluations ?? 0 }}</div>
-                    <div class="stat-card-label">Pending</div>
-                </div>
-            </div>
-        @elseif(Auth::user()->role === \App\Constants\Roles::INSTRUCTOR)
-            <div class="stat-card primary">
-                <div class="stat-card-decor"></div>
-                <div class="stat-card-content">
-                    <div class="stat-card-icon"><i class="fas fa-users"></i></div>
-                    <div class="stat-card-value">{{ $totalStudents ?? 0 }}</div>
-                    <div class="stat-card-label">My Students</div>
-                </div>
-            </div>
-            <div class="stat-card success">
-                <div class="stat-card-decor"></div>
-                <div class="stat-card-content">
-                    <div class="stat-card-icon"><i class="fas fa-book-open"></i></div>
-                    <div class="stat-card-value">{{ $totalModules ?? 0 }}</div>
-                    <div class="stat-card-label">Modules</div>
-                </div>
-            </div>
-            <div class="stat-card warning">
-                <div class="stat-card-decor"></div>
-                <div class="stat-card-content">
-                    <div class="stat-card-icon"><i class="fas fa-file-signature"></i></div>
-                    <div class="stat-card-value">{{ $pendingEvaluations ?? 0 }}</div>
-                    <div class="stat-card-label">Pending</div>
-                </div>
-            </div>
-            <div class="stat-card info">
-                <div class="stat-card-decor"></div>
-                <div class="stat-card-content">
-                    <div class="stat-card-icon"><i class="fas fa-layer-group"></i></div>
-                    <div class="stat-card-value">{{ $ongoingBatches ?? 0 }}</div>
-                    <div class="stat-card-label">Sections</div>
-                </div>
-            </div>
-        @else
-            <div class="stat-card primary">
-                <div class="stat-card-decor"></div>
-                <div class="stat-card-content">
-                    <div class="stat-card-icon"><i class="fas fa-chart-line"></i></div>
-                    <div class="stat-card-value" id="student-progress-text" data-progress="{{ $student_progress ?? 0 }}">{{ $student_progress ?? 0 }}%</div>
-                    <div class="stat-card-label">Progress</div>
-                </div>
-            </div>
-            <div class="stat-card success">
-                <div class="stat-card-decor"></div>
-                <div class="stat-card-content">
-                    <div class="stat-card-icon"><i class="fas fa-check-double"></i></div>
-                    <div class="stat-card-value" id="finished-activities" data-activities="{{ $finished_activities ?? '0/0' }}">{{ $finished_activities ?? '0/0' }}</div>
-                    <div class="stat-card-label">Completed</div>
-                </div>
-            </div>
-            <div class="stat-card info">
-                <div class="stat-card-decor"></div>
-                <div class="stat-card-content">
-                    <div class="stat-card-icon"><i class="fas fa-book-open"></i></div>
-                    <div class="stat-card-value" id="total-modules-count" data-modules="{{ $total_modules ?? 0 }}">{{ $total_modules ?? 0 }}</div>
-                    <div class="stat-card-label">Modules</div>
-                </div>
-            </div>
-            <div class="stat-card purple">
-                <div class="stat-card-decor"></div>
-                <div class="stat-card-content">
-                    <div class="stat-card-icon"><i class="fas fa-star"></i></div>
-                    <div class="stat-card-value" id="average-grade" data-grade="{{ $average_grade ?? '0%' }}">{{ $average_grade ?? '0%' }}</div>
-                    <div class="stat-card-label">Avg Grade</div>
-                </div>
-            </div>
-        @endif
-    </div>
-
-    {{-- Main Content + Sidebar --}}
-    <div class="dashboard-page-wrapper">
-        <div class="dashboard-main">
-            {{-- Announcements Feed --}}
-            <div class="feed-widget">
-                <div class="feed-widget-header">
-                    <h3><i class="fas fa-bullhorn"></i> Announcements</h3>
-                    <div class="feed-toolbar">
-                        <div class="feed-search">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="feed-search" placeholder="Search feed..." autocomplete="off">
-                        </div>
-                        <select class="feed-select" id="feed-filter-type">
-                            <option value="">All Types</option>
-                            <option value="announcement">Announcements</option>
-                            <option value="submission">Submissions</option>
-                            <option value="homework">Homework</option>
-                            <option value="quiz">Quiz</option>
-                            <option value="task">Task Sheet</option>
-                        </select>
-                        <select class="feed-select" id="feed-sort">
-                            <option value="newest">Newest</option>
-                            <option value="oldest">Oldest</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="feed-widget-body" id="activity-feed">
-                    @php
-                    $feedItems = collect();
-
-                    if(isset($recentAnnouncements)) {
-                        foreach($recentAnnouncements as $announcement) {
-                            $feedItems->push([
-                                'type' => 'announcement',
-                                'icon' => 'fas fa-bullhorn',
-                                'color' => '#0c3a2d',
-                                'title' => $announcement->title,
-                                'content' => Str::limit(strip_tags($announcement->content ?? ''), 120),
-                                'user_name' => $announcement->user->full_name ?? 'System',
-                                'user_avatar' => $announcement->user->profile_image_url ?? null,
-                                'date' => $announcement->created_at,
-                                'url' => route('private.announcements.show', $announcement),
-                                'module' => null,
-                            ]);
-                        }
-                    }
-
-                    if(isset($recentSubmissions) && Auth::user()->role !== \App\Constants\Roles::STUDENT) {
-                        foreach($recentSubmissions as $submission) {
-                            $feedItems->push([
-                                'type' => 'submission',
-                                'subtype' => $submission['type'] ?? 'submission',
-                                'icon' => $submission['icon'] ?? 'fas fa-file-alt',
-                                'color' => $submission['color'] ?? '#6c757d',
-                                'title' => ($submission['student_name'] ?? 'Student') . ' submitted ' . ($submission['title'] ?? 'an activity'),
-                                'content' => 'Module: ' . ($submission['module'] ?? 'Unknown'),
-                                'user_name' => $submission['student_name'] ?? 'Unknown',
-                                'user_avatar' => $submission['student_avatar'] ?? null,
-                                'date' => $submission['submitted_at'] ?? now(),
-                                'url' => $submission['url'] ?? '#',
-                                'module' => $submission['module'] ?? null,
-                            ]);
-                        }
-                    }
-
-                    $feedItems = $feedItems->sortByDesc('date')->values();
-                    @endphp
-
-                    @if($feedItems->count() > 0)
-                        @foreach($feedItems as $item)
-                        <div class="feed-item"
-                            data-type="{{ $item['type'] }}"
-                            data-subtype="{{ $item['subtype'] ?? '' }}"
-                            data-module="{{ strtolower($item['module'] ?? '') }}"
-                            data-user="{{ strtolower($item['user_name'] ?? '') }}"
-                            data-date="{{ $item['date'] }}">
-                            <div class="feed-item-row">
-                                <div class="feed-avatar" style="background: {{ $item['color'] }}20; color: {{ $item['color'] }}">
-                                    @if($item['user_avatar'])
-                                        <img src="{{ $item['user_avatar'] }}" alt="">
-                                    @else
-                                        <i class="{{ $item['icon'] }}"></i>
-                                    @endif
-                                </div>
-                                <div class="feed-content">
-                                    <span class="feed-type-badge {{ $item['type'] }}">
-                                        <i class="{{ $item['icon'] }}"></i>
-                                        {{ ucfirst($item['type']) }}
-                                    </span>
-                                    <div class="feed-title">
-                                        <a href="{{ $item['url'] }}">{{ $item['title'] }}</a>
-                                    </div>
-                                    <div class="feed-excerpt">{{ $item['content'] }}</div>
-                                    <div class="feed-meta">
-                                        <span><i class="fas fa-user"></i> {{ $item['user_name'] }}</span>
-                                        @if($item['module'])
-                                        <span><i class="fas fa-book"></i> {{ $item['module'] }}</span>
-                                        @endif
-                                    </div>
-                                </div>
-                                <span class="feed-time">{{ \Carbon\Carbon::parse($item['date'])->diffForHumans() }}</span>
-                            </div>
-                        </div>
+            <div class="g-chart">
+                <div class="g-chart-y">@for($i = 5; $i >= 0; $i--)<span>{{ round($chartMax * $i / 5) }}</span>@endfor</div>
+                <div class="g-chart-svg">
+                    <svg viewBox="0 0 500 130" preserveAspectRatio="none">
+                        <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--primary,#0c3a2d)" stop-opacity="0.18"/><stop offset="100%" stop-color="var(--primary,#0c3a2d)" stop-opacity="0.01"/></linearGradient></defs>
+                        <line x1="0" y1="26" x2="500" y2="26" stroke="#e0e0e0" stroke-width="1"/>
+                        <line x1="0" y1="52" x2="500" y2="52" stroke="#e0e0e0" stroke-width="1"/>
+                        <line x1="0" y1="78" x2="500" y2="78" stroke="#e0e0e0" stroke-width="1"/>
+                        <line x1="0" y1="104" x2="500" y2="104" stroke="#e0e0e0" stroke-width="1"/>
+                        @php
+                            $svgH = 130;
+                            $coords = [];
+                            foreach ($chartPoints as $i => $v) {
+                                $x = round(($i / 6) * 500);
+                                $y = round($svgH - ($v / $chartMax) * ($svgH - 10));
+                                $coords[] = "{$x},{$y}";
+                            }
+                            $linePath = 'M' . implode(' L', $coords);
+                            $areaPath = $linePath . " L500,{$svgH} L0,{$svgH}Z";
+                            // Find peak point
+                            $peakIdx = array_search(max($chartPoints), $chartPoints);
+                            $peakX = round(($peakIdx / 6) * 500);
+                            $peakY = round($svgH - (max($chartPoints) / $chartMax) * ($svgH - 10));
+                        @endphp
+                        <path d="{{ $areaPath }}" fill="url(#ag)"/>
+                        <path d="{{ $linePath }}" fill="none" stroke="var(--primary,#0c3a2d)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        @php $dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']; @endphp
+                        @foreach($chartPoints as $ci => $cv)
+                        @php
+                            $cx = round(($ci / 6) * 500);
+                            $cy = round($svgH - ($cv / $chartMax) * ($svgH - 10));
+                            $dayLabel = now()->subDays(6 - $ci)->format('D, M d');
+                        @endphp
+                        <circle class="chart-dot" cx="{{ $cx }}" cy="{{ $cy }}" r="3" fill="var(--primary,#0c3a2d)" stroke="#fff" stroke-width="1.5"
+                            data-day="{{ $dayLabel }}" data-value="{{ $cv }}" style="cursor:pointer"/>
                         @endforeach
-                    @else
-                        <div class="feed-empty">
-                            <i class="fas fa-stream"></i>
-                            <p>No activity yet</p>
-                        </div>
-                    @endif
+                    </svg>
                 </div>
-                <div id="no-results" class="feed-empty" style="display: none;">
-                    <i class="fas fa-search"></i>
-                    <p>No matching results</p>
-                </div>
-                @if(in_array(Auth::user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]))
-                <div class="feed-widget-footer">
-                    <a href="{{ route('private.announcements.create') }}" class="btn btn-primary btn-sm" style="border-radius:50px;">
-                        <i class="fas fa-plus me-1"></i>New Announcement
+                <div class="g-chart-x"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ===== RIGHT TOP: Pending + Calendar (row1-2, col3) ===== --}}
+    <div class="g-rt">
+        {{-- Pending --}}
+        <div class="dc g-pend">
+            <div class="dc-head">
+                <h4><i class="fas fa-{{ $isStudent ? 'tasks' : ($isAdmin ? 'inbox' : 'clipboard-list') }}"></i>
+                    Pending
+                </h4>
+                <span class="dc-badge" id="pendCount">{{ count($upcomingDeadlines ?? []) + ($isAdmin ? ($pendingRegistrationsCount ?? 0) : 0) }}</span>
+            </div>
+            <div class="g-pend-list" id="pendList">
+                @if($isAdmin && isset($pendingRegistrations))
+                    @foreach($pendingRegistrations->take(3) as $reg)
+                    <a class="pr" href="{{ route('admin.registrations.show', $reg) }}" data-date="{{ $reg->email_verified_at?->toDateString() }}">
+                        <div class="pr-icon" style="background:rgba(25,135,84,0.1);color:#198754"><i class="fas fa-user-plus"></i></div>
+                        <div class="pr-i"><span class="pr-t">{{ $reg->full_name }}</span><span class="pr-s">Awaiting approval</span></div>
+                        <span class="pr-d">{{ $reg->email_verified_at?->diffForHumans(null, true) ?? 'Pending' }}</span>
                     </a>
-                </div>
+                    @endforeach
+                @endif
+                @foreach(collect($upcomingDeadlines ?? [])->take(5) as $dl)
+                <a class="pr" href="{{ $dl['url'] ?? '#' }}" data-date="{{ \Carbon\Carbon::parse($dl['due_date'])->toDateString() }}">
+                    <div class="pr-dot" style="background:{{ $dl['color'] }}"></div>
+                    <div class="pr-i"><span class="pr-t">{{ $dl['title'] }}</span><span class="pr-s">{{ $dl['subtitle'] }}</span></div>
+                    <span class="pr-d">{{ \Carbon\Carbon::parse($dl['due_date'])->format('d M, h:i A') }}</span>
+                </a>
+                @endforeach
+                @if(empty($upcomingDeadlines) && (!$isAdmin || ($pendingRegistrationsCount ?? 0) === 0))
+                <div class="d-empty"><i class="fas fa-check-circle" style="color:#198754"></i> All caught up!</div>
                 @endif
             </div>
-
-            {{-- Student: Recently Completed --}}
-            @if(Auth::user()->role === \App\Constants\Roles::STUDENT)
-            <div class="completed-widget">
-                <div class="completed-widget-header">
-                    <h3><i class="fas fa-check-circle"></i> Recently Completed</h3>
-                </div>
-                @if(isset($completedActivitiesList) && $completedActivitiesList->count() > 0)
-                <table class="completed-table">
-                    <thead>
-                        <tr>
-                            <th>Activity</th>
-                            <th>Module</th>
-                            <th>Score</th>
-                            <th>Completed</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($completedActivitiesList->take(5) as $activity)
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="activity-dot" style="background: {{ $activity['color'] }}15; color: {{ $activity['color'] }}">
-                                        <i class="{{ $activity['icon'] }}"></i>
-                                    </span>
-                                    {{ $activity['title'] }}
-                                </div>
-                            </td>
-                            <td><span style="color:var(--text-muted);font-size:0.8rem">{{ $activity['subtitle'] }}</span></td>
-                            <td>
-                                <span class="score-badge {{ $activity['passed'] ? 'passed' : 'failed' }}">
-                                    {{ $activity['score'] }}
-                                </span>
-                            </td>
-                            <td><span style="color:var(--text-muted);font-size:0.8rem">{{ \Carbon\Carbon::parse($activity['completed_at'])->diffForHumans() }}</span></td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                @else
-                <div class="feed-empty">
-                    <i class="fas fa-tasks"></i>
-                    <p>No completed activities yet</p>
-                </div>
-                @endif
-            </div>
-            @endif
         </div>
 
-        {{-- Right Sidebar --}}
-        <aside class="dashboard-sidebar">
-            {{-- Mini Calendar --}}
-            <div class="sidebar-widget">
-                <div class="sidebar-widget-header">
-                    <h3><i class="fas fa-calendar-alt"></i> Calendar</h3>
-                </div>
-                <div class="sidebar-widget-body">
-                    <div class="mini-calendar">
-                        <div class="calendar-header">
-                            <h4 id="calendarMonth">{{ now()->format('F Y') }}</h4>
-                            <div class="calendar-nav">
-                                <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
-                                <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
-                            </div>
-                        </div>
-                        <div class="calendar-grid" id="calendarGrid"></div>
-                    </div>
+        {{-- Calendar --}}
+        <div class="dc g-cal">
+            <div class="cal-top-bar">
+                <span class="cal-month" id="calMonth">{{ now()->format('F Y') }}</span>
+                <div class="cal-toggles">
+                    <button class="cal-tg active" id="tgWeek">Week</button>
+                    <button class="cal-tg" id="tgMonth">Month</button>
                 </div>
             </div>
-
-            {{-- Pending Tasks / Activities --}}
-            <div class="sidebar-widget">
-                <div class="sidebar-widget-header">
-                    <h3>
-                        @if(Auth::user()->role === \App\Constants\Roles::STUDENT)
-                            <i class="fas fa-tasks"></i> My Tasks
-                        @elseif(Auth::user()->role === \App\Constants\Roles::ADMIN)
-                            <i class="fas fa-bell"></i> Pending
-                        @else
-                            <i class="fas fa-calendar-check"></i> Upcoming
-                        @endif
-                    </h3>
-                    @php
-                    $pendingCount = Auth::user()->role === \App\Constants\Roles::STUDENT
-                        ? ((isset($pendingActivities) ? $pendingActivities->count() : 0) + ($upcomingDeadlinesCount ?? 0))
-                        : (Auth::user()->role === \App\Constants\Roles::ADMIN
-                            ? (($pendingEvaluations ?? 0) + ($pendingRegistrationsCount ?? 0))
-                            : (($upcomingDeadlinesCount ?? 0) + ($pendingEvaluations ?? 0)));
-                    @endphp
-                    @if($pendingCount > 0)
-                    <span class="badge-count">{{ $pendingCount }}</span>
-                    @endif
-                </div>
-                <div class="sidebar-widget-body" style="padding:0.75rem;">
-                    @if(Auth::user()->role === \App\Constants\Roles::STUDENT)
-                        {{-- Student Tasks --}}
-                        @if((isset($pendingActivities) && $pendingActivities->count() > 0) || (isset($upcomingDeadlines) && $upcomingDeadlines->count() > 0))
-                        <div class="sidebar-task-list" id="pending-list">
-                            @if(isset($upcomingDeadlines) && $upcomingDeadlines->count() > 0)
-                                @foreach($upcomingDeadlines as $deadline)
-                                <a href="{{ $deadline['url'] ?? '#' }}" class="sidebar-task-item pending-item" data-type="deadline" data-date="{{ $deadline['due_date'] }}">
-                                    <div class="task-item-icon deadline">
-                                        <i class="{{ $deadline['icon'] }}"></i>
-                                    </div>
-                                    <div class="task-item-info">
-                                        <div class="task-item-title">{{ $deadline['title'] }}</div>
-                                        <div class="task-item-subtitle">{{ $deadline['subtitle'] }}</div>
-                                        <div class="task-item-due">
-                                            <i class="fas fa-clock"></i>
-                                            {{ \Carbon\Carbon::parse($deadline['due_date'])->format('M d, h:i A') }}
-                                        </div>
-                                    </div>
-                                </a>
-                                @endforeach
-                            @endif
-                            @if(isset($pendingActivities) && $pendingActivities->count() > 0)
-                                @foreach($pendingActivities as $activity)
-                                <a href="{{ $activity['url'] ?? '#' }}" class="sidebar-task-item pending-item" data-type="{{ $activity['type'] ?? '' }}" data-date="{{ $activity['deadline'] ?? $activity['created_at'] ?? '' }}">
-                                    <div class="task-item-icon {{ $activity['type'] ?? 'task' }}">
-                                        <i class="{{ $activity['icon'] }}"></i>
-                                    </div>
-                                    <div class="task-item-info">
-                                        <div class="task-item-title">{{ $activity['title'] }}</div>
-                                        <div class="task-item-subtitle">{{ $activity['subtitle'] ?? '' }}</div>
-                                    </div>
-                                </a>
-                                @endforeach
-                            @endif
-                        </div>
-                        @else
-                        <div class="sidebar-empty">
-                            <i class="fas fa-check-circle" style="color:#198754"></i>
-                            <p>All caught up!</p>
-                        </div>
-                        @endif
-
-                    @else
-                        {{-- Admin/Instructor Tasks --}}
-                        @if((Auth::user()->role === \App\Constants\Roles::INSTRUCTOR && isset($upcomingDeadlines) && $upcomingDeadlines->count() > 0) ||
-                            (isset($pendingRegistrations) && $pendingRegistrations->count() > 0) ||
-                            (isset($recentSubmissions) && count($recentSubmissions) > 0))
-                        <div class="sidebar-task-list" id="pending-list">
-                            {{-- Instructor Deadlines --}}
-                            @if(Auth::user()->role === \App\Constants\Roles::INSTRUCTOR && isset($upcomingDeadlines) && $upcomingDeadlines->count() > 0)
-                                @foreach($upcomingDeadlines as $deadline)
-                                <a href="{{ $deadline['url'] ?? '#' }}" class="sidebar-task-item pending-item" data-type="deadline" data-date="{{ $deadline['due_date'] }}">
-                                    <div class="task-item-icon deadline">
-                                        <i class="{{ $deadline['icon'] }}"></i>
-                                    </div>
-                                    <div class="task-item-info">
-                                        <div class="task-item-title">{{ $deadline['title'] }}</div>
-                                        <div class="task-item-subtitle">{{ $deadline['subtitle'] }}</div>
-                                        <div class="task-item-due">
-                                            <i class="fas fa-calendar-alt"></i>
-                                            {{ \Carbon\Carbon::parse($deadline['due_date'])->format('M d, h:i A') }}
-                                        </div>
-                                    </div>
-                                </a>
-                                @endforeach
-                            @endif
-
-                            {{-- Admin Registrations --}}
-                            @if(Auth::user()->role === \App\Constants\Roles::ADMIN && isset($pendingRegistrations) && $pendingRegistrations->count() > 0)
-                                @foreach($pendingRegistrations as $registration)
-                                <div class="sidebar-task-item pending-item" data-type="registration" data-date="{{ $registration->email_verified_at }}">
-                                    <div class="task-item-icon registration">
-                                        <i class="fas fa-user-plus"></i>
-                                    </div>
-                                    <div class="task-item-info">
-                                        <div class="task-item-title">{{ $registration->full_name }}</div>
-                                        <div class="task-item-subtitle">{{ $registration->email }}</div>
-                                        <div class="registration-actions">
-                                            <form action="{{ route('admin.registrations.approve', $registration) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check me-1"></i>Approve</button>
-                                            </form>
-                                            <a href="{{ route('admin.registrations.show', $registration) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-eye"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endforeach
-                            @endif
-
-                            {{-- Pending Evaluations --}}
-                            @if(isset($recentSubmissions) && count($recentSubmissions) > 0)
-                                @foreach(collect($recentSubmissions)->take(8) as $submission)
-                                <a href="{{ $submission['url'] ?? '#' }}" class="sidebar-task-item pending-item" data-type="{{ $submission['type'] ?? '' }}" data-date="{{ $submission['submitted_at'] ?? '' }}">
-                                    <div class="task-item-icon evaluation">
-                                        <i class="{{ $submission['icon'] }}"></i>
-                                    </div>
-                                    <div class="task-item-info">
-                                        <div class="task-item-title">{{ $submission['student_name'] }}</div>
-                                        <div class="task-item-subtitle">{{ $submission['title'] }}</div>
-                                    </div>
-                                </a>
-                                @endforeach
-                            @endif
-                        </div>
-                        @else
-                        <div class="sidebar-empty">
-                            <i class="fas fa-check-circle" style="color:#198754"></i>
-                            <p>
-                                @if(Auth::user()->role === \App\Constants\Roles::INSTRUCTOR)
-                                    No upcoming deadlines
-                                @else
-                                    No pending requests
-                                @endif
-                            </p>
-                        </div>
-                        @endif
-                    @endif
-                </div>
+            <div class="cal-strip" id="stripView">
+                <div class="cal-arr l" id="arrL"><i class="fas fa-chevron-left"></i></div>
+                <div class="cal-strip-inner" id="stripInner"></div>
+                <div class="cal-arr r" id="arrR"><i class="fas fa-chevron-right"></i></div>
             </div>
-
-            {{-- Quick Stats --}}
-            <div class="sidebar-widget">
-                <div class="sidebar-widget-header">
-                    <h3><i class="fas fa-chart-pie"></i> Quick Stats</h3>
-                </div>
-                <div class="sidebar-widget-body">
-                    <div class="quick-stats">
-                        @if(Auth::user()->role === \App\Constants\Roles::STUDENT)
-                        <div class="quick-stat-row">
-                            <span class="quick-stat-label"><i class="fas fa-bullseye"></i> Progress</span>
-                            <span class="quick-stat-value">{{ $student_progress ?? 0 }}%</span>
-                        </div>
-                        <div class="quick-stat-row">
-                            <span class="quick-stat-label"><i class="fas fa-check"></i> Completed</span>
-                            <span class="quick-stat-value">{{ $finished_activities ?? '0/0' }}</span>
-                        </div>
-                        <div class="quick-stat-row">
-                            <span class="quick-stat-label"><i class="fas fa-star"></i> Avg Grade</span>
-                            <span class="quick-stat-value">{{ $average_grade ?? '0%' }}</span>
-                        </div>
-                        @else
-                        <div class="quick-stat-row">
-                            <span class="quick-stat-label"><i class="fas fa-users"></i> Students</span>
-                            <span class="quick-stat-value">{{ $totalStudents ?? 0 }}</span>
-                        </div>
-                        <div class="quick-stat-row">
-                            <span class="quick-stat-label"><i class="fas fa-book"></i> Modules</span>
-                            <span class="quick-stat-value">{{ $totalModules ?? 0 }}</span>
-                        </div>
-                        <div class="quick-stat-row">
-                            <span class="quick-stat-label"><i class="fas fa-file-signature"></i> Pending</span>
-                            <span class="quick-stat-value">{{ $pendingEvaluations ?? 0 }}</span>
-                        </div>
-                        @if(Auth::user()->role === \App\Constants\Roles::ADMIN)
-                        <div class="quick-stat-row">
-                            <span class="quick-stat-label"><i class="fas fa-user-plus"></i> Registrations</span>
-                            <span class="quick-stat-value">{{ $pendingRegistrationsCount ?? 0 }}</span>
-                        </div>
-                        @endif
-                        @endif
-                    </div>
-                </div>
+            <div class="cal-month-view" id="monthView"></div>
+            <div class="cal-detail" id="calDet">
+                <div class="cal-det-title" id="calDetTitle"></div>
+                <div id="calDetItems"></div>
             </div>
-        </aside>
+        </div>
+    </div>
+
+    {{-- ===== ANNOUNCEMENTS TABLE (row3-4, col1-2) ===== --}}
+    <div class="dc g-ann" id="annCard">
+        <div class="dc-head">
+            <h4><i class="fas fa-bullhorn"></i> Announcements</h4>
+            <div style="display:flex;align-items:center;gap:0.4rem;">
+                <div class="dc-pills">
+                    <button class="dc-pill active" onclick="filterAnn('all')">All</button>
+                    <button class="dc-pill" onclick="filterAnn('pinned')">Pinned</button>
+                    <button class="dc-pill" onclick="filterAnn('urgent')">Urgent</button>
+                </div>
+                @if(!$isStudent)
+                <a href="{{ route('private.announcements.create') }}" class="ann-action-btn" title="New Announcement" style="background:var(--primary,#0c3a2d);color:#fff;border-color:var(--primary,#0c3a2d);width:28px;height:28px;">
+                    <i class="fas fa-plus"></i>
+                </a>
+                @endif
+            </div>
+        </div>
+        <div class="g-ann-list">
+            <table class="ann-table">
+                <thead><tr><th>Author</th><th>Date & Time</th><th>Summary</th><th></th></tr></thead>
+                <tbody>
+                @forelse($recentAnnouncements ?? [] as $a)
+                <tr onclick="window.location='{{ route('private.announcements.show', $a) }}'" data-pinned="{{ $a->is_pinned ? '1' : '0' }}" data-urgent="{{ $a->is_urgent ? '1' : '0' }}">
+                    <td><div class="ann-user">
+                        <div class="ann-av">@if($a->user && $a->user->profile_image)<img src="{{ $a->user->profile_image_url }}" alt="">@elseif($a->user)<span style="font-size:0.65rem;font-weight:700;color:var(--primary)">{{ $a->user->initials }}</span>@else<i class="fas fa-robot"></i>@endif</div>
+                        <span class="ann-uname">{{ $a->user ? $a->user->full_name : 'EPAS-E System' }}</span>
+                    </div></td>
+                    <td><span class="ann-dt">{{ $a->created_at->format('h:i A') }} · {{ $a->created_at->format('M d') }}</span></td>
+                    <td><span class="ann-summ">{{ Str::limit(strip_tags($a->content ?? ''), 60) }}</span></td>
+                    <td class="ann-actions">
+                        <a href="{{ route('private.announcements.show', $a) }}" class="ann-action-btn" title="View" onclick="event.stopPropagation()"><i class="fas fa-arrow-right"></i></a>
+                        @if($isAdmin || $a->user_id === $user->id)
+                        <a href="{{ route('private.announcements.edit', $a) }}" class="ann-action-btn" title="Edit" onclick="event.stopPropagation()"><i class="fas fa-pen"></i></a>
+                        <form method="POST" action="{{ route('private.announcements.destroy', $a) }}" style="display:inline" onclick="event.stopPropagation()" onsubmit="return confirm('Delete this announcement?')">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="ann-action-btn" title="Delete" style="color:#dc3545"><i class="fas fa-trash"></i></button>
+                        </form>
+                        @endif
+                    </td>
+                </tr>
+                @empty
+                <tr><td colspan="4"><div class="d-empty"><i class="fas fa-bullhorn"></i> No announcements</div></td></tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
+        <div class="ann-footer">
+            <button class="ann-more" id="annMore"><span id="annMoreText">Show more</span> <i class="fas fa-chevron-down"></i></button>
+        </div>
+    </div>
+
+    {{-- ===== QUICK STATS (row3-4, col3) ===== --}}
+    <div class="dc g-qs">
+        <div class="dc-head"><h4><i class="fas fa-chart-pie"></i> Quick Stats</h4></div>
+        <div class="g-qs-body">
+            @if($isStudent)
+            <div class="qsr"><div class="qsr-l"><div class="qsr-ic" style="background:rgba(12,58,45,0.1);color:#0c3a2d"><i class="fas fa-chart-line"></i></div><span class="qsr-lb">Progress</span></div><span class="qsr-v">{{ $student_progress ?? 0 }}%</span></div>
+            <div class="qsr"><div class="qsr-l"><div class="qsr-ic" style="background:rgba(25,135,84,0.1);color:#198754"><i class="fas fa-check-double"></i></div><span class="qsr-lb">Completed</span></div><span class="qsr-v">{{ $finished_activities ?? '0/0' }}</span></div>
+            <div class="qsr"><div class="qsr-l"><div class="qsr-ic" style="background:rgba(13,110,253,0.1);color:#0d6efd"><i class="fas fa-book-open"></i></div><span class="qsr-lb">Modules</span></div><span class="qsr-v">{{ $total_modules ?? 0 }}</span></div>
+            <div class="qsr"><div class="qsr-l"><div class="qsr-ic" style="background:rgba(111,66,193,0.1);color:#6f42c1"><i class="fas fa-star"></i></div><span class="qsr-lb">Avg Grade</span></div><span class="qsr-v">{{ $average_grade ?? '0%' }}</span></div>
+            <div class="qsr"><div class="qsr-l"><div class="qsr-ic" style="background:rgba(253,126,20,0.1);color:#fd7e14"><i class="fas fa-trophy"></i></div><span class="qsr-lb">Points</span></div><span class="qsr-v">{{ number_format($user->total_points ?? 0) }}</span></div>
+            @else
+            <div class="qsr"><div class="qsr-l"><div class="qsr-ic" style="background:rgba(12,58,45,0.1);color:#0c3a2d"><i class="fas fa-user-graduate"></i></div><span class="qsr-lb">Students</span></div><span class="qsr-v">{{ $totalStudents ?? 0 }}</span></div>
+            <div class="qsr"><div class="qsr-l"><div class="qsr-ic" style="background:rgba(13,110,253,0.1);color:#0d6efd"><i class="fas fa-book-open"></i></div><span class="qsr-lb">Modules</span></div><span class="qsr-v">{{ $totalModules ?? 0 }}</span></div>
+            <div class="qsr"><div class="qsr-l"><div class="qsr-ic" style="background:rgba(253,126,20,0.1);color:#fd7e14"><i class="fas fa-clock"></i></div><span class="qsr-lb">Pending</span></div><span class="qsr-v">{{ $pendingEvaluations ?? 0 }}</span></div>
+            @if($isAdmin)
+            <div class="qsr"><div class="qsr-l"><div class="qsr-ic" style="background:rgba(25,135,84,0.1);color:#198754"><i class="fas fa-user-plus"></i></div><span class="qsr-lb">Registrations</span></div><span class="qsr-v">{{ $pendingRegistrationsCount ?? 0 }}</span></div>
+            @else
+            <div class="qsr"><div class="qsr-l"><div class="qsr-ic" style="background:rgba(111,66,193,0.1);color:#6f42c1"><i class="fas fa-layer-group"></i></div><span class="qsr-lb">Sections</span></div><span class="qsr-v">{{ $ongoingBatches ?? 0 }}</span></div>
+            @endif
+            @endif
+        </div>
     </div>
 </div>
 @endsection
 
+@php
+    $calDeadlineData = collect($upcomingDeadlines ?? [])->map(function($d) {
+        return [
+            'd' => \Carbon\Carbon::parse($d['due_date'])->toDateString(),
+            't' => $d['title'],
+            's' => $d['subtitle'],
+            'c' => $d['color'],
+            'tm' => \Carbon\Carbon::parse($d['due_date'])->format('h:i A'),
+        ];
+    })->values();
+@endphp
+
 @push('scripts')
-<script src="{{ dynamic_asset('js/dashboard.js') }}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Mini Calendar
-    const calendarGrid = document.getElementById('calendarGrid');
-    const calendarMonth = document.getElementById('calendarMonth');
-    const prevMonthBtn = document.getElementById('prevMonth');
-    const nextMonthBtn = document.getElementById('nextMonth');
+(function() {
+    const deadlines = @json($calDeadlineData);
 
-    if (!calendarGrid) return;
+    const today = new Date();
+    let calOffset = 0;
+    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-    let currentDate = new Date();
+    function fmt(d) { return d.toISOString().split('T')[0]; }
+    function getDl(ds) { return deadlines.filter(x => x.d === ds); }
+    function getColors(ds) { return [...new Set(getDl(ds).map(x => x.c))]; }
 
-    function renderCalendar() {
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
-
-        calendarMonth.textContent = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        const startDay = firstDay.getDay();
-        const daysInMonth = lastDay.getDate();
-
-        const today = new Date();
-        const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
-
-        let html = '';
-        const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-        days.forEach(day => { html += '<div class="calendar-day-label">' + day + '</div>'; });
-
-        const prevMonthDays = new Date(year, month, 0).getDate();
-        for (let i = startDay - 1; i >= 0; i--) {
-            html += '<div class="calendar-day other-month">' + (prevMonthDays - i) + '</div>';
+    // Calendar strip
+    function renderStrip() {
+        const inner = document.getElementById('stripInner');
+        const center = new Date(today); center.setDate(today.getDate() + calOffset);
+        let h = '<div class="cal-page">';
+        for (let i = -3; i <= 3; i++) {
+            const d = new Date(center); d.setDate(center.getDate() + i);
+            const ds = fmt(d), isT = ds === fmt(today), cols = getColors(ds);
+            let bg = '';
+            if (cols.length === 1) bg = `background:${cols[0]}35`;
+            else if (cols.length > 1) bg = `background:linear-gradient(135deg,${cols.map(c=>c+'35').join(',')})`;
+            if (isT && !cols.length) bg = '';
+            h += `<div class="cday ${isT?'today':''}" data-date="${ds}" style="${bg}"><span class="cday-n">${d.getDate()}</span><span class="cday-l">${dayNames[d.getDay()]}</span>${cols.length?`<div class="cday-dots">${cols.slice(0,3).map(c=>`<span style="background:${c}"></span>`).join('')}</div>`:''}</div>`;
         }
-
-        for (let day = 1; day <= daysInMonth; day++) {
-            const isToday = isCurrentMonth && day === today.getDate();
-            html += '<div class="calendar-day' + (isToday ? ' today' : '') + '">' + day + '</div>';
-        }
-
-        const remaining = 42 - (startDay + daysInMonth);
-        for (let i = 1; i <= remaining; i++) {
-            html += '<div class="calendar-day other-month">' + i + '</div>';
-        }
-
-        calendarGrid.innerHTML = html;
+        h += '</div>';
+        inner.innerHTML = h;
+        document.getElementById('calMonth').textContent = `${monthNames[center.getMonth()]} ${center.getFullYear()}`;
     }
 
-    renderCalendar();
+    function renderMonthly() {
+        const mv = document.getElementById('monthView');
+        const y = today.getFullYear(), m = today.getMonth();
+        const fd = new Date(y,m,1).getDay(), dim = new Date(y,m+1,0).getDate(), pd = new Date(y,m,0).getDate();
+        let h = '<div class="cmg">';
+        ['S','M','T','W','T','F','S'].forEach(d => h += `<div class="cmh">${d}</div>`);
+        for (let i = fd-1; i >= 0; i--) h += `<div class="cmd other">${pd-i}</div>`;
+        for (let d = 1; d <= dim; d++) {
+            const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const cols = getColors(ds);
+            let bg = '';
+            if (cols.length === 1) bg = `background:${cols[0]}35`;
+            else if (cols.length > 1) bg = `background:linear-gradient(135deg,${cols.map(c=>c+'35').join(',')})`;
+            h += `<div class="cmd ${d===today.getDate()?'today':''}" data-date="${ds}" style="${bg}">${d}</div>`;
+        }
+        for (let i = 1; i <= 42-(fd+dim); i++) h += `<div class="cmd other">${i}</div>`;
+        h += '</div>';
+        mv.innerHTML = h;
+    }
 
-    if (prevMonthBtn) prevMonthBtn.addEventListener('click', function() {
-        currentDate.setMonth(currentDate.getMonth() - 1);
-        renderCalendar();
+    // Arrows
+    document.getElementById('arrL').addEventListener('click', () => { calOffset--; renderStrip(); });
+    document.getElementById('arrR').addEventListener('click', () => { calOffset++; renderStrip(); });
+
+    // View toggle
+    document.getElementById('tgWeek').addEventListener('click', () => {
+        document.getElementById('tgWeek').classList.add('active');
+        document.getElementById('tgMonth').classList.remove('active');
+        document.getElementById('stripView').style.display = '';
+        document.getElementById('monthView').classList.remove('active');
+        document.getElementById('calDet').classList.remove('active');
+    });
+    document.getElementById('tgMonth').addEventListener('click', () => {
+        document.getElementById('tgMonth').classList.add('active');
+        document.getElementById('tgWeek').classList.remove('active');
+        document.getElementById('stripView').style.display = 'none';
+        document.getElementById('monthView').classList.add('active');
+        renderMonthly();
+        document.getElementById('calDet').classList.remove('active');
     });
 
-    if (nextMonthBtn) nextMonthBtn.addEventListener('click', function() {
-        currentDate.setMonth(currentDate.getMonth() + 1);
-        renderCalendar();
+    // Date click — show detail + filter pending
+    document.addEventListener('click', (e) => {
+        const el = e.target.closest('.cday, .cmd');
+        if (!el || !el.dataset.date) return;
+        const ds = el.dataset.date;
+        const isToday = ds === fmt(today);
+
+        document.querySelectorAll('.cday.sel, .cmd.sel').forEach(x => x.classList.remove('sel'));
+        el.classList.add('sel');
+
+        const items = getDl(ds);
+        const det = document.getElementById('calDet');
+        if (items.length) {
+            const d = new Date(ds);
+            document.getElementById('calDetTitle').textContent = `${monthNames[d.getMonth()].substring(0,3)} ${d.getDate()}, ${d.getFullYear()}`;
+            document.getElementById('calDetItems').innerHTML = `<table class="cal-det-tbl">${items.map(p => `<tr><td style="width:20px"><span class="cdt-swatch" style="background:${p.c}"></span></td><td class="cdt-title">${p.t}</td><td class="cdt-time">${p.tm}</td></tr>`).join('')}</table>`;
+            det.classList.add('active');
+        } else {
+            det.classList.remove('active');
+        }
+
+        // Filter pending: if today clicked, show all; otherwise filter to selected date
+        document.querySelectorAll('.pr').forEach(r => {
+            if (isToday) {
+                r.style.display = '';
+            } else {
+                r.style.display = r.dataset.date === ds ? '' : 'none';
+            }
+        });
     });
-});
+
+    // Show more / collapse
+    document.getElementById('annMore').addEventListener('click', () => {
+        const card = document.getElementById('annCard');
+        const grid = document.getElementById('dashGrid');
+        const expanded = card.classList.toggle('expanded');
+        grid.classList.toggle('expanded', expanded);
+        document.getElementById('annMoreText').textContent = expanded ? 'Show less' : 'Show more';
+    });
+
+    // Init
+    renderStrip();
+    renderMonthly();
+})();
+
+// Announcement filter
+function filterAnn(type) {
+    document.querySelectorAll('.dc-pills .dc-pill').forEach(function(b) { b.classList.remove('active'); });
+    event.target.classList.add('active');
+    document.querySelectorAll('.ann-table tbody tr').forEach(function(row) {
+        if (type === 'all') { row.style.display = ''; return; }
+        if (type === 'pinned') { row.style.display = row.dataset.pinned === '1' ? '' : 'none'; }
+        if (type === 'urgent') { row.style.display = row.dataset.urgent === '1' ? '' : 'none'; }
+    });
+}
+
+// Chart dot tooltip
+(function() {
+    var tip = document.createElement('div');
+    tip.className = 'chart-tip';
+    tip.style.cssText = 'position:fixed;pointer-events:none;z-index:1080;background:var(--card,#fff);border:1px solid #e8e8e8;border-radius:12px;padding:0.55rem 0.75rem;box-shadow:0 8px 25px rgba(0,0,0,0.1);font-size:0.82rem;font-family:Plus Jakarta Sans,sans-serif;opacity:0;transition:opacity 0.15s;';
+    document.body.appendChild(tip);
+
+    var label = @json($isStudent ? 'Activities' : 'Submissions');
+
+    document.querySelectorAll('.chart-dot').forEach(function(dot) {
+        dot.addEventListener('mouseenter', function(e) {
+            var day = this.dataset.day;
+            var val = this.dataset.value;
+            tip.innerHTML = '<div style="font-weight:700;margin-bottom:2px;">' + day + '</div><div style="color:#666;">' + val + ' ' + label + '</div>';
+            tip.style.opacity = '1';
+            var r = this.getBoundingClientRect();
+            tip.style.left = (r.left + r.width/2 - tip.offsetWidth/2) + 'px';
+            tip.style.top = (r.top - tip.offsetHeight - 8) + 'px';
+        });
+        dot.addEventListener('mouseleave', function() {
+            tip.style.opacity = '0';
+        });
+    });
+})();
 </script>
 @endpush

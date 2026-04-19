@@ -17,6 +17,7 @@ class AnnouncementList extends Component
     public string $search = '';
     public array $selectedAnnouncements = [];
     public bool $selectAll = false;
+    public bool $readyToLoad = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -73,13 +74,18 @@ class AnnouncementList extends Component
             ->orderBy('created_at', 'desc');
     }
 
+    public function loadData(): void
+    {
+        $this->readyToLoad = true;
+    }
+
     public function render()
     {
         $user = Auth::user();
         $canCreate = in_array($user->role, ['admin', 'instructor']);
 
         return view('livewire.announcement-list', [
-            'announcements' => $this->getQuery()->paginate(10),
+            'announcements' => $this->readyToLoad ? $this->getQuery()->paginate(10) : new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10),
             'canCreate' => $canCreate,
             'canManage' => $canCreate,
         ]);

@@ -59,8 +59,12 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        if ($this->stats->isAdminOrInstructor($user)) {
+        if ($user->role === \App\Constants\Roles::ADMIN) {
             return redirect()->route('admin.dashboard');
+        }
+
+        if ($user->role === \App\Constants\Roles::INSTRUCTOR) {
+            return redirect()->route('instructor.dashboard');
         }
 
         return redirect()->route('student.dashboard');
@@ -186,6 +190,7 @@ class DashboardController extends Controller
         $data['unreadCount'] = 0;
         $data['recentSubmissions'] = $this->stats->getRecentSubmissionsForInstructor($user);
         $data['pendingEvaluations'] = $this->stats->getPendingEvaluationsCount($user);
+        $data['calendarDeadlines'] = $this->stats->getUpcomingDeadlinesForInstructor($user);
 
         // Pending registrations only for admin
         if ($user->role === \App\Constants\Roles::ADMIN) {
@@ -231,6 +236,7 @@ class DashboardController extends Controller
             'completedActivitiesList' => $this->stats->getCompletedActivitiesForStudent($user),
             'upcomingDeadlines' => $this->stats->getUpcomingDeadlinesForStudent($user),
             'upcomingDeadlinesCount' => $this->stats->getUpcomingDeadlinesCount($user),
+            'calendarDeadlines' => $this->stats->getUpcomingDeadlinesForStudent($user),
         ];
 
         return view('dashboard', $data);

@@ -24,6 +24,7 @@ class RegistrationTable extends Component
 
     public array $selectedRegistrations = [];
     public bool $selectAll = false;
+    public bool $readyToLoad = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -223,11 +224,16 @@ class RegistrationTable extends Component
         ];
     }
 
+    public function loadData(): void
+    {
+        $this->readyToLoad = true;
+    }
+
     public function render()
     {
         return view('livewire.registration-table', [
-            'registrations' => $this->getQuery()->paginate(20),
-            'counts' => $this->getCounts(),
+            'registrations' => $this->readyToLoad ? $this->getQuery()->paginate(20) : new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20),
+            'counts' => $this->readyToLoad ? $this->getCounts() : ['pending' => 0, 'email_verified' => 0, 'rejected' => 0, 'all' => 0],
         ]);
     }
 }

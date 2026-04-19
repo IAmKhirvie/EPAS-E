@@ -4,25 +4,23 @@
 
 @section('content')
 <div class="content-area sc-content-reset">
-    <nav aria-label="breadcrumb" class="mb-2">
-        <ol class="breadcrumb mb-0">
-            @if(in_array(auth()->user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR]))
-            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
-            @else
-            @php
-                $course = $selfCheck->informationSheet->module->course ?? null;
-                $module = $selfCheck->informationSheet->module ?? null;
-            @endphp
-            @if($course)
-            <li class="breadcrumb-item"><a href="{{ route('courses.show', $course) }}">{{ $course->course_code }}</a></li>
-            @endif
-            @if($module)
-            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$course, $module]) }}">{{ $module->title }}</a></li>
-            @endif
-            @endif
-            <li class="breadcrumb-item active">{{ $selfCheck->title }}</li>
-        </ol>
-    </nav>
+    @php
+        $breadcrumbItems = [];
+        if (in_array(auth()->user()->role, [\App\Constants\Roles::ADMIN, \App\Constants\Roles::INSTRUCTOR])) {
+            $breadcrumbItems[] = ['label' => 'Content', 'url' => route('content.management')];
+        } else {
+            $course = $selfCheck->informationSheet->module->course ?? null;
+            $module = $selfCheck->informationSheet->module ?? null;
+            if ($course) {
+                $breadcrumbItems[] = ['label' => $course->course_code, 'url' => route('courses.show', $course)];
+            }
+            if ($module) {
+                $breadcrumbItems[] = ['label' => $module->title, 'url' => route('courses.modules.show', [$course, $module])];
+            }
+        }
+        $breadcrumbItems[] = ['label' => $selfCheck->title];
+    @endphp
+    <x-breadcrumb :items="$breadcrumbItems" />
 
     {{-- Header --}}
     <div class="sc-header">

@@ -4,13 +4,11 @@
 
 @section('content')
 <div class="content-area">
-    <nav aria-label="breadcrumb" class="mb-2">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{{ route('content.management') }}">Content</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('courses.modules.show', [$informationSheet->module->course_id, $informationSheet->module]) }}">{{ $informationSheet->module->module_name }}</a></li>
-            <li class="breadcrumb-item active">Create Job Sheet</li>
-        </ol>
-    </nav>
+    <x-breadcrumb :items="[
+        ['label' => 'Content', 'url' => route('content.management')],
+        ['label' => $informationSheet->module->module_name, 'url' => route('courses.modules.show', [$informationSheet->module->course_id, $informationSheet->module])],
+        ['label' => 'Create Job Sheet'],
+    ]" />
 
     <form action="{{ route('job-sheets.store', $informationSheet) }}" method="POST" enctype="multipart/form-data" id="jobSheetForm" class="cb-builder-layout-form">
         @csrf
