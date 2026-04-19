@@ -29,19 +29,23 @@
 .layout-wrapper {
   display: flex;
   flex-direction: column;
-  min-height: 10vh;
+  min-height: 100vh;
   background: var(--background);
+  overflow: hidden;
 }
 
 .main-content {
   margin-left: 250px;
   padding: 1rem;
+  padding-top: calc(var(--navbar-height, 70px) + 0.5rem);
   background: var(--background);
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 /* When sidebar is collapsed */
@@ -53,17 +57,13 @@ body.sidebar-collapsed .main-content {
 .content-area {
   background: var(--card-bg);
   border-radius: 16px;
-  box-shadow: 
-    0 4px 20px rgba(0, 0, 0, 0.08),
-    0 2px 8px rgba(0, 127, 201, 0.05);
   padding: 1.5rem;
-  overflow: hidden;
-  border: 1px solid var(--border);
+  overflow: visible;
+  border: 1px solid #e8e8e8;
   display: flex;
   flex-direction: column;
-  flex: 1;
   color: var(--card-text);
-  min-height: 0; /* Crucial for flex scrolling */
+  min-height: 0;
 }
 
 /* Table container for responsive scrolling */
