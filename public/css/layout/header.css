@@ -10,7 +10,7 @@
     padding-right:  1.5rem;
     flex-shrink: 0;
     position: fixed;
-    left: var(--sidebar-width);
+    left: calc(var(--sidebar-width) + (var(--pill-margin) * 2));
     right: 0;
     z-index: var(--z-navbar);
     transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -18,7 +18,7 @@
 
 /* When sidebar is collapsed, navbar shifts left */
 body.sidebar-collapsed .top-navbar {
-    left: var(--sidebar-width-collapsed);
+    left: calc(var(--sidebar-width-collapsed) + (var(--pill-margin) * 2));
 }
 
 .navbar-left-2 {
