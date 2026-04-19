@@ -45,21 +45,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.addEventListener('click', function(e) {
         if (!sidebar) return;
+        var clickedSidebar = e.target.closest('.sidebar');
+        var clickedNavLink = e.target.closest('a.nav-item');
+        var clickedFlyout = e.target.closest('.flyout-menu');
+        var clickedProfile = e.target.closest('.sidebar-profile');
 
-        // Click on sidebar profile area = toggle
-        if (e.target.closest('.sidebar-profile')) {
-            if (sidebar.classList.contains('collapsed')) {
+        if (sidebar.classList.contains('collapsed')) {
+            // COLLAPSED: click anywhere on sidebar (except nav links) = expand
+            if (clickedSidebar && !clickedNavLink && !clickedFlyout) {
                 expandSidebar();
-            } else {
-                collapseSidebar();
+                return;
             }
-            return;
-        }
-
-        // Click outside sidebar = collapse if expanded
-        if (!sidebar.classList.contains('collapsed') && !e.target.closest('.sidebar')) {
-            if (!e.target.closest('.popover') && !e.target.closest('.dropdown') && !e.target.closest('.fab-container')) {
+        } else {
+            // EXPANDED: click profile = collapse
+            if (clickedProfile) {
                 collapseSidebar();
+                return;
+            }
+            // EXPANDED: click outside sidebar = collapse
+            if (!clickedSidebar && !e.target.closest('.popover') && !e.target.closest('.dropdown') && !e.target.closest('.fab-container')) {
+                collapseSidebar();
+                return;
             }
         }
     });
