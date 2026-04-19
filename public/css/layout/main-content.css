@@ -28,6 +28,13 @@
 
 .layout-wrapper {
   background: var(--background);
+  height: 100vh;
+  overflow: hidden;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
 }
 
 .main-content {
@@ -36,12 +43,10 @@
   padding-top: calc(var(--navbar-height, 70px) + 0.5rem);
   background: var(--background);
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
-
-/* Single scrollbar — only body scrolls */
-html { overflow-y: auto; overflow-x: hidden; }
-body { overflow-x: hidden; }
 
 /* When sidebar is collapsed */
 body.sidebar-collapsed .main-content {
