@@ -7,11 +7,11 @@
     /* Course Show Page */
     .course-hero {
         position: relative;
-        padding: 2rem;
+        padding: 1.25rem;
         border-radius: var(--border-radius);
         overflow: hidden;
-        margin-bottom: 2rem;
-        min-height: 200px;
+        margin-bottom: 1rem;
+        min-height: 140px;
         display: flex;
         align-items: flex-end;
     }
@@ -131,15 +131,15 @@
     .course-info-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+        gap: 1rem;
+        margin-bottom: 1rem;
     }
 
     .course-info-card {
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: var(--border-radius);
-        padding: 1.5rem;
+        padding: 1rem;
     }
 
     .course-info-card-header {
@@ -243,7 +243,7 @@
     }
 
     .modules-section-header {
-        padding: 1.25rem 1.5rem;
+        padding: 0.85rem 1.25rem;
         border-bottom: 1px solid var(--border);
         display: flex;
         justify-content: space-between;
@@ -251,7 +251,7 @@
     }
 
     .modules-section-header h3 {
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 700;
         color: var(--text-primary);
         margin: 0;
@@ -295,7 +295,7 @@
 
     .module-card-header {
         background: linear-gradient(135deg, var(--category-color, #64748b), var(--category-color-dark, #475569));
-        padding: 1rem 1.25rem;
+        padding: 0.75rem 1rem;
         color: white;
     }
 
@@ -313,7 +313,7 @@
     }
 
     .module-card-body {
-        padding: 1.25rem;
+        padding: 0.85rem 1rem;
     }
 
     .module-card-title {
@@ -465,7 +465,7 @@ $categoryColor = $course->category?->color ?? '#6d9773';
 $categoryColorDark = $course->category?->darker_color ?? '#0c3a2d';
 @endphp
 
-<div class="container-fluid py-4" style="--category-color: {{ $categoryColor }}; --category-color-dark: {{ $categoryColorDark }}">
+<div class="container-fluid py-2" style="--category-color: {{ $categoryColor }}; --category-color-dark: {{ $categoryColorDark }}">
     <x-back-button :route="route('courses.index')" label="Back to Courses" />
 
     {{-- Course Hero --}}
