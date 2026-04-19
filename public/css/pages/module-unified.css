@@ -1,8 +1,15 @@
-/* Module Unified Layout */
+/* Module Unified Layout — fills viewport, inner panels scroll */
 .module-unified-layout {
     display: grid;
     grid-template-columns: 1fr 320px;
     gap: 1.5rem;
+    height: calc(100vh - 180px);
+    overflow: hidden;
+}
+
+.main-content-section {
+    overflow-y: auto;
+    scrollbar-width: thin;
 }
 
 /* Right Sidebar Section */
