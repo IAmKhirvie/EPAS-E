@@ -1844,7 +1844,7 @@ body.focus-mode-active .main-content-section {
 }
 
 /* ===== DASHBOARD THEME MATCH ===== */
-.module-header-section { border-radius: 16px; border: 1px solid #e8e8e8; border-bottom: none; margin-bottom: 0.75rem; }
+.module-header-section { border-radius: 0; border: none; border-bottom: 1px solid #e8e8e8; margin-left: -1rem; margin-right: -1rem; padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
 .progress-card-section { border-radius: 16px !important; border: 1px solid #e8e8e8 !important; box-shadow: none !important; }
 .main-content-section .card { border-radius: 16px; border: 1px solid #e8e8e8; box-shadow: none; }
 .main-content-section .card-header { background: var(--surface, #fff); border-bottom: 1px solid #f0f0f0; padding: 0.75rem 1rem; }
