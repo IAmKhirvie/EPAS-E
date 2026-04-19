@@ -20,19 +20,22 @@
 
 /* Right Sidebar TOC */
 .sidebar-section .card {
-    border-radius: 12px;
+    border-radius: 16px;
+    border: 1px solid #e8e8e8;
+    box-shadow: none;
     overflow: hidden;
 }
 
 .sidebar-section .card-header {
-    padding: 14px 18px;
-    border-bottom: 2px solid #ffb902;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    background: var(--surface, #fff);
 }
 
 .sidebar-section .card-header h6 {
     font-weight: 700;
-    font-size: 0.95rem;
-    color: #0c3a2d;
+    font-size: 0.9rem;
+    color: var(--text-primary);
 }
 
 .toc-sidebar {
@@ -1839,3 +1842,20 @@ body.focus-mode-active .main-content-section {
     margin-left: 3%;
     background: none;
 }
+
+/* ===== DASHBOARD THEME MATCH ===== */
+.module-header-section { border-radius: 16px; border: 1px solid #e8e8e8; border-bottom: none; margin-bottom: 0.75rem; }
+.progress-card-section { border-radius: 16px !important; border: 1px solid #e8e8e8 !important; box-shadow: none !important; }
+.main-content-section .card { border-radius: 16px; border: 1px solid #e8e8e8; box-shadow: none; }
+.main-content-section .card-header { background: var(--surface, #fff); border-bottom: 1px solid #f0f0f0; padding: 0.75rem 1rem; }
+.main-content-section .card-header h6 { font-size: 0.88rem; font-weight: 700; }
+.module-category-accent { color: var(--primary, #0c3a2d) !important; }
+.sidebar-toc-link.active { border-left-color: var(--primary, #0c3a2d) !important; background: rgba(12,58,45,0.05) !important; }
+.sidebar-sheet-header.active, .sidebar-sheet-header:hover { border-left-color: var(--primary, #0c3a2d) !important; }
+.module-header-section .btn { border-radius: 10px; font-size: 0.8rem; }
+.dark-mode .module-header-section { border-color: var(--border); background: var(--card-bg) !important; }
+.dark-mode .progress-card-section { border-color: var(--border) !important; background: var(--card-bg) !important; }
+.dark-mode .main-content-section .card { border-color: var(--border); background: var(--card-bg); }
+.dark-mode .main-content-section .card-header { background: var(--card-bg); border-bottom-color: var(--border); }
+.dark-mode .sidebar-section .card { border-color: var(--border); background: var(--card-bg); }
+.dark-mode .sidebar-section .card-header { background: var(--card-bg); border-bottom-color: var(--border); }
