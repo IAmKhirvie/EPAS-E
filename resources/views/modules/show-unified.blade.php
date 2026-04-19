@@ -60,7 +60,7 @@ $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darke
 
 @section('content')
 {{-- Module Header --}}
-<div class="container-fluid py-3 bg-white border-bottom mb-4 module-header-section">
+<div class="container-fluid py-3 bg-white border-bottom mt-4 module-header-section">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div class="d-flex align-items-center gap-3">
             @if($module->thumbnail)
