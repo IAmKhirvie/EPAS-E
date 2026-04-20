@@ -211,8 +211,10 @@ class TrashTable extends Component
             $restored = 0;
 
             foreach ($this->selectedItems as $uniqueKey) {
-                [$type, $id] = explode('_', $uniqueKey, 2);
-                $model = $this->getModelInstance($type, (int)$id);
+                $lastUnderscore = strrpos($uniqueKey, '_');
+                $type = substr($uniqueKey, 0, $lastUnderscore);
+                $id = (int) substr($uniqueKey, $lastUnderscore + 1);
+                $model = $this->getModelInstance($type, $id);
 
                 if ($model && $this->canManageItem($model, $type)) {
                     $this->restoreParents($type, $model); // ← add this
@@ -247,8 +249,10 @@ class TrashTable extends Component
             $errors = 0;
 
             foreach ($this->selectedItems as $uniqueKey) {
-                [$type, $id] = explode('_', $uniqueKey, 2);
-                $model = $this->getModelInstance($type, (int)$id);
+                $lastUnderscore = strrpos($uniqueKey, '_');
+                $type = substr($uniqueKey, 0, $lastUnderscore);
+                $id = (int) substr($uniqueKey, $lastUnderscore + 1);
+                $model = $this->getModelInstance($type, $id);
 
                 if ($model && $this->canManageItem($model, $type)) {
                     try {

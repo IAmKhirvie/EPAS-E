@@ -121,60 +121,44 @@
     </div>
     @else
 
-    {{-- Table --}}
+    {{-- Items List --}}
     <div wire:loading.class="opacity-50">
-        <table class="table table-hover table-sm align-middle" style="table-layout:fixed;">
-            <thead>
-                <tr>
-                    <th style="width:36px;">
-                        <input type="checkbox" wire:model.live="selectAll" class="form-check-input">
-                    </th>
-                    <th>Item</th>
-                    <th class="d-none d-md-table-cell" style="width:140px;">Parent</th>
-                    <th style="width:100px;cursor:pointer;" wire:click="toggleSort">
-                        Deleted <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                    </th>
-                    <th style="width:90px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($items as $item)
-                    @php
-                        $typeColors = ['module'=>'primary','topic'=>'info','information_sheet'=>'success','homework'=>'warning','self_check'=>'danger','task_sheet'=>'secondary','job_sheet'=>'dark','checklist'=>'secondary','course'=>'dark','announcement'=>'info'];
-                        $color = $typeColors[$item['type']] ?? 'secondary';
-                    @endphp
-                    <tr>
-                        <td>
-                            <input type="checkbox" wire:model.live="selectedItems" value="{{ $item['unique_key'] }}" class="form-check-input">
-                        </td>
-                        <td>
-                            <span class="badge bg-{{ $color }} {{ $color === 'warning' ? 'text-dark' : '' }}" style="font-size:0.62rem;">{{ $item['type_label'] }}</span>
-                            <span class="fw-medium ms-1" style="font-size:0.85rem;">{{ Str::limit($item['name'], 40) }}</span>
-                        </td>
-                        <td class="d-none d-md-table-cell">
-                            <small class="text-muted">{{ $item['parent_name'] ? Str::limit($item['parent_name'], 25) : '-' }}</small>
-                        </td>
-                        <td>
-                            <small class="text-muted" title="{{ $item['deleted_at']->format('M d, Y h:i A') }}">{{ $item['deleted_at']->diffForHumans() }}</small>
-                        </td>
-                        <td>
-                            <div class="d-flex gap-1">
-                                <button wire:click="restoreItem('{{ $item['type'] }}', {{ $item['id'] }})" wire:confirm="Restore this {{ $item['type_label'] }}?" class="btn btn-outline-success btn-sm" title="Restore" style="padding:0.2rem 0.4rem;font-size:0.72rem;"><i class="fas fa-undo"></i></button>
-                                <button wire:click="forceDeleteItem('{{ $item['type'] }}', {{ $item['id'] }})" wire:confirm="PERMANENTLY delete this {{ $item['type_label'] }}? This cannot be undone!" class="btn btn-outline-danger btn-sm" title="Delete Forever" style="padding:0.2rem 0.4rem;font-size:0.72rem;"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="5" class="text-center text-muted py-5">
-                            <i class="fas fa-trash-alt fa-3x mb-3 d-block opacity-25"></i>
-                            <p class="mb-1">Trash is empty</p>
-                            <small>Deleted items will appear here for recovery.</small>
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <input type="checkbox" wire:model.live="selectAll" class="form-check-input">
+            <small class="text-muted" wire:click="toggleSort" style="cursor:pointer;">
+                Sort by deleted <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+            </small>
+        </div>
+
+        @forelse($items as $item)
+            @php
+                $typeColors = ['module'=>'#0d6efd','topic'=>'#0dcaf0','information_sheet'=>'#198754','homework'=>'#fd7e14','self_check'=>'#dc3545','task_sheet'=>'#6c757d','job_sheet'=>'#212529','checklist'=>'#6c757d','course'=>'#0c3a2d','announcement'=>'#0dcaf0'];
+                $color = $typeColors[$item['type']] ?? '#6c757d';
+            @endphp
+            <div class="d-flex align-items-center gap-3 py-2 px-3 border-bottom" style="border-color: #f0f0f0 !important;">
+                <input type="checkbox" wire:model.live="selectedItems" value="{{ $item['unique_key'] }}" class="form-check-input flex-shrink-0">
+                <div style="width:6px;height:6px;border-radius:3px;background:{{ $color }};flex-shrink:0;"></div>
+                <div class="flex-grow-1 min-w-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <span style="font-size:0.85rem;font-weight:600;">{{ Str::limit($item['name'], 45) }}</span>
+                        <span style="font-size:0.6rem;font-weight:600;color:{{ $color }};background:{{ $color }}10;padding:0.1rem 0.4rem;border-radius:4px;text-transform:uppercase;letter-spacing:0.3px;">{{ $item['type_label'] }}</span>
+                    </div>
+                    <div style="font-size:0.72rem;color:#999;">
+                        @if($item['parent_name']){{ Str::limit($item['parent_name'], 30) }} · @endif{{ $item['deleted_at']->diffForHumans() }}
+                    </div>
+                </div>
+                <div class="d-flex gap-1 flex-shrink-0">
+                    <button wire:click="restoreItem('{{ $item['type'] }}', {{ $item['id'] }})" wire:confirm="Restore this {{ $item['type_label'] }}?" class="btn btn-outline-success btn-sm" title="Restore" style="padding:0.25rem 0.45rem;font-size:0.72rem;border-radius:8px;"><i class="fas fa-undo"></i></button>
+                    <button wire:click="forceDeleteItem('{{ $item['type'] }}', {{ $item['id'] }})" wire:confirm="PERMANENTLY delete this {{ $item['type_label'] }}? This cannot be undone!" class="btn btn-outline-danger btn-sm" title="Delete Forever" style="padding:0.25rem 0.45rem;font-size:0.72rem;border-radius:8px;"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        @empty
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-trash-alt fa-3x mb-3 d-block opacity-25"></i>
+                <p class="mb-1">Trash is empty</p>
+                <small>Deleted items will appear here for recovery.</small>
+            </div>
+        @endforelse
     </div>
 
     {{-- Pagination --}}
