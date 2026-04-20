@@ -154,10 +154,9 @@
 
     @if(!$readyToLoad)
     <div class="p-3">
-        <x-skeleton type="table-row" :count="5" />
+        <x-skeleton type="table-row" :count="8" />
     </div>
-    @endif
-
+    @else
     {{-- Table --}}
     <div class="table-responsive" wire:loading.class="opacity-50">
         <table class="table table-hover table-sm align-middle">
@@ -348,6 +347,7 @@
         </small>
         {{ $users->links() }}
     </div>
+    @endif
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
