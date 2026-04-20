@@ -103,6 +103,11 @@ class Certificate extends Model
         return $query->where('status', self::STATUS_PENDING_ADMIN);
     }
 
+    public function scopeForUser($query, $userId)
+    {
+        return $query->where('user_id', $userId);
+    }
+
     public function scopeIssued($query)
     {
         return $query->where('status', self::STATUS_ISSUED);
