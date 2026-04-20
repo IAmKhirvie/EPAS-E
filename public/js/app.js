@@ -128,10 +128,23 @@ document.addEventListener('DOMContentLoaded', function() {
             if (el !== flyoutParent) el.classList.remove('open');
         });
 
-        // Toggle clicked flyout
+        // Toggle clicked flyout and position it
         if (clickedFlyoutTrigger && flyoutParent) {
             e.preventDefault();
+            var wasOpen = flyoutParent.classList.contains('open');
             flyoutParent.classList.toggle('open');
+
+            // Position the flyout menu next to the trigger using fixed positioning
+            if (!wasOpen) {
+                var flyout = flyoutParent.querySelector('.flyout-menu');
+                if (flyout) {
+                    var rect = clickedFlyoutTrigger.getBoundingClientRect();
+                    var sidebarEl = document.getElementById('sidebar');
+                    var sidebarRight = sidebarEl ? sidebarEl.getBoundingClientRect().right : rect.right;
+                    flyout.style.left = (sidebarRight + 8) + 'px';
+                    flyout.style.top = rect.top + 'px';
+                }
+            }
             return;
         }
 

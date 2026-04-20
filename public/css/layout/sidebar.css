@@ -474,8 +474,8 @@ html, body {
 }
 
 .flyout-menu {
-    position: absolute;
-    min-width: 180px;
+    position: fixed;
+    min-width: 200px;
     background: rgba(12, 59, 46, 0.95);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
@@ -490,14 +490,7 @@ html, body {
     transition: transform 0.15s ease, opacity 0.15s ease;
     padding: 0;
     margin: 0;
-    left: calc(100% + 0.5rem);
-    top: 0;
     transform: scale(0.95);
-}
-
-.sidebar.collapsed .flyout-menu {
-    left: calc(100% + 0.5rem);
-    top: 0;
 }
 
 .flyout-menu::before {
