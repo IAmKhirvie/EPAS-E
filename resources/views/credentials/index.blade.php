@@ -113,51 +113,80 @@
             @endif
         </div>
 
-        {{-- Achievements Tab --}}
+        {{-- Achievements Tab — 9 categories, one card each showing current tier + next goal --}}
         <div class="tab-pane fade" id="achievements" role="tabpanel">
             @if(isset($achievements) && $achievements->isNotEmpty())
+            @php
+                $grouped = \App\Constants\Achievements::grouped();
+                $tierColors = ['bronze' => '#cd7f32', 'silver' => '#c0c0c0', 'gold' => '#ffd700'];
+                $tierBg = ['bronze' => 'rgba(205,127,50,0.1)', 'silver' => 'rgba(192,192,192,0.1)', 'gold' => 'rgba(255,215,0,0.1)'];
+                $tierOrder = ['bronze', 'silver', 'gold'];
+                $earnedMap = $achievements->keyBy('key');
+            @endphp
+
             <div class="row">
-                @foreach($achievements as $achievement)
+            @foreach($grouped as $groupKey => $tiers)
                 @php
-                    $tier = $achievement['tier'] ?? 'bronze';
-                    $tierColors = ['bronze' => '#cd7f32', 'silver' => '#c0c0c0', 'gold' => '#ffd700'];
-                    $tierColor = $tierColors[$tier] ?? '#cd7f32';
-                    $tierBg = ['bronze' => 'rgba(205,127,50,0.1)', 'silver' => 'rgba(192,192,192,0.12)', 'gold' => 'rgba(255,215,0,0.1)'];
+                    $tiersArr = collect($tiers);
+                    // Find highest earned tier
+                    $highestEarned = null;
+                    $nextTier = null;
+                    foreach ($tiersArr as $key => $def) {
+                        $a = $earnedMap->get($key);
+                        if ($a && $a['earned']) {
+                            $highestEarned = ['key' => $key, 'def' => $def, 'earned_at' => $a['earned_at']];
+                        } else {
+                            if (!$nextTier) $nextTier = ['key' => $key, 'def' => $def];
+                        }
+                    }
+                    // Display tier: show highest earned, or first (locked) if none earned
+                    $display = $highestEarned ?? ['key' => $tiersArr->keys()->first(), 'def' => $tiersArr->first(), 'earned_at' => null];
+                    $tier = $display['def']['tier'] ?? 'bronze';
+                    $color = $tierColors[$tier];
+                    $bg = $tierBg[$tier];
+                    $isEarned = $highestEarned !== null;
                 @endphp
                 <div class="col-md-6 col-lg-4 mb-3">
-                    <div class="card h-100 {{ $achievement['earned'] ? '' : 'opacity-50' }}" style="border-left:3px solid {{ $tierColor }};border-radius:16px;border-color:{{ $achievement['earned'] ? $tierColor : '#e8e8e8' }};">
-                        <div class="card-body d-flex align-items-center gap-3 py-3">
-                            <div style="width:48px;height:48px;border-radius:12px;background:{{ $tierBg[$tier] }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                <i class="{{ $achievement['icon'] }}" style="font-size:1.2rem;color:{{ $achievement['earned'] ? $tierColor : '#ccc' }};"></i>
+                    <div class="card h-100 {{ !$isEarned ? 'opacity-50' : '' }}" style="border-radius:16px;border:1px solid {{ $isEarned ? $color : '#e8e8e8' }};border-left:4px solid {{ $color }};">
+                        <div class="card-body d-flex align-items-start gap-3 py-3">
+                            <div style="width:44px;height:44px;border-radius:12px;background:{{ $bg }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="{{ $display['def']['icon'] }}" style="font-size:1.1rem;color:{{ $isEarned ? $color : '#ccc' }};"></i>
                             </div>
                             <div class="flex-grow-1">
                                 <div class="d-flex align-items-center gap-2 mb-1">
-                                    <strong style="font-size:0.88rem;">{{ $achievement['name'] }}</strong>
-                                    <span style="font-size:0.55rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:{{ $tierColor }};background:{{ $tierBg[$tier] }};padding:0.1rem 0.4rem;border-radius:4px;">{{ $tier }}</span>
+                                    <strong style="font-size:0.88rem;">{{ $display['def']['name'] }}</strong>
+                                    <span style="font-size:0.52rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:{{ $color }};background:{{ $bg }};padding:0.1rem 0.35rem;border-radius:3px;">{{ $tier }}</span>
                                 </div>
-                                <p class="text-muted mb-1" style="font-size:0.75rem;">{{ $achievement['description'] }}</p>
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="badge {{ $achievement['earned'] ? 'bg-success' : 'bg-secondary' }}" style="font-size:0.65rem;">+{{ $achievement['points'] }} pts</span>
-                                    @if($achievement['earned'])
-                                    <small class="text-success" style="font-size:0.65rem;"><i class="fas fa-check-circle me-1"></i>{{ \Carbon\Carbon::parse($achievement['earned_at'])->format('M d, Y') }}</small>
-                                    @else
-                                    <small class="text-muted" style="font-size:0.65rem;"><i class="fas fa-lock me-1"></i>Locked</small>
-        {{-- End of achievements tab handled above --}}
-        </div>
-                                </small>
+                                <p class="mb-1" style="font-size:0.75rem;color:#888;">{{ $display['def']['description'] }}</p>
+                                @if($isEarned)
+                                <div style="font-size:0.65rem;color:#198754;"><i class="fas fa-check-circle me-1"></i>Earned +{{ $display['def']['points'] }}pts · {{ \Carbon\Carbon::parse($display['earned_at'])->format('M d, Y') }}</div>
+                                @else
+                                <div style="font-size:0.65rem;color:#ccc;"><i class="fas fa-lock me-1"></i>+{{ $display['def']['points'] }}pts</div>
+                                @endif
+
+                                {{-- Next tier goal --}}
+                                @if($nextTier)
+                                <div class="mt-2 pt-2" style="border-top:1px solid #f0f0f0;">
+                                    @php $nt = $nextTier['def']; $ntColor = $tierColors[$nt['tier']]; @endphp
+                                    <div style="font-size:0.65rem;color:#aaa;">
+                                        <i class="fas fa-arrow-up me-1" style="color:{{ $ntColor }};"></i>
+                                        <strong style="color:{{ $ntColor }};">{{ ucfirst($nt['tier']) }}</strong>: {{ $nt['description'] }} (+{{ $nt['points'] }}pts)
+                                    </div>
+                                </div>
+                                @elseif($isEarned && $tier === 'gold')
+                                <div class="mt-2 pt-2" style="border-top:1px solid #f0f0f0;">
+                                    <div style="font-size:0.65rem;color:#ffd700;"><i class="fas fa-trophy me-1"></i>Max tier reached!</div>
+                                </div>
                                 @endif
                             </div>
                         </div>
                     </div>
                 </div>
-                @endforeach
+            @endforeach
             </div>
+
             @else
-            <x-empty-state
-                icon="fas fa-medal"
-                title="No Achievements Available"
-                description="Achievements will appear here as you progress through your courses."
-            />
+            <x-empty-state icon="fas fa-medal" title="No Achievements" description="Achievements will appear as you progress." />
             @endif
         </div>
 
