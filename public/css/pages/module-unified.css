@@ -1859,3 +1859,19 @@ body.focus-mode-active .main-content-section {
 .dark-mode .main-content-section .card-header { background: var(--card-bg); border-bottom-color: var(--border); }
 .dark-mode .sidebar-section .card { border-color: var(--border); background: var(--card-bg); }
 .dark-mode .sidebar-section .card-header { background: var(--card-bg); border-bottom-color: var(--border); }
+
+/* Sequential sheet locking */
+.sheet-locked .sidebar-toc-link.locked {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+.sheet-locked .sidebar-topics-dropdown {
+    display: none !important;
+}
+.sheet-locked .sidebar-dropdown-toggle {
+    display: none;
+}
+.sheet-completed .sidebar-toc-icon.text-success {
+    color: #198754 !important;
+}

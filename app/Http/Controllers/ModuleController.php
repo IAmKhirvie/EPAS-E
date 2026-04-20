@@ -170,11 +170,22 @@ class ModuleController extends Controller
 
         // Get progress for logged-in users
         $progress = null;
+        $sheetCompletion = [];
         if ($user) {
             $progress = $this->moduleService->getProgress($module, $user->id);
+
+            // Get completion status for each information sheet (for sequential locking)
+            foreach ($module->informationSheets as $sheet) {
+                $sheetCompletion[$sheet->id] = \App\Models\UserProgress::where('user_id', $user->id)
+                    ->where('module_id', $module->id)
+                    ->where('progressable_type', \App\Models\InformationSheet::class)
+                    ->where('progressable_id', $sheet->id)
+                    ->where('status', 'completed')
+                    ->exists();
+            }
         }
 
-        return view('modules.show-unified', compact('module', 'course', 'progress'));
+        return view('modules.show-unified', compact('module', 'course', 'progress', 'sheetCompletion'));
     }
 
     public function showInformationSheet(Course $course, Module $module, InformationSheet $informationSheet)
