@@ -284,9 +284,20 @@ class TrashTable extends Component
                 'course' => $this->forceDeleteCourse($model),
                 'module' => $this->forceDeleteModule($model),
                 'information_sheet' => $this->forceDeleteSheet($model),
+                'self_check' => $this->forceDeleteSelfCheck($model),
+                'homework' => (function() use ($model) { $model->submissions()->delete(); $model->forceDelete(); })(),
+                'task_sheet' => (function() use ($model) { $model->submissions()->delete(); $model->forceDelete(); })(),
+                'job_sheet' => (function() use ($model) { $model->submissions()->delete(); $model->forceDelete(); })(),
                 default => $model->forceDelete(),
             };
         });
+    }
+
+    private function forceDeleteSelfCheck($selfCheck): void
+    {
+        $selfCheck->submissions()->delete();
+        $selfCheck->questions()->forceDelete();
+        $selfCheck->forceDelete();
     }
 
     private function forceDeleteCourse(Course $course): void
