@@ -29,9 +29,9 @@
 
     @if(!$readyToLoad)
     <div class="p-3">
-        <x-skeleton type="table-row" :count="5" />
+        <x-skeleton type="table-row" :count="8" />
     </div>
-    @endif
+    @else
 
     {{-- Table --}}
     <div class="table-responsive" wire:loading.class="opacity-50">
@@ -144,4 +144,5 @@
         </small>
         {{ $logs->links() }}
     </div>
+    @endif
 </div>

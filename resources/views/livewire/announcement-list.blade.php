@@ -47,9 +47,9 @@
 
     @if(!$readyToLoad)
     <div class="p-3">
-        <x-skeleton type="table-row" :count="5" />
+        <x-skeleton type="table-row" :count="8" />
     </div>
-    @endif
+    @else
 
     {{-- Select All --}}
     <div class="d-flex align-items-center gap-2 mb-2">
@@ -115,5 +115,6 @@
             </small>
             {{ $announcements->links() }}
         </div>
+    @endif
     @endif
 </div>

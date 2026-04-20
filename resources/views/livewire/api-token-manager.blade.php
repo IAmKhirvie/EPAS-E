@@ -60,9 +60,9 @@
 
     @if(!$readyToLoad)
     <div class="p-3">
-        <x-skeleton type="table-row" :count="5" />
+        <x-skeleton type="table-row" :count="8" />
     </div>
-    @endif
+    @else
 
     {{-- Existing Tokens --}}
     <div class="card">
@@ -114,4 +114,5 @@
             @endif
         </div>
     </div>
+    @endif
 </div>

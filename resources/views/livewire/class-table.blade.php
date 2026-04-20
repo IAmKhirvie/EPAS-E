@@ -82,9 +82,9 @@
 
     @if(!$readyToLoad)
     <div class="p-3">
-        <x-skeleton type="table-row" :count="5" />
+        <x-skeleton type="table-row" :count="8" />
     </div>
-    @endif
+    @else
 
     <div wire:loading.class="opacity-50">
         @if($sectionFilter && $students)
@@ -220,6 +220,7 @@
             </div>
         @endif
     </div>
+    @endif
 
     {{-- Add Student Modal --}}
     @if($showAddStudentModal)
