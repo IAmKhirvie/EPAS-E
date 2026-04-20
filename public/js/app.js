@@ -141,8 +141,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     var rect = clickedFlyoutTrigger.getBoundingClientRect();
                     var sidebarEl = document.getElementById('sidebar');
                     var sidebarRight = sidebarEl ? sidebarEl.getBoundingClientRect().right : rect.right;
-                    flyout.style.left = (sidebarRight + 8) + 'px';
-                    flyout.style.top = rect.top + 'px';
+                    flyout.style.left = (sidebarRight + 16) + 'px';
+                    flyout.style.top = Math.max(rect.top, 10) + 'px';
+                    // Prevent flyout from going off screen bottom
+                    var flyoutRect = flyout.getBoundingClientRect();
+                    if (flyoutRect.bottom > window.innerHeight - 10) {
+                        flyout.style.top = (window.innerHeight - flyoutRect.height - 10) + 'px';
+                    }
                 }
             }
             return;
