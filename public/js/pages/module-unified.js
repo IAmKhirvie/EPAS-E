@@ -29,19 +29,24 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Sheet headers - show "Start Reading" view
+    // Sheet headers - show "Start Reading" view (skip if locked)
     document.querySelectorAll('.sidebar-sheet-header').forEach(function (header) {
         header.addEventListener('click', function (e) {
             e.preventDefault();
+            // Block locked sheets
+            if (this.classList.contains('locked') || this.closest('.sheet-locked')) {
+                return;
+            }
             const sheetId = this.dataset.sheetId;
             const sheetIndex = parseInt(this.dataset.sheetIndex) || 0;
             showSheetStartReading(sheetId, sheetIndex, this);
         });
     });
 
-    // Topic items - enter focus mode at specific topic
+    // Topic items - enter focus mode at specific topic (skip if in locked sheet)
     document.querySelectorAll('.sidebar-topic-item:not(a)').forEach(function (item) {
         item.addEventListener('click', function () {
+            if (this.closest('.sheet-locked')) return;
             const topicId = this.dataset.topicId;
             const sheetId = this.dataset.sheetId;
 
