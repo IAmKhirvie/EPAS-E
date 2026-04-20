@@ -42,8 +42,18 @@ class CredentialsController extends Controller
         $sections = $gamificationService->getAvailableSections();
         $courses = Course::where('is_active', true)->orderBy('course_name')->get(['id', 'course_name']);
 
-        // Achievement showcase
-        $achievements = app(AchievementService::class)->getUserAchievements($user);
+        // Achievement showcase — also retroactively check achievements
+        $achievementService = app(AchievementService::class);
+        $achievementService->checkAndAward($user, 'first_login');
+        $achievementService->checkAndAward($user, 'streak');
+        $achievementService->checkAndAward($user, 'assessment_pass');
+        $achievementService->checkAndAward($user, 'topic_view');
+        $achievementService->checkAndAward($user, 'perfect_score');
+        $achievementService->checkAndAward($user, 'module_complete');
+        $achievementService->checkAndAward($user, 'course_complete');
+        $achievementService->checkAndAward($user, 'leaderboard');
+        $achievementService->checkAndAward($user, 'points');
+        $achievements = $achievementService->getUserAchievements($user);
 
         return view('credentials.index', compact(
             'certificates',

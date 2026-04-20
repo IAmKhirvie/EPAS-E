@@ -118,25 +118,32 @@
             @if(isset($achievements) && $achievements->isNotEmpty())
             <div class="row">
                 @foreach($achievements as $achievement)
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100 border-0 shadow-sm {{ $achievement['earned'] ? '' : 'opacity-50' }}">
-                        <div class="card-body text-center">
-                            <div class="mb-3">
-                                <i class="{{ $achievement['icon'] }} fa-3x {{ $achievement['earned'] ? 'text-warning' : 'text-muted' }}"></i>
+                @php
+                    $tier = $achievement['tier'] ?? 'bronze';
+                    $tierColors = ['bronze' => '#cd7f32', 'silver' => '#c0c0c0', 'gold' => '#ffd700'];
+                    $tierColor = $tierColors[$tier] ?? '#cd7f32';
+                    $tierBg = ['bronze' => 'rgba(205,127,50,0.1)', 'silver' => 'rgba(192,192,192,0.12)', 'gold' => 'rgba(255,215,0,0.1)'];
+                @endphp
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100 {{ $achievement['earned'] ? '' : 'opacity-50' }}" style="border-left:3px solid {{ $tierColor }};border-radius:16px;border-color:{{ $achievement['earned'] ? $tierColor : '#e8e8e8' }};">
+                        <div class="card-body d-flex align-items-center gap-3 py-3">
+                            <div style="width:48px;height:48px;border-radius:12px;background:{{ $tierBg[$tier] }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="{{ $achievement['icon'] }}" style="font-size:1.2rem;color:{{ $achievement['earned'] ? $tierColor : '#ccc' }};"></i>
                             </div>
-                            <h6 class="fw-bold">{{ $achievement['name'] }}</h6>
-                            <p class="text-muted small mb-2">{{ $achievement['description'] }}</p>
-                            <div class="d-flex justify-content-center align-items-center gap-2">
-                                <span class="badge {{ $achievement['earned'] ? 'bg-success' : 'bg-secondary' }}">
-                                    +{{ $achievement['points'] }} pts
-                                </span>
-                                @if($achievement['earned'])
-                                <small class="text-success">
-                                    <i class="fas fa-check-circle me-1"></i>Earned {{ \Carbon\Carbon::parse($achievement['earned_at'])->format('M d, Y') }}
-                                </small>
-                                @else
-                                <small class="text-muted">
-                                    <i class="fas fa-lock me-1"></i>Locked
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <strong style="font-size:0.88rem;">{{ $achievement['name'] }}</strong>
+                                    <span style="font-size:0.55rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:{{ $tierColor }};background:{{ $tierBg[$tier] }};padding:0.1rem 0.4rem;border-radius:4px;">{{ $tier }}</span>
+                                </div>
+                                <p class="text-muted mb-1" style="font-size:0.75rem;">{{ $achievement['description'] }}</p>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge {{ $achievement['earned'] ? 'bg-success' : 'bg-secondary' }}" style="font-size:0.65rem;">+{{ $achievement['points'] }} pts</span>
+                                    @if($achievement['earned'])
+                                    <small class="text-success" style="font-size:0.65rem;"><i class="fas fa-check-circle me-1"></i>{{ \Carbon\Carbon::parse($achievement['earned_at'])->format('M d, Y') }}</small>
+                                    @else
+                                    <small class="text-muted" style="font-size:0.65rem;"><i class="fas fa-lock me-1"></i>Locked</small>
+        {{-- End of achievements tab handled above --}}
+        </div>
                                 </small>
                                 @endif
                             </div>
