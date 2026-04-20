@@ -73,18 +73,18 @@
         </div>
     @endif
 
-    {{-- Loading --}}
+    @if(!$readyToLoad)
+    {{-- Skeleton loader --}}
+    <div class="p-3">
+        <x-skeleton type="table-row" :count="8" />
+    </div>
+    @else
+    {{-- Loading spinner for subsequent loads --}}
     <div wire:loading class="text-center py-2">
         <div class="spinner-border spinner-border-sm text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
-
-    @if(!$readyToLoad)
-    <div class="p-3">
-        <x-skeleton type="table-row" :count="8" />
-    </div>
-    @else
 
     <div wire:loading.class="opacity-50">
         @if($sectionFilter && $students)
