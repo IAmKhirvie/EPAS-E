@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid py-5">
+<div class="container-fluid py-3">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
@@ -34,7 +34,7 @@
 
                             <div class="announcement-meta text-muted">
                                 <small>
-                                    Posted by {{ $announcement->user->full_name ?? $announcement->user->name }}
+                                    Posted by {{ $announcement->user ? $announcement->user->full_name : 'EPAS-E System' }}
                                     on {{ $announcement->created_at->format('F j, Y \a\t g:i A') }}
                                     @if($announcement->publish_at && $announcement->publish_at->isFuture())
                                     • Scheduled for {{ $announcement->publish_at->format('F j, Y \a\t g:i A') }}
@@ -76,7 +76,7 @@
                             <div class="comment-item mb-3 p-3 border rounded">
                                 <div class="comment-header d-flex justify-content-between align-items-center mb-2">
                                     <div class="comment-author">
-                                        <strong>{{ $comment->user->full_name ?? $comment->user->name }}</strong>
+                                        <strong>{{ $comment->user ? $comment->user->full_name : 'Unknown' }}</strong>
                                     </div>
                                     <div class="comment-time text-muted">
                                         <small>{{ $comment->created_at->diffForHumans() }}</small>

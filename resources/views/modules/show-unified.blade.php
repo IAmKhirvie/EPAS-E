@@ -341,10 +341,20 @@ $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darke
 
                     {{-- Information Sheets --}}
                     @foreach($module->informationSheets as $sheetIndex => $sheet)
-                    <div class="sidebar-toc-item sidebar-sheet-item">
-                        {{-- Sheet Header - Shows "Start Reading" view --}}
-                        <div class="sidebar-toc-link sidebar-sheet-header" data-sheet-id="{{ $sheet->id }}" data-sheet-index="{{ $sheetIndex }}">
-                            <i class="fas fa-book-open sidebar-toc-icon"></i>
+                    @php
+                        // Sequential locking: first sheet always unlocked, others require previous sheet completed
+                        $isStudent = auth()->user() && auth()->user()->role === \App\Constants\Roles::STUDENT;
+                        $isLocked = false;
+                        if ($isStudent && $sheetIndex > 0) {
+                            $prevSheet = $module->informationSheets[$sheetIndex - 1];
+                            $isLocked = !($sheetCompletion[$prevSheet->id] ?? false);
+                        }
+                        $isCompleted = $sheetCompletion[$sheet->id] ?? false;
+                    @endphp
+                    <div class="sidebar-toc-item sidebar-sheet-item {{ $isLocked ? 'sheet-locked' : '' }} {{ $isCompleted ? 'sheet-completed' : '' }}">
+                        {{-- Sheet Header --}}
+                        <div class="sidebar-toc-link sidebar-sheet-header {{ $isLocked ? 'locked' : '' }}" data-sheet-id="{{ $sheet->id }}" data-sheet-index="{{ $sheetIndex }}" @if($isLocked) title="Complete the previous information sheet first" @endif>
+                            <i class="fas {{ $isLocked ? 'fa-lock' : ($isCompleted ? 'fa-check-circle' : 'fa-book-open') }} sidebar-toc-icon {{ $isCompleted ? 'text-success' : '' }}"></i>
                             <div class="sidebar-sheet-title">
                                 <div class="sidebar-sheet-main">{{ $sheet->sheet_number }}. {{ $sheet->title }}</div>
                                 <div class="sidebar-sheet-sub">

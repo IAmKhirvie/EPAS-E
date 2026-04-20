@@ -258,14 +258,7 @@ class TopNavbar {
     }
 
     handleLogout() {
-        if (confirm('Are you sure you want to logout?')) {
-            // Show page loader before logout
-            var loader = document.getElementById('page-loader');
-            if (loader) {
-                loader.classList.remove('hidden');
-            }
-            document.getElementById('logout-form').submit();
-        }
+        document.getElementById('logout-form').submit();
     }
 }
 
