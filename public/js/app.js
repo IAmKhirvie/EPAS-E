@@ -48,11 +48,15 @@ document.addEventListener('DOMContentLoaded', function() {
         var clickedSidebar = e.target.closest('.sidebar');
         var clickedNavLink = e.target.closest('a.nav-item');
         var clickedFlyout = e.target.closest('.flyout-menu');
+        var clickedFlyoutTrigger = e.target.closest('.nav-item.has-flyout');
         var clickedProfile = e.target.closest('.sidebar-profile');
+
+        // Never collapse/expand when interacting with flyout
+        if (clickedFlyout || clickedFlyoutTrigger) return;
 
         if (sidebar.classList.contains('collapsed')) {
             // COLLAPSED: click anywhere on sidebar (except nav links) = expand
-            if (clickedSidebar && !clickedNavLink && !clickedFlyout) {
+            if (clickedSidebar && !clickedNavLink) {
                 expandSidebar();
                 return;
             }
@@ -62,8 +66,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 collapseSidebar();
                 return;
             }
-            // EXPANDED: click outside sidebar = collapse
-            if (!clickedSidebar && !e.target.closest('.popover') && !e.target.closest('.dropdown') && !e.target.closest('.fab-container')) {
+            // EXPANDED: click outside sidebar = collapse (but not flyout menus)
+            if (!clickedSidebar && !e.target.closest('.popover') && !e.target.closest('.dropdown') && !e.target.closest('.fab-container') && !e.target.closest('.flyout-menu')) {
                 collapseSidebar();
                 return;
             }
