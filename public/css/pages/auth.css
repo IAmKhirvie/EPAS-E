@@ -78,7 +78,7 @@ body {
   top: 0;
   width: clamp(400px, 40vw, 500px);
   height: 100%;
-  background: var(--light);
+  background: var(--primary);
   padding: 30px 40px;
   padding-top: 85px;
   box-shadow: -4px 0 8px rgba(0, 0, 0, 0.1);
@@ -90,7 +90,7 @@ body {
 }
 
 .form-title {
-  color: var(--primary-dark);
+  color: var(--light);
   font-size: 1.5rem;
   font-weight: 700;
   text-align: center;
@@ -102,7 +102,7 @@ body {
   position: relative;
   margin: 14px 0;
   width: 100%;
-  border-bottom: 2px solid var(--primary-dark);
+  border-bottom: 2px solid var(--accent);
 }
 
 .input label {
@@ -110,11 +110,11 @@ body {
   top: 50%;
   left: 10px;
   transform: translateY(-50%);
-  color: var(--dark);
+  color: var(--light);
   font-size: 0.9em;
   pointer-events: none;
   transition: 0.22s ease all;
-  background: var(--light);
+  background: var(--primary);
 }
 
 .input input {
@@ -124,7 +124,7 @@ body {
   outline: none;
   font-size: 0.95em;
   padding: 10px 44px 3px 10px;
-  color: var(--primary-dark);
+  color: var(--light);
 }
 
 .input input:focus + label,
@@ -148,7 +148,7 @@ body {
   margin: 0;
   z-index: 3;
   cursor: pointer;
-  color: var(--primary-dark);
+  color: var(--accent);
   font-size: 1.1rem;
 }
 
@@ -190,7 +190,7 @@ body {
   align-items: center;
   gap: 0.5rem;
   margin: 1rem 0;
-  color: var(--dark);
+  color: var(--light);
   font-weight: 600;
   font-size: 0.9rem;
 }
@@ -243,7 +243,7 @@ body {
   gap: 0.5rem;
   cursor: pointer;
   font-size: 0.9rem;
-  color: var(--primary);
+  color: var(--light);
 }
 
 .remember-row input[type="checkbox"] {

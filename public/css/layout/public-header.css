@@ -13,7 +13,7 @@
 
 .pub-nav-links a {
     text-decoration: none;
-    color: #666;
+    color: var(--light);
     font-size: 0.88rem;
     font-weight: 500;
     transition: color 0.2s;
@@ -24,7 +24,7 @@
 }
 
 .dark-mode .pub-nav-links a {
-    color: #aaa;
+    color: var(--light);
 }
 
 .dark-mode .pub-nav-links a:hover {
@@ -54,8 +54,9 @@
 
 .pub-btn-outline {
     background: transparent;
-    border: 1.5px solid #e0e0e0;
-    color: #333;
+    border: 1.5px solid;
+    border-color: var(--light);
+    color: var(--light);
 }
 
 .pub-btn-outline:hover {
@@ -74,8 +75,8 @@
 }
 
 .dark-mode .pub-btn-outline {
-    border-color: #444;
-    color: #ddd;
+    border-color: var(--light);
+    color: var(--light);
 }
 
 .dark-mode .pub-btn-outline:hover {

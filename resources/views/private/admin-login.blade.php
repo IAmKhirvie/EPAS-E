@@ -83,7 +83,7 @@
     }
 
     .login-subtitle {
-      color: #6c757d;
+      color: var(--light-gray);
       font-size: 0.95rem;
       margin-top: 0.5rem;
     }

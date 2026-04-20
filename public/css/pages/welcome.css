@@ -4,7 +4,6 @@ body {
     font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
     background: var(--background, #fafafa);
     color: var(--text-primary, #1a1a2e);
-    overflow-x: hidden;
 }
 
 /* ===== HERO ===== */

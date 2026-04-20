@@ -24,7 +24,7 @@
     --dark: #212529;
     --gray: #6c757d;
     
-    --light-gray: #d4d4d4;
+    --light-gray: #a1a1aa;
     --card: white;
     --border-radius: 8px;
     --transition: all 0.3s ease;
@@ -75,6 +75,7 @@
     --primary-dark: #0c3a2d;
     --primary-foreground: #6D977340;
     --light: #f8f9fa;
+
     /* Bootstrap overrides for dark mode */
     --bs-primary: #6D9773;
     --bs-primary-rgb: 109, 151, 115;
@@ -90,10 +91,8 @@
     --sidebar-bg: #0c3a2d;
     --sidebar-foreground: #f8f9fa;
     --sidebar-border: #1a5c47;
-    --light-gray: #3a3a4a;
+    --light-gray: #a1a1aa;
     --text-primary: #f8f9fa;
-    --light: #2a2a3a;
-    --dark: #1a1a1a;
     --gray: #a1a1aa;
     --card-bg: #242424;
     --card-text: #f8f9fa;
@@ -114,6 +113,58 @@
     --cb-shadow-hover: 0 4px 16px rgba(0,0,0,0.3);
     --cb-shadow-footer: 0 -2px 10px rgba(0,0,0,0.15);
 }
+
+/* ===== CUSTOM SCROLLBAR DESIGN ===== */
+/* For WebKit browsers (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background, #f5f5f500);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #6d9773, #0c3a2d);
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #ffb902, #0c3a2d);
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #6d9773;
+    scrollbar-base-color: transparent;
+}
+
+/* Dark mode scrollbar */
+.dark-mode ::-webkit-scrollbar-track {
+    background: var(--card-bg, #1a1a2e);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #6d9773, #0c3a2d);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #ffb902, #6d9773);
+}
+
+.dark-mode * {
+    scrollbar-color: #6d9773 var(--card-bg, #1a1a2e);
+}
+
+/* Optional: rounded corners for the scrollbar corner (when both scrollbars appear) */
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
 
 /* Reset and base layout fixes */
 * {

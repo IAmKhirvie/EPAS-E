@@ -7,11 +7,6 @@
     overflow: hidden;
 }
 
-.main-content-section {
-    overflow-y: auto;
-    scrollbar-width: thin;
-}
-
 /* Right Sidebar Section */
 .sidebar-section {
     position: sticky;
