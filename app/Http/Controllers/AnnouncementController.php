@@ -77,8 +77,8 @@ class AnnouncementController extends Controller
                 'is_urgent' => $request->is_urgent ?? false,
                 'publish_at' => $request->publish_at,
                 'deadline' => $request->deadline,
-                'target_roles' => $request->target_roles,
-                'target_sections' => $request->target_sections,
+                'target_roles' => $request->target_roles ?? 'all',
+                'target_sections' => $request->target_sections ?? '',
             ]);
 
             return redirect()->route('private.announcements.show', $announcement)
