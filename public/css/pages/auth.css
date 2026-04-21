@@ -443,6 +443,10 @@ body {
     overflow-x: hidden;
   }
 
+  .login-container .register {
+    margin-bottom: 2rem;
+  }
+
   .login-container .row {
     margin-left: 0;
     margin-right: 0;
