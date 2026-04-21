@@ -326,18 +326,17 @@
     }
 
     @media (max-width: 1032px) {
-        .courses-toolbar {
-            flex-wrap: wrap;
-        }
-
-        .courses-toolbar .courses-search {
-            flex: 1;
-            min-width: 0;
-        }
-
         .courses-toolbar .category-tabs {
             order: 3;
-            width: 100%;
+            flex: 1 1 100%;
+        }
+
+        .courses-header {
+            margin-bottom: 1rem;
+        }
+
+        .courses-header h1 {
+            font-size: 1.4rem;
         }
     }
 
