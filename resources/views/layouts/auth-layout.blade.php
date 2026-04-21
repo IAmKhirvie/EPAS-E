@@ -77,7 +77,7 @@
     .auth-page-body {
         min-height: 100vh;
         position: relative;
-        overflow: hidden;
+        overflow-x: hidden;
     }
   </style>
 </head>

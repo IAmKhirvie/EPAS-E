@@ -75,12 +75,12 @@
 
     .bottom-nav .nav-link:hover,
     .bottom-nav .nav-link:focus {
-        color: var(--bs-primary);
-        background: rgba(79, 70, 229, 0.05);
+        color: var(--primary, #0c3a2d);
+        background: rgba(12, 58, 45, 0.05);
     }
 
     .bottom-nav .nav-link.active {
-        color: var(--bs-primary);
+        color: var(--primary, #0c3a2d);
     }
 
     .bottom-nav .nav-link.active::after {
@@ -91,7 +91,7 @@
         transform: translateX(-50%);
         width: 20px;
         height: 3px;
-        background: var(--bs-primary);
+        background: var(--primary, #0c3a2d);
         border-radius: 0 0 3px 3px;
     }
 
@@ -127,9 +127,9 @@
         width: 56px;
         height: 56px;
         border-radius: 50%;
-        background: var(--bs-primary, #4f46e5);
+        background: var(--primary, #0c3a2d);
         color: #ffffff;
-        box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+        box-shadow: 0 4px 14px rgba(12, 58, 45, 0.4);
         margin-top: -38px;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
@@ -143,7 +143,7 @@
     .bottom-nav .nav-link-center:hover .center-btn,
     .bottom-nav .nav-link-center:focus .center-btn {
         transform: scale(1.08);
-        box-shadow: 0 6px 18px rgba(79, 70, 229, 0.5);
+        box-shadow: 0 6px 18px rgba(12, 58, 45, 0.5);
     }
 
     .bottom-nav .nav-link-center:active .center-btn {
@@ -160,7 +160,7 @@
     }
 
     .bottom-nav .nav-link-center.active .center-btn {
-        box-shadow: 0 4px 18px rgba(79, 70, 229, 0.55);
+        box-shadow: 0 4px 18px rgba(12, 58, 45, 0.55);
     }
 
     /* Override hover background for center button */
@@ -201,7 +201,7 @@
     }
 
     .dark-mode .bottom-nav .nav-link-center .center-btn {
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.5);
+        box-shadow: 0 4px 12px rgba(12, 58, 45, 0.5);
     }
 
     /* Hide bottom nav when keyboard is open on mobile */
