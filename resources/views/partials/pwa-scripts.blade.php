@@ -2,7 +2,7 @@
   <script>
     // Force clear stale SW caches on version mismatch
     (function() {
-        var SW_VERSION = '2026-04-21-v9';
+        var SW_VERSION = '2026-04-21-v10';
         var lastSW = localStorage.getItem('sw_version');
         if (lastSW !== SW_VERSION && 'caches' in window) {
             caches.keys().then(function(names) {
