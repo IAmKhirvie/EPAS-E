@@ -101,7 +101,7 @@
     background: #5a8563;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1032px) {
     .pub-nav-links {
         display: none;
     }
