@@ -313,11 +313,19 @@ nav[role="navigation"] span[aria-current="page"] span {
 
 /* Mobile devices */
 @media (max-width: 1032px) {
+  .layout-wrapper {
+    height: auto;
+    overflow: visible;
+  }
+
   .main-content {
     padding: 0.5rem;
     margin-left: 0 !important;
-    min-height: calc(100vh - 60px);
-    max-height: none; /* Remove max-height constraint */
+    height: auto;
+    min-height: calc(100vh - 56px);
+    max-height: none;
+    overflow-y: visible;
+    padding-top: calc(56px + 0.75rem);
   }
   
   body.sidebar-collapsed .main-content {

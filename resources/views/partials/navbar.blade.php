@@ -72,7 +72,6 @@
                         <span style="font-size:0.78rem;">No notifications</span>
                     </div>
                     @endforelse
-                    @endif
                 </div>
             </div>
         </div>
