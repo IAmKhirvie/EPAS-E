@@ -84,10 +84,15 @@
         html, body.auth-page-body {
             height: auto !important;
             overflow-x: hidden !important;
-            overflow-y: visible !important;
+            overflow-y: auto !important;
+        }
+        .auth-content-container {
+            overflow: hidden !important;
         }
         .login-container {
-            overflow: visible !important;
+            position: static !important;
+            height: auto !important;
+            overflow: hidden !important;
         }
     }
   </style>
