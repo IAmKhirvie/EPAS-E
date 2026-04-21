@@ -842,6 +842,7 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
     // Announcement API Endpoints
     Route::prefix('api/announcements')->name('api.announcements.')->group(function () {
         Route::get('/recent', [AnnouncementController::class, 'getRecentAnnouncements'])->name('recent');
+        Route::get('/unread-count', [AnnouncementController::class, 'unreadCount'])->name('unread-count');
     });
 
     /*
