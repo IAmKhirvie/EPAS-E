@@ -1,6 +1,6 @@
 // EPAS-E Service Worker
 // Update CACHE_VERSION when deploying new assets to bust the cache
-const CACHE_VERSION = '2026-04-21-v1';
+const CACHE_VERSION = '2026-04-21-v2';
 const CACHE_NAME = `epas-e-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline.html';
 
