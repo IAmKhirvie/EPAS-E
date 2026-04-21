@@ -79,6 +79,26 @@
         position: relative;
         overflow-x: hidden;
     }
+
+    @media (max-width: 1032px) {
+        html {
+            height: auto !important;
+            overflow: auto !important;
+        }
+        body.auth-page-body {
+            height: auto !important;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+        }
+        .auth-content-container {
+            overflow: visible;
+        }
+        .login-container {
+            position: static !important;
+            height: auto !important;
+            overflow: visible !important;
+        }
+    }
   </style>
 </head>
 <body class="auth-page-body">
