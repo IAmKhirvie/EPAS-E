@@ -3,7 +3,7 @@
 @section('title', 'Courses - EPAS-E')
 
 @push('styles')
-<link rel="stylesheet" href="{{ dynamic_asset('css/pages/courses.css') }}">
+<link rel="stylesheet" href="{{ dynamic_asset('css/pages/courses.css') }}?v={{ filemtime(public_path('css/pages/courses.css')) }}">
 <style>
     /* Courses Page Layout */
     .courses-page-wrapper {
@@ -322,21 +322,6 @@
 
         .courses-sidebar {
             display: none;
-        }
-    }
-
-    @media (max-width: 1032px) {
-        .courses-toolbar .category-tabs {
-            order: 3;
-            flex: 1 1 100%;
-        }
-
-        .courses-header {
-            margin-bottom: 1rem;
-        }
-
-        .courses-header h1 {
-            font-size: 1.4rem;
         }
     }
 
