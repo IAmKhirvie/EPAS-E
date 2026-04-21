@@ -81,18 +81,22 @@
     }
 
     @media (max-width: 1032px) {
-        html, body.auth-page-body {
+        html {
             height: auto !important;
             overflow-x: hidden !important;
             overflow-y: auto !important;
         }
+        body.auth-page-body {
+            height: auto !important;
+            overflow: visible !important;
+        }
         .auth-content-container {
-            overflow: hidden !important;
+            overflow: visible !important;
         }
         .login-container {
             position: static !important;
             height: auto !important;
-            overflow: hidden !important;
+            overflow: visible !important;
         }
     }
   </style>

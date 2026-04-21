@@ -425,14 +425,8 @@ body {
     font-size: 0.8rem;
 }
 
-/* Mobile Responsive Styles */
+/* Mobile Responsive Styles — scroll handled by inline style in auth-layout */
 @media (max-width: 1032px) {
-  html, body.auth-page-body {
-    height: auto !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-  }
-
   .login-container {
     position: static;
     width: 100%;
@@ -443,7 +437,6 @@ body {
     padding-top: 80px;
     padding-bottom: 3rem;
     justify-content: flex-start;
-    overflow: visible !important;
     display: flex;
     flex-direction: column;
   }
@@ -792,14 +785,16 @@ body {
     }
 }
 
-/* Ensure body is scrollable on mobile */
+/* Single scroll on mobile: html scrolls, body doesn't */
 @media (max-width: 1032px) {
-  body {
-    overflow-y: auto;
-  }
-  
   html {
     overflow-y: auto;
+    height: auto;
+  }
+
+  body {
+    overflow-y: visible;
+    height: auto;
   }
 }
 
