@@ -5,6 +5,7 @@ namespace App\Http\View\Composers;
 use App\Models\Announcement;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class AnnouncementComposer
 {
@@ -13,17 +14,22 @@ class AnnouncementComposer
         if (Auth::check()) {
             $user = Auth::user();
 
-            // Get recent announcements filtered by user role
-            $recentAnnouncements = Announcement::with(['user'])
-                ->forUser($user) // Filter by target_roles
-                ->where(function($query) {
-                    $query->whereNull('publish_at')
-                        ->orWhere('publish_at', '<=', now());
-                })
-                ->orderBy('is_pinned', 'desc')
-                ->orderBy('created_at', 'desc')
-                ->limit(5)
-                ->get();
+            $recentAnnouncements = Cache::remember(
+                "announcements_navbar_{$user->id}",
+                60, // 1 minute
+                function () use ($user) {
+                    return Announcement::with(['user'])
+                        ->forUser($user)
+                        ->where(function($query) {
+                            $query->whereNull('publish_at')
+                                ->orWhere('publish_at', '<=', now());
+                        })
+                        ->orderBy('is_pinned', 'desc')
+                        ->orderBy('created_at', 'desc')
+                        ->limit(5)
+                        ->get();
+                }
+            );
 
             $view->with([
                 'recentAnnouncements' => $recentAnnouncements,

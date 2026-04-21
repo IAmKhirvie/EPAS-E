@@ -68,7 +68,7 @@ class AppServiceProvider extends ServiceProvider
         // Use Bootstrap 5 pagination
         Paginator::useBootstrapFive();
 
-        View::composer('*', AnnouncementComposer::class);
+        View::composer(['partials.navbar', 'partials.header'], AnnouncementComposer::class);
         View::composer('partials.sidebar', TrashComposer::class);
 
         // Register authorization policies

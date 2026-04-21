@@ -9,25 +9,26 @@
     $role = $user->role;
     $isStudent = $role === \App\Constants\Roles::STUDENT;
     $isAdmin = $role === \App\Constants\Roles::ADMIN;
+    $isInstructor = $role === \App\Constants\Roles::INSTRUCTOR;
 
-    // Generate chart data points (7 days) based on role
+    // Single query: group by date for last 7 days
+    $startDate = now()->subDays(6)->startOfDay();
+    $progressQuery = \App\Models\UserProgress::where('updated_at', '>=', $startDate);
+    if ($isStudent) {
+        $progressQuery->where('user_id', $user->id);
+    }
+    $dailyCounts = $progressQuery
+        ->selectRaw('DATE(updated_at) as d, COUNT(*) as c')
+        ->groupByRaw('DATE(updated_at)')
+        ->pluck('c', 'd');
+
     $chartPoints = [];
+    $maxVal = $isStudent ? 10 : 20;
     for ($i = 6; $i >= 0; $i--) {
-        $date = now()->subDays($i);
-        if ($isStudent) {
-            // Student: count completed activities per day
-            $count = \App\Models\UserProgress::where('user_id', $user->id)
-                ->whereDate('updated_at', $date->toDateString())
-                ->count();
-            $chartPoints[] = min($count, 10);
-        } else {
-            // Admin/Instructor: count submissions received per day
-            $count = \App\Models\UserProgress::whereDate('updated_at', $date->toDateString())->count();
-            $chartPoints[] = min($count, 20);
-        }
+        $ds = now()->subDays($i)->toDateString();
+        $chartPoints[] = min($dailyCounts->get($ds, 0), $maxVal);
     }
     $chartMax = max(max($chartPoints), 1);
-    $isInstructor = $role === \App\Constants\Roles::INSTRUCTOR;
 @endphp
 
 @section('content')
