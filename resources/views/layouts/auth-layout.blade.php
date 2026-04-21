@@ -88,20 +88,17 @@
         }
         body.auth-page-body {
             height: auto !important;
-            overflow-x: hidden !important;
-            overflow-y: visible !important;
+            overflow: hidden !important;
             max-width: 100vw;
         }
         .auth-content-container {
-            overflow-x: hidden !important;
-            overflow-y: visible !important;
+            overflow: hidden !important;
             max-width: 100vw;
         }
         .login-container {
             position: static !important;
             height: auto !important;
-            overflow-x: hidden !important;
-            overflow-y: visible !important;
+            overflow: hidden !important;
             max-width: 100%;
         }
         .lobby-navbar {
