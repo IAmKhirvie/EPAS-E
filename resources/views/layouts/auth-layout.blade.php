@@ -93,13 +93,15 @@
             max-width: 100vw;
         }
         .auth-content-container {
-            overflow: hidden !important;
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
             max-width: 100vw;
         }
         .login-container {
             position: static !important;
             height: auto !important;
-            overflow: hidden !important;
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
             max-width: 100%;
         }
         .lobby-navbar {
