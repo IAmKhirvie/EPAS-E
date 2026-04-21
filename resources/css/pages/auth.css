@@ -420,19 +420,31 @@ body {
 
 /* Mobile Responsive Styles */
 @media (max-width: 1032px) {
+  .auth-page-body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: auto;
+  }
+
+  .auth-content-container {
+    position: relative;
+    min-height: 100vh;
+  }
+
   .login-container {
+    position: static;
     width: 100%;
     height: auto;
-    min-height: 100vh;
+    min-height: 0;
     box-shadow: none;
-    padding: 15px 25px;
+    padding: 1.25rem 1.5rem;
+    padding-top: 80px;
+    padding-bottom: 3rem;
     justify-content: flex-start;
-    padding-top: 90px;
     overflow-y: visible;
-    padding-bottom: 50px;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    position: relative;
   }
 
   .form-title {
@@ -548,8 +560,7 @@ body {
 @media (max-width: 480px) {
   .login-container {
     padding: 80px 15px 40px;
-    padding-top: 80px;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .logo-container {
@@ -619,7 +630,7 @@ body {
 @media (max-width: 360px) {
   .login-container {
     padding: 70px 12px 35px;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .form-title {
