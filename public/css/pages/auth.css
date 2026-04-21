@@ -430,6 +430,7 @@ body {
   .login-container {
     position: static;
     width: 100%;
+    max-width: 100vw;
     height: auto;
     min-height: 0;
     box-shadow: none;
@@ -439,6 +440,22 @@ body {
     justify-content: flex-start;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  .login-container .row {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .login-container .row > [class*="col-"] {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .login-container form {
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .form-title {
