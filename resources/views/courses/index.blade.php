@@ -11,6 +11,7 @@
         grid-template-columns: 1fr 320px;
         gap: 1.5rem;
         min-height: calc(100vh - 200px);
+        overflow-x: hidden;
     }
 
     /* Right Sidebar */
