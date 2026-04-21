@@ -38,13 +38,13 @@
     margin-left: auto;
 }
 
-/* Dark mode toggle in guest navbar — match Login/Register button height */
+/* Dark mode toggle in guest navbar — square, same height as Login/Register */
 .pub-nav-right .icon-button {
-    width: auto;
-    height: auto;
-    padding: 0.5rem 0.6rem;
+    width: 2.25rem;
+    height: 2.25rem;
     font-size: 0.9rem;
-    border-radius: 10px;
+    border-radius: 8px;
+    padding: 0;
 }
 
 .pub-btn {
@@ -116,8 +116,9 @@
     }
 
     .pub-nav-right .icon-button {
-        padding: 0.4rem 0.5rem;
-        font-size: 0.82rem;
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.78rem;
     }
 }
 
