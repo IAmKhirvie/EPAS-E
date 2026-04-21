@@ -145,6 +145,25 @@ class AnnouncementController extends Controller
         }
     }
 
+    public function unreadCount()
+    {
+        $user = auth()->user();
+        $query = Announcement::query();
+
+        if ($user) {
+            $query->forUser($user);
+        }
+
+        // Count announcements from last 7 days as "unread"
+        $count = $query->where('created_at', '>=', now()->subDays(7))
+            ->where(function ($q) {
+                $q->whereNull('publish_at')->orWhere('publish_at', '<=', now());
+            })
+            ->count();
+
+        return response()->json(['count' => $count]);
+    }
+
     public function getRecentAnnouncements()
     {
         $user = auth()->user();

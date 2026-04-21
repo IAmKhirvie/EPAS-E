@@ -269,5 +269,33 @@
       document.addEventListener('click', function(e) { if (!e.target.closest('.navbar-search')) box.classList.remove('active'); });
   })();
   </script>
+
+  {{-- Notification: mark as read + auto-refresh badge --}}
+  <script>
+  function markRead(el) {
+      el.classList.add('read');
+      // Decrement badge
+      var badge = document.getElementById('notification-badge');
+      if (badge) {
+          var count = parseInt(badge.textContent) - 1;
+          badge.textContent = Math.max(count, 0);
+          if (count <= 0) badge.style.display = 'none';
+      }
+  }
+
+  // Auto-refresh notification count every 30 seconds
+  setInterval(function() {
+      fetch('/api/announcements/unread-count', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+              var badge = document.getElementById('notification-badge');
+              if (badge && typeof data.count !== 'undefined') {
+                  badge.textContent = data.count;
+                  badge.style.display = data.count > 0 ? '' : 'none';
+              }
+          })
+          .catch(function() {});
+  }, 30000);
+  </script>
 </body>
 </html>

@@ -46,92 +46,33 @@
         <div class="navbar-item">
             <button class="icon-button" id="notifications-btn" title="Announcements" aria-label="Announcements">
                 <i class="fas fa-bell" aria-hidden="true"></i>
-                @if(isset($recentAnnouncementsCount) && $recentAnnouncementsCount > 0)
-                <span class="notification-badge" id="notification-badge">
-                    {{ $recentAnnouncementsCount }}
+                <span class="notification-badge" id="notification-badge" style="{{ (isset($recentAnnouncementsCount) && $recentAnnouncementsCount > 0) ? '' : 'display:none' }}">
+                    {{ $recentAnnouncementsCount ?? 0 }}
                 </span>
-                @endif
             </button>
             <div class="popover notifications-popover" id="notifications-popover">
-                <div class="popover-header">
-                    <div class="header-left">
-                        <i class="fas fa-bullhorn me-2" aria-hidden="true"></i>
-                        <span>Announcements</span>
-                    </div>
-                    <a href="{{ route('private.announcements.index') }}" class="view-all-btn">
-                        <i class="fas fa-list me-1" aria-hidden="true"></i>
-                        View All
-                    </a>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;border-bottom:1px solid #f0f0f0;">
+                    <strong style="font-size:0.88rem;display:flex;align-items:center;gap:0.4rem;"><i class="fas fa-bell" style="color:var(--primary,#0c3a2d);font-size:0.8rem;"></i> Notifications</strong>
+                    <a href="{{ route('private.announcements.index') }}" style="font-size:0.7rem;color:var(--primary);text-decoration:none;font-weight:600;">View All</a>
                 </div>
-                <div class="notifications-list" id="notifications-list">
-                    @php
-                    $notifications = isset($recentAnnouncements) ? $recentAnnouncements : collect();
-                    @endphp
-
-                    @if($notifications->count() > 0)
-                    @foreach($notifications as $announcement)
-                    @php
-                    $hasDeadline = !empty($announcement->deadline);
-                    @endphp
-                    <div class="notification-item {{ $announcement->is_urgent ?? false ? 'urgent' : '' }}"
-                        data-announcement-id="{{ $announcement->id }}"
-                        data-deadline="{{ $announcement->deadline ?? '' }}"
-                        data-created-at="{{ $announcement->created_at->timestamp }}">
-                        <a href="{{ route('private.announcements.show', $announcement) }}"
-                            class="notification-link">
-                            <div class="notification-icon">
-                                @if($announcement->is_urgent ?? false)
-                                <i class="fas fa-exclamation-circle urgent-icon"></i>
-                                @elseif($announcement->is_pinned ?? false)
-                                <i class="fas fa-thumbtack pinned-icon"></i>
-                                @else
-                                <i class="fas fa-bell regular-icon"></i>
-                                @endif
-                            </div>
-                            <div class="notification-content">
-                                <div class="notification-title">
-                                    {{ Str::limit($announcement->title, 45) }}
-                                </div>
-                                <div class="notification-message">
-                                    {{ Str::limit(strip_tags($announcement->content ?? $announcement->body ?? ''), 70) }}
-                                </div>
-                                <div class="notification-meta">
-                                    @if($hasDeadline)
-                                    <span class="notification-deadline">
-                                        <i class="fas fa-clock me-1" aria-hidden="true"></i>
-                                        Due: {{ $announcement->deadline->format('M j') }}
-                                    </span>
-                                    @endif
-                                    <span class="notification-time">
-                                        <i class="fas fa-calendar me-1" aria-hidden="true"></i>
-                                        {{ $announcement->created_at->diffForHumans() }}
-                                    </span>
-                                </div>
-                            </div>
-                        </a>
-                        <button type="button" class="notification-dismiss" onclick="dismissNotification(this, {{ $announcement->id }})" aria-label="Dismiss">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    @endforeach
-                    @else
-                    <div class="notification-item empty">
-                        <div class="notification-content text-center py-4">
-                            <div class="empty-icon">
-                                <i class="fas fa-inbox" aria-hidden="true"></i>
-                            </div>
-                            <div class="empty-text">No announcements yet</div>
-                            <div class="empty-subtext">Check back later for updates</div>
+                <div id="notifications-list" style="max-height:350px;overflow-y:auto;scrollbar-width:thin;">
+                    @php $notifications = isset($recentAnnouncements) ? $recentAnnouncements : collect(); @endphp
+                    @forelse($notifications as $announcement)
+                    <a href="{{ route('private.announcements.show', $announcement) }}" class="notif-row" data-id="{{ $announcement->id }}" onclick="markRead(this)">
+                        <div class="notif-dot {{ $announcement->is_urgent ? 'urgent' : ($announcement->is_pinned ? 'pinned' : '') }}"></div>
+                        <div class="notif-body">
+                            <div class="notif-title">{{ Str::limit($announcement->title, 40) }}</div>
+                            <div class="notif-sub">{{ Str::limit(strip_tags($announcement->content ?? ''), 60) }}</div>
+                            <div class="notif-time">{{ $announcement->created_at->diffForHumans() }}</div>
                         </div>
-                    </div>
-                    @endif
-                </div>
-                <div class="popover-footer">
-                    <a href="{{ route('private.announcements.index') }}" class="view-all-link-footer">
-                        <i class="fas fa-th-list me-2" aria-hidden="true"></i>
-                        View All Announcements
-                        <i class="fas fa-arrow-right ms-2" aria-hidden="true"></i>
                     </a>
+                    @empty
+                    <div style="text-align:center;padding:2rem 1rem;color:#ccc;">
+                        <i class="fas fa-bell-slash" style="font-size:1.5rem;margin-bottom:0.5rem;display:block;opacity:0.4;"></i>
+                        <span style="font-size:0.78rem;">No notifications</span>
+                    </div>
+                    @endforelse
+                    @endif
                 </div>
             </div>
         </div>
