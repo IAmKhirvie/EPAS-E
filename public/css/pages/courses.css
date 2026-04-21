@@ -604,6 +604,21 @@
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1032px) {
+    .container-fluid {
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+
+    .courses-page-wrapper {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .courses-main {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
     .courses-header {
         flex-direction: row;
         align-items: center;
@@ -659,7 +674,17 @@
     }
 
     .courses-container.grid-view {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
+    }
+
+    .courses-container {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .course-card {
+        width: 100%;
+        max-width: 100%;
     }
 
     .courses-container.list-view .course-card {
