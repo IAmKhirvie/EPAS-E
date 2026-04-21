@@ -430,17 +430,17 @@ body {
   .login-container {
     position: static;
     width: 100%;
-    max-width: 100vw;
+    max-width: 100%;
+    min-height: 100vh;
     height: auto;
-    min-height: 0;
     box-shadow: none;
     padding: 1.25rem 1.5rem;
     padding-top: 80px;
-    padding-bottom: 5rem;
-    justify-content: flex-start;
+    padding-bottom: 3rem;
+    justify-content: center;
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;
+    overflow: hidden !important;
   }
 
   .login-container .register {
