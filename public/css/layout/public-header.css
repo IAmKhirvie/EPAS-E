@@ -106,6 +106,10 @@
         display: none;
     }
 
+    .lobby-navbar .navbar-left-2 {
+        flex: 0 1 auto;
+    }
+
     .pub-nav-right {
         gap: 0.35rem;
     }
