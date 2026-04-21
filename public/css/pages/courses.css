@@ -610,8 +610,8 @@
     }
 
     .courses-toolbar {
-        flex-direction: column;
-        align-items: stretch;
+        flex-wrap: wrap;
+        align-items: center;
     }
 
     .courses-search {

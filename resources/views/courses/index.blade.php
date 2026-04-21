@@ -325,6 +325,22 @@
         }
     }
 
+    @media (max-width: 1032px) {
+        .courses-toolbar {
+            flex-wrap: wrap;
+        }
+
+        .courses-toolbar .courses-search {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .courses-toolbar .category-tabs {
+            order: 3;
+            width: 100%;
+        }
+    }
+
     /* Dark mode */
     .dark-mode .sidebar-widget {
         background: var(--surface);
@@ -343,7 +359,16 @@
     .category-tabs {
         display: flex;
         gap: 0.5rem;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 0.25rem;
+    }
+
+    .category-tabs::-webkit-scrollbar {
+        display: none;
     }
 
     .category-tab {
@@ -357,6 +382,7 @@
         cursor: pointer;
         transition: all 0.2s ease;
         white-space: nowrap;
+        flex-shrink: 0;
     }
 
     .category-tab:hover {
@@ -368,16 +394,6 @@
         background: var(--tab-color, var(--primary));
         border-color: var(--tab-color, var(--primary));
         color: white;
-    }
-
-    @media (max-width: 768px) {
-        .category-tabs {
-            order: 3;
-            width: 100%;
-            justify-content: flex-start;
-            overflow-x: auto;
-            padding-bottom: 0.5rem;
-        }
     }
 </style>
 @endpush
