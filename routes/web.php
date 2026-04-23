@@ -996,7 +996,12 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         $path = storage_path('app/public/profile-images/' . $filename);
 
         if (!file_exists($path)) {
-            abort(404);
+            // Serve a default avatar
+            $defaultPath = public_path('images/default-avatar.png');
+            if (file_exists($defaultPath)) {
+                return response()->file($defaultPath);
+            }
+            abort(404); // fallback only if default is also missing
         }
 
         return response()->file($path);

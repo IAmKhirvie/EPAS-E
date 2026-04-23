@@ -11,12 +11,33 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use App\Services\DashboardStatisticsService;
 
 class StudentDashboard extends Controller
 {
+    public function __construct(private DashboardStatisticsService $stats) {}
+
     public function index()
     {
-        return view('dashboard');
+        $user = Auth::user();
+        $recentAnnouncements = $this->stats->getRecentAnnouncements(3);
+        $recentAnnouncementsCount = $this->stats->getRecentAnnouncementsCount();
+
+        // Optionally also pass other variables that the view might use
+        $progressSummary = $this->stats->getProgressSummary($user);
+        $progressPercentage = $progressSummary['total_modules'] > 0
+            ? ($progressSummary['completed_modules'] / $progressSummary['total_modules']) * 100
+            : 0;
+
+        return view('dashboard', [
+            'recentAnnouncements' => $recentAnnouncements,
+            'recentAnnouncementsCount' => $recentAnnouncementsCount,
+            'student_progress' => round($progressPercentage),
+            'finished_activities' => $progressSummary['completed_modules'] . '/' . $progressSummary['total_modules'],
+            'total_modules' => $progressSummary['total_modules'],
+            'average_grade' => $progressSummary['average_score'] . '%',
+            // Add any other variables needed by the dashboard view for students
+        ]);
     }
     
     public function getProgressData()
