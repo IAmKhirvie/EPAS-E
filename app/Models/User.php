@@ -255,22 +255,41 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the user's profile image URL.
-     * Returns uploaded image or generates avatar with initials.
+     * Returns uploaded image URL or a generated SVG with initials.
      */
     public function getProfileImageUrlAttribute(): string
     {
+        // If user has uploaded a profile image, return its URL
         if ($this->profile_image) {
             if (str_starts_with($this->profile_image, 'http')) {
                 return $this->profile_image;
             }
-            // asset() helper automatically handles HTTP/HTTPS based on request
-            // Add cache-busting with updated_at timestamp
             $cacheBuster = $this->updated_at ? $this->updated_at->timestamp : time();
             return asset('storage/profile-images/' . $this->profile_image) . '?v=' . $cacheBuster;
         }
 
+        // Generate a consistent colour from the user's email or ID
+        $colors = [
+            '#198754', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3',
+            '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#ff9800',
+            '#ff5722', '#795548', '#607d8b', '#9e9e9e', '#d32f2f', '#c2185b'
+        ];
+        $color = $colors[abs(crc32($this->email ?? $this->id)) % count($colors)];
+
+        // Get initials (already available via $this->initials)
         $initials = $this->initials;
-        return "https://ui-avatars.com/api/?name=" . urlencode($initials) . "&background=6d9773&color=fff&size=32";
+
+        // Create an SVG data URI
+        $svg = <<<SVG
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="50" fill="{$color}"/>
+            <text x="50" y="55" dominant-baseline="middle" text-anchor="middle"
+                fill="white" font-size="34" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                font-weight="bold">{$initials}</text>
+        </svg>
+        SVG;
+
+        return 'data:image/svg+xml;base64,' . base64_encode($svg);
     }
 
     /**

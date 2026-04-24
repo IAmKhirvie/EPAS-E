@@ -131,14 +131,6 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="stat" class="form-label required-field">Status</label>
-                        <select name="stat" id="stat" class="form-select" required>
-                            <option value="1" {{ old('stat') == '1' ? 'selected' : '' }}>Active</option>
-                            <option value="0" {{ old('stat') == '0' ? 'selected' : '' }}>Inactive</option>
-                        </select>
-                    </div>
-
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">Add User</button>
                     </div>

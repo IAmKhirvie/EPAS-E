@@ -489,7 +489,8 @@ html, body {
     pointer-events: none;
     transition: transform 0.15s ease, opacity 0.15s ease;
     padding: 0;
-    margin: 0;
+    margin-left: calc(var(--sidebar-width) + (var(--pill-margin) * 0));
+    margin-top: -2.5rem;
     transform: scale(0.95);
 }
 
@@ -503,6 +504,7 @@ html, body {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+
 }
 
 .nav-item-flyout.open .nav-item.has-flyout::after {
