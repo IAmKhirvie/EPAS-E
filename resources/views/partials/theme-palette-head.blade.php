@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="{{ dynamic_asset('css/theme-palette.css') }}">
+<link rel="stylesheet" href="{{ dynamic_asset('css/theme-palette.css') }}?v=2">
 @php
     $hasaAppearance = [
         'primary_color' => config('theme.primary'),
@@ -20,4 +20,4 @@
         : null;
 @endphp
 <script>window.hasaAppearance = @json($hasaAppearance);</script>
-<script src="{{ dynamic_asset('js/theme-palette.js') }}"></script>
+<script src="{{ dynamic_asset('js/theme-palette.js') }}?v=2"></script>

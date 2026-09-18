@@ -29,10 +29,14 @@
         const secondaryInk = dark ? (luminance(secondary) > .35 ? secondary : mix(secondary, [255, 255, 255], .5)) :
             (luminance(secondary) > .35 ? mix(secondary, [0, 0, 0], .67) : mix(secondary, [0, 0, 0], .2));
         const sidebarText = luminance(primary) > .36 ? '#203b38' : '#ffffff';
+        // Pastel surfaces stay light even when the surrounding page uses dark mode.
+        const surfaceInk = luminance(primary) > .35 ? mix(primary, [0, 0, 0], .67) : mix(primary, [255, 255, 255], .8);
+        const secondarySurfaceInk = luminance(secondary) > .35 ? mix(secondary, [0, 0, 0], .67) : mix(secondary, [255, 255, 255], .8);
         const values = {
             '--theme-primary': primary, '--theme-secondary': secondary,
             '--theme-background': background, '--theme-dark-background': darkBackground,
             '--theme-primary-ink': primaryInk, '--theme-secondary-ink': secondaryInk,
+            '--theme-surface-ink': surfaceInk, '--theme-secondary-surface-ink': secondarySurfaceInk,
             '--theme-sidebar-text': sidebarText,
             '--primary': primary, '--primary-light': primary, '--primary-dark': primaryInk,
             '--secondary': secondary, '--accent': secondary,
