@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create New Course - EPAS-E')
+@section('title', 'Create New Course - Hasa')
 
 @section('content')
 <div class="content-area">
@@ -28,14 +28,14 @@
                                     <label class="cb-field-label">Course Name <span class="required">*</span></label>
                                     <input type="text" class="form-control @error('course_name') is-invalid @enderror"
                                         id="course_name" name="course_name" value="{{ old('course_name') }}"
-                                        placeholder="e.g., Electronic Products Assembly and Servicing" required>
+                                        placeholder="e.g., Introduction to Biology" required>
                                     @error('course_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="cb-field-label">Course Code <span class="required">*</span></label>
                                     <input type="text" class="form-control @error('course_code') is-invalid @enderror"
                                         id="course_code" name="course_code" value="{{ old('course_code') }}"
-                                        placeholder="e.g., EPAS-NCII" required>
+                                        placeholder="e.g., BIO-101" required>
                                     @error('course_code')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
@@ -82,7 +82,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="cb-field-label">Sector <span class="optional">(optional)</span></label>
                                     <input type="text" class="form-control @error('sector') is-invalid @enderror"
-                                        name="sector" value="{{ old('sector') }}" placeholder="e.g., Electronics Sector">
+                                        name="sector" value="{{ old('sector') }}" placeholder="e.g., Academic Department">
                                     @error('sector')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>

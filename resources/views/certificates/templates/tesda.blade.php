@@ -244,7 +244,7 @@
         <div class="nc-level">NC II</div>
         <div class="institution">
             as prescribed by the Technical Education and Skills Development Authority<br>
-            Training Institution: <strong>{{ $config['institution'] ?? 'IETI College of Technology - Marikina' }}</strong>
+            Training Institution: <strong>{{ $config['institution'] ?? config('app.name', 'Hasa') }}</strong>
         </div>
     </div>
 

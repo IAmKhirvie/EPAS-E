@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $course->course_name . ' - EPAS-E')
+@section('title', $course->course_name . ' - Hasa')
 
 @push('styles')
 <style>

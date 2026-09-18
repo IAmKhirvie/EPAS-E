@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EPAS-E LMS - Electronic Products Assembly and Servicing</title>
+    <title>Hasa LMS - Learn any subject</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ dynamic_asset('favicon.ico') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ dynamic_asset('assets/hasa-rizal.svg') }}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="{{ dynamic_asset('css/components/utilities.css') }}">
 
     @vite(['resources/css/app.css'])
+    @include('partials.theme-palette-head')
 </head>
 
 <body>
@@ -36,20 +37,12 @@
 
     <!-- Hero Section -->
     <section class="w-hero">
-        <div class="w-hero-bg">
-            @php
-            $slides = ['epas1.jpg', 'epas2.jpg', 'epas3.jpg', 'epas4.jpg'];
-            @endphp
-            @foreach($slides as $index => $slide)
-            <div class="w-slide {{ $index === 0 ? 'active' : '' }}"
-                style="background-image: url('{{ dynamic_asset("assets/{$slide}") }}');"></div>
-            @endforeach
-        </div>
+        <div class="w-hero-bg" style="background:linear-gradient(135deg,#b9d9c6,#bdddea)"></div>
         <div class="w-hero-inner">
             <div class="w-hero-text">
-                <div class="w-badge"><i class="fas fa-graduation-cap"></i> TESDA Accredited</div>
-                <h1 class="w-title">Learn Electronics<br>Assembly & <span>Servicing</span></h1>
-                <p class="w-desc">Empowering students with hands-on technical education and digital learning experiences through our comprehensive LMS platform.</p>
+                <div class="w-badge"><i class="fas fa-graduation-cap"></i> Learn at your pace</div>
+                <h1 class="w-title">Learn more.<br>Achieve <span>more.</span></h1>
+                <p class="w-desc">Explore courses, complete lessons and assessments, and keep track of your progress in one place.</p>
                 <div class="w-actions">
                     @guest
                     <a href="{{ route('register') }}" class="w-btn w-btn-primary"><i class="fas fa-rocket"></i> Get Started</a>
@@ -69,7 +62,7 @@
                 <div class="w-hcard">
                     <div class="w-hcard-icon" style="background:rgba(253,126,20,0.08);color:#fd7e14"><i class="fas fa-tools"></i></div>
                     <h4>Practical Skills</h4>
-                    <p>Hands-on training in electronics assembly</p>
+                    <p>Apply what you learn through activities and assignments</p>
                 </div>
                 <div class="w-hcard">
                     <div class="w-hcard-icon" style="background:rgba(13,110,253,0.08);color:#0d6efd"><i class="fas fa-chart-line"></i></div>
@@ -79,7 +72,7 @@
                 <div class="w-hcard">
                     <div class="w-hcard-icon" style="background:rgba(111,66,193,0.08);color:#6f42c1"><i class="fas fa-certificate"></i></div>
                     <h4>Certification</h4>
-                    <p>Earn recognized TESDA qualifications</p>
+                    <p>Celebrate completed courses with certificates</p>
                 </div>
             </div>
         </div>
@@ -99,8 +92,8 @@
     <section class="w-features" id="features">
         <div class="w-features-inner">
             <div class="w-section-badge"><i class="fas fa-star"></i> Features</div>
-            <h2 class="w-section-title">Why Choose EPAS-E?</h2>
-            <p class="w-section-desc">Everything you need for a complete technical education experience.</p>
+            <h2 class="w-section-title">Why choose Hasa?</h2>
+            <p class="w-section-desc">The tools students and instructors need to learn together.</p>
             <div class="w-features-grid">
                 <div class="w-feat">
                     <div class="w-feat-icon" style="background:rgba(12,58,45,0.08);color:#0c3a2d"><i class="fas fa-mobile-alt"></i></div>
@@ -141,9 +134,9 @@
         <div class="w-about-inner">
             <div class="w-about-text">
                 <div class="w-section-badge"><i class="fas fa-info-circle"></i> About</div>
-                <h2 class="w-section-title" style="text-align:left">About EPAS-E LMS</h2>
-                <p>The Electronic Products Assembly and Servicing Learning Management System provides comprehensive technical education in electronics assembly, repair, and maintenance.</p>
-                <p>Combining theoretical knowledge with practical hands-on training, we prepare students for successful careers in the electronics industry.</p>
+                <h2 class="w-section-title" style="text-align:left">About Hasa LMS</h2>
+                <p>Hasa helps schools and educators deliver learning across subjects and programs.</p>
+                <p>Students can find their materials, complete assessments, and follow their progress from any device.</p>
                 <div class="w-about-actions">
                     @guest
                     <a href="{{ route('register') }}" class="w-btn w-btn-primary"><i class="fas fa-rocket"></i> Start Learning</a>
@@ -155,8 +148,7 @@
                 </div>
             </div>
             <div class="w-about-img">
-                <img src="{{ dynamic_asset('assets/epas1.jpg') }}" alt="EPAS-E" loading="lazy"
-                    onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'w-about-placeholder\'><i class=\'fas fa-microchip\'></i></div>'">
+                <div class="w-about-placeholder"><i class="fas fa-book-open"></i></div>
             </div>
         </div>
     </section>

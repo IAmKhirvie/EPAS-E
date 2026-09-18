@@ -5,10 +5,10 @@
     <div class="navbar-left-2">
         <a class="navbar-brand" href="{{ route('welcome') }}">
             <div class="navbar-logo-container">
-                <img src="{{ dynamic_asset('assets/EPAS-E.png') }}" alt="EPAS-E LMS" class="logo">
+                <img src="{{ dynamic_asset('assets/hasa-rizal.svg') }}" alt="Hasa Rizal logo" class="logo">
                 <div class="navbar-title-container">
-                    <h2>EPAS-E</h2>
-                    <p>Electronic Products Assembly and Servicing</p>
+                    <h2>Hasa</h2>
+                    <p>Learning Management System</p>
                 </div>
             </div>
         </a>

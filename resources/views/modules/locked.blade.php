@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Module Locked - EPAS-E')
+@section('title', 'Module Locked - Hasa')
 
 @section('content')
 <div class="container-fluid py-3 bg-white border-bottom mb-4">

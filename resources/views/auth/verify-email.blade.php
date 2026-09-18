@@ -1,6 +1,6 @@
 @extends('layouts.auth-layout')
 
-@section('title', 'Verify Your Email - EPAS-E LMS')
+@section('title', 'Verify Your Email - Hasa LMS')
 
 @section('content')
 <div class="verification-container">

@@ -253,7 +253,7 @@
                             <h5 class="mb-0"><i class="fas fa-palette me-2 text-primary"></i>Appearance</h5>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('settings.appearance') }}" method="POST">
+                            <form action="{{ route('settings.appearance') }}" method="POST" enctype="multipart/form-data" id="appearanceForm">
                                 @csrf
                                 <div class="mb-4">
                                     <label class="form-label">Theme</label>
@@ -280,6 +280,32 @@
                                             </label>
                                         </div>
                                     </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold">Color palette</label>
+                                    <p class="text-muted small mb-3">Primary colors the sidebar and controls. Secondary colors progress and highlights. Background sets the page surface.</p>
+                                    <div class="d-flex flex-wrap gap-2 mb-3" aria-label="Suggested palettes">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm theme-preset" data-primary="#b9d9c6" data-secondary="#bdddea" data-background="#f7f5ef" data-dark="#182126">Pastel green</button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm theme-preset" data-primary="#f3c9d8" data-secondary="#c9d9f2" data-background="#fff8f8" data-dark="#282029">Pastel pink</button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm theme-preset" data-primary="#d9cef1" data-secondary="#bfe5df" data-background="#faf8ff" data-dark="#211e2c">Lavender</button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm theme-preset" data-primary="#f2d2bb" data-secondary="#c6e0d5" data-background="#fffaf3" data-dark="#29221f">Peach</button>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-sm-6 col-xl-3"><label for="primaryColor" class="form-label">Primary</label><input id="primaryColor" class="form-control form-control-color w-100 theme-color-input" type="color" name="primary_color" value="{{ old('primary_color', $settings['appearance']['primary_color'] ?? config('theme.primary')) }}"></div>
+                                        <div class="col-sm-6 col-xl-3"><label for="secondaryColor" class="form-label">Secondary</label><input id="secondaryColor" class="form-control form-control-color w-100 theme-color-input" type="color" name="secondary_color" value="{{ old('secondary_color', $settings['appearance']['secondary_color'] ?? config('theme.secondary')) }}"></div>
+                                        <div class="col-sm-6 col-xl-3"><label for="backgroundColor" class="form-label">Light background</label><input id="backgroundColor" class="form-control form-control-color w-100 theme-color-input" type="color" name="background_color" value="{{ old('background_color', $settings['appearance']['background_color'] ?? config('theme.background')) }}"></div>
+                                        <div class="col-sm-6 col-xl-3"><label for="darkBackgroundColor" class="form-label">Night background</label><input id="darkBackgroundColor" class="form-control form-control-color w-100 theme-color-input" type="color" name="dark_background_color" value="{{ old('dark_background_color', $settings['appearance']['dark_background_color'] ?? config('theme.dark_background')) }}"></div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="backgroundImage" class="form-label fw-semibold">Background image</label>
+                                    <input id="backgroundImage" name="background_image" type="file" accept="image/jpeg,image/png,image/webp" class="form-control">
+                                    <small class="text-muted">Optional. JPG, PNG, or WebP, up to 5 MB. Shown in light mode behind page content.</small>
+                                    @if(!empty($settings['appearance']['background_image']))
+                                        <div class="form-check mt-2"><input id="removeBackgroundImage" class="form-check-input" type="checkbox" name="remove_background_image" value="1"><label class="form-check-label" for="removeBackgroundImage">Remove current background image</label></div>
+                                    @endif
                                 </div>
 
                                 <div class="mb-4">
@@ -321,7 +347,7 @@
                                 <div class="mb-3">
                                     <label class="form-label">Site Name</label>
                                     <input type="text" name="site_name" class="form-control"
-                                           value="{{ $systemSettings['site_name'] ?? 'EPAS-E Learning Management System' }}">
+                                           value="{{ $systemSettings['site_name'] ?? 'Hasa Learning Management System' }}">
                                 </div>
 
                                 <div class="mb-3">

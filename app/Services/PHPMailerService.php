@@ -62,7 +62,7 @@ class PHPMailerService
 
         // Sender settings
         $fromAddress = config('joms.mail.from_address', config('joms.mail.username'));
-        $fromName = config('joms.mail.from_name', 'EPAS-E LMS');
+        $fromName = config('joms.mail.from_name', 'Hasa LMS');
 
         $this->mail->setFrom($fromAddress, $fromName);
         $this->mail->addReplyTo($fromAddress, $fromName);
@@ -101,7 +101,7 @@ class PHPMailerService
 
             // Re-add reply-to after clearing
             $fromAddress = config('joms.mail.from_address', config('joms.mail.username'));
-            $fromName = config('joms.mail.from_name', 'EPAS-E LMS');
+            $fromName = config('joms.mail.from_name', 'Hasa LMS');
             $this->mail->addReplyTo($fromAddress, $fromName);
 
             // Validate email address
@@ -123,7 +123,7 @@ class PHPMailerService
 
             // Content
             $this->mail->isHTML(true);
-            $this->mail->Subject = 'Verify Your Email - EPAS-E LMS';
+            $this->mail->Subject = 'Verify Your Email - Hasa LMS';
             $this->mail->Body    = $this->getVerificationEmailTemplate($user, $verificationUrl);
             $this->mail->AltBody = $this->getPlainTextVerificationEmail($user, $verificationUrl);
 
@@ -185,8 +185,8 @@ class PHPMailerService
         </head>
         <body>
             <div class='header'>
-                <h1 style='margin:0; color: #ffffff;'>EPAS-E LMS</h1>
-                <p style='margin:0; color: #ffffff;'>Electronic Products Assembly and Servicing</p>
+                <h1 style='margin:0; color: #ffffff;'>Hasa LMS</h1>
+                <p style='margin:0; color: #ffffff;'>Learning Management</p>
             </div>
             
             <div class='content'>
@@ -194,7 +194,7 @@ class PHPMailerService
                 
                 <p>Hello <strong>{$firstName}</strong>,</p>
 
-                <p>Thank you for registering with EPAS-E Learning Management System. Please verify your email address to complete your registration.</p>
+                <p>Thank you for registering with Hasa Learning Management System. Please verify your email address to complete your registration.</p>
 
                 <div class='details'>
                     <p><strong>Account Details:</strong></p>
@@ -219,7 +219,7 @@ class PHPMailerService
             </div>
             
             <div class='footer'>
-                <p>&copy; " . date('Y') . " EPAS-E LMS. All rights reserved.</p>
+                <p>&copy; " . date('Y') . " Hasa LMS. All rights reserved.</p>
                 <p>This is an automated message, please do not reply to this email.</p>
             </div>
         </body>
@@ -232,11 +232,11 @@ class PHPMailerService
         $fullName = $user->first_name . ' ' . $user->last_name;
         
         return "
-        Verify Your Email - EPAS-E LMS
+        Verify Your Email - Hasa LMS
 
         Hello {$user->first_name},
 
-        Thank you for registering with EPAS-E Learning Management System.
+        Thank you for registering with Hasa Learning Management System.
 
         Account Details:
         - Name: {$fullName}
@@ -249,7 +249,7 @@ class PHPMailerService
 
         Note: Your account requires administrative approval before you can access the system.
 
-        © " . date('Y') . " EPAS-E LMS. All rights reserved.
+        © " . date('Y') . " Hasa LMS. All rights reserved.
         ";
     }
 
@@ -268,7 +268,7 @@ class PHPMailerService
 
             // Re-add reply-to after clearing
             $fromAddress = config('joms.mail.from_address', config('joms.mail.username'));
-            $fromName = config('joms.mail.from_name', 'EPAS-E LMS');
+            $fromName = config('joms.mail.from_name', 'Hasa LMS');
             $this->mail->addReplyTo($fromAddress, $fromName);
 
             // Validate email address
@@ -288,7 +288,7 @@ class PHPMailerService
 
             // Content
             $this->mail->isHTML(true);
-            $this->mail->Subject = 'Reset Your Password - EPAS-E LMS';
+            $this->mail->Subject = 'Reset Your Password - Hasa LMS';
             $this->mail->Body    = $this->getPasswordResetEmailTemplate($user, $resetUrl);
             $this->mail->AltBody = $this->getPlainTextPasswordResetEmail($user, $resetUrl);
 
@@ -351,8 +351,8 @@ class PHPMailerService
         </head>
         <body>
             <div class='header'>
-                <h1 style='margin:0; color: #ffffff;'>EPAS-E LMS</h1>
-                <p style='margin:0; color: #ffffff;'>Electronic Products Assembly and Servicing</p>
+                <h1 style='margin:0; color: #ffffff;'>Hasa LMS</h1>
+                <p style='margin:0; color: #ffffff;'>Learning Management</p>
             </div>
             
             <div class='content'>
@@ -386,7 +386,7 @@ class PHPMailerService
             </div>
             
             <div class='footer'>
-                <p>&copy; " . date('Y') . " EPAS-E LMS. All rights reserved.</p>
+                <p>&copy; " . date('Y') . " Hasa LMS. All rights reserved.</p>
                 <p>This is an automated message, please do not reply to this email.</p>
             </div>
         </body>
@@ -399,7 +399,7 @@ class PHPMailerService
         $fullName = $user->first_name . ' ' . $user->last_name;
         
         return "
-        Reset Your Password - EPAS-E LMS
+        Reset Your Password - Hasa LMS
 
         Hello {$user->first_name},
 
@@ -416,7 +416,7 @@ class PHPMailerService
 
         If you did not request a password reset, no further action is required.
 
-        © " . date('Y') . " EPAS-E LMS. All rights reserved.
+        © " . date('Y') . " Hasa LMS. All rights reserved.
         ";
     }
 
@@ -439,7 +439,7 @@ class PHPMailerService
 
             // Re-add reply-to
             $fromAddress = config('joms.mail.from_address', config('joms.mail.username'));
-            $fromName = config('joms.mail.from_name', 'EPAS-E LMS');
+            $fromName = config('joms.mail.from_name', 'Hasa LMS');
             $this->mail->addReplyTo($fromAddress, $fromName);
 
             // Validate email
@@ -454,18 +454,18 @@ class PHPMailerService
             $this->mail->addAddress($toEmail, 'Test Recipient');
 
             $this->mail->isHTML(true);
-            $this->mail->Subject = 'Test Email - EPAS-E LMS (' . date('Y-m-d H:i:s') . ')';
+            $this->mail->Subject = 'Test Email - Hasa LMS (' . date('Y-m-d H:i:s') . ')';
             $this->mail->Body = "
             <html>
             <body style='font-family: Arial, sans-serif; padding: 20px;'>
                 <h2 style='color: #007bff;'>Email Configuration Test</h2>
-                <p>This is a test email from EPAS-E LMS.</p>
+                <p>This is a test email from Hasa LMS.</p>
                 <p>If you received this email, your SMTP configuration is working correctly!</p>
                 <hr>
                 <p><strong>Sent at:</strong> " . date('Y-m-d H:i:s') . "</p>
             </body>
             </html>";
-            $this->mail->AltBody = "Test email from EPAS-E LMS. Sent at: " . date('Y-m-d H:i:s');
+            $this->mail->AltBody = "Test email from Hasa LMS. Sent at: " . date('Y-m-d H:i:s');
 
             $result = $this->mail->send();
 
@@ -522,10 +522,10 @@ class PHPMailerService
                 return false;
             }
 
-            $this->mail->addAddress($adminEmail, 'EPAS-E Admin');
+            $this->mail->addAddress($adminEmail, 'Hasa Admin');
 
             $this->mail->isHTML(true);
-            $this->mail->Subject = '[EPAS-E Inquiry] ' . $data['subject'];
+            $this->mail->Subject = '[Hasa Inquiry] ' . $data['subject'];
             $this->mail->Body = $this->getContactInquiryTemplate($data);
             $this->mail->AltBody = $this->getPlainTextContactInquiry($data);
 
@@ -563,7 +563,7 @@ class PHPMailerService
         <body>
             <div class='header'>
                 <h1 style='margin:0; color: #ffffff;'>New Contact Inquiry</h1>
-                <p style='margin:0; color: #ffffff;'>EPAS-E LMS</p>
+                <p style='margin:0; color: #ffffff;'>Hasa LMS</p>
             </div>
 
             <div class='content'>
@@ -589,7 +589,7 @@ class PHPMailerService
             </div>
 
             <div class='footer'>
-                <p>This inquiry was submitted through the EPAS-E LMS contact form.</p>
+                <p>This inquiry was submitted through the Hasa LMS contact form.</p>
             </div>
         </body>
         </html>
@@ -599,7 +599,7 @@ class PHPMailerService
     protected function getPlainTextContactInquiry(array $data): string
     {
         return "
-New Contact Inquiry - EPAS-E LMS
+New Contact Inquiry - Hasa LMS
 
 Subject: {$data['subject']}
 
@@ -611,7 +611,7 @@ Message:
 {$data['message']}
 
 ---
-This inquiry was submitted through the EPAS-E LMS contact form.
+This inquiry was submitted through the Hasa LMS contact form.
         ";
     }
 
@@ -627,7 +627,7 @@ This inquiry was submitted through the EPAS-E LMS contact form.
             $this->mail->clearReplyTos();
 
             $fromAddress = config('joms.mail.from_address', config('joms.mail.username'));
-            $fromName = config('joms.mail.from_name', 'EPAS-E LMS');
+            $fromName = config('joms.mail.from_name', 'Hasa LMS');
             $this->mail->addReplyTo($fromAddress, $fromName);
 
             if (empty($toEmail) || !filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {

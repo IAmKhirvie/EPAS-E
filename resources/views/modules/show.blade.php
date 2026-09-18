@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $module->module_number . ' - ' . $module->module_name . ' - EPAS-E')
+@section('title', $module->module_number . ' - ' . $module->module_name . ' - Hasa')
 
 @push('styles')
 <style>
@@ -323,7 +323,7 @@
                                     <small class="text-muted">Module #</small>
                                 </div>
                                 <div class="col-6 col-md-3">
-                                    <div class="fw-bold text-info">{{ $module->sector ?? 'Electronics' }}</div>
+                                    <div class="fw-bold text-info">{{ $module->sector ?? 'General' }}</div>
                                     <small class="text-muted">Sector</small>
                                 </div>
                                 <div class="col-6 col-md-3">
@@ -394,7 +394,7 @@
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <small class="text-muted d-block">Sector</small>
-                                    <span>{{ $module->sector ?? 'Electronics' }}</span>
+                                    <span>{{ $module->sector ?? 'General' }}</span>
                                 </div>
                             </div>
                         </div>

@@ -1,7 +1,7 @@
 <!-- resources/views/modules/show.blade.php -->
 @extends('layouts.app')
 
-@section('title', $module->module_number . ' - ' . $module->module_name . ' - EPAS-E')
+@section('title', $module->module_number . ' - ' . $module->module_name . ' - Hasa')
 
 @section('content')
 

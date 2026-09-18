@@ -2,10 +2,10 @@
 <div id="termsModal" class="modal-overlay">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('termsModal')">&times;</button>
-        <h2>EPAS-E LMS Terms and Conditions</h2>
+        <h2>Hasa LMS Terms and Conditions</h2>
         <div class="terms-content">
             <h3>1. Acceptance of Terms</h3>
-            <p>By accessing and using the EPAS-E Learning Management System (LMS), you accept and agree to be bound by these Terms and Conditions.</p>
+            <p>By accessing and using the Hasa Learning Management System (LMS), you accept and agree to be bound by these Terms and Conditions.</p>
             
             <h3>2. User Accounts</h3>
             <p>2.1. Students must provide accurate student (Learner Reference Number) information.<br>

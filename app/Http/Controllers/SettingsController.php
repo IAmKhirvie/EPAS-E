@@ -270,19 +270,56 @@ class SettingsController extends Controller
     {
         $user = Auth::user();
 
-        $theme = $request->input('theme', 'light');
+        $validated = $request->validate([
+            'theme' => ['required', 'in:light,dark,auto'],
+            'font_size' => ['required', 'in:small,medium,large'],
+            'primary_color' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'secondary_color' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'background_color' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'dark_background_color' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'background_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+        ]);
+
+        $theme = $validated['theme'];
+        $current = $this->getUserSettings($user)['appearance'];
+        $backgroundImage = $current['background_image'] ?? null;
+        if ($request->boolean('remove_background_image')) {
+            $backgroundImage = null;
+        }
+        if ($request->hasFile('background_image')) {
+            $backgroundImage = $request->file('background_image')->store('theme-backgrounds', 'public');
+        }
         $appearance = [
             'theme' => $theme,
             'sidebar_compact' => $request->has('sidebar_compact'),
-            'font_size' => $request->input('font_size', 'medium'),
+            'font_size' => $validated['font_size'],
+            'primary_color' => strtolower($validated['primary_color']),
+            'secondary_color' => strtolower($validated['secondary_color']),
+            'background_color' => strtolower($validated['background_color']),
+            'dark_background_color' => strtolower($validated['dark_background_color']),
+            'background_image' => $backgroundImage,
         ];
 
-        $this->saveUserSetting($user, 'appearance', json_encode($appearance));
+        Setting::updateOrCreate(
+            ['user_id' => $user->id, 'key' => 'appearance'],
+            ['value' => json_encode($appearance)]
+        );
 
         // Sync theme to cookie so layout JS can read it before page renders
-        $cookie = cookie('theme', $theme === 'auto' ? '' : $theme, 60 * 24 * 365);
+        $cookie = cookie('theme', $theme, 60 * 24 * 365);
 
         return redirect()->back()->with('success', 'Appearance settings updated!')->withCookie($cookie);
+    }
+
+    public function backgroundImage()
+    {
+        $appearance = $this->getUserSettings(Auth::user())['appearance'];
+        $path = $appearance['background_image'] ?? null;
+        if (!is_string($path) || !preg_match('/^theme-backgrounds\/[A-Za-z0-9._-]+$/', $path) || !Storage::disk('public')->exists($path)) {
+            abort(404);
+        }
+
+        return Storage::disk('public')->response($path, null, ['Cache-Control' => 'private, max-age=3600']);
     }
 
     /**
@@ -382,6 +419,11 @@ class SettingsController extends Controller
             'theme' => 'light',
             'sidebar_compact' => false,
             'font_size' => 'medium',
+            'primary_color' => config('theme.primary'),
+            'secondary_color' => config('theme.secondary'),
+            'background_color' => config('theme.background'),
+            'dark_background_color' => config('theme.dark_background'),
+            'background_image' => null,
         ];
 
         // Read notifications from User model (where NotificationService reads them)
@@ -420,7 +462,7 @@ class SettingsController extends Controller
     private function getSystemSettings()
     {
         $defaults = [
-            'site_name' => 'EPAS-E Learning Management System',
+            'site_name' => 'Hasa Learning Management System',
             'registration_enabled' => true,
             'require_approval' => true,
             'passing_score' => 75,

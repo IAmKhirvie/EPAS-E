@@ -173,12 +173,12 @@ class NotificationService
     {
         $this->createNotification($student, 'account_approved', [
             'title' => 'Account Approved!',
-            'message' => 'Congratulations! Your account has been approved. You can now access all features of EPAS-E LMS.',
+            'message' => 'Congratulations! Your account has been approved. You can now access all features of Hasa LMS.',
         ]);
 
         if ($student->getNotificationPreference('email_account_status', true)) {
             $this->sendEmail($student, 'Your Account Has Been Approved',
-                "Congratulations! Your EPAS-E LMS account has been approved.\n\nYou now have full access to the learning management system. Log in to start learning!");
+                "Congratulations! Your Hasa LMS account has been approved.\n\nYou now have full access to the learning management system. Log in to start learning!");
         }
     }
 
@@ -199,7 +199,7 @@ class NotificationService
         ]);
 
         if ($student->getNotificationPreference('email_account_status', true)) {
-            $emailBody = "Unfortunately, your EPAS-E LMS registration has been rejected.";
+            $emailBody = "Unfortunately, your Hasa LMS registration has been rejected.";
             if ($reason) {
                 $emailBody .= "\n\nReason: {$reason}";
             }

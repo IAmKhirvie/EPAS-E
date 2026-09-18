@@ -98,7 +98,7 @@
         <div class="accent-bar"></div>
         <div class="accent-bar-bottom"></div>
         <div class="header">
-            <div class="logo">{{ $config['organization'] ?? 'EPAS-E Learning System' }}</div>
+            <div class="logo">{{ $config['organization'] ?? 'Hasa Learning System' }}</div>
             <div class="title">Certificate of<br><span>Completion</span></div>
         </div>
         <div class="content">

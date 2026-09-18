@@ -42,7 +42,7 @@ class CustomVerifyEmail extends Notification
 
         // Return a simple mail message for Laravel (won't be used since we're using PHPMailer directly)
         return (new \Illuminate\Notifications\Messages\MailMessage)
-            ->subject('Verify Your Email - EPAS-E LMS')
+            ->subject('Verify Your Email - Hasa LMS')
             ->line('Please verify your email address.');
     }
 

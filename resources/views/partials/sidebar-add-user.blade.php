@@ -111,14 +111,14 @@
                     <div class="row" id="student-fields">
                         <div class="col-6">
                             <div class="mb-3">
-                                <label for="school_year" class="form-label">School Year</label>
+                                <label for="school_year" class="form-label" required>School Year</label>
                                 <input type="text" name="school_year" id="school_year" class="form-control" value="{{ old('school_year') }}" placeholder="e.g., 2025-2026">
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="mb-3">
                                 <label for="section" class="form-label">Section / Batch</label>
-                                <input type="text" name="section" id="section" class="form-control" value="{{ old('section') }}" placeholder="e.g., Batch 1, EPAS-B1">
+                                <input type="text" name="section" id="section" class="form-control" value="{{ old('section') }}" placeholder="e.g., Batch 1, GROUP-A">
                             </div>
                         </div>
                     </div>

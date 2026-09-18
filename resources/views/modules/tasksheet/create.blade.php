@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create Task Sheet - EPAS-E')
+@section('title', 'Create Task Sheet - Hasa')
 
 @section('content')
 <div class="container-fluid py-5">

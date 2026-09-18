@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   
-  <title>@yield('title', 'EPAS-E LMS')</title>
+  <title>@yield('title', 'Hasa LMS')</title>
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="{{ dynamic_asset('favicon.png') }}">
-  <link rel="apple-touch-icon" href="{{ dynamic_asset('favicon.png') }}">
+  <link rel="icon" type="image/svg+xml" href="{{ dynamic_asset('assets/hasa-rizal.svg') }}">
+  <link rel="apple-touch-icon" href="{{ dynamic_asset('assets/hasa-rizal.svg') }}">
 
   <!-- Google Fonts - Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,6 +33,7 @@
   <link rel="stylesheet" href="{{ dynamic_asset('css/components/error-popup.css') }}">
 
   @vite(['resources/css/app.css'])
+  @include('partials.theme-palette-head')
   
   <style>
     /* Slideshow styles from lobby */
@@ -117,21 +118,7 @@
   @include('partials.header')
 
     <!-- In auth-layout.blade.php -->
-    <div class="slideshow-container" id="authSlideshow">
-        @php
-            $slides = [
-                'epas1.jpg',
-                'epas2.jpg', 
-                'epas3.jpg',
-                'epas4.jpg'
-            ];
-        @endphp
-        
-        @foreach($slides as $index => $slide)
-            <div class="slide {{ $index === 0 ? 'active' : '' }}" 
-                style="background-image: url('{{ dynamic_asset("assets/{$slide}") }}');"></div>
-        @endforeach
-    </div>
+    <div class="slideshow-container" id="authSlideshow" style="background:linear-gradient(135deg,#b9d9c6,#bdddea)"></div>
 
   <div class="auth-content-container">
     @yield('content')
@@ -141,7 +128,7 @@
     @hasSection('footer')
       {!! $__env->yieldContent('footer') !!}
     @else
-      © {{ date('Y') }} IETI. All rights reserved.
+      © {{ date('Y') }} Hasa. All rights reserved.
     @endif
   </footer>
 

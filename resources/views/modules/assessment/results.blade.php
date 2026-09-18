@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Assessment Results - ' . $module->module_title . ' - EPAS-E')
+@section('title', 'Assessment Results - ' . $module->module_title . ' - Hasa')
 
 @push('styles')
 <style>

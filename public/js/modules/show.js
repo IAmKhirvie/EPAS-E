@@ -214,13 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function getContentTitle(contentType) {
         const titles = {
-            'introduction': 'Introduction to Electronics and Electricity',
-            'electric-history': 'Electric History',
-            'static-electricity': 'Static Electricity',
-            'free-electrons': 'Free Electrons, Introduction to Sources of Electricity',
-            'alternative-energy': 'Alternative Energy',
-            'electric-energy': 'Types of Electric Energy and Current',
-            'materials': 'Types of Materials',
+            'introduction': 'Introduction',
             'self-check': 'Self Check'
         };
         return titles[contentType] || contentType;

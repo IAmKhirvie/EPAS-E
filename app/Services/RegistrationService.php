@@ -54,7 +54,7 @@ class RegistrationService
 
         // Send email to admins
         $this->emailAdmins(
-            'New Student Registration - EPAS-E',
+            'New Student Registration - Hasa',
             "<h2>New Student Registration</h2><p>A new student has registered:</p><ul><li><strong>Name:</strong> {$registration->full_name}</li><li><strong>Email:</strong> {$registration->email}</li></ul><p>Status: Pending email verification</p>",
             "New student registration: {$registration->full_name} ({$registration->email}). Status: Pending email verification."
         );
@@ -275,7 +275,7 @@ class RegistrationService
     {
         try {
             $subject = 'Registration Update';
-            $body = "Unfortunately, your EPAS-E LMS registration has been rejected.";
+            $body = "Unfortunately, your Hasa LMS registration has been rejected.";
             if ($reason) {
                 $body .= "\n\nReason: {$reason}";
             }

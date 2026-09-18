@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Trash - EPAS-E')
+@section('title', 'Trash - Hasa')
 
 @section('content')
 <div class="content-area">

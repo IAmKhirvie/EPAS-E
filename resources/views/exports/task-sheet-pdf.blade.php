@@ -61,7 +61,7 @@
     @endif
 
     <div class="footer">
-        <p>Generated from EPAS-E Learning Management System</p>
+        <p>Generated from Hasa Learning Management System</p>
         <p>{{ $exportDate }} | For offline study use only</p>
     </div>
 </body>

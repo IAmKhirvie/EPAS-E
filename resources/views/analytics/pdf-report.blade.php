@@ -161,9 +161,9 @@
 </head>
 <body>
     <div class="header">
-        <h1>EPAS-E Analytics Report</h1>
+        <h1>Hasa Analytics Report</h1>
         <p>Generated on {{ now()->format('F j, Y \a\t g:i A') }}</p>
-        <p>IETI College Marikina - Electronic Products Assembly and Servicing</p>
+        <p>Learning Organization - Learning Management</p>
     </div>
 
     <!-- Overview Stats -->
@@ -323,7 +323,7 @@
     </table>
 
     <div class="footer">
-        EPAS-E Learning Management System | IETI College Marikina | Analytics Report | Page 1
+        Hasa Learning Management System | Learning Organization | Analytics Report | Page 1
     </div>
 </body>
 </html>

@@ -5,11 +5,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     {{-- Cache headers handled by middleware for authenticated pages --}}
-    <title>@yield('title','EPAS-E - Electronic Products Assembly and Servicing')</title>
+    <title>@yield('title','Hasa - Learning Management')</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ dynamic_asset('favicon.png') }}">
-    <link rel="apple-touch-icon" href="{{ dynamic_asset('favicon.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ dynamic_asset('assets/hasa-rizal.svg') }}">
+    <link rel="apple-touch-icon" href="{{ dynamic_asset('assets/hasa-rizal.svg') }}">
 
     <!-- Google Fonts - Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,10 +18,10 @@
 
     <!-- PWA Support -->
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0c3a2d">
+    <meta name="theme-color" content="#b9d9c6">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="EPAS-E">
+    <meta name="apple-mobile-web-app-title" content="Hasa">
     <link rel="apple-touch-icon" href="/images/icons/icon-192x192.png">
 
     <!-- CSS (local) -->
@@ -66,6 +66,7 @@
     <link rel="stylesheet" href="{{ dynamic_asset('css/components/responsive-tables.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('css/components/touch-friendly.css') }}">
     <link rel="stylesheet" href="{{ dynamic_asset('css/pages/mobile.css') }}"  media="screen and (max-width: 1032px)">
+    @include('partials.theme-palette-head')
     <script>
         // Immediately check and apply dark mode before page renders
         (function() {
@@ -79,7 +80,7 @@
             const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
             // Apply theme immediately to prevent flash
-            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+            if (savedTheme === 'dark' || ((savedTheme === 'auto' || !savedTheme) && systemPrefersDark)) {
                 document.documentElement.classList.add('dark-mode');
             } else {
                 document.documentElement.classList.remove('dark-mode');

@@ -89,7 +89,7 @@
         <div class="header">
             <div class="republic">Republic of the Philippines</div>
             <div class="dept">Department of Education</div>
-            <div class="school">{{ $config['organization'] ?? 'EPAS-E Learning Management System' }}</div>
+            <div class="school">{{ $config['organization'] ?? 'Hasa Learning Management System' }}</div>
             <div class="title">Certificate of Completion</div>
         </div>
         <div class="content">

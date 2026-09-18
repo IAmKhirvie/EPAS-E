@@ -42,27 +42,27 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="qualification_title" class="form-label required-field">Qualification Title</label>
+                        <label for="qualification_title" class="form-label required-field">Subject or Program</label>
                         <input type="text" name="qualification_title" id="qualification_title"
-                               class="form-control" value="{{ old('qualification_title', 'Electronic Products Assembly And Servicing NCII') }}" required>
+                               class="form-control" value="{{ old('qualification_title') }}" placeholder="e.g., Biology" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="unit_of_competency" class="form-label required-field">Unit of Competency</label>
+                        <label for="unit_of_competency" class="form-label required-field">Learning Focus</label>
                         <input type="text" name="unit_of_competency" id="unit_of_competency"
-                               class="form-control" value="{{ old('unit_of_competency', 'Assemble Electronic Products') }}" required>
+                               class="form-control" value="{{ old('unit_of_competency') }}" placeholder="e.g., Foundations and key concepts" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="module_title" class="form-label required-field">Module Title</label>
                         <input type="text" name="module_title" id="module_title"
-                               class="form-control" value="{{ old('module_title', 'Assembling Electronic Products') }}" required>
+                               class="form-control" value="{{ old('module_title') }}" placeholder="e.g., Introduction to the subject" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="module_name" class="form-label required-field">Module Name</label>
                         <input type="text" name="module_name" id="module_name"
-                               class="form-control" value="{{ old('module_name', 'Competency based learning material') }}" required>
+                               class="form-control" value="{{ old('module_name') }}" placeholder="e.g., Module 1" required>
                     </div>
 
                     <div class="mb-3">

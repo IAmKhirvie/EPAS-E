@@ -1,6 +1,6 @@
 @extends('layouts.auth-layout')
 
-@section('title', 'Admin Login - EPAS-E LMS')
+@section('title', 'Admin Login - Hasa LMS')
 
 @section('content')
   <div class="login-container">

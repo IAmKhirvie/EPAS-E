@@ -180,7 +180,7 @@ class ModuleController extends Controller
                     ->where('module_id', $module->id)
                     ->where('progressable_type', \App\Models\InformationSheet::class)
                     ->where('progressable_id', $sheet->id)
-                    ->where('status', 'completed')
+                    ->whereNotNull('completed_at')
                     ->exists();
             }
         }
@@ -199,23 +199,12 @@ class ModuleController extends Controller
         $this->verifyModuleBelongsToCourse($course, $module);
 
         try {
-            $viewMap = [
-                'introduction' => 'modules.content.introduction',
-                'electric-history' => 'modules.content.electric-history',
-                'static-electricity' => 'modules.content.static-electricity',
-                'free-electrons' => 'modules.content.free-electrons',
-                'alternative-energy' => 'modules.content.alternative-energy',
-                'electric-energy' => 'modules.content.electric-energy',
-                'materials' => 'modules.content.materials',
-                'self-check' => 'modules.content.self-check'
-            ];
-
-            if (!array_key_exists($contentType, $viewMap)) {
+            if ($contentType !== 'introduction') {
                 return response()->json(['error' => 'Content type not found'], 404);
             }
 
             return response()->json([
-                'html' => view($viewMap[$contentType], compact('module'))->render()
+                'html' => view('modules.content.introduction', compact('module'))->render()
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading module content: ' . $e->getMessage());

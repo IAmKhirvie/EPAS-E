@@ -10,8 +10,8 @@ class PopulateUsersSeeder extends Seeder
 {
     public function run(): void
     {
-        $password = Hash::make('EPASe@2025');
-        $sections = ['S8A1', 'S8B1', 'S8A2', 'S8B2', 'S9A1'];
+        $password = Hash::make('ChangeMe@2026');
+        $sections = ['GROUP-A', 'GROUP-B', 'S8A2', 'S8B2', 'S9A1'];
 
         $firstNames = ['Juan', 'Maria', 'Jose', 'Ana', 'Carlos', 'Rosa', 'Pedro', 'Elena', 'Miguel', 'Sofia',
             'Antonio', 'Carmen', 'Rafael', 'Teresa', 'Francisco', 'Isabel', 'Manuel', 'Lucia', 'Fernando', 'Pilar',
@@ -31,7 +31,7 @@ class PopulateUsersSeeder extends Seeder
         for ($i = 1; $i <= 25; $i++) {
             $fn = $firstNames[array_rand($firstNames)];
             $ln = $lastNames[array_rand($lastNames)];
-            $email = strtolower($fn . '.' . $ln . $i . '@instructor.epase.edu');
+            $email = strtolower($fn . '.' . $ln . $i . '@instructor.hasa.test');
 
             DB::table('users')->updateOrInsert(
                 ['email' => $email],
@@ -57,7 +57,7 @@ class PopulateUsersSeeder extends Seeder
         for ($i = 1; $i <= 50; $i++) {
             $fn = $firstNames[array_rand($firstNames)];
             $ln = $lastNames[array_rand($lastNames)];
-            $email = strtolower($fn . '.' . $ln . $i . '@student.epase.edu');
+            $email = strtolower($fn . '.' . $ln . $i . '@student.hasa.test');
 
             DB::table('users')->updateOrInsert(
                 ['email' => $email],

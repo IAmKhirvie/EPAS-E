@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create Information Sheet - EPAS-E')
+@section('title', 'Create Information Sheet - Hasa')
 
 @section('content')
 <div class="content-area">
@@ -45,7 +45,7 @@
                                     <label class="cb-field-label">Title <span class="required">*</span></label>
                                     <input type="text" class="form-control @error('title') is-invalid @enderror"
                                            name="title" value="{{ old('title') }}"
-                                           placeholder="e.g., Introduction to Electronics and Electricity" required>
+                                           placeholder="e.g., Introduction to the subject" required>
                                     @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>

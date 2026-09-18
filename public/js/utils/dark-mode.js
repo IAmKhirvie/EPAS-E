@@ -18,21 +18,24 @@
 
         function getCurrentTheme() {
             var saved = localStorage.getItem('theme');
-            if (saved) return saved;
+            if (saved === 'light' || saved === 'dark') return saved;
             return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
 
-        function applyTheme(theme) {
+        function applyTheme(theme, persist = true) {
             var isDark = theme === 'dark';
             body.classList.toggle('dark-mode', isDark);
             html.classList.toggle('dark-mode', isDark);
             if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-            localStorage.setItem('theme', theme);
+            if (persist) {
+                localStorage.setItem('theme', theme);
+                document.cookie = 'theme=' + theme + '; path=/; max-age=31536000; SameSite=Lax';
+            }
             window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: theme } }));
         }
 
         // Apply on load
-        applyTheme(getCurrentTheme());
+        applyTheme(getCurrentTheme(), false);
 
         // Toggle handler
         if (toggle) {
@@ -43,13 +46,13 @@
 
         // Sync across tabs
         window.addEventListener('storage', function (e) {
-            if (e.key === 'theme' && e.newValue) applyTheme(e.newValue);
+            if (e.key === 'theme') applyTheme(getCurrentTheme(), false);
         });
 
         // Follow system preference when user hasn't chosen manually
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
-            if (!localStorage.getItem('theme')) {
-                applyTheme(e.matches ? 'dark' : 'light');
+            if (!localStorage.getItem('theme') || localStorage.getItem('theme') === 'auto') {
+                applyTheme(e.matches ? 'dark' : 'light', false);
             }
         });
     }

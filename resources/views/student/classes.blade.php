@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'My Class - EPAS-E')
+@section('title', 'My Class - Hasa')
 
 @push('styles')
 <style>

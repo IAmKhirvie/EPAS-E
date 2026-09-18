@@ -172,7 +172,7 @@
 <body>
     <div class="certificate">
         <div class="header">
-            <div class="org-name">{{ $config['organization'] ?? 'EPAS-E LEARNING MANAGEMENT SYSTEM' }}</div>
+            <div class="org-name">{{ $config['organization'] ?? 'HASA LEARNING MANAGEMENT SYSTEM' }}</div>
             <div class="cert-title">Certificate of Completion</div>
             <div class="cert-sub">Awarded to</div>
         </div>

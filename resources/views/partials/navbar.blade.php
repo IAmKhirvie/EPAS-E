@@ -17,10 +17,10 @@
         </button>
         <a class="navbar-brand" href="{{ route('welcome') }}">
             <div class="navbar-logo-container">
-                <img src="{{ dynamic_asset('assets/EPAS-E.png') }}" alt="EPAS-E LMS" class="logo">
+                <img src="{{ dynamic_asset('assets/hasa-rizal.svg') }}" alt="Hasa Rizal logo" class="logo">
                 <div class="navbar-title-container">
-                    <h2>EPAS-E</h2>
-                    <p>Electronic Products Assembly and Servicing</p>
+                    <h2>Hasa</h2>
+                    <p>Learning Management</p>
                 </div>
             </div>
         </a>
@@ -208,7 +208,7 @@
                     </a>
                     <a href="{{ route('about') }}" class="dropdown-item">
                         <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-                        About EPAS-E
+                        About Hasa
                     </a>
                     <a href="{{ route('contact') }}" class="dropdown-item">
                         <i class="fa-solid fa-phone" aria-hidden="true"></i>
@@ -286,6 +286,7 @@
             document.body.classList.toggle('dark-mode', !isDark);
             document.documentElement.classList.toggle('dark-mode', !isDark);
             localStorage.setItem('theme', newTheme);
+            document.cookie = 'theme=' + newTheme + '; path=/; max-age=31536000; SameSite=Lax';
             // Update the navbar icon
             var icon = document.getElementById('dark-mode-icon');
             if (icon) icon.className = !isDark ? 'fas fa-sun' : 'fas fa-moon';

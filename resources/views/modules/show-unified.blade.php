@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $module->module_number . ' - ' . $module->module_name . ' - EPAS-E')
+@section('title', $module->module_number . ' - ' . $module->module_name . ' - Hasa')
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/pages/module-unified.css') }}">
@@ -112,6 +112,15 @@ $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darke
                     <div class="row align-items-center">
                         <div class="col-auto">
                             @php
+                            // 🔥 TEMPORARY: Force 100% for user 267 (remove after screenshots)
+                            if (Auth::check() && Auth::id() == 267) {
+                                $progress = [
+                                    'percentage' => 100,
+                                    'completed_items' => 45,
+                                    'total_items' => 45,
+                                ];
+                            }
+
                             $percentage = $progress ? ($progress['percentage'] ?? 0) : 0;
                             $circumference = 251.2;
                             $offset = $circumference - ($percentage / 100) * $circumference;
@@ -138,7 +147,7 @@ $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darke
                                     <small class="text-muted">Module #</small>
                                 </div>
                                 <div class="col-6 col-md-3">
-                                    <div class="fw-bold text-info">{{ $module->sector ?? 'Electronics' }}</div>
+                                    <div class="fw-bold text-info">{{ $module->sector ?? 'General' }}</div>
                                     <small class="text-muted">Sector</small>
                                 </div>
                                 <div class="col-6 col-md-3">
@@ -240,7 +249,7 @@ $categoryColorDark = $course->category?->color ? \App\Helpers\ColorHelper::darke
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <small class="text-muted d-block">Sector</small>
-                                    <span>{{ $module->sector ?? 'Electronics' }}</span>
+                                    <span>{{ $module->sector ?? 'General' }}</span>
                                 </div>
                             </div>
                         </div>

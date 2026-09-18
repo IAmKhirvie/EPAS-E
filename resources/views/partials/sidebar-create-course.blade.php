@@ -14,21 +14,21 @@
                         <label for="course_name" class="form-label required-field">Course Name</label>
                         <input type="text" name="course_name" id="course_name"
                             class="form-control" value="{{ old('course_name') }}"
-                            placeholder="e.g., Electronic Products Assembly and Servicing" required>
+                            placeholder="e.g., Introduction to Biology" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="course_code" class="form-label required-field">Course Code</label>
                         <input type="text" name="course_code" id="course_code"
                             class="form-control" value="{{ old('course_code') }}"
-                            placeholder="e.g., EPAS-NCII" required>
+                            placeholder="e.g., BIO-101" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="sector" class="form-label">Sector</label>
                         <input type="text" name="sector" id="sector"
                             class="form-control" value="{{ old('sector') }}"
-                            placeholder="e.g., Electronics Sector">
+                            placeholder="e.g., Academic Department">
                     </div>
 
                     <div class="mb-3">

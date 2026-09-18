@@ -15,13 +15,13 @@ class UserSeeder extends Seeder
     {
         // Admin
         DB::table('users')->updateOrInsert(
-            ['email' => 'khirviecliffordbautista@gmail.com'],
+            ['email' => 'admin@hasa.test'],
             [
                 'student_id' => 'MAR000000000001',
-                'password' => Hash::make('EPASe@2025'),
-                'first_name' => 'Khirvie Clifford',
-                'middle_name' => 'N.',
-                'last_name' => 'Bautista',
+                'password' => Hash::make('ChangeMe@2026'),
+                'first_name' => 'Admin',
+                'middle_name' => '',
+                'last_name' => 'User',
                 'ext_name' => '',
                 'role' => 'admin',
                 'department_id' => 1,
@@ -32,18 +32,18 @@ class UserSeeder extends Seeder
             ]
         );
 
-        // Instructor
+        // Instructor 1
         DB::table('users')->updateOrInsert(
-            ['email' => 'karlrapada@gmail.com'],
+            ['email' => 'instructor1@hasa.test'],
             [
                 'student_id' => 'MAR000000000002',
-                'password' => Hash::make('EPASe@2025'),
-                'first_name' => 'Karl Lynuz',
-                'middle_name' => 'B.',
-                'last_name' => 'Rapada',
+                'password' => Hash::make('ChangeMe@2026'),
+                'first_name' => 'Instructor',
+                'middle_name' => '',
+                'last_name' => 'One',
                 'ext_name' => '',
                 'role' => 'instructor',
-                'section' => 'S8B1',
+                'section' => 'GROUP-B',
                 'department_id' => 1,
                 'stat' => 1,
                 'email_verified_at' => now(),
@@ -52,18 +52,18 @@ class UserSeeder extends Seeder
             ]
         );
 
-        // Students
+        // Student 1 (GROUP-A)
         DB::table('users')->updateOrInsert(
-            ['email' => 'mikaellayap23@gmail.com'],
+            ['email' => 'student1@hasa.test'],
             [
                 'student_id' => 'MAR000000000003',
-                'password' => Hash::make('EPASe@2025'),
-                'first_name' => 'Mikaella Rosalia',
-                'middle_name' => 'Y.',
-                'last_name' => 'Torre',
+                'password' => Hash::make('ChangeMe@2026'),
+                'first_name' => 'Student',
+                'middle_name' => 'A',
+                'last_name' => 'One',
                 'ext_name' => '',
                 'role' => 'student',
-                'section' => 'S8A1',
+                'section' => 'GROUP-A',
                 'department_id' => 1,
                 'stat' => 1,
                 'email_verified_at' => now(),
@@ -72,17 +72,18 @@ class UserSeeder extends Seeder
             ]
         );
 
+        // Student 2 (GROUP-A)
         DB::table('users')->updateOrInsert(
-            ['email' => 'kookyarabia06@gmail.com'],
+            ['email' => 'student2@hasa.test'],
             [
                 'student_id' => 'MAR000000000004',
-                'password' => Hash::make('EPASe@2025'),
-                'first_name' => 'Kooky Lyann',
-                'middle_name' => '',
-                'last_name' => 'Arabia',
+                'password' => Hash::make('ChangeMe@2026'),
+                'first_name' => 'Student',
+                'middle_name' => 'B',
+                'last_name' => 'Two',
                 'ext_name' => '',
                 'role' => 'student',
-                'section' => 'S8A1',
+                'section' => 'GROUP-A',
                 'department_id' => 1,
                 'stat' => 1,
                 'email_verified_at' => now(),
@@ -91,17 +92,18 @@ class UserSeeder extends Seeder
             ]
         );
 
+        // Student 3 (GROUP-B)
         DB::table('users')->updateOrInsert(
-            ['email' => 'sheilamerida@gmail.com'],
+            ['email' => 'student3@hasa.test'],
             [
                 'student_id' => 'MAR000000000005',
-                'password' => Hash::make('EPASe@2025'),
-                'first_name' => 'Sheila Marie',
-                'middle_name' => 'M.',
-                'last_name' => 'Merida',
+                'password' => Hash::make('ChangeMe@2026'),
+                'first_name' => 'Student',
+                'middle_name' => 'C',
+                'last_name' => 'Three',
                 'ext_name' => '',
                 'role' => 'student',
-                'section' => 'S8B1',
+                'section' => 'GROUP-B',
                 'department_id' => 1,
                 'stat' => 1,
                 'email_verified_at' => now(),
@@ -110,18 +112,18 @@ class UserSeeder extends Seeder
             ]
         );
 
-        // Instructor - S8A1
+        // Instructor 2 (GROUP-A)
         DB::table('users')->updateOrInsert(
-            ['email' => 'KebinSy2121252@gmail.com'],
+            ['email' => 'instructor2@hasa.test'],
             [
                 'student_id' => 'MAR000000000006',
-                'password' => Hash::make('EPASe@2025'),
-                'first_name' => 'Andrei Kevin',
-                'middle_name' => 'A.',
-                'last_name' => 'Sy',
+                'password' => Hash::make('ChangeMe@2026'),
+                'first_name' => 'Instructor',
+                'middle_name' => '',
+                'last_name' => 'Two',
                 'ext_name' => '',
                 'role' => 'instructor',
-                'section' => 'S8A1',
+                'section' => 'GROUP-A',
                 'department_id' => 1,
                 'stat' => 1,
                 'email_verified_at' => now(),

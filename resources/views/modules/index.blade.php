@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'EPAS-E Courses')
+@section('title', 'Hasa Courses')
 
 @section('content')
 <div class="container-fluid py-5">
     <div class="row">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 mb-0">EPAS-E Learning Courses</h1>
+                <h1 class="h3 mb-0">Hasa Learning Courses</h1>
                 @if(in_array(auth()->user()->role, ['admin', 'instructor']))
                 <a href="{{ route('courses.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Create New Course

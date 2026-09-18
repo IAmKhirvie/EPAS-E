@@ -81,7 +81,7 @@ use App\Models\Course;
 use App\Models\Certificate;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-Route::get('/preview-certificate/{template?}', function ($template = 'tesda') {
+Route::get('/preview-certificate/{template?}', function ($template = 'default') {
     // Fetch a real certificate or use dummy data
     $certificate = Certificate::with(['user', 'course'])->first();
 
@@ -92,8 +92,8 @@ Route::get('/preview-certificate/{template?}', function ($template = 'tesda') {
         $issue_date = now()->format('F d, Y');
         $certificate_number = 'CERT-PREVIEW-00001';
         $config = [
-            'organization' => 'EPAS-E Learning Management System',
-            'institution' => config('joms.institution_name', 'IETI College of Technology - Marikina'),
+            'organization' => 'Hasa Learning Management System',
+            'institution' => config('joms.institution_name', 'Learning Organization'),
             'signatory_left_title' => 'School Administrator',
             'signatory_right_title' => 'Lead Instructor / Trainer',
         ];
@@ -103,8 +103,8 @@ Route::get('/preview-certificate/{template?}', function ($template = 'tesda') {
         $issue_date = $certificate->issue_date?->format('F d, Y') ?? now()->format('F d, Y');
         $certificate_number = $certificate->certificate_number;
         $config = $certificate->course->certificate_config ?? [
-            'organization' => 'EPAS-E Learning Management System',
-            'institution' => config('joms.institution_name', 'IETI College of Technology - Marikina'),
+            'organization' => 'Hasa Learning Management System',
+            'institution' => config('joms.institution_name', 'Learning Organization'),
             'signatory_left_title' => 'School Administrator',
             'signatory_right_title' => 'Lead Instructor / Trainer',
         ];
@@ -168,10 +168,15 @@ Route::fallback(function () {
 */
 
 Route::get('/welcome', function () {
-    $totalStudents = \App\Models\User::where('role', 'student')->where('stat', 1)->count();
-    $totalInstructors = \App\Models\User::where('role', 'instructor')->where('stat', 1)->count();
-    $totalCourses = \App\Models\Course::where('is_active', true)->count();
-    $totalModules = \App\Models\Module::where('is_active', true)->count();
+    $totalStudents = $totalInstructors = $totalCourses = $totalModules = 0;
+    try {
+        $totalStudents = \App\Models\User::where('role', 'student')->where('stat', 1)->count();
+        $totalInstructors = \App\Models\User::where('role', 'instructor')->where('stat', 1)->count();
+        $totalCourses = \App\Models\Course::where('is_active', true)->count();
+        $totalModules = \App\Models\Module::where('is_active', true)->count();
+    } catch (\Illuminate\Database\QueryException $exception) {
+        // The public landing page can still render while the database is offline.
+    }
     return view('welcome', compact('totalStudents', 'totalInstructors', 'totalCourses', 'totalModules'));
 })->name('welcome');
 
@@ -489,19 +494,19 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::prefix('courses/{course}')->name('courses.modules.')->group(function () {
             Route::get('/modules/create', [ModuleController::class, 'create'])->name('create');
             Route::post('/modules', [ModuleController::class, 'store'])->name('store');
-            Route::get('/module-{module}/edit', [ModuleController::class, 'edit'])->name('edit');
+            Route::get('/module-{module:slug}/edit', [ModuleController::class, 'edit'])->name('edit');
             Route::put('/module-{module}', [ModuleController::class, 'update'])->name('update');
             Route::delete('/module-{module}', [ModuleController::class, 'destroy'])->name('destroy');
             Route::post('/module-{module}/upload-image', [ModuleController::class, 'uploadImage'])->name('upload-image');
             Route::delete('/module-{module}/images/{image}', [ModuleController::class, 'deleteImage'])->name('delete-image');
 
             // Information Sheet CRUD (nested under modules)
-            Route::get('/module-{module}/sheets/create', [InformationSheetController::class, 'create'])->name('sheets.create');
+            Route::get('/module-{module:slug}/sheets/create', [InformationSheetController::class, 'create'])->name('sheets.create');
             Route::post('/module-{module}/sheets', [InformationSheetController::class, 'store'])->name('sheets.store');
-            Route::get('/module-{module}/sheets/{informationSheet}/edit', [InformationSheetController::class, 'edit'])->name('sheets.edit');
+            Route::get('/module-{module:slug}/sheets/{informationSheet}/edit', [InformationSheetController::class, 'edit'])->name('sheets.edit');
             Route::put('/module-{module}/sheets/{informationSheet}', [InformationSheetController::class, 'update'])->name('sheets.update');
             Route::delete('/module-{module}/information-sheets/{informationSheet}', [InformationSheetController::class, 'destroy'])->name('sheets.destroy');
-            Route::get('/module-{module}/sheets/{informationSheet}/download', [InformationSheetController::class, 'download'])->name('sheets.download');
+            Route::get('/module-{module:slug}/sheets/{informationSheet}/download', [InformationSheetController::class, 'download'])->name('sheets.download');
         });
 
         // Topic Management
@@ -522,46 +527,47 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
     // Module View Routes (nested under courses)
     Route::prefix('courses/{course}')->name('courses.modules.')->group(function () {
         // Specific routes MUST come before the catch-all {slug?} route
-        Route::get('/module-{module}/progress', [ModuleController::class, 'getModuleProgress'])->name('progress');
-        Route::get('/module-{module}/download', [ModuleController::class, 'downloadPdf'])->name('download');
-        Route::get('/module-{module}/print', [ModuleController::class, 'printPreview'])->name('print');
+        Route::get('/module-{module:slug}/progress', [ModuleController::class, 'getModuleProgress'])->name('progress');
+        Route::get('/module-{module:slug}/download', [ModuleController::class, 'downloadPdf'])->name('download');
+        Route::get('/module-{module:slug}/print', [ModuleController::class, 'printPreview'])->name('print');
 
         // AJAX Content Endpoints
-        Route::get('/module-{module}/sheets/{informationSheet}/content', [ModuleController::class, 'getSheetContent'])->name('sheet-content');
-        Route::get('/module-{module}/sheets/{informationSheet}/topics/{topic}', [ModuleController::class, 'getTopicContent'])->name('topic-content');
+        Route::get('/module-{module:slug}/sheets/{informationSheet}/content', [ModuleController::class, 'getSheetContent'])->name('sheet-content');
+        Route::get('/module-{module:slug}/sheets/{informationSheet}/topics/{topic}', [ModuleController::class, 'getTopicContent'])->name('topic-content');
         Route::post('/module-{module}/sheets/{informationSheet}/topics/{topic}/complete', [ModuleController::class, 'markTopicComplete'])->name('topic-complete');
-        Route::get('/module-{module}/sheets/{informationSheet}/self-check', [ModuleController::class, 'getSelfCheckContent'])->name('self-check');
-        Route::get('/module-{module}/sheets/{informationSheet}/task-sheet', [ModuleController::class, 'getTaskSheetContent'])->name('task-sheet');
-        Route::get('/module-{module}/sheets/{informationSheet}/job-sheet', [ModuleController::class, 'getJobSheetContent'])->name('job-sheet');
+        Route::get('/module-{module:slug}/sheets/{informationSheet}/self-check', [ModuleController::class, 'getSelfCheckContent'])->name('self-check');
+        Route::get('/module-{module:slug}/sheets/{informationSheet}/task-sheet', [ModuleController::class, 'getTaskSheetContent'])->name('task-sheet');
+        Route::get('/module-{module:slug}/sheets/{informationSheet}/job-sheet', [ModuleController::class, 'getJobSheetContent'])->name('job-sheet');
 
         // Module Final Assessment Routes
-        Route::get('/module-{module}/final-assessment', [\App\Http\Controllers\ModuleAssessmentController::class, 'show'])->name('assessment.show');
+        Route::get('/module-{module:slug}/final-assessment', [\App\Http\Controllers\ModuleAssessmentController::class, 'show'])->name('assessment.show');
         Route::post('/module-{module}/final-assessment', [\App\Http\Controllers\ModuleAssessmentController::class, 'submit'])->name('assessment.submit');
         Route::post('/module-{module}/final-assessment/save', [\App\Http\Controllers\ModuleAssessmentController::class, 'saveProgress'])->name('assessment.save');
-        Route::get('/module-{module}/final-assessment/{submission}/results', [\App\Http\Controllers\ModuleAssessmentController::class, 'results'])->name('assessment.results');
-        Route::get('/module-{module}/final-assessment/history', [\App\Http\Controllers\ModuleAssessmentController::class, 'history'])->name('assessment.history');
-        Route::get('/module-{module}/final-assessment/stats', [\App\Http\Controllers\ModuleAssessmentController::class, 'stats'])->name('assessment.stats');
+        Route::get('/module-{module:slug}/final-assessment/{submission}/results', [\App\Http\Controllers\ModuleAssessmentController::class, 'results'])->name('assessment.results');
+        Route::get('/module-{module:slug}/final-assessment/history', [\App\Http\Controllers\ModuleAssessmentController::class, 'history'])->name('assessment.history');
+        Route::get('/module-{module:slug}/final-assessment/stats', [\App\Http\Controllers\ModuleAssessmentController::class, 'stats'])->name('assessment.stats');
 
         // Competency Test Routes
-        Route::get('/module-{module}/competency-tests', [\App\Http\Controllers\CompetencyTestController::class, 'index'])->name('competency-tests.index');
-        Route::get('/module-{module}/competency-tests/create', [\App\Http\Controllers\CompetencyTestController::class, 'create'])->name('competency-tests.create');
+        Route::get('/module-{module:slug}/competency-tests', [\App\Http\Controllers\CompetencyTestController::class, 'index'])->name('competency-tests.index');
+        Route::get('/module-{module:slug}/competency-tests/create', [\App\Http\Controllers\CompetencyTestController::class, 'create'])->name('competency-tests.create');
         Route::post('/module-{module}/competency-tests', [\App\Http\Controllers\CompetencyTestController::class, 'store'])->name('competency-tests.store');
-        Route::get('/module-{module}/competency-tests/{competencyTest}', [\App\Http\Controllers\CompetencyTestController::class, 'show'])->name('competency-tests.show');
-        Route::get('/module-{module}/competency-tests/{competencyTest}/edit', [\App\Http\Controllers\CompetencyTestController::class, 'edit'])->name('competency-tests.edit');
+        Route::get('/module-{module:slug}/competency-tests/{competencyTest}', [\App\Http\Controllers\CompetencyTestController::class, 'show'])->name('competency-tests.show');
+        Route::get('/module-{module:slug}/competency-tests/{competencyTest}/edit', [\App\Http\Controllers\CompetencyTestController::class, 'edit'])->name('competency-tests.edit');
         Route::put('/module-{module}/competency-tests/{competencyTest}', [\App\Http\Controllers\CompetencyTestController::class, 'update'])->name('competency-tests.update');
         Route::delete('/module-{module}/competency-tests/{competencyTest}', [\App\Http\Controllers\CompetencyTestController::class, 'destroy'])->name('competency-tests.destroy');
         Route::post('/module-{module}/competency-tests/{competencyTest}/submit', [\App\Http\Controllers\CompetencyTestController::class, 'submit'])->name('competency-tests.submit');
         Route::post('/module-{module}/competency-tests/{competencyTest}/save', [\App\Http\Controllers\CompetencyTestController::class, 'saveProgress'])->name('competency-tests.save');
-        Route::get('/module-{module}/competency-tests/{competencyTest}/results/{submission}', [\App\Http\Controllers\CompetencyTestController::class, 'results'])->name('competency-tests.results');
+        Route::get('/module-{module:slug}/competency-tests/{competencyTest}/results/{submission}', [\App\Http\Controllers\CompetencyTestController::class, 'results'])->name('competency-tests.results');
         Route::post('/module-{module}/competency-tests/{competencyTest}/questions', [\App\Http\Controllers\CompetencyTestController::class, 'storeQuestions'])->name('competency-tests.questions.store');
-        Route::get('/module-{module}/competency-tests/{competencyTest}/stats', [\App\Http\Controllers\CompetencyTestController::class, 'stats'])->name('competency-tests.stats');
+        Route::get('/module-{module:slug}/competency-tests/{competencyTest}/stats', [\App\Http\Controllers\CompetencyTestController::class, 'stats'])->name('competency-tests.stats');
 
         // Information Sheet View
-        Route::get('/module-{module}/information-sheets/{informationSheet}', [ModuleController::class, 'showInformationSheet'])->name('information-sheet');
-        Route::get('/module-{module}/information-sheets/{informationSheet}/topics/{topic}', [ModuleController::class, 'showTopic'])->name('topic');
+        Route::get('/module-{module:slug}/information-sheets/{informationSheet}', [ModuleController::class, 'showInformationSheet'])->name('information-sheet');
+        Route::get('/module-{module:slug}/information-sheets/{informationSheet}/topics/{topic}', [ModuleController::class, 'showTopic'])->name('topic');
 
         // Unified module show (uses slug for binding)
-        Route::get('/module-{module}', [ModuleController::class, 'show'])->name('show');
+        Route::get('/module-{module:slug}', [ModuleController::class, 'show'])->name('show');
+
     });
 
     // Backward Compatibility Redirects
@@ -1015,6 +1021,7 @@ Route::middleware(['auth', 'check.active', 'two-factor'])->group(function () {
         Route::post('/password', [SettingsController::class, 'updatePassword'])->name('password');
         Route::post('/notifications', [SettingsController::class, 'updateNotifications'])->name('notifications');
         Route::post('/appearance', [SettingsController::class, 'updateAppearance'])->name('appearance');
+        Route::get('/background-image', [SettingsController::class, 'backgroundImage'])->name('background-image');
         Route::post('/system', [SettingsController::class, 'updateSystem'])->name('system')->middleware('check.role:admin');
         Route::get('/export', [SettingsController::class, 'exportData'])->name('export');
         Route::post('/delete-account', [SettingsController::class, 'deleteAccount'])->name('delete-account');

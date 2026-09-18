@@ -32,7 +32,7 @@ class CertificateIssued extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Congratulations! Your Certificate Has Been Issued - ' . ($this->certificate->module->module_title ?? 'EPAS-E'),
+            subject: 'Congratulations! Your Certificate Has Been Issued - ' . ($this->certificate->module->module_title ?? 'Hasa'),
         );
     }
 

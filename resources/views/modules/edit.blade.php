@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Module - EPAS-E')
+@section('title', 'Edit Module - Hasa')
 
 @section('content')
 <div class="content-area">

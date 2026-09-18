@@ -100,7 +100,7 @@
         <div class="ornament ornament-bl">❧</div>
         <div class="ornament ornament-br">❧</div>
         <div class="header">
-            <div class="logo">{{ $config['organization'] ?? 'EPAS-E Learning Management System' }}</div>
+            <div class="logo">{{ $config['organization'] ?? 'Hasa Learning Management System' }}</div>
             <div class="title">Certificate</div>
             <div class="subtitle">of Excellence</div>
         </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $module->module_name }} - EPAS-E</title>
+    <title>{{ $module->module_name }} - Hasa</title>
     <style>
         * {
             margin: 0;
@@ -291,7 +291,7 @@
     @endforeach
 
     <div class="footer">
-        <p>Generated from EPAS-E Learning Management System</p>
+        <p>Generated from Hasa Learning Management System</p>
         <p>{{ $exportDate }} | For offline study use only</p>
     </div>
 </body>

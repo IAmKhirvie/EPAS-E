@@ -34,7 +34,7 @@
 
                             <div class="announcement-meta text-muted">
                                 <small>
-                                    Posted by {{ $announcement->user ? $announcement->user->full_name : 'EPAS-E System' }}
+                                    Posted by {{ $announcement->user ? $announcement->user->full_name : 'Hasa System' }}
                                     on {{ $announcement->created_at->format('F j, Y \a\t g:i A') }}
                                     @if($announcement->publish_at && $announcement->publish_at->isFuture())
                                     • Scheduled for {{ $announcement->publish_at->format('F j, Y \a\t g:i A') }}

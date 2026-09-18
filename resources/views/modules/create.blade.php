@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create New Module - EPAS-E')
+@section('title', 'Create New Module - Hasa')
 
 @section('content')
 <div class="content-area">
@@ -16,7 +16,7 @@
             <div class="cb-main">
                 <div class="cb-header cb-header--module">
                     <h4><i class="fas fa-book me-2"></i>Create New Learning Module</h4>
-                    <p>Set up a competency-based learning module</p>
+                    <p>Set up a learning module for this course</p>
                 </div>
 
                 <div class="cb-body">
@@ -43,15 +43,15 @@
                         <div class="cb-settings">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="cb-field-label">Qualification Title <span class="required">*</span></label>
+                                    <label class="cb-field-label">Subject or Program <span class="required">*</span></label>
                                     <input type="text" class="form-control @error('qualification_title') is-invalid @enderror"
-                                           name="qualification_title" value="{{ old('qualification_title', 'Electronic Products Assembly And Servicing NCII') }}" required>
+                                           name="qualification_title" value="{{ old('qualification_title') }}" placeholder="e.g., Biology" required>
                                     @error('qualification_title')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="cb-field-label">Unit of Competency <span class="required">*</span></label>
+                                    <label class="cb-field-label">Learning Focus <span class="required">*</span></label>
                                     <input type="text" class="form-control @error('unit_of_competency') is-invalid @enderror"
-                                           name="unit_of_competency" value="{{ old('unit_of_competency', 'Assemble Electronic Products') }}" required>
+                                           name="unit_of_competency" value="{{ old('unit_of_competency') }}" placeholder="e.g., Foundations and key concepts" required>
                                     @error('unit_of_competency')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
@@ -59,7 +59,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="cb-field-label">Module Title <span class="required">*</span></label>
                                     <input type="text" class="form-control @error('module_title') is-invalid @enderror"
-                                           name="module_title" value="{{ old('module_title', 'Assembling Electronic Products') }}" required>
+                                           name="module_title" value="{{ old('module_title') }}" placeholder="e.g., Introduction to the subject" required>
                                     @error('module_title')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="col-md-6 mb-3">
@@ -72,7 +72,7 @@
                             <div class="mb-3">
                                 <label class="cb-field-label">Module Name <span class="required">*</span></label>
                                 <input type="text" class="form-control @error('module_name') is-invalid @enderror"
-                                       name="module_name" value="{{ old('module_name', 'Competency based learning material') }}" required>
+                                       name="module_name" value="{{ old('module_name') }}" placeholder="e.g., Module 1" required>
                                 @error('module_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div>

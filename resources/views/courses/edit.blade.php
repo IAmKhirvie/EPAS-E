@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Course - EPAS-E')
+@section('title', 'Edit Course - Hasa')
 
 @section('content')
 <div class="content-area">
@@ -81,7 +81,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="cb-field-label">Sector <span class="optional">(optional)</span></label>
                                     <input type="text" class="form-control @error('sector') is-invalid @enderror"
-                                        name="sector" value="{{ old('sector', $course->sector) }}" placeholder="e.g., Electronics Sector">
+                                        name="sector" value="{{ old('sector', $course->sector) }}" placeholder="e.g., Academic Department">
                                     @error('sector')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>

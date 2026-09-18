@@ -2,7 +2,7 @@
 <div id="privacyModal" class="modal-overlay">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('privacyModal')">&times;</button>
-        <h2>EPAS-E LMS Privacy Policy</h2>
+        <h2>Hasa LMS Privacy Policy</h2>
         <div class="terms-content">
             <h3>1. Information Collection</h3>
             <p>We collect personal information including but not limited to:<br>
@@ -32,7 +32,7 @@
                5.3. Right to withdraw consent where applicable</p>
             
             <h3>6. Contact Information</h3>
-            <p>For privacy concerns, contact the EPAS-E LMS administrator at your educational institution.</p>
+            <p>For privacy concerns, contact the Hasa LMS administrator at your educational institution.</p>
             
             <h3>7. Policy Updates</h3>
             <p>This privacy policy may be updated periodically. Users will be notified of significant changes.</p>

@@ -13,15 +13,19 @@ return new class extends Migration
             return;
         }
 
-        // First, create the EPAS course if it doesn't exist
-        $course = DB::table('courses')->where('course_code', 'EPAS-NCII')->first();
+        // Only assign legacy modules that predate course ownership.
+        if (!DB::table('modules')->whereNull('course_id')->exists()) {
+            return;
+        }
+
+        $course = DB::table('courses')->where('course_code', 'IMPORTED-MODULES')->first();
 
         if (!$course) {
             $courseId = DB::table('courses')->insertGetId([
-                'course_code' => 'EPAS-NCII',
-                'course_name' => 'Electronic Products Assembly and Servicing NCII',
-                'description' => 'This course covers the competencies required to assemble and service electronic products according to industry standards.',
-                'sector' => 'Electronics',
+                'course_code' => 'IMPORTED-MODULES',
+                'course_name' => 'Imported Modules',
+                'description' => 'Modules imported before courses were introduced.',
+                'sector' => 'General',
                 'is_active' => true,
                 'order' => 1,
                 'created_at' => now(),

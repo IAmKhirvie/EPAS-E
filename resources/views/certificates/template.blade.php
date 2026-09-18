@@ -167,9 +167,9 @@
 <body>
     <div class="certificate">
         <div class="header">
-            <div class="logo">EPAS-E Learning Management System</div>
+            <div class="logo">Hasa Learning Management System</div>
             <div class="title">Certificate of Completion</div>
-            <div class="subtitle">Electronic Products Assembly and Servicing</div>
+            <div class="subtitle">Learning Management</div>
         </div>
 
         <div class="content">
@@ -180,7 +180,7 @@
             </div>
             <div class="course-name">{{ $course->course_name }}</div>
             <div class="description">
-                as prescribed by the EPAS-E Learning Management System curriculum.
+                as prescribed by the Hasa Learning Management System curriculum.
             </div>
         </div>
 

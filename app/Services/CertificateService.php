@@ -18,7 +18,6 @@ class CertificateService
      * Available certificate templates.
      */
     public const TEMPLATES = [
-        'tesda' => 'TESDA NC II (Default)',
         'default' => 'Classic (Blue)',
         'gold' => 'Gold Premium',
         'modern' => 'Modern Minimal',
@@ -50,7 +49,7 @@ class CertificateService
         $certificateNumber = Certificate::generateCertificateNumber();
 
         // Get template from course or use default
-        $template = $course->certificate_template ?? 'tesda';
+        $template = $course->certificate_template ?? 'default';
 
         // Create certificate record
         $certificate = Certificate::create([
@@ -87,14 +86,14 @@ class CertificateService
             'certificate_number' => $certificate->certificate_number,
             'issue_date' => $certificate->issued_at ? $certificate->issued_at->format('F d, Y') : now()->format('F d, Y'),
             'config' => [
-                'organization' => 'EPAS-E Learning Management System',
-                'institution' => config('joms.institution_name', 'IETI College of Technology - Marikina'),
+                'organization' => 'Hasa Learning Management System',
+                'institution' => config('joms.institution_name', 'Learning Organization'),
                 'signatory_left_title' => 'School Administrator',
                 'signatory_right_title' => 'Lead Instructor / Trainer',
             ],
         ];
 
-        $template = $certificate->template_used ?? 'tesda';
+        $template = $certificate->template_used ?? 'default';
         // Check if view exists in certificates.templates.*
         if (!view()->exists("certificates.templates.{$template}")) {
             Log::warning("Template '{$template}' not found, falling back to 'default'");
@@ -223,7 +222,7 @@ class CertificateService
             $progress = $user->progress()
                 ->where('progressable_type', 'App\\Models\\Module')
                 ->where('progressable_id', $module->id)
-                ->where('status', 'completed')
+                ->whereNotNull('completed_at')
                 ->first();
 
             if (!$progress) {
@@ -251,7 +250,7 @@ class CertificateService
 
         $course = $module->course;
         $certificateNumber = Certificate::generateCertificateNumber();
-        $template = $course->certificate_template ?? 'tesda';
+        $template = $course->certificate_template ?? 'default';
 
         // Create certificate with pending status (needs instructor approval first)
         $certificate = Certificate::create([
@@ -411,7 +410,7 @@ class CertificateService
 
         $course = $module->course;
         $certificateNumber = Certificate::generateCertificateNumber();
-        $template = $course->certificate_template ?? 'tesda';
+        $template = $course->certificate_template ?? 'default';
 
         // Create certificate directly as issued
         $certificate = Certificate::create([

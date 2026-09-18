@@ -1,8 +1,8 @@
-# EPAS-E LMS
+# Hasa LMS
 
-**Electronic Products Assembly and Servicing - Enhanced**
+**A learning management system for courses across subjects and programs.**
 
-A comprehensive Learning Management System built with Laravel 12 for Philippine K-12 vocational/technical training programs.
+A Laravel 12 learning management system for students, instructors, and administrators. Courses can contain modules, lessons, and assessments from any subject.
 
 ## Tech Stack
 
@@ -33,6 +33,11 @@ A comprehensive Learning Management System built with Laravel 12 for Philippine 
 - Scale: Outstanding (90-100), Very Satisfactory (85-89), Satisfactory (80-84), Fairly Satisfactory (75-79), Did Not Meet (0-74)
 - GPA calculation (4.0 scale)
 - Grade export to CSV/Excel
+
+### Appearance
+
+- Per-account appearance settings: pastel or custom primary, secondary, light background, and night background colors; optional light-mode background image
+- Hasa Rizal SVG logo used in navigation, favicon, and app manifest
 
 ### Gamification & Engagement
 
@@ -87,8 +92,8 @@ A comprehensive Learning Management System built with Laravel 12 for Philippine 
 
 ```bash
 # Clone the repository
-git clone https://github.com/IAmKhirvie/EPAS-E.git
-cd EPAS-E
+git clone https://github.com/IAmKhirvie/Hasa.git
+cd Hasa
 
 # Install dependencies
 composer install
@@ -187,14 +192,14 @@ npm run dev
 
 After running `php artisan db:seed`, the following accounts are created:
 
-| Role       | Email                                | Section | Password     |
-| ---------- | ------------------------------------ | ------- | ------------ |
-| Admin      | `khirviecliffordbautista@gmail.com`  | —       | `EPASe@2025` |
-| Instructor | `karlrapada@gmail.com`               | S8B1    | `EPASe@2025` |
-| Instructor | `KebinSy2121252@gmail.com`           | S8A1    | `EPASe@2025` |
-| Student    | `mikaellayap23@gmail.com`            | S8A1    | `EPASe@2025` |
-| Student    | `kookyarabia06@gmail.com`            | S8A1    | `EPASe@2025` |
-| Student    | `sheilamerida@gmail.com`             | S8B1    | `EPASe@2025` |
+| Role       | Email                        | Section | Password     |
+| ---------- | ---------------------------- | ------- | ------------ |
+| Admin      | `admin@hasa.test`           | —       | `ChangeMe@2026` |
+| Instructor | `instructor1@hasa.test`     | GROUP-B    | `ChangeMe@2026` |
+| Instructor | `instructor2@hasa.test`     | GROUP-A    | `ChangeMe@2026` |
+| Student    | `student1@hasa.test`        | GROUP-A    | `ChangeMe@2026` |
+| Student    | `student2@hasa.test`        | GROUP-A    | `ChangeMe@2026` |
+| Student    | `student3@hasa.test`        | GROUP-B    | `ChangeMe@2026` |
 
 > **Note:** These accounts are created by the `UserSeeder`. Make sure to run `php artisan db:seed` after migrations.
 

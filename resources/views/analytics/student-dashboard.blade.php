@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'My Analytics - EPAS-E')
+@section('title', 'My Analytics - Hasa')
 
 @push('styles')
 <style>

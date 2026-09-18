@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Content Management - EPAS-E')
+@section('title', 'Content Management - Hasa')
 
 @section('content')
 <div class="container-fluid py-4">

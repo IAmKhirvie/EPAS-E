@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Dashboard - EPAS-E')
+@section('title', 'Dashboard - Hasa')
 @push('styles')
 <link rel="stylesheet" href="{{ dynamic_asset('css/pages/dashboard.css') }}">
 @endpush
@@ -179,7 +179,7 @@
                 <tr onclick="window.location='{{ route('private.announcements.show', $a) }}'" data-pinned="{{ $a->is_pinned ? '1' : '0' }}" data-urgent="{{ $a->is_urgent ? '1' : '0' }}">
                     <td><div class="ann-user">
                         <div class="ann-av">@if($a->user && $a->user->profile_image)<img src="{{ $a->user->profile_image_url }}" alt="">@elseif($a->user)<span style="font-size:0.65rem;font-weight:700;color:var(--primary)">{{ $a->user->initials }}</span>@else<i class="fas fa-robot"></i>@endif</div>
-                        <span class="ann-uname">{{ $a->user ? $a->user->full_name : 'EPAS-E System' }}</span>
+                        <span class="ann-uname">{{ $a->user ? $a->user->full_name : 'Hasa System' }}</span>
                     </div></td>
                     <td><span class="ann-dt">{{ $a->created_at->format('h:i A') }} · {{ $a->created_at->format('M d') }}</span></td>
                     <td><span class="ann-summ">{{ Str::limit(strip_tags($a->content ?? ''), 60) }}</span></td>

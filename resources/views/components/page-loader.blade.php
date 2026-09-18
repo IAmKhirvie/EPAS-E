@@ -1,4 +1,4 @@
-{{-- EPAS-E Page Loader - Circuit Board Animation --}}
+{{-- Hasa Page Loader - Circuit Board Animation --}}
 <div id="page-loader" class="page-loader {{ session('show_login_loader') ? '' : 'hidden' }}">
     <canvas id="circuit-canvas"></canvas>
 </div>

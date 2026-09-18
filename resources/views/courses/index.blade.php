@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Courses - EPAS-E')
+@section('title', 'Courses - Hasa')
 
 @push('styles')
 <link rel="stylesheet" href="{{ dynamic_asset('css/pages/courses.css') }}?v={{ filemtime(public_path('css/pages/courses.css')) }}">

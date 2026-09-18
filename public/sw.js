@@ -1,7 +1,7 @@
-// EPAS-E Service Worker
+// Hasa Service Worker
 // Update CACHE_VERSION when deploying new assets to bust the cache
-const CACHE_VERSION = '2026-04-21-v10';
-const CACHE_NAME = `epas-e-${CACHE_VERSION}`;
+const CACHE_VERSION = '2026-09-19-hasa-theme-1';
+const CACHE_NAME = `hasa-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline.html';
 
 // Install event - cache static assets
@@ -40,7 +40,7 @@ const STATIC_ASSETS = [
     '/css/app.css',
     '/js/app.js',
     '/offline.html',
-    '/images/logo.png'
+    '/assets/hasa-rizal.svg'
 ];
 
 // Cache strategies — static assets (images, fonts only)
